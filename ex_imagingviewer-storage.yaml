@@ -1,0 +1,429 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-aimanager-config
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/aimanager/config"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-aimanager-config
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-aimanager-logs
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/aimanager/logs"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-aimanager-logs
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-aimanager-csv
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/aimanager/csv"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-aimanager-csv
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-neo4j-logdir
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/neo4j/logs"
+  claimRef:
+    namespace: castimaging-v3
+    name: logdir-viewer-neo4j-core-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-neo4j-config
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/neo4j/config"
+  claimRef:
+    namespace: castimaging-v3
+    name: confdir-viewer-neo4j-core-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-server-config
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/server/config"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-server-config
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-server-log
+spec:
+  capacity:
+    storage: 100Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/server/logs"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-server-log
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-server-csv
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/server/csv"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-server-csv
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-etl-config
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/etl/config"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-etl-config
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-etl-logs
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/etl/logs"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-etl-logs
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-imagingviewer-v3-etl-upload
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/imagingviewer-v3/etl/upload"
+  claimRef:
+    namespace: castimaging-v3
+    name: pvc-imagingviewer-v3-etl-upload
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-server-config
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-server
+spec:
+  volumeName: pv-imagingviewer-v3-server-config
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-server-log
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-server
+spec:
+  volumeName: pv-imagingviewer-v3-server-log
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-server-csv
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-server
+spec:
+  volumeName: pv-imagingviewer-v3-server-csv
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-etl-config
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-etl
+spec:
+  volumeName: pv-imagingviewer-v3-etl-config
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-etl-logs
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-etl
+spec:
+  volumeName: pv-imagingviewer-v3-etl-logs
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-etl-upload
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-etl
+spec:
+  volumeName: pv-imagingviewer-v3-etl-upload
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-aimanager-config
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-aimanager
+spec:
+  volumeName: pv-imagingviewer-v3-aimanager-config
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-aimanager-logs
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-aimanager
+spec:
+  volumeName: pv-imagingviewer-v3-aimanager-logs
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-aimanager-csv
+  namespace: castimaging-v3
+  labels:
+    console.service: viewer-aimanager
+spec:
+  volumeName: pv-imagingviewer-v3-aimanager-csv
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: castimaging-v3-local-storage
+  resources:
+    requests:
+      storage: 10Mi

@@ -1,0 +1,195 @@
+# Default values for imaging-system.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+version: 3.0.0
+
+#
+# Console  
+#
+ConsolePostgresReplicaCount: 1
+SSOServiceReplicaCount: 1
+ConsoleServiceReplicaCount: 1
+GatewayServiceReplicaCount: 1
+AnalysisNodeReplicaCount: 1
+ControlPaneReplicaCount: 1
+AuthenticationServiceReplicaCount: 1
+IntegratedDashboardsReplicaCount: 1
+#
+# Viewer
+#
+ViewerNeo4jReplicaCount: 1
+ViewerServerReplicaCount: 1
+ViewerEtlReplicaCount: 1
+ViewerAiManagerReplicaCount: 1
+#
+# ExtendProxy
+#
+ExtendProxyReplicaCount: 1
+ExtendProxy:
+  exthostname: kubtest3
+  pubextendurl: "https://extend.castsoftware.com"
+
+#
+# Console images
+#
+ConsolePostgresImage:
+  name: quay.io/enterprisedb/postgresql
+  tag: 13.3
+  pullPolicy: IfNotPresent
+ConsoleSSOServiceImage:
+  name: castimaging/aip-sso
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ConsoleServiceImage:
+  name: castimaging/aip-console-v3
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ConsoleGatewayServiceImage:
+  name: castimaging/gateway-v3
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent  
+ConsoleAnalysisNodeImage:
+  name: castimaging/aip_node_v3_linux
+  tag: 3.0.0_current_build13
+  pullPolicy: IfNotPresent
+ConsoleControlPaneImage:
+  name: castimaging/admin-center-v3
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ConsoleAuthenticationServiceImage:
+  name: castimaging/auth-service-v3
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ConsoleIntegratedDashboardsImage:
+  name: castimaging/dashboards-v3
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+  
+#
+# Viewer images
+#
+ViewerNeo4jImage:
+  name: castimaging/imagingneo4j
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ViewerServiceImage:
+  name: castimaging/imagingservice
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ViewerEtlImage:
+  name: castimaging/imagingetl
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+ViewerAiManagerImage:
+  name: castimaging/imagingaimanager
+  tag: 3.0.0-beta12
+  pullPolicy: IfNotPresent
+#
+# ExtendProxy Image
+#
+ExtendProxyImage:
+  name: castimaging/extend-proxy
+  tag: latest
+  pullPolicy: Always  
+  
+  
+#
+# Console resources
+#
+ConsolePostgresResources:
+  requests:
+    cpu: 1
+    memory: 8G
+SSOServiceResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 100M
+ConsoleServiceResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 100M
+GatewayServiceResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 100M
+AnalysisNodeReplicaResources:
+  requests:
+    cpu: 0.5
+    memory: 4G
+ControlPaneResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 200M
+AuthenticationServiceResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 100M
+IntegratedDashboardsResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 100M
+
+#
+# Viewer resources
+#
+ViewerNeo4jResources:
+  # limits:
+    # cpu: 4
+    # memory: 16G
+  requests:
+    cpu: 0.2
+    memory: 8G
+ViewerServerServiceResources:
+  # limits:
+    # cpu: 2500m
+    # memory: 2528Mi
+  requests:
+    cpu: 0.1
+    memory: 1G
+ViewerEtlResources:
+  # limits:
+    # cpu: 2500m
+    # memory: 3Gi
+  requests:
+    cpu: 0.1
+    memory: 1G
+ViewerAiManagerResources:
+  # limits:
+    # cpu: 2500m
+    # memory: 3Gi
+  requests:
+    cpu: 0.1
+    memory: 100M
+    
+#
+# ExtendProxy resources
+#
+ExtendProxyResources:
+  # limits:
+    # cpu: 1
+    # memory: 1G
+  requests:
+    cpu: 0.1
+    memory: 100M    
+    
+storageClassName:
+  name: castimaging-v3-local-storage

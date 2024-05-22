@@ -1,0 +1,225 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-db-data
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-db-data"
+  claimRef:
+    namespace: castimaging-v3
+    name: db-data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-restapi-domains
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 10Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-restapi-domains"
+  claimRef:
+    namespace: castimaging-v3
+    name: restapi-domains
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+
+#
+# 3 CASTDIR Persistent Volumes
+# for aip_node statefulSet
+#
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-analysis-node-castdir0
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-analysis-node-cast0"
+  claimRef:
+    namespace: castimaging-v3
+    name: castdir-console-analysis-node-core-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-analysis-node-castdir1
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-analysis-node-cast1"
+  claimRef:
+    namespace: castimaging-v3
+    name: castdir-console-analysis-node-core-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-analysis-node-castdir2
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-analysis-node-cast2"
+  claimRef:
+    namespace: castimaging-v3
+    name: castdir-console-analysis-node-core-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+
+#
+# 3 DATADIR Persistent Volumes
+# for aip_node statefulSet
+#
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-analysis-node-datadir0
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-analysis-node-data"
+  claimRef:
+    namespace: castimaging-v3
+    name: datadir-console-analysis-node-core-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-analysis-node-datadir1
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-analysis-node-data"
+  claimRef:
+    namespace: castimaging-v3
+    name: datadir-console-analysis-node-core-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-console-v3-analysis-node-datadir2
+  namespace: castimaging-v3
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: castimaging-v3-local-storage
+  local:
+    path: "/home/jar/pv/console-v3-analysis-node-data"
+  claimRef:
+    namespace: castimaging-v3
+    name: datadir-console-analysis-node-core-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - kubtest3
