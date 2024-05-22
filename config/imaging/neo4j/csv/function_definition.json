@@ -1,0 +1,547 @@
+[
+  {
+    "name": "SourceCodeObjectFinder",
+    "description": "Finds source code objects based on given parameters.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "objectName": {
+          "type": "string",
+          "description": "source code object name"
+        },
+        "objectType": {
+          "type": "string",
+          "description": "source code object type."
+        },
+        "technology": {
+          "type": "string",
+          "description": "source code object technology"
+        },
+        "componentName": {
+          "type": "string",
+          "description": "string to match against component name (please don't repeat the component type here, use the dedicated parameter 'componentType')"
+        },
+        "componentType": {
+          "type": "string",
+          "description": "Component type",
+          "enum": [
+            "services",
+            "module",
+            "transaction",
+            "datagraph"
+          ]
+        },
+        "property": {
+          "type": "string",
+          "description": "property name to use for filtering"
+        },
+        "value": {
+          "type": "number",
+          "description": "threshold value of the numerical property to use for filtering (not needed when using the property value for sorting only)"
+        },
+        "direction": {
+          "type": "string",
+          "description": "Property value use: equal/greater/lower for comparison, desc/asc for sorting"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Number of objects to skip in the result."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "ComponentFinder",
+    "description": "find components built using source code objects such as services/modules/transactions (a.k.a. user workflows)/datagraphs (a.k.a. data call graphs, dataflows) -- by matching name, type, technology, presence of sensitive data, and presence of CRUD access types",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "technology": {
+          "type": "string",
+          "description": "Technology of source code objects"
+        },
+        "componentName": {
+          "type": "string",
+          "description": "string to match against component name (don't repeat the component type here, use the dedicated parameter 'componentType')"
+        },
+        "componentType": {
+          "type": "string",
+          "description": "Component type",
+          "enum": [
+            "services",
+            "module",
+            "transaction",
+            "datagraph"
+          ]
+        },
+        "crudType": {
+          "type": "string",
+          "description": "CRUD access type for operations. It can be from the following: PLACEHOLDER_FOR_CRUD_TYPES."
+        },
+        "sensitivity": {
+          "type": "string",
+          "description": "Sensitivity value of at least one data element in the component, there are the following sensitive types: PLACEHOLDER_FOR_SENSITIVITY_LEVELS"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Number of objects to skip in the result."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "CRUDInteractionFinder",
+    "description": "Finds source code interactions by matching CRUD type, name, type, and data sensitivity. E.g.:\n- Which functions are updating the 'users' table directly?\n- Can you list Hibernate objects that are accessing SQL Tables?\n- Which services have insert permissions on the 'invoices' table?\nWhat are the objects related to Java Class object?",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "sourceObjectName": {
+          "type": "string",
+          "description": "source object name"
+        },
+        "targetObjectName": {
+          "type": "string",
+          "description": "target object name"
+        },
+        "sourceObjectType": {
+          "type": "string",
+          "description": "source object type"
+        },
+        "targetObjectType": {
+          "type": "string",
+          "description": "source object type"
+        },
+        "crudType": {
+          "type": "string",
+          "description": "CRUD access type for operations. It can be from the following: PLACEHOLDER_FOR_CRUD_TYPES. Please don't assume if not specified."
+        },
+        "interaction": {
+          "type": "string",
+          "description": "interaction in between object. It can be from the following interactions available: PLACEHOLDER_FOR_INTERACTION."
+        },
+        "sensitivity": {
+          "type": "string",
+          "description": "Sensitivity value of data In the Imaging databases, Please select from the following sensitive types: PLACEHOLDER_FOR_SENSITIVITY_LEVELS"
+        },
+        "typeOfCall": {
+          "type": "string",
+          "description": "Relation type to find",
+          "enum": [
+            "caller",
+            "callee"
+          ]
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Number of objects to skip in the result."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "InteractionCountFinder",
+    "description": "use this function if CAST Imaging user asks to find source code objects by matching name, type, and number of interactions (for sorting or filtering). E.g.:\n- Which methods are not used?\n- Are there some tables without access?",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "external": {
+          "type": "boolean",
+          "description": "Fetch external or internal objects"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Source code object name"
+        },
+        "objectType": {
+          "type": "string",
+          "description": "Specifies the source code object type. If not provided, the system should not assume a default type and should instead consider all object types. Explicit user input is required to filter by object type"
+        },
+        "viewType": {
+          "type": "string",
+          "description": "Specifies view type usage frequency. Don't use objectType for this.",
+          "enum": [
+            "Module",
+            "Transaction",
+            "DataGraph",
+            "ArchiModel",
+            "Services",
+            "Projects"
+          ]
+        },
+        "value": {
+          "type": "number",
+          "description": "count value to filter on the basis of most used or unused relation"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "direction": {
+          "type": "string",
+          "description": "Use of count value: equal/greater/lower for comparison, desc/asc for sorting"
+        },
+        "skip": {
+          "type": "number",
+          "description": "Objects to skip in result"
+        }
+      },
+      "required": [
+        "direction"
+      ]
+    }
+  },
+  {
+    "name": "AppDiscovery",
+    "description": "use this function if user asks to find technology/framework/architecture/projectStructure/database by matching name, role. E.g.:- Can you list down the technology contexts of our app?, Which platforms does this application rely on?, What's our tech stack?, What are the frameworks available?,What type of database is used (e.g., relational, NoSQL)?",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "description": "A string value to determine whether to fetch technology or framework.",
+          "enum": [
+            "technology",
+            "framework",
+            "architecture",
+            "projectStructure",
+            "database",
+            "orm"
+          ]
+        },
+        "technology": {
+          "type": "string",
+          "description": "source code technology name."
+        },
+        "framework": {
+          "type": "string",
+          "description": "source code framework name."
+        }
+      },
+      "required": [
+        "method"
+      ]
+    }
+  },
+  {
+    "name": "APIInventory",
+    "description": "use this function if user asks anything related to API",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestType": {
+          "type": "string",
+          "description": "type of http request",
+          "enum": [
+            "get",
+            "put",
+            "post",
+            "delete"
+          ]
+        },
+        "apiType": {
+          "type": "string",
+          "description": "Filter by API exposure. Use 'private' for unexposed APIs, 'public' for exposed APIs, or omit for both.",
+          "enum": [
+            "private",
+            "public"
+          ]
+        },
+        "apiName": {
+          "type": "string",
+          "description": "Name of api"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Objects to skip for pagination. Defaults to start at first result."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "AppInsight",
+    "description": "Provides insights related to structural flaws, cloud readiness, containerization, and open-source safety.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "insightType": {
+          "type": "string",
+          "description": "Insight type",
+          "enum": [
+            "Structural Flaw",
+            "CloudReady - Blocker",
+            "Container - Blocker",
+            "CloudReady - Booster",
+            "Vulnerability"
+          ]
+        },
+        "structuralFlawFilterCategory": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Performance",
+              "Security",
+              "Error Management"
+            ]
+          },
+          "description": "Structural Flaw filter category"
+        },
+        "cloudReadyBlockerFilterCategory": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Temporary Files",
+              "Execution Environment",
+              "Code Execution",
+              "Application Logs",
+              "Persistent Files",
+              "Access Control List",
+              "IBM Mainframes",
+              "Data Encryption Key",
+              "Application Settings Configuration",
+              "Sensitive Data Storage Protection",
+              "Security & User Authentication",
+              "Inter Application Messaging",
+              "Registry Settings",
+              "Scheduled Services & Tasks"
+            ]
+          },
+          "description": "CloudReady - Blocker filter category"
+        },
+        "containerBlockerFilterCategory": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Temporary Files",
+              "Persistent Files",
+              "Code Execution",
+              "Application Settings Configuration",
+              "Sensitive Data Storage Protection",
+              "Execution Environment",
+              "Security & User Authentication",
+              "Inter Application Messaging",
+              "Registry Settings"
+            ]
+          },
+          "description": "Container - Blocker filter category"
+        },
+        "cloudReadyBoosterFilterCategory": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Big Data",
+              "Access Control List",
+              "Security & User Authentication",
+              "Third-Party Dependencies",
+              "Application Settings Configuration",
+              "Services and Scheduled Tasks",
+              "Registry Settings",
+              "Shared Caching",
+              "IBM Mainframes",
+              "Sensitive Data Storage Protection",
+              "Data Encryption Key",
+              "Inter Application Messaging",
+              "Application Logs",
+              "Execution Environment",
+              "Code Execution",
+              "Inter Application Middleware"
+            ]
+          },
+          "description": "CloudReady - Booster filter category"
+        },
+        "vulnerabilityFilterCategory": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL",
+              "LOW"
+            ]
+          },
+          "description": "Vulnerability filter category"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "object name"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Objects to skip for pagination. Defaults to start at first result."
+        }
+      },
+      "required": [
+        "insightType"
+      ]
+    }
+  },
+  {
+    "name": "DatabaseComponent",
+    "description": "Finds database-related information with the help of parameters tables/triggers/procedures/access/entities.Ex- What type of databased access is implemented?,How are entities and relationships represented in the code? ",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "databaseComponents": {
+          "type": "string",
+          "description": "A string value to determine whether to fetch database tables, triggers, procedures, access, overview.",
+          "enum": [
+            "tables",
+            "triggers",
+            "procedures",
+            "access",
+            "entities",
+            "overview"
+          ]
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Table/trigger/procedures/access/entities filter object name"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Number of objects to skip in the result."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "AnnotationTagFinder",
+    "description": "use this function to find source code object document or annotation",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "description": "string to know what to check",
+          "enum": [
+            "annotation",
+            "tag"
+          ]
+        },
+        "annotationName": {
+          "type": "string",
+          "description": "Filters the search based on the name of the annotation"
+        },
+        "annotationType": {
+          "type": "string",
+          "description": "Filters the search based on the type of annotation",
+          "enum": [
+            "object",
+            "level",
+            "application",
+            "module",
+            "transaction",
+            "data call graph",
+            "architecture layer",
+            "service",
+            "project structure"
+          ]
+        },
+        "annotationDescription": {
+          "type": "string",
+          "description": "Filters the search based on the description of the annotation"
+        },
+        "tagName": {
+          "type": "string",
+          "description": "Filters the search based on the name of the tag; use it when mode is set to tag"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Number of objects to skip in the result."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "PathFinder",
+    "description": "use this function to find path between two objects or how they are connected to each other",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "shortestPath": {
+          "type": "boolean",
+          "description": "Check if to fetch shortest path between two objects"
+        },
+        "typeOfCall": {
+          "type": "string",
+          "description": "type of call i.e caller, callee",
+          "enum": [
+            "caller",
+            "callee"
+          ]
+        },
+        "sourceAipId": {
+          "type": "string",
+          "description": "source object aip id"
+        },
+        "targetAipId": {
+          "type": "string",
+          "description": "target object aip id"
+        },
+        "sourceObjectName": {
+          "type": "string",
+          "description": "source object name"
+        },
+        "targetObjectName": {
+          "type": "string",
+          "description": "target object name"
+        },
+        "sourceObjectType": {
+          "type": "string",
+          "description": "source object type"
+        },
+        "targetObjectType": {
+          "type": "string",
+          "description": "source object type"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Result limit, max 50. Default is 5 if not specified."
+        },
+        "skip": {
+          "type": "number",
+          "description": "Number of objects to skip in the result."
+        }
+      },
+      "required": []
+    }
+  }
+]

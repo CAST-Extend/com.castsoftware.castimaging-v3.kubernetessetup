@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: console-service
+  name: console-service
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8091"
+      port: 8091
+      targetPort: 8091
+  selector:
+    console.service: console-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    console.service: console-service
+    version: {{ .Values.ConsoleServiceImage.tag| default .Values.version }}
+  name: console-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ConsoleServiceReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: console-service
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: console-service
+    spec:
+      containers:
+        - env:
+            - name: HOST_CONSOLE
+              value: console-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_CONSOLE
+              value: "8091"
+            - name: HOST_CONTROL_PANEL
+              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_CONTROL_PANEL
+              value: "8098"
+          image: "{{ .Values.ConsoleServiceImage.name }}:{{ .Values.ConsoleServiceImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleServiceImage.pullPolicy }}"
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8091/actuator/health
+            failureThreshold: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+          name: console-service
+          ports:
+            - containerPort: 8091
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.ConsoleServiceResources | nindent 12 }}
+      restartPolicy: Always

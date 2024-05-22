@@ -1,0 +1,79 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: viewer-server
+  labels:
+    app: viewer-server
+spec:
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
+    - name: login
+      port: 9000
+      targetPort: 9000
+  selector:
+    app: viewer-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: viewer-server
+    version: {{.Values.ViewerServiceImage.tag| default .Values.version}}
+  name: viewer-server
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ViewerServerReplicaCount }}
+  selector:
+    matchLabels:
+      app: viewer-server
+  template:
+    metadata:
+      labels:
+        app: viewer-server
+    spec:
+      securityContext:
+          runAsUser: 0
+      initContainers:
+        - name: neo4jhealthcheck
+          image: busybox:latest
+          command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done"]     
+      containers:
+        - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
+          imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
+          command: ['sh', '-c', "/opt/imaging/config/init.sh"]
+          name: viewer-server
+          env:
+            - name: TIME_ZONE
+              value: "Europe/Paris"
+          ports:
+            - containerPort: 80
+              protocol: TCP
+            - containerPort: 443
+              protocol: TCP
+            - containerPort: 9000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.ViewerServerServiceResources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /opt/imaging/config
+            - name: log
+              mountPath: /opt/imaging/imaging-service/logs
+            - name: csv
+              mountPath: /opt/imaging/imaging-service/upload
+
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-server-config
+        - name: log
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-server-log
+        - name: csv
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-server-csv

@@ -1,0 +1,7 @@
+{
+	"transaction": {
+		"business": ["efile",".net form","angularjs application","ascx source file","jsf ","sap transaction","vb designer files","vb user control","vb property page","vb user document","c# form","pb window","delphi form","vb form","c# user control","vb.net user control","vb mdi form","oracle forms module","ios ui control","html5 source code","html5 jsp content","oracle report module","html5 cshtml content","jquery selector","html5 aspx content","asmx source file","ios ui button","jsf input field","aspx source file"],
+		"batch": ["jcl job","jcl job - legacy","python main"],
+		"api": ["cics transaction","cobol transaction"]
+	}
+}

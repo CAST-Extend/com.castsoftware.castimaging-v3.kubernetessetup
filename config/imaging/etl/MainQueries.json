@@ -1,0 +1,393 @@
+{
+  "_commentForQueryType": "queryType is used to for table output in advisor table view",
+  "_nextQueryId": "60",
+  "queries": [
+    {
+      "id": 2,
+      "queryDescription" : "Fetch objects based on internalType calling objects based on type",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $typeList AND (o2.Type = $type2 OR o2.InternalType = $type2) AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nRETURN o2 as objects"
+    },
+    {
+      "id": 3,
+      "queryDescription" : "Fetch objects of type1, calling objects of type2",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}} {InternalType: $type1})-[r]->(o2:{{.appName}} {InternalType: $type2})\nWHERE type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nRETURN o1 as objects"
+    },
+    {
+      "id": 4,
+      "queryDescription" : "Fetch objects based on internalType or not internalType  calling objects based on type",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH (o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE \n  (o1.InternalType IN $typeList OR size($typeList) = 0) AND\n  (o2.Type IN $type2 OR o2.InternalType IN $type2) AND\n  type(r) IN links AND\n  (o1:Object OR o1:SubObject) AND\n  (o2:Object OR o2:SubObject)\n\nRETURN o2 AS objects"
+    },
+    {
+      "id": 6,
+      "queryDescription" : "Fetch objects based on internalType calling objects based on type",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}})<-[r]-(o2:{{.appName}})\nWHERE o1.InternalType IN $typeList AND (o2.Type = $type2 OR o2.InternalType = $type2) AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nRETURN o2 as objects"
+    },
+    {
+      "id": 7,
+      "queryDescription" : "Fetch objects having object property, called only by objects of callerType",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nCALL { \n    WITH linkTypes\n    MATCH(caller:{{.appName}} {InternalType: $callerType})-[r:ACCESS]->(dataset:Object:{{.appName}})-[p:Property]->(op:ObjectProperty {Id: $propertyId})\n    WHERE (caller:Object OR caller:SubObject) AND p.value IN $propertyValue \n    AND NOT EXISTS {\n      MATCH (dataset)-[a]-(other) \n      WHERE type(a) IN linkTypes AND (other: SubObject OR other:Object) AND other.InternalType <> $callerType\n    }\n    RETURN collect(dataset) AS objects1\n}\nCALL {\n    WITH linkTypes\n    MATCH(caller:{{.appName}})-[r:DEFINE]->(dataset:Object:{{.appName}})-[p:Property]->(op:ObjectProperty {Id: $propertyId})\n    WHERE (caller:Object OR caller:SubObject) AND p.value IN $propertyValue AND caller.InternalType IN $callerType2 \n    AND NOT EXISTS {\n      MATCH (caller)-[:References]->(dataset)\n    }\n    RETURN collect(dataset) AS objects2\n}\nWITH DISTINCT objects1 + objects2 AS objs\nUNWIND objs AS obj\nRETURN distinct obj AS objects"
+    },
+    {
+      "id": 8,
+      "queryDescription" : "Fetch objects of type2, called by objects of type1",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $type1 AND (o2.Type = $type2 OR o2.InternalType = $type2) AND type(r) IN links AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH o2,count(r) AS cnt\nWHERE\n    CASE\n        WHEN $operation = '<' THEN cnt < $operationValue\n        WHEN $operation = '=' THEN cnt = $operationValue\n        WHEN $operation = '>' THEN cnt > $operationValue\n    END\nRETURN o2 AS objects"
+    },
+    {
+      "id": 10,
+      "queryDescription" : "Fetch objects based on  having object property of the given propertyId for database migration only",
+      "queryType": "Main Object",
+      "query": "MATCH (o1:{{.appName}})-[p:Property]->(objProp:ObjectProperty {Id: $propertyId}) WHERE (o1:Object OR o1:SubObject) AND toInteger(p.value) > 0\nRETURN o1 AS objects"
+    },
+    {
+      "id": 17,
+      "queryDescription" : "Fetch objects based object property of the given propertyId and value",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $type1 AND type(r) IN links AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject) AND (EXISTS {MATCH (o2)-[:Property {value:$propertyValue}]->(op:ObjectProperty{Id:$propertyId})}) \nRETURN o2 as objects"
+    },
+    {
+      "id": 20,
+      "queryDescription" : "Fetch objects based on typeList",
+      "queryType": "Main Object",
+      "query":    "MATCH(o1:{{.appName}})\nWHERE o1.InternalType IN $typeList AND (o1:Object OR o1:SubObject)\n RETURN o1 AS objects"
+    },
+    {
+      "id": 23,
+      "queryDescription" : "Fetch objects based on internalType accessed by objects calling objects of type2",
+      "queryType": "Main Object",
+      "query":    "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:{{.appName}}:Object {Type: $type2})\n WHERE (gs:Object OR gs:SubObject) AND gs.InternalType IN $typeList AND type(r1) IN linkTypes AND type(r2) IN linkTypes\n RETURN gs AS objects"
+    },
+    {
+      "id": 25,
+      "queryDescription": "Fetch objects based on internalType accessed by objects accessing data storage objects",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(i:InternalType) WHERE i.Concept='Data Source'\n WITH COLLECT(DISTINCT i.Name) as dbotype, linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:Object)\n WHERE (gs:Object OR gs:SubObject) AND gs.InternalType IN $typeList AND o.InternalType IN dbotype AND type(r1) IN linkTypes AND type(r2) IN linkTypes\n RETURN gs AS objects"
+    },
+    {
+      "id": 29,
+      "queryDescription" : "Fetch objects of internalType - $type1 calling objects of internalType in $typeList",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $type1 AND (o2.InternalType IN $typeList OR o2.Type IN $typeList) AND type(r) IN links AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nRETURN o2 as objects"
+    },
+    {
+      "id": 31,
+      "queryDescription" : "Retrieve objects with customizable criteria provided as parameters internalType v1",
+      "queryType": "Main Object",
+      "query": "MATCH(n:{{.appName}})-[:Property{value:'1'}]->(:ObjectProperty{Description:'Number of Transaction'})\nWHERE n.InternalType IN $internalType\nMATCH(t:Transaction:{{.appName}})-[:IS_IN_TRANSACTION]-(n)\nMATCH(t)-[:STARTS_WITH]->(s:{{.appName}})-[:Property{value:'1'}]->(:ObjectProperty{Description:'Number of Transaction'})\nOPTIONAL MATCH(t)<-[:IS_IN_TRANSACTION]-(o1:{{.appName}}) WHERE o1.Type IN $types OR o1.InternalType IN $itypes\nWITH n,collect(o1) AS cls\nWHERE size(cls) = 0\n RETURN n AS objects"
+    },
+    {
+      "id": 32,
+      "queryDescription" : "Retrieve objects with customizable criteria provided as parameters internalType v2",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH linkTypes\nMATCH(n:{{.appName}})-[:Property{value:'1'}]->(:ObjectProperty{Description:'Number of Transaction'})\nWHERE (n:Object OR n:SubObject) AND n.InternalType IN $itypes\nWITH collect(n) AS objects,linkTypes\nUNWIND objects as obj\nMATCH(m:{{.appName}})-[r]->(obj)\nWHERE m.InternalType IN $internalType AND type(r) IN linkTypes\nCALL{\n    WITH m,obj,linkTypes\n    MATCH (o2:{{.appName}})-[r1]->(obj)\n    WHERE type(r1) IN linkTypes AND o2.InternalType IN  $internalType AND o2 <> m\n    RETURN count(o2) AS tc\n}\nWITH m,tc,obj\nWHERE tc = 0\nRETURN m AS objects"
+    },
+    {
+      "id": 36,
+      "queryDescription": "Fetch objects based on internalType accessed by objects accessing data storage objects",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(i:InternalType) WHERE i.Concept='Data Source'\n WITH COLLECT(DISTINCT i.Name) as dbotype, linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:Object:{{.appName}})\n WHERE (gs:Object OR gs:SubObject) AND gs.InternalType IN $typeList AND o.InternalType IN dbotype AND type(r2) IN linkTypes AND type(r1) IN linkTypes AND 'MONITOR' in r1.aipLinkType\nWITH gs, count(DISTINCT program) as programCount\nWHERE programCount = 1\n RETURN gs AS objects"
+    },
+    {
+      "id": 37,
+      "queryDescription": "Fetch objects based on internalType accessed by objects accessing objects of type 2",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:{{.appName}} {Type: $type2})\n WHERE (gs:Object OR gs:SubObject) AND (o:Object OR o:SubObject) AND gs.InternalType IN $typeList AND type(r2) IN linkTypes AND type(r1) IN linkTypes AND 'MONITOR' in r1.aipLinkType\nWITH gs, count(DISTINCT program) as programCount\nWHERE programCount = 1\n RETURN gs AS objects"
+    },
+
+    {
+      "id": 40,
+      "queryDescription": "Fetch objects based on internalType accessed by objects of typeList",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(o1:{{.appName}})<-[r]-(program:{{.appName}} {InternalType: $type1})\n WHERE (o1:Object OR o1:SubObject) AND (program:Object OR program:SubObject) AND o1.InternalType IN $typeList AND type(r) IN linkTypes \n RETURN o1 AS objects"
+    },
+    {
+      "id": 42,
+      "queryDescription" : "Fetch objects of internalType - $type1 calling objects of internalType in $typeList and specific AipLinkTypes",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $type1 AND o2.InternalType IN $typeList AND type(r) IN links AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject) AND any(aipLink IN r.aipLinkType WHERE aipLink IN $aipLinkType)\nRETURN o2 as objects"
+    },
+    {
+      "id": 44,
+      "queryDescription" : "Fetch objects of internalType - $type2 calling objects of internalType in $typeList with count of relation ships",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH(o1:{{.appName}})<-[r]-(o2:{{.appName}})\nWHERE o1.InternalType IN $typeList AND o1.InternalType IN $typeList AND type(r) IN links AND (o2.Type IN $type2 OR o2.InternalType IN $type2) AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH o2,count(r) AS cnt\nWHERE\n    CASE\n        WHEN $operation = '<' THEN cnt < $operationValue\n        WHEN $operation = '=' THEN cnt = $operationValue\n        WHEN $operation = '>' THEN cnt > $operationValue\n    END\nRETURN o2 AS objects"
+    },
+    {
+      "id": 45,
+      "queryDescription" : "Fetch objects of internalType $typeList calling objects of internalType $type2  with count of relation ships",
+      "queryType": "Main Object",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $typeList AND o1.InternalType IN $typeList AND type(r) IN links AND (o2.Type IN $type2 OR o2.InternalType IN $type2) AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH o2,count(r) AS cnt\nWHERE\n    CASE\n        WHEN $operation = '<' THEN cnt < $operationValue\n        WHEN $operation = '=' THEN cnt = $operationValue\n        WHEN $operation = '>' THEN cnt > $operationValue\n    END\nRETURN o2 AS objects"
+    },
+    {
+      "id": 52,
+      "queryDescription" : "Fetch objects of internalType $typeList calling objects of internalType $type2 with relation ship",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH (o1:{{.appName}})<-[r1]-(o2:{{.appName}})<-[r2]-(o3:{{.appName}})\nWHERE o1.InternalType IN $type1 AND  type(r1) IN $relations1 AND o2.InternalType IN $type2 AND type(r1) IN linkTypes AND o3.InternalType IN $type3\nRETURN o1 AS objects"
+    },
+    {
+      "id": 55,
+      "queryDescription" : "Fetch objects of internalType $typeList calling objects of internalType $type2 with relation ship",
+      "queryType": "Main Object",
+      "query": "MATCH(n:{{.appName}})\nMATCH(op:ObjectProperty{Id:$propertyId})<-[:Property{value:$propertyValue}]-(n)\nMATCH(n)<-[r1]-(o1:{{.appName}})<-[r2]-(o2:{{.appName}})\nWHERE type(r1) IN $relations1 AND o1.InternalType IN $type1  AND type(r2) IN $relations2  AND o2.InternalType IN  $type2\nRETURN n AS objects"
+    },
+    {
+      "id": 59,
+      "queryDescription" : "Retrieve objects with customizable criteria provided as parameters internalType v3",
+      "queryType": "Main Object",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH linkTypes\nMATCH(n:{{.appName}})-[:Property{value:'1'}]->(:ObjectProperty{Description:'Number of Transaction'})\nWHERE (n:Object OR n:SubObject) AND n.InternalType IN $internalType\nWITH collect(n) AS objects,linkTypes\nUNWIND objects as obj\nMATCH(m:{{.appName}})<-[r]-(obj)\nWHERE m.InternalType IN $itypes AND type(r) IN linkTypes\nCALL{\n    WITH m,obj,linkTypes\n    MATCH (o2:{{.appName}})-[r1]->(m)\n    WHERE type(r1) IN linkTypes AND o2.InternalType IN  $internalType AND o2 <> obj\n    RETURN count(o2) AS tc\n}\nWITH obj,tc\nWHERE tc > 0\nRETURN obj AS objects"
+    },
+
+
+
+
+
+    {
+      "id": 1,
+      "queryDescription" : "Fetches the object",
+      "queryType": "Graph View",
+      "query": "MATCH(n:{{.appName}}) WHERE (n:Object OR n:SubObject) AND id(n) IN $ids RETURN n"
+    },
+    {
+      "id": 5,
+      "queryDescription" : "Fetches the caller for a given node",
+      "queryType": "Graph View",
+      "query" : "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nCALL cast.linkTypesFilter($linkCategories, 'caller') YIELD typesFilter AS linkTypesFilter\nWITH linkTypes, linkTypesFilter, $id AS nodeId\nMATCH (o:{{.appName}}) \nWHERE (o:Object OR o:SubObject) AND id(o) = nodeId\nWITH o, linkTypes, linkTypesFilter, [] AS external\nCALL apoc.path.expandConfig(o, {relationshipFilter: linkTypesFilter, labelFilter: \"+Object|SubObject\", minLevel: 1, maxLevel: 1,blacklistNodes: external,\nparams: {external: external}}) YIELD path\nWITH linkTypes, path\nUNWIND nodes(path) AS nodes\nUNWIND relationships(path) AS rels\nWITH linkTypes, collect(DISTINCT nodes) AS callers, collect(DISTINCT rels) AS rels\nCALL apoc.cypher.run(\"CALL apoc.algo.cover(callers) YIELD rel RETURN collect(rel) AS callerRels\", {callers:callers}) YIELD value\nWITH linkTypes, callers, rels, value.callerRels AS callerRelsList\nCALL apoc.do.when(size(callerRelsList) > 0, \"UNWIND callerRelsList AS callerRels \nWITH callerRels WHERE type(callerRels) IN linkTypes \nWITH collect(callerRels) AS callerRelsList \nRETURN callerRelsList\", \n\"RETURN [] AS callerRelsList\", {callerRelsList:callerRelsList, linkTypes:linkTypes}) YIELD value\nWITH linkTypes, callers, rels + value.callerRelsList AS totalRels\nUNWIND callers AS caller\nWITH callers + totalRels AS results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 11,
+      "queryDescription" : "Fetches the callee for a given node",
+      "queryType": "Graph View",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nCALL cast.linkTypesFilter($linkCategories, 'callee') YIELD typesFilter AS linkTypesFilter\nWITH linkTypes, linkTypesFilter,  $id AS nodeId\nMATCH (o:{{.appName}}) WHERE id(o) = nodeId\nWITH o, linkTypes, linkTypesFilter, [] AS external\nCALL apoc.path.expandConfig(o, {relationshipFilter: linkTypesFilter, labelFilter: \"+Object|SubObject\", minLevel: 1, maxLevel: 1, blacklistNodes: external,\nparams: {external: external}}) YIELD path\nWITH linkTypes, path\nUNWIND nodes(path) AS nodes\nUNWIND relationships(path) AS rels\nWITH linkTypes, collect(DISTINCT nodes) AS callees, collect(DISTINCT rels) AS rels\nCALL apoc.cypher.run(\"CALL apoc.algo.cover(callees) YIELD rel RETURN collect(rel) AS calleeRels\", {callees:callees}) YIELD value\nWITH linkTypes, callees, rels, value.calleeRels AS calleeRelsList\nCALL apoc.do.when(size(calleeRelsList) > 0, \"UNWIND calleeRelsList AS calleeRels \n    WITH calleeRels WHERE type(calleeRels) IN linkTypes \n    WITH collect(calleeRels) AS calleeRelsList \n    RETURN calleeRelsList\", \n    \"RETURN [] AS calleeRelsList\", {calleeRelsList:calleeRelsList, linkTypes:linkTypes}) YIELD value\nWITH linkTypes, callees, rels + value.calleeRelsList AS totalRels\nUNWIND callees AS callee\nOPTIONAL MATCH(callee)<-[r1]-(o1:{{.appName}})\nWHERE id(o1) = $id AND type(r1) IN linkTypes\nWITH callees + totalRels + collect(r1) AS results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 14,
+      "queryDescription" : "Fetch nodes and relationships for ids",
+      "queryType":  "Graph View",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(n:{{.appName}})-[r]-(m:{{.appName}})\nWHERE id(n) IN $ids AND id(m) IN $ids AND type(r) IN linkTypes\nWITH collect(DISTINCT m)+collect(DISTINCT n)+collect(DISTINCT r) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 16,
+      "queryDescription" : "Fetch objects based on internalType calling objects based on type",
+      "queryType":  "Graph View",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE id(o2) IN $ids AND o1.InternalType IN $typeList AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH collect(DISTINCT o1)+collect(DISTINCT o2)+collect(DISTINCT r) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 18,
+      "queryDescription" : "Fetch callers/Callees based on link type and object type",
+      "queryType": "Graph View",
+      "query": "WITH $relationShip as linkTypes, $direction AS direction,'RETURN REDUCE(typesFilter = \"\", linkType IN linkTypes | typesFilter + linkType + \">\" + \"|\") AS typesFilter' AS calleeQuery, 'RETURN REDUCE(typesFilter = \"\", linkType IN linkTypes | typesFilter + \"<\" + linkType + \"|\") AS typesFilter' AS callerQuery,'RETURN REDUCE(typesFilter = \"\", linkType IN linkTypes | typesFilter + linkType + \"|\") AS typesFilter' AS elseQuery \nCALL apoc.case([direction = \"callee\", calleeQuery, direction = \"caller\", callerQuery], elseQuery, \n{linkTypes: linkTypes, direction: direction, callerQuery: callerQuery, calleeQuery: calleeQuery, elseQuery: elseQuery}) YIELD value \nWITH value.typesFilter AS typesFilter\nWITH LEFT(typesFilter, SIZE(typesFilter) - 1) AS typesFilter \nWITH typesFilter as linkTypesFilter, $relationShip as linkTypes\nWITH linkTypes, linkTypesFilter, $ids AS nodeId\nMATCH (o:{{.appName}}) \nWHERE (o:Object OR o:SubObject) AND id(o) IN nodeId\nWITH o, linkTypes, linkTypesFilter, [] AS external\nCALL apoc.path.expandConfig(o, {relationshipFilter: linkTypesFilter, labelFilter: \"+Object|SubObject\", minLevel: 1, maxLevel: 1,blacklistNodes: external, params: {external: external}}) YIELD path\nWITH linkTypes, path,o\nUNWIND nodes(path) AS nodes\nUNWIND relationships(path) AS rels\nWITH linkTypes, nodes, rels,o\nWHERE nodes.InternalType IN $internalType\nWITH linkTypes, collect(DISTINCT nodes)+collect(o) AS callers, collect(DISTINCT rels) AS rels\nCALL apoc.cypher.run(\"CALL apoc.algo.cover(callers) YIELD rel RETURN collect(rel) AS callerRels\", {callers:callers}) YIELD value\nWITH linkTypes, callers, rels, value.callerRels AS callerRelsList\nCALL apoc.do.when(size(callerRelsList) > 0, \"UNWIND callerRelsList AS callerRels \nWITH callerRels WHERE type(callerRels) IN linkTypes \nWITH collect(callerRels) AS callerRelsList \nRETURN callerRelsList\", \n\"RETURN [] AS callerRelsList\", {callerRelsList:callerRelsList, linkTypes:linkTypes}) YIELD value\nWITH linkTypes, callers, rels + value.callerRelsList AS totalRels\nUNWIND callers AS caller\nWITH callers + totalRels AS results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 22,
+      "queryDescription" : "Fetches the callee/caller for a given node with internal type of caller/callee",
+      "queryType": "Graph View",
+      "query": "WITH $direction AS direction\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nCALL cast.linkTypesFilter($linkCategories,direction) YIELD typesFilter AS linkTypesFilter\nWITH linkTypes, linkTypesFilter, $ids AS nodeId\nMATCH (o:{{.appName}}) \nWHERE (o:Object OR o:SubObject) AND id(o) IN nodeId\nWITH o, linkTypes, linkTypesFilter, [] AS external\nCALL apoc.path.expandConfig(o, {relationshipFilter: linkTypesFilter, labelFilter: \"+Object|SubObject\", minLevel: 1, maxLevel: 1,blacklistNodes: external, params: {external: external}}) YIELD path\nWITH linkTypes, path,o\nUNWIND nodes(path) AS nodes\nUNWIND relationships(path) AS rels\nWITH linkTypes, nodes, rels,o\nWHERE nodes.InternalType IN $internalTypes\nWITH linkTypes, collect(DISTINCT nodes)+collect(o) AS callers, collect(DISTINCT rels) AS rels\nCALL apoc.cypher.run(\"CALL apoc.algo.cover(callers) YIELD rel RETURN collect(rel) AS callerRels\", {callers:callers}) YIELD value\nWITH linkTypes, callers, rels, value.callerRels AS callerRelsList\nCALL apoc.do.when(size(callerRelsList) > 0, \"UNWIND callerRelsList AS callerRels \nWITH callerRels WHERE type(callerRels) IN linkTypes \nWITH collect(callerRels) AS callerRelsList \nRETURN callerRelsList\", \n\"RETURN [] AS callerRelsList\", {callerRelsList:callerRelsList, linkTypes:linkTypes}) YIELD value\nWITH linkTypes, callers, rels + value.callerRelsList AS totalRels\nUNWIND callers AS caller\nWITH callers + totalRels AS results\nUNWIND results as result\nRETURN result",
+      "_exampleParams": {"queryId": 22, "params": {"direction": "caller", "internalTypes": ["CAST_COBOL_SavedParagraph"]}
+      }
+    },
+    {
+      "id": 24,
+      "queryDescription" : "Fetch objects calling o1<-o2<-o3",
+      "queryType": "Graph View",
+      "query":    "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH (o1:{{.appName}})<-[r]-(o2:{{.appName}})<-[r1]-(o3:{{.appName}})\nWHERE id(o1) IN $ids AND type(r) IN $relations1 AND o2.InternalType IN $type2 AND type(r1) IN linkTypes AND o3.InternalType IN $type3\nWITH collect(o1)+collect(o2)+collect(o3) AS objs, collect(r)+collect(r1) AS relations\nUNWIND objs+relations AS o\nRETURN o"
+    },
+    {
+      "id": 33,
+      "queryDescription" : "query specific to 32 with the path finder",
+      "queryType": "Graph View",
+      "_commentQuery": "for large transaction",
+      "query": "MATCH (o:{{.appName}})\nWHERE id(o) IN $ids \nMATCH (t:Transaction:{{.appName}})<-[:IS_IN_TRANSACTION]-(o)\nCALL cast.linkTypesFilter(['CALL', 'ENDPOINT'], 'all') YIELD typesFilter\nWITH apoc.text.format(\"\n    MATCH (g:{{.appName}}:Transaction {AipId:$aipId})<-[r:IS_IN_TRANSACTION]-(o1:{{.appName}})\n    WHERE (o1:Object OR o1:SubObject)\n    AND (r.IsReducedGraph=true) AND id(o1) IN $ids1\n    WITH o1, g\n    OPTIONAL MATCH (o1)-[r1:%s]->(o2:{{.appName}})-[r:IS_IN_TRANSACTION]->(g)\n    WHERE (o2:Object OR o2:SubObject)\n    AND (r.IsReducedGraph=true)\n    WITH o1, o2, r1\n    LIMIT 200\n    WITH collect(o1) AS oc1, collect(DISTINCT o2) AS oc2, collect(DISTINCT r1) AS rels \n    RETURN apoc.coll.union(oc1, oc2) AS objects, rels\", [typesFilter]) AS query, t\nCALL apoc.cypher.run(query, {aipId:t.AipId, ids1:$ids}) YIELD value\nWITH collect(value.objects) + collect(value.rels) AS results\nUNWIND results AS result\nRETURN result\n"
+    },
+    {
+      "id": 34,
+      "queryDescription" : "query specific to 32 without the path finder",
+      "queryType": "Graph View",
+      "query": "MATCH(n:{{.appName}}{InternalType: $internalType})-[:Property{value:'1'}]->(:ObjectProperty{Description:'Number of Transaction'})\nMATCH(t:Transaction:{{.appName}})-[r1:IS_IN_TRANSACTION]-(n)\nWHERE id(n) IN $ids\nMATCH(t)-[:STARTS_WITH]-(s:{{.appName}})-[:Property{value:'1'}]->(:ObjectProperty{Description:'Number of Transaction'})\nOPTIONAL MATCH(t)<-[r2:IS_IN_TRANSACTION]-(o1:{{.appName}}) WHERE o1.Type IN $types OR o1.\nWITH t,n,collect(o1) AS cls,collect(DISTINCT r1)+collect(DISTINCT r2) AS rels\nWHERE size(cls) > 0\nUNWIND cls AS o1\nCALL{\n    WITH t,o1\n    MATCH(t1:Transaction:{{.appName}})<-[r3:IS_IN_TRANSACTION]-(o1)\n    WHERE t <> t1\n    MATCH(t1:Transaction:{{.appName}})<-[r4:IS_IN_TRANSACTION]-(n2:{{.appName}}{InternalType: $internalType})\n    RETURN collect(DISTINCT t1)+collect(DISTINCT r3)+collect(DISTINCT r4)+collect(DISTINCT n2) AS totals\n}\nWITH collect(DISTINCT n)+collect(DISTINCT t)+totals+collect(DISTINCT o1)+rels AS totalRes\nUNWIND totalRes AS res\nRETURN res"
+    },
+    {
+      "id": 35,
+      "queryDescription" : "Fetch objects of type1, calling objects of type2",
+      "queryType": "Graph View",
+      "query": "WITH $relations AS relations\nCALL cast.linkTypes($linkCategories) YIELD linkTypes\nWITH CASE WHEN size(relations) > 0 THEN relations ELSE linkTypes END AS links\nMATCH (o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $type1 AND id(o2) IN $ids  AND type(r) IN links\nWITH collect(DISTINCT o1)+collect(DISTINCT o2) AS objs , collect(DISTINCT r) AS rels UNWIND objs+rels AS res RETURN res"
+    },
+    {
+      "id": 41,
+      "queryDescription": "Fetch graph for objects based on internalType accessed by objects of typeList",
+      "queryType": "Graph View",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}} {InternalType: $type1})\n WHERE id(gs) IN $ids AND type(r1) IN linkTypes AND (program:Object OR program:SubObject)\nWITH collect(DISTINCT gs)+collect(DISTINCT program)+collect(DISTINCT r1) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 60,
+      "queryDescription" : "Fetch caller ids",
+      "queryType":  "Graph View Helper",
+      "query": "CALL cast.linkTypes(['CALL','ESCALATED']) YIELD linkTypes\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE id(o2) = $id AND o1.InternalType IN $typeList\nAND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nCALL cast.linkTypesFilter($linkCategories, 'caller') YIELD typesFilter AS linkTypesFilter\nWITH linkTypes, linkTypesFilter, collect(DISTINCT id(o2)) AS nodeId\nMATCH (o:{{.appName}}) \nWHERE (o:Object OR o:SubObject) AND id(o) IN nodeId\nWITH o, linkTypes, linkTypesFilter, [] AS external\nCALL apoc.path.expandConfig(o, {relationshipFilter: linkTypesFilter, labelFilter: \"+Object|SubObject\", minLevel: 1, maxLevel:1,blacklistNodes:external,params: {external: external}}) YIELD path\nWITH linkTypes, path\nUNWIND nodes(path) AS node\nRETURN collect(DISTINCT id(node)) AS ids"
+    },
+
+
+
+
+
+
+
+    {
+      "id": 9,
+      "queryDescription" : "Fetch objects of type1, calling objects of type2",
+      "queryType":  "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}} {InternalType: $type1})-[r]->(o2:{{.appName}} {InternalType: $type2})\nWHERE id(o2) IN $ids AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH collect(DISTINCT o1)+collect(DISTINCT o2)+collect(DISTINCT r) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 12,
+      "queryDescription" : "Fetch objects based on internalType calling objects based on types corresponding called objects and return both the ids",
+      "queryType":  "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}} {Type: $type1})\nWHERE o1.InternalType IN $typeList\nAND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nRETURN id(o2) AS ids"
+    },
+    {
+      "id": 13,
+      "queryDescription" : "Fetch caller ids",
+      "queryType":  "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE id(o2) = $id AND o1.InternalType IN $typeList\nAND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nCALL cast.linkTypesFilter($linkCategories, 'caller') YIELD typesFilter AS linkTypesFilter\nWITH linkTypes, linkTypesFilter, collect(DISTINCT id(o2)) AS nodeId\nMATCH (o:{{.appName}}) \nWHERE (o:Object OR o:SubObject) AND id(o) IN nodeId\nWITH o, linkTypes, linkTypesFilter, [] AS external\nCALL apoc.path.expandConfig(o, {relationshipFilter: linkTypesFilter, labelFilter: \"+Object|SubObject\", minLevel: 1, maxLevel:1,blacklistNodes:external,params: {external: external}}) YIELD path\nWITH linkTypes, path\nUNWIND nodes(path) AS node\nWITH node\nWHERE node.InternalType IN $typeList\nRETURN collect(DISTINCT id(node)) AS ids"
+    },
+    {
+      "id": 15,
+      "queryDescription" : "Fetch objects of type1, calling objects of type2",
+      "queryType":  "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}} {InternalType: $type1})-[r]->(o2:{{.appName}} {InternalType: $type2})\nWHERE id(o1) IN $ids AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH collect(DISTINCT o1)+collect(DISTINCT o2)+collect(DISTINCT r) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 19,
+      "queryDescription" : "Fetches the caller node ids for a given node",
+      "queryType": "Graph View helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH (o:{{.appName}})<-[r]-(caller:{{.appName}}) WHERE id(o) = $id AND type(r) IN linkTypes AND (o:Object OR o:SubObject) AND (caller:Object OR caller:SubObject)\nRETURN collect(DISTINCT id(caller)) AS ids"
+    },
+    {
+      "id": 21,
+      "queryDescription" : "Fetches the callee node ids for a given node",
+      "queryType": "Graph View helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH (o:{{.appName}})-[r]->(callee:{{.appName}}) WHERE id(o) = $id AND type(r) IN linkTypes AND (o:Object OR o:SubObject) AND (callee:Object OR callee:SubObject)\nRETURN collect(DISTINCT id(callee)) AS ids"
+    },
+    {
+      "id": 26,
+      "queryDescription" : "Fetch graph for objects based on internalType accessed by objects calling objects of type2",
+      "queryType": "Graph View Helper",
+      "query":    "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:{{.appName}}:Object {Type: $type2})\n WHERE id(gs) IN $ids AND type(r1) IN linkTypes AND type(r2) IN linkTypes\n WITH collect(DISTINCT gs)+collect(DISTINCT program)+collect(DISTINCT o)+collect(DISTINCT r1)+collect(DISTINCT r2) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 27,
+      "queryDescription" : "Fetch graph for objects calling objects based on internalType accessing objects of type1",
+      "queryType": "Graph View Helper",
+      "query":    "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH (o1:{{.appName}}:Object)<-[r]-(o2:{{.appName}}:Object {InternalType: $type2})<-[r1]-(o3:{{.appName}}:Object {InternalType: $type3})\nWHERE id(o1) IN $ids AND type(r) IN linkTypes AND type(r1) IN linkTypes\n WITH collect(DISTINCT o1)+collect(DISTINCT o2)+collect(DISTINCT o3)+collect(DISTINCT r)+collect(DISTINCT r1) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 28,
+      "queryDescription": "Fetch graph for objects based on internalType accessed by objects accessing data storage objects",
+      "queryType": "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(i:InternalType) WHERE i.Concept='Data Source'\n WITH COLLECT(DISTINCT i.Name) as dbotype, linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:Object)\n WHERE id(gs) IN $ids AND id(gs) IN $ids AND o.InternalType IN dbotype AND type(r1) IN linkTypes AND type(r2) IN linkTypes\n WITH collect(DISTINCT gs)+collect(DISTINCT program)+collect(DISTINCT o)+collect(DISTINCT r1)+collect(DISTINCT r2) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 30,
+      "queryDescription" : "Fetch graph for objects of internalType - $type1 calling objects of internalType in $typeList",
+      "queryType": "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}} {InternalType: $type1})-[r]->(o2:{{.appName}})\nWHERE id(o1) IN $ids AND o2.InternalType IN $typeList AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject)\nWITH collect(DISTINCT o1)+collect(DISTINCT o2)+collect(DISTINCT r) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 38,
+      "queryDescription": "Fetch graph for objects based on internalType accessed by objects accessing data storage objects",
+      "queryType": "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:{{.appName}}{Type: $type2})\n WHERE id(gs) IN $ids AND type(r1) IN linkTypes AND type(r2) IN linkTypes AND 'MONITOR' in r1.aipLinkType AND (o:Object OR o:SubObject)\nWITH collect(DISTINCT gs)+collect(DISTINCT program)+collect(DISTINCT o)+collect(DISTINCT r1)+collect(DISTINCT r2) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 39,
+      "queryDescription": "Fetch graph for objects based on internalType accessed by objects accessing data storage objects",
+      "queryType": "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\n MATCH(i:InternalType) WHERE i.Concept='Data Source'\n WITH COLLECT(DISTINCT i.Name) as dbotype, linkTypes\n MATCH(gs:{{.appName}})<-[r1]-(program:{{.appName}}:Object {InternalType: $type1})-[r2]->(o:{{.appName}})\n WHERE id(gs) IN $ids AND o.InternalType IN dbotype AND type(r2) IN linkTypes AND type(r1) IN linkTypes AND 'MONITOR' in r1.aipLinkType AND (o:Object OR o:SubObject)\nWITH collect(DISTINCT gs)+collect(DISTINCT program)+collect(DISTINCT o)+collect(DISTINCT r1)+collect(DISTINCT r2) as results\nUNWIND results as result\nRETURN result"
+    },
+    {
+      "id": 43,
+      "queryDescription" : "Fetch graph for objects of internalType - $type1 calling objects of internalType in $typeList",
+      "queryType": "Graph View Helper",
+      "query": "CALL cast.linkTypes($linkCategories) YIELD linkTypes\nMATCH(o1:{{.appName}})-[r]->(o2:{{.appName}})\nWHERE o1.InternalType IN $type1 AND id(o2) IN $ids AND type(r) IN linkTypes AND (o1:Object OR o1:SubObject) AND (o2:Object OR o2:SubObject) AND any(aipLink IN r.aipLinkType WHERE aipLink IN $aipLinkType)\nWITH collect(DISTINCT o1)+collect(DISTINCT o2)+collect(DISTINCT r) as results\nUNWIND results as result\nRETURN result"
+    },
+
+
+
+
+
+
+
+
+
+
+
+    {
+      "id": 46,
+      "queryDescription" : "Inbound table query callerName, calleeName, linkType",
+      "queryType": "Inbound table query",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n        WITH o\n        MATCH(o2:{{.appName}})-[r]->(o)\n        WHERE type(r) IN $relations AND o2.InternalType IN $type1 AND (o2:Object OR o2:SubObject)\n        WITH o2, r \n        CALL{\n            WITH o2\n             OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t:Tag)\n            RETURN collect(DISTINCT t) AS tags2\n        }\n        RETURN o2.FullName AS callerName,type(r) AS linkType, r.aipLinkType AS aipLinkType, id(o2) AS tempIds, tags2\n        }\nWITH DISTINCT n,o,callerName,linkType,aipLinkType,annotations,tags1,tempIds,tags2\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,id(o) AS id, o.AipId AS aipId, callerName, o.FullName AS calleeName, linkType, aipLinkType, annotations, collect(coalesce(tags1, [])) + collect(coalesce(tags2, [])) AS tags ,id(o)+\"_\"+tempIds AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id: id,\n                aipId: aipId,\n                callerName: callerName,\n                calleeName: calleeName,\n                linkType: CASE WHEN size(aipLinkType) > 0 AND aipLinkType[0] <> \"\" THEN linkType + '(' + apoc.text.join(aipLinkType, ', ') + ')' ELSE linkType END,\n                tagIds:tagIds,\n                tags:tags,\n                annotations:annotations\n                })"
+    },
+    {
+      "id": 47,
+      "queryDescription" : "outbound table query calleeName, callerName, callerObjectType",
+      "queryType": "Outbound table query",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    CALL cast.linkTypes($linkCategories) YIELD linkTypes\n    MATCH (o2:{{.appName}})-[r]->(o)\n    WHERE (o2.InternalType IN $typeList OR size($typeList) = 0) AND type(r) IN linkTypes AND (o2:Object OR o2:SubObject)\n    WITH o2, r \n    CALL{\n        WITH o2\n        OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t:Tag)\n        RETURN collect(DISTINCT t) AS tags2\n    }\n    RETURN o2.FullName AS callerName, o2.Type AS callerObjectType, id(o2) AS tempIds, tags2\n}\nWITH DISTINCT n,o,callerName,callerObjectType,annotations,tags1,tempIds,tags2\nWITH coalesce(n.OutputTable,\"-table\") AS outputTableFormat,id(o) AS id, o.AipId AS aipId, callerName, o.FullName AS calleeName, callerObjectType, annotations, collect(coalesce(tags1, [])) + collect(coalesce(tags2, [])) AS tags, id(o)+\"_\"+tempIds AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id: id,\n                aipId: aipId,\n                calleeName: calleeName,\n                callerName: callerName,\n                callerObjectType: callerObjectType,\n                tagIds:tagIds,\n                tags:tags,\n                annotations:annotations\n                })"
+    },
+    {
+      "id": 48,
+      "queryDescription" : "Missing objects table query callerName, callerObjectType, calleeName",
+      "queryType": "Missing objects table query",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    CALL cast.linkTypes($linkCategories) YIELD linkTypes\n    MATCH (o2:{{.appName}})-[r]->(o)\n    WHERE type(r) IN linkTypes AND (o2.InternalType IN $typeList OR size($typeList) = 0) AND (o2:Object OR o2:SubObject)\n    WITH o2, r \n    CALL{\n        WITH o2\n        OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t:Tag)\n        RETURN collect(DISTINCT t) AS tags2\n    }\n    RETURN o2.FullName AS callerName, o2.Type AS callerObjectType, id(o2) AS tempIds, tags2\n}\nWITH DISTINCT n,o,callerName,callerObjectType,annotations,tags1,tempIds,tags2\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,id(o) AS id, o.AipId AS aipId, callerName, callerObjectType,o.FullName AS calleeName, annotations, collect(coalesce(tags1, [])) + collect(coalesce(tags2, [])) AS tags, id(o)+\"_\"+tempIds AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id: id,\n                aipId: aipId,\n                callerName: callerName,\n                callerObjectType: callerObjectType,\n                calleeName: calleeName,\n                tagIds:tagIds,\n                tags:tags,\n                annotations:annotations\n                })"
+    },
+    {
+      "id": 49,
+      "queryDescription" : "Violation query  fullName, objectType, occurrences",
+      "queryType": "Violation query",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    OPTIONAL MATCH(o)-[p:Property]->(op:ObjectProperty {Id: $propertyId})\n    RETURN sum(toInteger(op.Id=$propertyId)*toInteger(p.value)) AS dateScalarFunctionUsed\n}\nWITH DISTINCT n,o,dateScalarFunctionUsed,annotations,tags1\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,id(o) AS id, o.AipId AS aipId, o.FullName AS fullName, o.Type AS objectType, dateScalarFunctionUsed AS occurrences, annotations, collect(coalesce(tags1, [])) AS tags, id(o) AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id: id,\n                aipId: aipId,\n                fullName: fullName,\n                objectType: objectType,\n                occurrences: occurrences,\n                tagIds:tagIds,\n                tags:tags,\n                annotations:annotations,\n                sourceCode:''\n                })"
+    },
+    {
+      "id": 50,
+      "queryDescription" : "Default table query fullName, objectType, numberOfTransaction, linesOfCode",
+      "queryType": "Default table query",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    OPTIONAL MATCH(o)-[p:Property]->(op:ObjectProperty)\n    WHERE op.Id IN ['1100','1102000']\n    WITH o,p,op\n    CALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN collect(DISTINCT t) AS tags2\n    }\n    RETURN sum(toInteger(op.Id='1100')*toInteger(p.value)) AS linesOfCode, sum(toInteger(op.Id='1102000')*toInteger(p.value)) AS numberOfTransaction,tags2\n}\nWITH DISTINCT n,o,linesOfCode,numberOfTransaction, tags1, annotations, tags2\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,o.FullName AS fullName, id(o) AS id, o.AipId as aipId,o.Name AS name,o.Type AS objectType, linesOfCode, collect(coalesce(tags1, [])) + collect(coalesce(tags2, [])) AS tags, annotations, numberOfTransaction, id(o) AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n               id:id, \n                aipId:aipId, \n                fullName:fullName,\n                objectType:objectType,\n                numberOfTransaction:numberOfTransaction, \n                linesOfCode:linesOfCode, \n                tagIds:tagIds,\n                tags:tags , \n                annotations:annotations\n                })"
+    },
+    {
+      "id": 51,
+      "queryDescription" : "1202280 callerName,calleeName,calleeObjectType",
+      "queryType": "1202280 specific",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    MATCH(o)-[r]->(o2:{{.appName}})\n    WHERE o2.InternalType IN $typeList\n    WITH o2, r \n    CALL{\n        WITH o2\n        OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t:Tag)\n        RETURN collect(DISTINCT t) AS tags2\n    }\n    RETURN o2.FullName AS calleeName, o2.Type AS calleeObjectType, id(o2) AS tempIds, tags2\n}\nWITH DISTINCT n,o,calleeName,calleeObjectType,tags1,annotations,tempIds,tags2\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,o.FullName AS callerName, id(o) AS id, o.AipId as aipId,calleeObjectType, calleeName,collect(coalesce(tags1, [])) + collect(coalesce(tags2, [])) AS tags, annotations, id(o)+\"_\"+tempIds AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n               id:id, \n                aipId:aipId, \n                callerName:callerName,\n                calleeName:calleeName,\n                calleeObjectType:calleeObjectType, \n                tagIds:tagIds,\n                tags:tags , \n                annotations:annotations\n                })"
+    },
+    {
+      "id": 53,
+      "queryDescription" : "1202085,1202093 callerName,callerName,callerObjectType",
+      "queryType": "1202085,1202093 specific",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    CALL cast.linkTypes($linkCategories) YIELD linkTypes\n    MATCH (o)<-[r1]-(o2:{{.appName}})<-[r2]-(o3:{{.appName}})\n    WHERE type(r1) IN $relations1 AND o2.InternalType IN $type2 AND type(r1) IN linkTypes AND o3.InternalType IN $type3\n    WITH o2,o3,r1,r2\n     CALL{\n        WITH o2,o3\n        OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t2:Tag)\n        OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t3:Tag)\n        RETURN collect(DISTINCT t2) AS tags2, collect( DISTINCT t3) AS tags3\n    }\n    RETURN type(r2) AS linkTypes, r2.aipLinkType AS aipLinkType,o2.FullName AS callerName1, o3.FullName AS callerName2, id(o2)+\"_\"+id(o3) AS tempIds, tags2, tags3\n}\nWITH DISTINCT n,o,callerName1,callerName2,linkTypes,aipLinkType,tags1,annotations,tempIds,tags2,tags3\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,o.FullName AS calleeName, id(o) AS id, o.AipId as aipId,callerName1,callerName2,linkTypes,aipLinkType, collect(coalesce(tags1, []))+collect(coalesce(tags2, []))+collect(coalesce(tags3, [])) AS tags,annotations,id(o)+\"_\"+tempIds AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n               id:id, \n                aipId:aipId, \n                calleeName:calleeName,\n                callerName1:callerName1,\n                callerName2:callerName2,\n                linkType: CASE WHEN size(aipLinkType) > 0 AND aipLinkType[0] <> \"\" THEN linkTypes + '(' + apoc.text.join(aipLinkType, ', ') + ')' ELSE linkTypes END,\n                tagIds:tagIds,\n                tags:tags , \n                annotations:annotations\n                })"
+    },
+    {
+      "id": 54,
+      "queryDescription" : "1202075, 1202076 objectFullName",
+      "queryType": "1202075,1202076 specific",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH DISTINCT n,o,tags1,annotations\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,o.FullName AS objectFullName, id(o) AS id, o.AipId as aipId,collect(coalesce(tags1, [])) AS tags, annotations, id(o) AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id:id, \n                aipId:aipId, \n                objectFullName:objectFullName,\n                tagIds:tagIds,\n                tags:tags , \n                annotations:annotations\n                })"
+    },
+    {
+      "id": 56,
+      "queryDescription" : "1202078 objectFullName",
+      "queryType": "1202078 specific",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH DISTINCT n,o,tags1,annotations\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,o.FullName AS objectFullName, id(o) AS id, o.AipId as aipId,collect(coalesce(tags1, [])) AS tags, annotations, id(o) AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id:id, \n                aipId:aipId, \n                objectFullName:objectFullName,\n                tagIds:tagIds,\n                tags:tags , \n                annotations:annotations\n                })"
+    },
+    {
+      "id": 57,
+      "queryDescription" : "outbound table invert query callerName, calleeName, calleeObjectType",
+      "queryType": "Outbound table query invert",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    CALL cast.linkTypes($linkCategories) YIELD linkTypes\n    MATCH (o2:{{.appName}})<-[r]-(o)\n    WHERE (o2.InternalType IN $typeList OR size($typeList) = 0) AND type(r) IN linkTypes AND (o2:Object OR o2:SubObject)\n    WITH o2, r \n        CALL{\n            WITH o2\n             OPTIONAL MATCH(o2)-[:TAGGED_WITH]->(t:Tag)\n            RETURN collect(DISTINCT t) AS tags2\n        }\n    RETURN o2.FullName AS calleeName, o2.Type AS calleeObjectType, id(o2) AS tempIds,tags2\n}\nWITH DISTINCT n,o,calleeName,calleeObjectType,annotations,tags1, tempIds, tags2\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,id(o) AS id, o.AipId AS aipId, calleeName, o.FullName AS callerName, calleeObjectType, annotations,collect(coalesce(tags1, [])) + collect(coalesce(tags2, [])) AS tags, id(o)+\"_\"+tempIds AS tagIds ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id: id,\n                aipId: aipId,\n                callerName: callerName,\n                calleeName: calleeName,\n                calleeObjectType: calleeObjectType,\n                tagIds:tagIds,\n                tags:tags,\n                annotations:annotations\n                })"
+    },
+    {
+      "id": 58,
+      "queryDescription" : "outbound table invert query callerName, calleeName, calleeObjectType",
+      "queryType": "Outbound table query invert",
+      "query": "MATCH(n:AdvisorRule {AipId:$id,Version: $version})\nMATCH(op:AdvisorProperty {AipId:n.AipId,Version: $version})<-[:HAS]-(o:{{.appName}})\nWHERE (o:Object OR o:SubObject)\nWITH n,o\nCALL{\n        WITH o\n        OPTIONAL MATCH(o)-[:ContainsDocument]->(d:Document:{{.appName}})\n        OPTIONAL MATCH (d)-[:TAGGED_WITH]->(t1:Tag)\n        WITH o, d.Description AS description, d.Id AS id, d.Nodes AS nodes, d.Theme AS theme, d.Title AS title, d.ViewID AS viewID, \nd.ViewName AS viewName, d.ViewType AS viewType, collect(t1) AS tags\n        WITH o, collect(DISTINCT {Id: id, Title: title, Description: description, ViewName: viewName, ViewType: viewType, ViewID: viewID,\nTags: tags, Nodes: nodes, Theme: theme}) AS annotation\n        CALL{\n                WITH  annotation\n                UNWIND annotation AS doc\n                WITH doc\n                WHERE doc.Id <> \"\"\n                RETURN collect(doc) AS annotations\n        }\n        OPTIONAL MATCH(o)-[:TAGGED_WITH]->(t:Tag)\n        RETURN annotations, collect(DISTINCT t) AS tags1\n}\nWITH n,o,annotations,tags1\nCALL{\n    WITH o\n    MATCH (t:{{.appName}}:Transaction)<-[r:IS_IN_TRANSACTION]-(o)\n    RETURN t.Name AS transactionName\n}\nWITH DISTINCT n,o,transactionName,annotations,tags1\nWITH coalesce(n.OutputTable,\"default-table\") AS outputTableFormat,id(o) AS id, o.AipId AS aipId, o.FullName AS fullName,transactionName, annotations,collect(coalesce(tags1, [])) AS tags, id(o) AS tagIds  ORDER BY %s %s\nRETURN outputTableFormat,count(*) AS totalCount,collect(DISTINCT{\n                id: id,\n                aipId: aipId,\n                fullName: fullName,\n                transactionName: transactionName,\n                tagIds:tagIds,\n                tags:tags,\n                annotations:annotations\n                })"
+    }
+  ]
+}

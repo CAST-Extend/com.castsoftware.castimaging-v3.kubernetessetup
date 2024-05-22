@@ -1,0 +1,1643 @@
+[
+    {
+        "name": "How can I help you today",
+        "id": 1202105,
+        "category": "START",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": ""
+        },
+        "remediations": {
+            "Agnostic": "Guide me to"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202107,
+            1202111,
+            1202137,
+            1202170,
+            1202219
+        ]
+    },
+    {
+        "name": "Make changes",
+        "id": 1202107,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Understand change impact"
+        },
+        "remediations": {
+            "Agnostic": "What type of Change"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202105
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202108,
+            1202171
+        ]
+    },
+    {
+        "name": "Minor changes",
+        "id": 1202108,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Corrective or evolutive maintenance"
+        },
+        "remediations": {
+            "Agnostic": "Investigate"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202107
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202109,
+            1202158,
+            1202172,
+            1202198,
+            1202200,
+            1202232,
+            1202234,
+            1202236,
+            1202241
+        ]
+    },
+    {
+        "name": "Module",
+        "id": 1202109,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Module Name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202110
+        ]
+    },
+    {
+        "name": "Discover",
+        "id": 1202111,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Learn about the application "
+        },
+        "remediations": {
+            "Agnostic": "Start from"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202105
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202116,
+            1202120,
+            1202125,
+            1202129,
+            1202131,
+            1202160,
+            1202173,
+            1202197
+        ]
+    },
+    {
+        "name": "Technologies and frameworks",
+        "id": 1202112,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Learn about"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202160
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202113,
+            1202114,
+            1202115
+        ]
+    },
+    {
+        "name": "API Inventory",
+        "id": 1202116,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Learn about"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202117,
+            1202227,
+            1202228
+        ]
+    },
+    {
+        "name": "Application modularity ",
+        "id": 1202120,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Learn about"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202122,
+            1202123,
+            1202124,
+            1202183
+        ]
+    },
+    {
+        "name": "Data",
+        "id": 1202125,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Learn about"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202126,
+            1202127,
+            1202128,
+            1202237
+        ]
+    },
+    {
+        "name": "Module",
+        "id": 1202129,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Module Name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111,
+            1202236
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202130
+        ]
+    },
+    {
+        "name": "Enrich",
+        "id": 1202137,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Enhance with additional information."
+        },
+        "remediations": {
+            "Agnostic": "Choose your action"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202105
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202185,
+            1202192,
+            1202194
+        ]
+    },
+    {
+        "name": "Service",
+        "id": 1202158,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Select service name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108,
+            1202236
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202159
+        ]
+    },
+    {
+        "name": "Architecture focus",
+        "id": 1202160,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Choose a level"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202106,
+            1202112,
+            1202134
+        ]
+    },
+    {
+        "name": "Cloud Migration",
+        "id": 1202161,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Get visibility on"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202170,
+            1202171
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202162,
+            1202163,
+            1202164
+        ]
+    },
+    {
+        "name": "Upgrade/Replace component",
+        "id": 1202166,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Start from"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202171
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202169
+        ]
+    },
+    {
+        "name": "Modernize",
+        "id": 1202170,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Get guidance on your focus area"
+        },
+        "remediations": {
+            "Agnostic": "Get guidance for"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202105
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202161,
+            1202267,
+            1202270
+        ]
+    },
+    {
+        "name": "Major changes",
+        "id": 1202171,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Modernization"
+        },
+        "remediations": {
+            "Agnostic": "What type of action you intend to do?"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202107
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202161,
+            1202166,
+            1202270
+        ]
+    },
+    {
+        "name": "Add/modify tags or annotations",
+        "id": 1202185,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Select "
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202137
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202186,
+            1202188,
+            1202190,
+            1202191
+        ]
+    },
+    {
+        "name": "Module",
+        "id": 1202186,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Module Name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202185
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202187
+        ]
+    },
+    {
+        "name": "Service",
+        "id": 1202188,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Service Name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202185
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202189
+        ]
+    },
+    {
+        "name": "Element",
+        "id": 1202190,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Element name"
+        },
+        "populations": {},
+        "description": "To find your element, you have the option to either search by name or employ the filter features within the panel to categorize it by type, properties, or tags.\n\nTo provide  a deeper understanding, you can enhance the element by adding detailed annotations and tags.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202185
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202229
+        ]
+    },
+    {
+        "name": "Investigate custom views",
+        "id": 1202192,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Select Custom View"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202137
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202193
+        ]
+    },
+    {
+        "name": "Update custom views",
+        "id": 1202194,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Select Custom View"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202137
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202195
+        ]
+    },
+    {
+        "name": "Saved Views",
+        "id": 1202197,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "Select saved view",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202196
+        ]
+    },
+    {
+        "name": "Saved Views",
+        "id": 1202198,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202199
+        ]
+    },
+    {
+        "name": "Element",
+        "id": 1202200,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Element name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108,
+            1202236
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202155
+        ]
+    },
+    {
+        "name": "Improve",
+        "id": 1202219,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Enhance application quality"
+        },
+        "remediations": {
+            "Agnostic": "Insights to"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202105
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202220,
+            1202223,
+            1202225,
+            1202226
+        ]
+    },
+    {
+        "name": "Identify Structural and Security concerns",
+        "id": 1202220,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": ""
+        },
+        "remediations": {
+            "Agnostic": "Investigate to"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202219
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202221,
+            1202222,
+            1202224
+        ]
+    },
+    {
+        "name": "Impact for change in UI",
+        "id": 1202232,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "(End to end transaction)"
+        },
+        "remediations": {
+            "Agnostic": "Transaction name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202233
+        ]
+    },
+    {
+        "name": "Impact for change in table",
+        "id": 1202234,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "(Data callgraph)"
+        },
+        "remediations": {
+            "Agnostic": "Data call graph name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202235
+        ]
+    },
+    {
+        "name": "Resolve an identified bug",
+        "id": 1202236,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Investigate"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202129,
+            1202158,
+            1202172,
+            1202200
+        ]
+    },
+    {
+        "name": "Scope of regression",
+        "id": 1202241,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "(Understand UI and database impact)"
+        },
+        "remediations": {
+            "Agnostic": "Element name"
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202242
+        ]
+    },
+    {
+        "name": "Break up a monolith",
+        "id": 1202267,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Focus on "
+        },
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202170
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202268
+        ]
+    },
+    {
+        "name": "Component diagram",
+        "id": 1202106,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides insights into various architectural levels. \n\nTo gain a deeper understanding of the detected frameworks and technologies, you can navigate further by selecting the nodes or by drilling down on the view.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202160
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of modules",
+        "id": 1202110,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": ""
+        },
+        "populations": {},
+        "description": "This view displays the list of modules, enabling you to select a module and conduct a more in-depth investigation of the service to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202109
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Application adherence to third party components",
+        "id": 1202113,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": ""
+        },
+        "populations": {},
+        "description": "This view is for assessing the adherence of the application with external objects that belong to third party components. \n\nFor a better understanding you can investigate further on the associated objects and plan for the efforts required for an change/upgrade.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202112
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Complete technology stack with frameworks",
+        "id": 1202114,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is a comprehensive resource for gaining insights into all the technology object types utilized within your application, along with the references between them. \n\nYou can explore the finer details of these object types by drilling down to access object-level information.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202112
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Third-Party components",
+        "id": 1202115,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view assists in identifying all the third-party components and their respective versions utilized within the application. \n\nBy considering the gap between the current version and the release date, you can identify any outdated versions in use and develop plans for necessary upgrades.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202112
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "All application APIs",
+        "id": 1202117,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides access a list of APIs within the application. You can individually select them to access detailed information such as graphs depicting their functionality, input and output specifications, and the call relationships between them. \n\nThis view is designed to facilitate team members' comprehension and utilization of these APIs.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202116
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Class inheritance overview",
+        "id": 1202122,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is designed to help you comprehend the inheritance relationships among the identified classes in your application. \n\nTo access a comprehensive list of linked objects for a class, simply navigate further by drilling down on the classes node. By selecting an object on the view you can also explore the object properties or its source code in the right panel.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202120
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Project structure",
+        "id": 1202123,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is valuable for gaining insights into how projects are orchestrated within your application. \n\nYou can choose to explore further by selecting a specific project to view all the interconnected objects associated with it, or alternatively, you can click on links to examine the connections between objects originating from different projects.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202120
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Services architecture",
+        "id": 1202124,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is designed to facilitate your understanding of all the services identified within your application. \n\nYou have the option to drill down deeper into service nodes to explore all the connected objects or click on links to analyze the connections between objects from various services.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202120
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "RDBMS objects inventory",
+        "id": 1202126,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays all the identified application data handling objects such as procedures, functions, triggers, entities, data views, and any identified relationships between them.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202125
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Data storage objects",
+        "id": 1202127,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays all the identified application data storage objects such as tables, records, collections, and any identified relationships between them.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202125
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "RDBMS tables inventory",
+        "id": 1202128,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides an extensive overview of specified application RDBMS tables, including their associated foreign key references. \n\nWhen you drill down into object nodes, you can examine column specifics, including primary key information, and potentially discover references to foreign keys.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202125
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of modules",
+        "id": 1202130,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays the chosen module, enabling you to conduct a more in-depth examination of the module to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202129
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Dependencies with other applications",
+        "id": 1202131,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides an understanding of the relationships between multiple apps that have been identified as dependent on one another. By drilling down on references or application nodes, you can visualize the elements that comprise an application and their interdependencies.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Container diagram",
+        "id": 1202134,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides insights into various architectural levels. \n\nTo gain a deeper understanding of the detected frameworks and technologies, you can navigate further by selecting the nodes or by drilling down on the view.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202160
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Search for elements by name",
+        "id": 1202155,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "To find your element, you have the option to either search by name or employ the filter features within the panel to categorize it by type, properties, or tags.\n\nYou can add the object to the view this enabling you to conduct a more in-depth investigation of the selected element to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202200
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of Service",
+        "id": 1202159,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays the list of services, enabling you to select a service and conduct a more in-depth investigation of the service to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202158
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Using AWS services",
+        "id": 1202162,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "The Imaging Advisor assists you in identifying potential pathways for modernizing and upgrading your application. \n\nIt offers recommendations aimed at enhancing the native integration of your application with cloud services and modern frameworks. Within this section, you will gain valuable insights into leveraging AWS cloud services. \n\nYou may choose the most suitable strategy based on these insights.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202161
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Cloud readiness",
+        "id": 1202163,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all the potential obstacles to cloud adoption associated with various application components. \n\nIt presents a comprehensive list of elements or behaviors within the application that may act as impediments (blockers) to a seamless transition to the cloud or, conversely, aspects that align with established cloud best practices (boosters).",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202161
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Containerization",
+        "id": 1202164,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view assists in identifying all the blockers that have been identified for various application components, which could impede the process of containerizing the application. \n\nIt provides insight into elements or characteristics within the application that may present challenges or obstacles to containerization efforts.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202161
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Open Source component",
+        "id": 1202169,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is designed to help you identify all third-party components and their respective versions used within the application. \n\nBy analyzing the gaps and release dates, you can pinpoint outdated versions and potentially identify component versions that contain critical Common Vulnerabilities and Exposures (CVEs). \n\nThis information can then be used to formulate plans for necessary upgrades and maintenance to enhance the security and functionality of your application.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202166
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "End to End transaction",
+        "id": 1202172,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Select transaction name"
+        },
+        "populations": {},
+        "description": "This view displays the list of transactions, enabling you to select a transaction and conduct a more in-depth investigation of the service to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202108,
+            1202236
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "End to End transaction",
+        "id": 1202173,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Learn about"
+        },
+        "populations": {},
+        "description": "This view displays the chosen transaction, enabling you to conduct a more in-depth examination of the transaction to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202111
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Adherence between modules",
+        "id": 1202183,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides access to all modules within the application, along with the references between them.\n\nYou have the option to either drill down into a module's node to explore all of its associated objects or select a reference to analyze the connections between objects part of different modules.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202120
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of modules",
+        "id": 1202187,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays the chosen module, enabling you to conduct a more in-depth examination of the module to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202186
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of services",
+        "id": 1202189,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays the chosen service, enabling you to conduct a more in-depth examination of the service to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202188
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "End to End transaction",
+        "id": 1202191,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": "Select transaction name"
+        },
+        "populations": {},
+        "description": "This view displays the chosen transaction, enabling you to conduct a more in-depth examination of the transaction to comprehend the path for making changes. \n\nAdditionally, you have the capability to annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202185
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of custom views",
+        "id": 1202193,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "You've accessed a custom view. To make it editable, you can choose to unpublish it. After making updates, you can then share and collaborate with other users who can contribute to the view. \n\nRemember that it's essential to publish the final version of the view so your team can investigate it.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202192
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of custom views",
+        "id": 1202195,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {
+            "Agnostic": ""
+        },
+        "populations": {},
+        "description": "You have accessed a custom view. You have the option to investigate further or unpublish it from the custom aggregation module to make it editable. \n\nOnce you've made updates, you can share and collaborate with other users who can also contribute to the view. \n\nRemember to publish the final version of the view for your team's review and investigation.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202194
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of saved views",
+        "id": 1202196,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view has been identified as a custom creation generated by you or your team members. \n\nYou have the flexibility to explore it further, collaborate with others to enhance it, and incorporate additional details as necessary.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202197
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "List of saved views",
+        "id": 1202199,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This displays list of saved views that has been identified as a custom creation generated by you or your team members. \n\nYou have the flexibility to explore it further, collaborate with others to enhance it, and incorporate additional details as necessary.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202198
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Identify major structural flaws",
+        "id": 1202221,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all the structural flaws associated with various application components. You can select an object that has been highlighted to concentrate on, find the flaws in it, comprehend the reasoning behind the problems, and even drill down into the specifics of the dependencies of the objects that have been found to have flaws. You can also see the source code for these flaws and plan your actions to proceed.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202220
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Identify open source safety risks",
+        "id": 1202222,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all third party objects holding some CVEs and contribute to open source safety risks. You can select an object that has been highlighted to concentrate on, find the flaws in it, comprehend the reasoning behind the problems, and even drill down into the specifics of the dependencies of the objects that have been found to have flaws. You can also see the source code for these flaws and plan your actions to proceed.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202220
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Identify cloud blockers",
+        "id": 1202223,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all the potential obstacles to cloud adoption associated with various application components. It presents a comprehensive list of elements or behaviors within the application that may act as impediments (blockers) to a seamless transition to the cloud or, conversely, aspects that align with established cloud best practices (boosters).",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202219
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Identify security concerns",
+        "id": 1202224,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all the security flaws associated with various application components. You can select an object that has been highlighted to concentrate on, find the flaws in it, comprehend the reasoning behind the problems, and even drill down into the specifics of the dependencies of the objects that have been found to have flaws. You can also see the source code for these flaws and plan your actions to proceed.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202220
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Identify error handling concerns",
+        "id": 1202225,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all the error handling flaws associated with various application components. You can select an object that has been highlighted to concentrate on, find the flaws in it, comprehend the reasoning behind the problems, and even drill down into the specifics of the dependencies of the objects that have been found to have flaws. You can also see the source code for these flaws and plan your actions to proceed.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202219
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Identify performance concerns",
+        "id": 1202226,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view facilitates the identification of all the performance flaws associated with various application components. You can select an object that has been highlighted to concentrate on, find the flaws in it, comprehend the reasoning behind the problems, and even drill down into the specifics of the dependencies of the objects that have been found to have flaws. You can also see the source code for these flaws and plan your actions to proceed.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202219
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Private APIs",
+        "id": 1202227,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides access a list of private APIs within the application. You can individually select them to access detailed information such as graphs depicting their functionality, input and output specifications, and the call relationships between them. \n\nThis view is designed to facilitate team members comprehension and utilization of these private APIs.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202116
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Public APIs",
+        "id": 1202228,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view provides access a list of public APIs within the application. You can individually select them to access detailed information such as graphs depicting their functionality, input and output specifications, and the call relationships between them. \n\nThis view is designed to facilitate team members comprehension and utilization of these public APIs.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202116
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Search for elements by name",
+        "id": 1202229,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view enables you to conduct a more in-depth investigation of the selected element to comprehend the path for making changes. Additionally, you have the capability to add more elements to the view as per required and annotate or tag specific objects of interest for future reference.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202190
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Search UI by name",
+        "id": 1202233,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is ideal for assessing the impact of changes. The top node represents your User Interface, and you can trace the impact all the way down to the database and file components. It allows you to promptly evaluate the extent of your impact when making changes.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202232
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Search Table by name",
+        "id": 1202235,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is the most effective for assessing the impact of changes made to a table. The top node represents your table, and you can track the impact down to User interface. It enables you to promptly evaluate the scope of your impact when making changes.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202234
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Application adherence to database",
+        "id": 1202237,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view displays the relationships discovered between database objects and other application objects that access these database objects. It also identifies the types of relationships that are available. \n\nWhen planning for database migration it is crucial to understand the dependencies in order to maintain the data integrity.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202125
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Search element by name",
+        "id": 1202242,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "This view is the recommended starting point for conducting regression testing.\n\nThe selected node represents your specific element.\nNodes at the top represent the UI impact.\nNodes at the bottom represent the database impact.\n\nUtilize this view to ensure that all your features continue to function as expected, verifying that no unintended changes have occurred during the testing process.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202241
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Mainframe Modernization with AWS",
+        "id": 1202268,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "Mainframe modernization with AWS refers to the process of migrating or transforming legacy mainframe applications and workloads to the cloud-based infrastructure and services provided by Amazon Web Services.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202267
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Database migration",
+        "id": 1202270,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {},
+        "remediations": {},
+        "populations": {},
+        "description": "The Imaging Advisor provides recommendations for database migration, offering valuable insights into optimizing your migration to PostgreSQL. \nYou can select the most appropriate strategy based on these insights to ensure a successful transition.",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202170,
+            1202171
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    }
+]

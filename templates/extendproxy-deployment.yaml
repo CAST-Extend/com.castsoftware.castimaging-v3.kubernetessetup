@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: extendproxy
+  name: extendproxy
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8085"
+      port: 8085
+      targetPort: 8085
+  selector:
+    console.service: extendproxy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    console.service: extendproxy
+    version: {{ .Values.ExtendProxyImage.tag| default .Values.version }}
+  name: extendproxy
+  namespace: {{ .Release.Namespace }}   
+spec:
+  replicas: {{ .Values.ExtendProxyReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: extendproxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: extendproxy
+    spec: 
+      containers:
+        - env:
+            - name: host_port
+              value: "8085"
+            - name: host_name
+              value: "{{ .Values.ExtendProxy.exthostname }}"
+            - name: ext_public_url
+              value: "{{ .Values.ExtendProxy.pubextendurl }}"
+          image: "{{ .Values.ExtendProxyImage.name }}:{{ .Values.ExtendProxyImage.tag}}"
+          imagePullPolicy: "{{ .Values.ExtendProxyImage.pullPolicy }}"
+          name: extendproxy
+          ports:
+            - containerPort: 8085
+              hostPort: 8085
+              protocol: TCP 
+          resources:
+            {{- toYaml .Values.ExtendProxyResources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /opt/cast_extend_proxy
+              name: extendproxy
+      restartPolicy: Always
+      volumes:
+        - name: extendproxy
+          persistentVolumeClaim:
+            claimName: pvc-extendproxy-v3

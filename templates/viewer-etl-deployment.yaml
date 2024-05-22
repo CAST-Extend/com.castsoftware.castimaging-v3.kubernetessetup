@@ -1,0 +1,70 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: viewer-etl
+  labels:
+    app: viewer-etl
+spec:
+  ports:
+  - name: http
+    port: 9001
+    targetPort: 9001
+  selector:
+    app: viewer-etl
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: viewer-etl
+    version: {{.Values.ViewerEtlImage.tag| default .Values.version}}
+  name: viewer-etl
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ViewerEtlReplicaCount }}
+  selector:
+    matchLabels:
+      app: viewer-etl
+  template:
+    metadata:
+      labels:
+        app: viewer-etl
+    spec:
+      initContainers:
+        - name: neo4jhealthcheck
+          image: busybox:latest
+          command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done"]
+      containers:
+        - image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag}}"
+          imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
+          securityContext:
+            runAsUser: 0
+          command: ['sh', '-c', "/opt/imaging/imaging-etl/config/init.sh"]
+
+          name: viewer-etl
+          ports:
+            - containerPort: 9001
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.ViewerEtlResources | nindent 12 }}
+          volumeMounts:
+            - name: etlconfig
+              mountPath: /opt/imaging/imaging-etl/config
+              readOnly: false
+            - name: upload
+              mountPath: /opt/imaging/imaging-etl/upload
+              readOnly: false
+            - name: logdir
+              mountPath: /opt/imaging/imaging-etl/logs
+              readOnly: false
+      volumes:
+        - name: etlconfig
+          configMap:
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-etl-config
+        - name: upload
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-etl-upload
+        - name: logdir
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-etl-logs
