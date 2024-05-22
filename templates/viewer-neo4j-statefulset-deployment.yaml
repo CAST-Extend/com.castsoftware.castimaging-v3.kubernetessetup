@@ -9,11 +9,9 @@ spec:
   ports:
     - port: 7474
       targetPort: 7474
-      nodePort: 30074
       name: browser
     - port: 7687
       targetPort: 7687
-      nodePort: 30087
       name: bolt
     - port: 6362
       targetPort: 6362
@@ -21,7 +19,6 @@ spec:
   selector:
     app: viewer-neo4j
     component: core
-  type: NodePort
 ---
 apiVersion: "apps/v1"
 kind: StatefulSet
