@@ -71,6 +71,8 @@ update admin_center.properties set
 value = '/shared/deploy'  where prop_key = 'application.paths.deploy-folder';
 update admin_center.properties set
 value = '/shared/common-data' where prop_key = 'application.paths.shared-folder';
+update admin_center.properties set
+value = 'http://console-dashboards.castimaging-v3.svc.cluster.local:8087' where prop_key = 'dashboards.url';
 
 # ------------------
 # Console PV folders
