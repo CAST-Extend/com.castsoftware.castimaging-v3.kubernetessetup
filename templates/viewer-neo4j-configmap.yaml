@@ -339,4 +339,4 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: neo4jconf
-  namespace: castimaging-v3
+  namespace: {{.Release.Namespace}}

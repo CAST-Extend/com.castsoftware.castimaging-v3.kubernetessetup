@@ -19,4 +19,4 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: openaiappconfig
-  namespace: castimaging-v3
+  namespace: {{.Release.Namespace}}
