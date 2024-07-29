@@ -1,0 +1,972 @@
+name,language
+ASMZOSProgram,Assembler
+ASM_MACRO,Assembler
+AbapAlias,ABAP
+AbapClass,ABAP
+AbapClassPool,ABAP
+AbapConstructor,ABAP
+AbapEvent,ABAP
+AbapEventMethod,ABAP
+AbapInterface,ABAP
+AbapInterfacePool,ABAP
+AbapMember,ABAP
+AbapMethod,ABAP
+BO_CLASS,SAP BusinessObjects
+BO_CONDITION,SAP BusinessObjects
+BO_DATA_FILE,SAP BusinessObjects
+BO_DATA_OLAP,SAP BusinessObjects
+BO_DATA_PROC,SAP BusinessObjects
+BO_DATA_PROVIDER,SAP BusinessObjects
+BO_DATA_SQL,SAP BusinessObjects
+BO_DATA_VBA,SAP BusinessObjects
+BO_DATA_XML,SAP BusinessObjects
+BO_DOCUMENT,SAP BusinessObjects
+BO_LISTOFVALUE,SAP BusinessObjects
+BO_OBJECT_DET,SAP BusinessObjects
+BO_OBJECT_DIM,SAP BusinessObjects
+BO_OBJECT_IND,SAP BusinessObjects
+BO_REPORT,SAP BusinessObjects
+BO_UNIVERSE,SAP BusinessObjects
+BO_WEBI_DOCUMENT,SAP BusinessObjects
+CAST_ABAP_ConstantAbapMember,ABAP
+CAST_ABAP_FileLevelCodeUnit,ABAP
+CAST_ABAP_Package,ABAP
+CAST_ABAP_SAPModule,ABAP
+CAST_ABAP_SAPUnresolvedTable,ABAP
+CAST_ANSISQL_Domain,SQL
+CAST_ANSISQL_ExternalObject,SQL
+CAST_ANSISQL_Owner,SQL
+CAST_ANSISQL_UnresolvedColumn,SQL
+CAST_AST_ANSISQL_AnonymousDatatype,SQL
+CAST_AWSDotNet_S3_Bucket,C#
+CAST_AWSDotNet_S3_Region,C#
+CAST_AWSDotNet_Unknown_S3_Bucket,C#
+CAST_AWSDotNet_Unknown_S3_Region,C#
+CAST_AWSJava_AWS_Lambda,Java
+CAST_AWSJava_S3_Bucket,Java
+CAST_AWSJava_S3_Region,Java
+CAST_AWSJava_Unknown_S3_Bucket,Java
+CAST_AWSJava_Unknown_S3_Region,Java
+CAST_ActiveMQ_Java_QueueCall,Java
+CAST_ActiveMQ_Java_QueueReceive,Java
+CAST_ActiveMQ_Python_QueueCall,Python
+CAST_ActiveMQ_Python_QueueReceive,Python
+CAST_Android_Kotlin_Fragment,Kotlin
+CAST_BO_Folder,SAP BusinessObjects
+CAST_BPEL_Invoke,BPEL
+CAST_BPEL_Process,BPEL
+CAST_BPEL_Receive,BPEL
+CAST_Birt_MissingTable_Procedure,Birt
+CAST_Birt_MissingTable_Schema,Birt
+CAST_Birt_MissingTable_Table,Birt
+CAST_CICS_MapPrototype,IBM CICS (BMS)
+CAST_CICS_MapSetPrototype,IBM CICS (BMS)
+CAST_CL400_MissingTable_Procedure,RPG
+CAST_CL400_MissingTable_Schema,RPG
+CAST_CL400_MissingTable_Table,RPG
+CAST_COBOL_Class,Cobol
+CAST_COBOL_Copybook,Cobol
+CAST_COBOL_Directory,Cobol
+CAST_COBOL_Entry,Cobol
+CAST_COBOL_ExternalFilePrototype,Cobol
+CAST_COBOL_GenericData,Cobol
+CAST_COBOL_Index,Cobol
+CAST_COBOL_Interface,Cobol
+CAST_COBOL_Literal,Cobol
+CAST_COBOL_NestedProgram,Cobol
+CAST_COBOL_ProgramPrototype,Cobol
+CAST_COBOL_SavedConditionalTest,Cobol
+CAST_COBOL_SavedConstantData,Cobol
+CAST_COBOL_SavedDeclaratives,Cobol
+CAST_COBOL_SavedDeclarativesParagraph,Cobol
+CAST_COBOL_SavedDeclarativesSection,Cobol
+CAST_COBOL_SavedDivision,Cobol
+CAST_COBOL_SavedFileDescription,Cobol
+CAST_COBOL_SavedParagraph,Cobol
+CAST_COBOL_SavedProgram,Cobol
+CAST_COBOL_SavedSection,Cobol
+CAST_COBOL_SortDescription,Cobol
+CAST_COBOL_UtilityProgram,IBM z/OS JCL
+CAST_CPP_MissingTable_Procedure,C++
+CAST_CPP_MissingTable_Schema,C++
+CAST_CPP_MissingTable_Table,C++
+CAST_CQL_Cassandra_Function,Cassandra Query Language
+CAST_CQL_Cassandra_Index,Cassandra Query Language
+CAST_CQL_Cassandra_PrimaryKey,Cassandra Query Language
+CAST_CQL_Cassandra_Schema,Cassandra Query Language
+CAST_CQL_Cassandra_Table,Cassandra Query Language
+CAST_CQL_Cassandra_TableColumn,Cassandra Query Language
+CAST_CQL_Cassandra_Trigger,Cassandra Query Language
+CAST_CQL_Cassandra_View,Cassandra Query Language
+CAST_C_CLR_Event,C++
+CAST_C_CLR_EventAddon,C++
+CAST_C_CLR_EventRaise,C++
+CAST_C_CLR_EventRemoveon,C++
+CAST_C_CLR_Property,C++
+CAST_C_CLR_PropertyGetter,C++
+CAST_C_CLR_PropertySetter,C++
+CAST_C_SQLQuery,C++
+CAST_Cobol_MissingTable_Procedure,Cobol
+CAST_Cobol_MissingTable_Schema,Cobol
+CAST_Cobol_MissingTable_Table,Cobol
+CAST_Cobol_SQLQuery,Cobol
+CAST_Cpp_AdditionalFile,C++
+CAST_Cpp_Class,C++
+CAST_Cpp_ClassFolder,C++
+CAST_Cpp_Constructor,C++
+CAST_Cpp_Destructor,C++
+CAST_Cpp_Directory,C++
+CAST_Cpp_Enum,C++
+CAST_Cpp_EnumItem,C++
+CAST_Cpp_FreeFunction,C++
+CAST_Cpp_GlobalVariable,C++
+CAST_Cpp_HeaderFile,C++
+CAST_Cpp_Macro,C++
+CAST_Cpp_MemberFunction,C++
+CAST_Cpp_MemberVariable,C++
+CAST_Cpp_Namespace,C++
+CAST_Cpp_RootDirectory,C++
+CAST_Cpp_SourceFile,C++
+CAST_Cpp_TemplateClass,C++
+CAST_Cpp_TemplateClassInstance,C++
+CAST_Cpp_TemplateConstructor,C++
+CAST_Cpp_TemplateConstructorInstance,C++
+CAST_Cpp_TemplateFreeFunction,C++
+CAST_Cpp_TemplateFreeFunctionInstance,C++
+CAST_Cpp_TemplateMemberFunction,C++
+CAST_Cpp_TemplateMemberFunctionInstance,C++
+CAST_Cpp_TemplateParameter,C++
+CAST_Cpp_TemplateUnion,C++
+CAST_Cpp_TemplateUnionInstance,C++
+CAST_Cpp_Typedef,C++
+CAST_Cpp_Union,C++
+CAST_DotNet_BinaryOperatorCSharp,C#
+CAST_DotNet_BinaryOperatorVB,Visual Basic
+CAST_DotNet_CSharpFile,C#
+CAST_DotNet_ClassCSharp,C#
+CAST_DotNet_ClassCSharpComponent,C#
+CAST_DotNet_ClassCSharpCrystalReportClass,C#
+CAST_DotNet_ClassCSharpCustomAttribute,C#
+CAST_DotNet_ClassCSharpCustomControl,C#
+CAST_DotNet_ClassCSharpDataSet,C#
+CAST_DotNet_ClassCSharpException,C#
+CAST_DotNet_ClassCSharpForm,C#
+CAST_DotNet_ClassCSharpInstaller,C#
+CAST_DotNet_ClassCSharpServiceBase,C#
+CAST_DotNet_ClassCSharpServicedComponent,C#
+CAST_DotNet_ClassCSharpUserControl,C#
+CAST_DotNet_ClassCSharpWebService,C#
+CAST_DotNet_ClassCSharpWebServiceProxy,C#
+CAST_DotNet_ClassVB,Visual Basic
+CAST_DotNet_ClassVBComponent,Visual Basic
+CAST_DotNet_ClassVBCrystalReportClass,Visual Basic
+CAST_DotNet_ClassVBCustomAttribute,Visual Basic
+CAST_DotNet_ClassVBCustomControl,Visual Basic
+CAST_DotNet_ClassVBDataSet,Visual Basic
+CAST_DotNet_ClassVBException,Visual Basic
+CAST_DotNet_ClassVBForm,Visual Basic
+CAST_DotNet_ClassVBInstaller,Visual Basic
+CAST_DotNet_ClassVBServiceBase,Visual Basic
+CAST_DotNet_ClassVBServicedComponent,Visual Basic
+CAST_DotNet_ClassVBUserControl,Visual Basic
+CAST_DotNet_ClassVBWebService,Visual Basic
+CAST_DotNet_ClassVBWebServiceProxy,Visual Basic
+CAST_DotNet_ConstantCSharp,C#
+CAST_DotNet_ConstantVB,Visual Basic
+CAST_DotNet_ConstructorCSharp,C#
+CAST_DotNet_ConstructorVB,Visual Basic
+CAST_DotNet_ConversionOperatorCSharp,C#
+CAST_DotNet_ConversionOperatorVB,Visual Basic
+CAST_DotNet_Couchbase_Bucket,C#
+CAST_DotNet_Couchbase_Cluster,C#
+CAST_DotNet_Couchbase_Collection,C#
+CAST_DotNet_DelegateCSharp,C#
+CAST_DotNet_DelegateVB,Visual Basic
+CAST_DotNet_DestructorCSharp,C#
+CAST_DotNet_DestructorVB,Visual Basic
+CAST_DotNet_EnumerationCSharp,C#
+CAST_DotNet_EnumerationItemCSharp,C#
+CAST_DotNet_EnumerationItemVB,Visual Basic
+CAST_DotNet_EnumerationVB,Visual Basic
+CAST_DotNet_EventAddonCSharp,C#
+CAST_DotNet_EventAddonVB,Visual Basic
+CAST_DotNet_EventCSharp,C#
+CAST_DotNet_EventRaiseVB,Visual Basic
+CAST_DotNet_EventRemoveonCSharp,C#
+CAST_DotNet_EventRemoveonVB,Visual Basic
+CAST_DotNet_EventVB,Visual Basic
+CAST_DotNet_FieldCSharp,C#
+CAST_DotNet_FieldCSharpCustomControl,C#
+CAST_DotNet_FieldCSharpServerControl,C#
+CAST_DotNet_FieldVB,Visual Basic
+CAST_DotNet_FieldVBCustomControl,Visual Basic
+CAST_DotNet_FieldVBServerControl,Visual Basic
+CAST_DotNet_GenericClassCSharp,C#
+CAST_DotNet_GenericClassVB,Visual Basic
+CAST_DotNet_GenericDelegateCSharp,C#
+CAST_DotNet_GenericDelegateVB,Visual Basic
+CAST_DotNet_GenericInterfaceCSharp,C#
+CAST_DotNet_GenericInterfaceVB,Visual Basic
+CAST_DotNet_GenericMethodCSharp,C#
+CAST_DotNet_GenericMethodVB,Visual Basic
+CAST_DotNet_GenericStructureCSharp,C#
+CAST_DotNet_GenericStructureVB,Visual Basic
+CAST_DotNet_IndexerCSharp,C#
+CAST_DotNet_IndexerGetterCSharp,C#
+CAST_DotNet_IndexerGetterVB,Visual Basic
+CAST_DotNet_IndexerSetterCSharp,C#
+CAST_DotNet_IndexerSetterVB,Visual Basic
+CAST_DotNet_IndexerVB,Visual Basic
+CAST_DotNet_InstantiatedGenericClassCSharp,C#
+CAST_DotNet_InstantiatedGenericClassVB,Visual Basic
+CAST_DotNet_InstantiatedGenericDelegateCSharp,C#
+CAST_DotNet_InstantiatedGenericDelegateVB,Visual Basic
+CAST_DotNet_InstantiatedGenericInterfaceCSharp,C#
+CAST_DotNet_InstantiatedGenericInterfaceVB,Visual Basic
+CAST_DotNet_InstantiatedGenericMethodCSharp,C#
+CAST_DotNet_InstantiatedGenericMethodVB,Visual Basic
+CAST_DotNet_InstantiatedGenericStructureCSharp,C#
+CAST_DotNet_InstantiatedGenericStructureVB,Visual Basic
+CAST_DotNet_InterfaceCSharp,C#
+CAST_DotNet_InterfaceVB,Visual Basic
+CAST_DotNet_JavaScriptFile,Javascript
+CAST_DotNet_Lucene_Index,C#
+CAST_DotNet_MethodCSharp,C#
+CAST_DotNet_MethodVB,Visual Basic
+CAST_DotNet_ModuleVB,Visual Basic
+CAST_DotNet_PropertyCSharp,C#
+CAST_DotNet_PropertyGetterCSharp,C#
+CAST_DotNet_PropertyGetterVB,Visual Basic
+CAST_DotNet_PropertySetterCSharp,C#
+CAST_DotNet_PropertySetterVB,Visual Basic
+CAST_DotNet_PropertyVB,Visual Basic
+CAST_DotNet_Solr_Client,C#
+CAST_DotNet_Solr_Index,C#
+CAST_DotNet_StructureCSharp,C#
+CAST_DotNet_StructureVB,Visual Basic
+CAST_DotNet_TypeParameterCSharp,C#
+CAST_DotNet_TypeParameterVB,Visual Basic
+CAST_DotNet_UnaryOperatorCSharp,C#
+CAST_DotNet_UnaryOperatorVB,Visual Basic
+CAST_DotNet_Unknown_Couchbase_Bucket,C#
+CAST_DotNet_Unknown_Couchbase_Cluster,C#
+CAST_DotNet_Unknown_Couchbase_Collection,C#
+CAST_DotNet_Unknown_Lucene_Index,C#
+CAST_DotNet_Unknown_Solr_Index,C#
+CAST_EAD4J_Operation,Java
+CAST_HTML5_ASPX_Content,HTML
+CAST_HTML5_ASP_Content,HTML
+CAST_HTML5_AppletClassReference,Javascript
+CAST_HTML5_BeanMethodReference,Java
+CAST_HTML5_CSHTML_Content,HTML
+CAST_HTML5_DeleteHttpRequestService,Javascript
+CAST_HTML5_DeleteXMLHttpRequestService,Javascript
+CAST_HTML5_External_Libraries,HTML
+CAST_HTML5_GetEventSourceService,Javascript
+CAST_HTML5_GetHttpRequestService,Javascript
+CAST_HTML5_GetXMLHttpRequestService,Javascript
+CAST_HTML5_HTC_Content,HTML
+CAST_HTML5_HTML_Fragment,HTML
+CAST_HTML5_Handlebars_SourceCode,Handlebars
+CAST_HTML5_JEE_Class_Import,Java Server Pages
+CAST_HTML5_JEE_Method_Call,Java Server Pages
+CAST_HTML5_JEE_Scoped_Bean_Access,Java Server Pages
+CAST_HTML5_JEE_Servlet_Mapping_Access,Java Server Pages
+CAST_HTML5_JSP_Content,Java Server Pages
+CAST_HTML5_JSX_SourceCode,Javascript
+CAST_HTML5_Jade_SourceCode,Jade
+CAST_HTML5_JavaScript_Class,Javascript
+CAST_HTML5_JavaScript_Constructor,Javascript
+CAST_HTML5_JavaScript_Function,Javascript
+CAST_HTML5_JavaScript_Initialisation,Javascript
+CAST_HTML5_JavaScript_Method,Javascript
+CAST_HTML5_JavaScript_SourceCode,Javascript
+CAST_HTML5_JavaScript_SourceCode_Fragment,Javascript
+CAST_HTML5_Knockout_ModelFunction,Javascript
+CAST_HTML5_Knockout_View,Javascript
+CAST_HTML5_PostHttpRequestService,Javascript
+CAST_HTML5_PostXMLHttpRequestService,Javascript
+CAST_HTML5_Pug_SourceCode,pug
+CAST_HTML5_PutHttpRequestService,Javascript
+CAST_HTML5_SourceCode,HTML
+CAST_HTML5_SourceCode_Fragment,HTML
+CAST_HTML5_UpdateXMLHttpRequestService,Javascript
+CAST_HTML5_WebSocketService,Javascript
+CAST_HTML_Event,HTML
+CAST_HYBRIS_DeleteHttpRequestService,Java
+CAST_HYBRIS_GetHttpRequestService,Java
+CAST_HYBRIS_PostHttpRequestService,Java
+CAST_HYBRIS_PutHttpRequestService,Java
+CAST_IBMMQ_Java_QueueCall,Java
+CAST_IBMMQ_Java_QueueReceive,Java
+CAST_IBMMQ_Java_TopicCall,Java
+CAST_IBMMQ_Java_TopicReceive,Java
+CAST_IBMMQ_Java_Unknown_QueueCall,Java
+CAST_IBMMQ_Java_Unknown_QueueReceive,Java
+CAST_IBMMQ_Java_Unknown_TopicCall,Java
+CAST_IBMMQ_Java_Unknown_TopicReceive,Java
+CAST_IBMMQ_Python_QueueCall,Python
+CAST_IBMMQ_Python_QueueReceive,Python
+CAST_IMS_AlternateProgramControlBlock,IBM IMS (Transaction)
+CAST_IMS_AnalyzedProgramSpecificationBlock,IBM IMS (DL1)
+CAST_IMS_DatabaseProgramControlBlock,IBM IMS (DL1)
+CAST_IMS_DatabasePrototype,IBM IMS (DL1)
+CAST_IMS_GSAMProgramControlBlock,IBM IMS (DL1)
+CAST_IMS_MessageFormatService,IBM IMS (MFS)
+CAST_IMS_MessageInputDescriptor,IBM IMS (MFS)
+CAST_IMS_MessageOutputDescriptor,IBM IMS (MFS)
+CAST_IMS_ProgramControlBlockPrototype,IBM IMS (DL1)
+CAST_IMS_ProgramSpecificationBlockPrototype,IBM IMS (DL1)
+CAST_IMS_SavedDatabase,IBM IMS (DL1)
+CAST_IMS_Transaction,IBM IMS (Transaction)
+CAST_IMS_TransactionFile,IBM IMS (Transaction)
+CAST_J2EE_HTML5_Applet,Java
+CAST_J2EE_HTML5_JavaScript_SourceCode_Fragment,Javascript
+CAST_JAVA_AnonymousMethod,Java
+CAST_JAVA_JDBC_SQLQuery,Java
+CAST_JAVA_JDBI_SQLQuery,Java
+CAST_JAVA_JOOQ_SQLQuery,Java
+CAST_JAVA_MethodOfAnonymousClass,Java
+CAST_JAVA_SQLQuery,Java
+CAST_JAXRS_DeleteOperation,Java
+CAST_JAXRS_GetOperation,Java
+CAST_JAXRS_GetResourceService,Java
+CAST_JAXRS_Port,Java
+CAST_JAXRS_PostOperation,Java
+CAST_JAXRS_PutOperation,Java
+CAST_JAXRS_Service,Java
+CAST_JCL_AnalyzedIncludedFile,IBM z/OS JCL
+CAST_JCL_CatalogedJob,IBM z/OS JCL
+CAST_JCL_CatalogedJobPrototype,IBM z/OS JCL
+CAST_JCL_CatalogedProcedure,IBM z/OS JCL
+CAST_JCL_Dataset,IBM z/OS JCL
+CAST_JCL_Directory,IBM z/OS JCL
+CAST_JCL_IncludedFilePrototype,IBM z/OS JCL
+CAST_JCL_Index,IBM z/OS JCL
+CAST_JCL_InstreamProcedure,IBM z/OS JCL
+CAST_JCL_JCLToJava,IBM z/OS JCL
+CAST_JCL_MissingTable_Procedure,IBM z/OS JCL
+CAST_JCL_MissingTable_Schema,IBM z/OS JCL
+CAST_JCL_MissingTable_Table,IBM z/OS JCL
+CAST_JCL_ProcedurePrototype,IBM z/OS JCL
+CAST_JCL_ResolvedDataset,IBM z/OS JCL
+CAST_JCL_RootDirectory,IBM z/OS JCL
+CAST_JCL_SQLQuery,IBM z/OS JCL
+CAST_JCL_Step,IBM z/OS JCL
+CAST_JCL_UtilityProcedure,IBM z/OS JCL
+CAST_JEE_SINGLETON,Java
+CAST_JEE_VALIDATION_FORM,Java
+CAST_JEE_VALIDATION_FORM_FIELD,Java
+CAST_JMS_Java_QueueCall,Java
+CAST_JMS_Java_QueueReceive,Java
+CAST_JMS_Java_TopicCall,Java
+CAST_JMS_Java_TopicReceive,Java
+CAST_JMS_Java_Unknown_QueueCall,Java
+CAST_JMS_Java_Unknown_QueueReceive,Java
+CAST_JMS_Java_Unknown_TopicCall,Java
+CAST_JMS_Java_Unknown_TopicReceive,Java
+CAST_Java2Program_GeneralCall,Java
+CAST_Java2Program_JarProgram,Java
+CAST_Java2Program_JavaCall,Java
+CAST_Java_AnnotationType,Java
+CAST_Java_AnnotationTypeMethod,Java
+CAST_Java_Apachelucene_Index,Java
+CAST_Java_Apachesolr_Client,Java
+CAST_Java_Apachesolr_Index,Java
+CAST_Java_Applet,Java
+CAST_Java_CallTo_gRPC,Java
+CAST_Java_Cassandra_CQLQuery,Cassandra Query Language
+CAST_Java_Couchbase_Bucket,Java
+CAST_Java_Couchbase_Cluster,Java
+CAST_Java_Couchbase_Collection,Java
+CAST_Java_Couchbase_NewCollection,Java
+CAST_Java_Freemarker_CallToFTL,Java
+CAST_Java_Freemarker_FTLParameter,Java
+CAST_Java_JOOQ_Entity,Java
+CAST_Java_JOOQ_Entity_Operation,Java
+CAST_Java_JPA_Entity,Java
+CAST_Java_JPA_Entity_Operation,Java
+CAST_Java_JPA_JPQLQuery,Java
+CAST_Java_JPA_SQLQuery,Java
+CAST_Java_Lambda,Java
+CAST_Java_LocalVariable,Java
+CAST_Java_MissingTable_Procedure,Java
+CAST_Java_MissingTable_Schema,Java
+CAST_Java_MissingTable_Table,Java
+CAST_Java_Service_CallToDelete,Java
+CAST_Java_Service_CallToGet,Java
+CAST_Java_Service_CallToPatch2,Java
+CAST_Java_Service_CallToPost,Java
+CAST_Java_Service_CallToPut,Java
+CAST_Java_Spark_JDBC_Read,Java
+CAST_Java_Spark_JDBC_SQLQuery,Java
+CAST_Java_Spark_JDBC_Write,Java
+CAST_Java_Unknown_Apachelucene_Index,Java
+CAST_Java_Unknown_Apachesolr_Index,Java
+CAST_Java_Unknown_Couchbase_Bucket,Java
+CAST_Java_Unknown_Couchbase_Cluster,Java
+CAST_Java_Unknown_Couchbase_Collection,Java
+CAST_Java_Unknown_Couchbase_NewCollection,Java
+CAST_Java_Web_XML,Java
+CAST_Java_gRPC_Method,Java
+CAST_Javascript_ClientSide_Method,Javascript
+CAST_Javascript_ClientSide_Variable,Javascript
+CAST_Javascript_Method_Parameter,Javascript
+CAST_Javascript_ServerSide_Method,Javascript
+CAST_Javascript_ServerSide_Variable,Javascript
+CAST_Kotlin_Anonymous_Class,Kotlin
+CAST_Kotlin_Class,Kotlin
+CAST_Kotlin_Function,Kotlin
+CAST_Kotlin_Generic_Class,Kotlin
+CAST_Kotlin_Generic_Interface,Kotlin
+CAST_Kotlin_Getter,Kotlin
+CAST_Kotlin_Instantiated_Class,Kotlin
+CAST_Kotlin_Interface,Kotlin
+CAST_Kotlin_JVM_Class,Kotlin
+CAST_Kotlin_JVM_Generic_Class,Kotlin
+CAST_Kotlin_JVM_Method,Kotlin
+CAST_Kotlin_Lambda,Kotlin
+CAST_Kotlin_Main,Kotlin
+CAST_Kotlin_Method,Kotlin
+CAST_Kotlin_Object,Kotlin
+CAST_Kotlin_Property,Kotlin
+CAST_Kotlin_Setter,Kotlin
+CAST_Kotlin_SourceCode,Kotlin
+CAST_Kotlin_WebService_DeleteOperation,Kotlin
+CAST_Kotlin_WebService_GetOperation,Kotlin
+CAST_Kotlin_WebService_PostOperation,Kotlin
+CAST_Kotlin_WebService_PutOperation,Kotlin
+CAST_ObjectiveC_Action,Objective-C
+CAST_ObjectiveC_Block,Objective-C
+CAST_ObjectiveC_Category,Objective-C
+CAST_ObjectiveC_ClassMethod,Objective-C
+CAST_ObjectiveC_Interface,Objective-C
+CAST_ObjectiveC_InterfaceVariable,Objective-C
+CAST_ObjectiveC_Method,Objective-C
+CAST_ObjectiveC_Outlet,Objective-C
+CAST_ObjectiveC_Property,Objective-C
+CAST_ObjectiveC_PropertyGetter,Objective-C
+CAST_ObjectiveC_PropertySetter,Objective-C
+CAST_ObjectiveC_Protocol,Objective-C
+CAST_ObjectiveC_SourceFile,Objective-C
+CAST_Python_AWS_Lambda,Python
+CAST_Python_AWS_Lambda_Function_ANY,Python
+CAST_Python_AWS_Lambda_Function_DELETE,Python
+CAST_Python_AWS_Lambda_Function_GET,Python
+CAST_Python_AWS_Lambda_Function_POST,Python
+CAST_Python_AWS_Lambda_Function_PUT,Python
+CAST_Python_AWS_S3_Bucket,Python
+CAST_Python_AWS_S3_Region,Python
+CAST_Python_AWS_SNS_Publisher,Python
+CAST_Python_AWS_SNS_Subscriber,Python
+CAST_Python_AWS_SNS_Unknown_Publisher,Python
+CAST_Python_AWS_SNS_Unknown_Subscriber,Python
+CAST_Python_AWS_SQS_Publisher,Python
+CAST_Python_AWS_SQS_Receiver,Python
+CAST_Python_AWS_SQS_Unknown_Publisher,Python
+CAST_Python_AWS_SQS_Unknown_Receiver,Python
+CAST_Python_AWS_Unknown_S3_Bucket,Python
+CAST_Python_AWS_Unknown_S3_Region,Python
+CAST_Python_Aiohttp_DeleteOperation,Python
+CAST_Python_Aiohttp_GetOperation,Python
+CAST_Python_Aiohttp_PostOperation,Python
+CAST_Python_Aiohttp_PutOperation,Python
+CAST_Python_CallTo_AWS_Lambda,Python
+CAST_Python_CallTo_AWS_Unknown_Lambda,Python
+CAST_Python_Class,Python
+CAST_Python_DeleteAiohttpService,Python
+CAST_Python_DeleteHttplib2Service,Python
+CAST_Python_DeleteHttplibService,Python
+CAST_Python_DeleteRequestsService,Python
+CAST_Python_DeleteServiceRequest,Python
+CAST_Python_DeleteUrllibService,Python
+CAST_Python_Email,Python
+CAST_Python_External_Library,Python
+CAST_Python_File_Query,Python
+CAST_Python_Flask_DeleteOperation,Python
+CAST_Python_Flask_GetOperation,Python
+CAST_Python_Flask_PostOperation,Python
+CAST_Python_Flask_PutOperation,Python
+CAST_Python_GeneralCall,Python
+CAST_Python_GetAiohttpService,Python
+CAST_Python_GetHttplib2Service,Python
+CAST_Python_GetHttplibService,Python
+CAST_Python_GetRequestsService,Python
+CAST_Python_GetServiceRequest,Python
+CAST_Python_GetUrllib2Service,Python
+CAST_Python_GetUrllibService,Python
+CAST_Python_GetWeb2pyService,Python
+CAST_Python_JavaCall,Python
+CAST_Python_Method,Python
+CAST_Python_MissingTable_Procedure,SQL
+CAST_Python_MissingTable_Schema,SQL
+CAST_Python_MissingTable_Table,Python
+CAST_Python_MissingTable_TableColumn,SQL
+CAST_Python_ORM_Mapping,Python
+CAST_Python_PostAiohttpService,Python
+CAST_Python_PostHttplib2Service,Python
+CAST_Python_PostHttplibService,Python
+CAST_Python_PostRequestsService,Python
+CAST_Python_PostServiceRequest,Python
+CAST_Python_PostUrllib2Service,Python
+CAST_Python_PostUrllibService,Python
+CAST_Python_PutAiohttpService,Python
+CAST_Python_PutHttplib2Service,Python
+CAST_Python_PutHttplibService,Python
+CAST_Python_PutRequestsService,Python
+CAST_Python_PutServiceRequest,Python
+CAST_Python_PutUrllibService,Python
+CAST_Python_Query,Python
+CAST_Python_SMS,Python
+CAST_Python_Script,Python
+CAST_Python_SourceCode,Python
+CAST_Python_StaticInitializer,Python
+CAST_Python_WebService_AnyOperation,Python
+CAST_Python_WebService_DeleteOperation,Python
+CAST_Python_WebService_GetOperation,Python
+CAST_Python_WebService_PostOperation,Python
+CAST_Python_WebService_PutOperation,Python
+CAST_RPG300_RPG400_MissingTable_Procedure,RPG
+CAST_RPG300_RPG400_MissingTable_Schema,RPG
+CAST_RPG300_RPG400_MissingTable_Table,RPG
+CAST_RabbitMQ_Java_Exchange,Java
+CAST_RabbitMQ_Java_Queue,Java
+CAST_RabbitMQ_Java_Unknown_Exchange,Java
+CAST_RabbitMQ_Java_Unknown_Queue,Java
+CAST_RabbitMQ_Python_Exchange,Python
+CAST_RabbitMQ_Python_Queue,Python
+CAST_RabbitMQ_Python_QueueCall,Python
+CAST_RabbitMQ_Python_QueueReceive,Python
+CAST_ReduxJS_ReducerHandler,Javascript
+CAST_SAPUI5_ABAP_DeleteOperation,Javascript
+CAST_SAPUI5_ABAP_GetOperation,Javascript
+CAST_SAPUI5_ABAP_PostOperation,Javascript
+CAST_SAPUI5_ABAP_PutOperation,Javascript
+CAST_SAP_MethodSQLScriptFunction,SQL
+CAST_SAP_MethodSQLScriptProcedure,SQL
+CAST_SHELL_AWS_S3_Bucket,Shell
+CAST_SHELL_AWS_Unknown_S3_Bucket,Shell
+CAST_SQL_UnresolvedFunction,SQL
+CAST_SQL_UnresolvedProcedure,SQL
+CAST_SQL_UnresolvedSchema,SQL
+CAST_SQL_UnresolvedServer,SQL
+CAST_SQL_UnresolvedTableSource,SQL
+CAST_Servlet_AnyOperation,Java
+CAST_Servlet_DeleteOperation,Java
+CAST_Servlet_GetOperation,Java
+CAST_Servlet_PostOperation,Java
+CAST_Servlet_PutOperation,Java
+CAST_SpringJDBC_Query,Java
+CAST_Swift_Class,Swift
+CAST_Swift_DefaultInit,Swift
+CAST_Swift_Enumeration,Swift
+CAST_Swift_Function,Swift
+CAST_Swift_Method,Swift
+CAST_Swift_Protocol,Swift
+CAST_Swift_SourceCode,Swift
+CAST_Swift_Structure,Swift
+CAST_TS_AWS_SQS_Publisher,TypeScript
+CAST_TS_AWS_SQS_Receiver,TypeScript
+CAST_TS_AWS_SQS_Unknown_Publisher,TypeScript
+CAST_TS_AWS_SQS_Unknown_Receiver,TypeScript
+CAST_TS_Class,TypeScript
+CAST_TS_ClassInitializer,TypeScript
+CAST_TS_DeleteHttpRequestService,TypeScript
+CAST_TS_Function,TypeScript
+CAST_TS_GetHttpRequestService,TypeScript
+CAST_TS_Interface,TypeScript
+CAST_TS_Method,TypeScript
+CAST_TS_Namespace,TypeScript
+CAST_TS_PostHttpRequestService,TypeScript
+CAST_TS_PutHttpRequestService,TypeScript
+CAST_TS_Query,TypeScript
+CAST_TS_SourceCode,TypeScript
+CAST_Thymeleaf_DeleteResourceService,Java
+CAST_Thymeleaf_GetResourceService,Java
+CAST_Thymeleaf_PostResourceService,Java
+CAST_Thymeleaf_PutResourceService,Java
+CAST_VBSCript_ClientSide_PropertyGet,Javascript
+CAST_VBSCript_ClientSide_PropertyLet,Javascript
+CAST_VBSCript_ClientSide_PropertySet,Javascript
+CAST_VBSCript_ServerSide_PropertyGet,Javascript
+CAST_VBSCript_ServerSide_PropertyLet,Javascript
+CAST_VBSCript_ServerSide_PropertySet,Javascript
+CAST_VBScript_ClientSide_Class,Javascript
+CAST_VBScript_ClientSide_Constant,Javascript
+CAST_VBScript_ClientSide_Function,Javascript
+CAST_VBScript_ClientSide_Sub,Javascript
+CAST_VBScript_ClientSide_Variable,Javascript
+CAST_VBScript_ServerSide_Class,Javascript
+CAST_VBScript_ServerSide_Constant,Javascript
+CAST_VBScript_ServerSide_Function,Javascript
+CAST_VBScript_ServerSide_Sub,Javascript
+CAST_VBScript_ServerSide_Variable,Javascript
+CAST_Vaadin_Event_Handler,Java
+CAST_Vaadin_View,Java
+CAST_Web_AppletDirectory,HTML
+CAST_Web_COMObjetsDirectory,HTML
+CAST_Web_Constant,HTML
+CAST_Web_Directory,HTML
+CAST_Web_ExternalUrlDirectory,HTML
+CAST_Web_File,HTML
+CAST_Web_FunctionClass,HTML
+CAST_Web_FunctionEvent,HTML
+CAST_Web_FunctionFunction,HTML
+CAST_Web_FunctionMethod,HTML
+CAST_Web_FunctionProcedure,HTML
+CAST_Web_FunctionPropertyGet,HTML
+CAST_Web_FunctionPropertyLet,HTML
+CAST_Web_FunctionPropertySet,HTML
+CAST_Web_HTC_Class,HTML
+CAST_Web_HTC_Event,HTML
+CAST_Web_HTC_Method,HTML
+CAST_Web_HTC_Property,HTML
+CAST_Web_Instance,HTML
+CAST_Web_URLDirectory,HTML
+CAST_Web_Variable,HTML
+CDI_BEAN,Java
+CICS_BMS,IBM CICS (BMS)
+CICS_CSDFILE,IBM CICS (Transaction)
+CICS_CSDGROUP,IBM CICS (Transaction)
+CICS_MAP,IBM CICS (BMS)
+CICS_MAPSET,IBM CICS (BMS)
+CL400DataQueueCall,IBM CLP
+CL400DataQueueReceive,IBM CLP
+CL400DataUnknownQueueCall,IBM CLP
+CL400DataUnknownQueueReceive,IBM CLP
+CL400Program,IBM CLP
+CL400SQLStructure,IBM CLP
+CL400Subroutine,IBM CLP
+CL400UnknownDDSDiskFile,DDS Db2 for i
+CL400UnknownProgram,IBM CLP
+COBOL_CICS_FILE,Cobol
+COBOL_CICS_MAP,Cobol
+COBOL_CICS_QUEUE,Cobol
+COBOL_DBD,Cobol
+COBOL_PSB,Cobol
+COBOL_ROOTDIRECTORY,Cobol
+C_CLASS,C++
+C_CLASSFOLDER,C++
+C_CONSTRUCTOR,C++
+C_DESTRUCTOR,C++
+C_DIRECTORY,C++
+C_ENUM,C++
+C_ENUMITEM,C++
+C_FILE,C++
+C_FILESCOPEFOLDER,C++
+C_FUNCTION,C++
+C_GLOBAL,C++
+C_GLOBALVARIABLE,C++
+C_MACRO,C++
+C_MEMBER,C++
+C_METHOD,C++
+C_ROOTDIRECTORY,C++
+C_STRUCT,C++
+C_TEMPLATE_CLASS,C++
+C_TEMPLATE_CLASS_INSTANCE,C++
+C_TEMPLATE_CTOR,C++
+C_TEMPLATE_CTOR_INSTANCE,C++
+C_TEMPLATE_FUNCTION,C++
+C_TEMPLATE_FUNCTION_INSTANCE,C++
+C_TEMPLATE_METHOD_INSTANCE,C++
+C_TEMPLATE_PARAM,C++
+C_TYPEDEF,C++
+C_UNION,C++
+CallTo_program,Assembler
+Custom_COBOL_ProgramPrototype,Cobol
+Custom_JCL_ProgramPrototype,IBM z/OS JCL
+DDS400DSPFFile,DDS
+DDS400LogicalFile,DDS Db2 for i
+DDS400PRTFFile,DDS
+DDS400PhysicalFile,DDS Db2 for i
+DDS400RecordstructureLF,DDS Db2 for i
+DDS400RecordstructurePF,DDS Db2 for i
+DDS400Section,DDS
+EGLDataTable,Cobol
+EGLForm,Cobol
+EGLFormGroup,Cobol
+EGLFunction,Cobol
+EGLPackage,Cobol
+EGLProgram,Cobol
+EGLProjectDeclaration,Cobol
+EGLRecord,Cobol
+EGLRecordColumn,Cobol
+EGLRecordDeclaration,Cobol
+EGLReferencedProjects,Cobol
+Easyfile,Easytrieve
+Easymacro,Easytrieve
+Easyproc,Easytrieve
+Easyreport,Easytrieve
+Eztprogram,Easytrieve
+FLEX_DestinationSource,Flex
+FLEX_RemoteClass,Flex
+FLEX_RemoteObject,Flex
+FLEX_class,Flex
+FLEX_destination,Flex
+FLEX_field,Flex
+FLEX_function,Flex
+FLEX_getter,Flex
+FLEX_package,Flex
+FLEX_script,Flex
+FLEX_setter,Flex
+FORM_VALIDATION_FILE,Java
+FortranExternalFunction,FORTRAN
+FortranExternalSubroutine,FORTRAN
+FortranIOSTATVariable,FORTRAN
+FortranInterface,FORTRAN
+FortranInternalFunction,FORTRAN
+FortranInternalSubroutine,FORTRAN
+FortranModule,FORTRAN
+FortranProgram,FORTRAN
+FortranSTATVariable,FORTRAN
+JCL_PROGRAM,IBM z/OS JCL
+JCL_PSB,IBM z/OS JCL
+JSP_APPDESCRIPTOR,Java Server Pages
+JSP_ATTRIBUTES_SCOPE,Java Server Pages
+JSP_BEAN,Java Server Pages
+JSP_BEAN_PROP,Java Server Pages
+JSP_BEAN_PROP_TILES_DEF_ATTRIBUTE,Java Server Pages
+JSP_BEAN_TILES_DEF,Java Server Pages
+JSP_ELFUNCTION,Java Server Pages
+JSP_GENERIC,Java Server Pages
+JSP_PROPERTIES_FILE,Java Server Pages
+JSP_PROPERTY_MAPPING,Java Server Pages
+JSP_SERVLET,Java Server Pages
+JSP_SERVLET_MAPPING,Java Server Pages
+JSP_STXX_PIPELINE,Java Server Pages
+JSP_STXX_TRANSFORM,Java Server Pages
+JSP_STXX_TRANSFORMS_FILE,Java Server Pages
+JSP_TAG,Java Server Pages
+JSP_TAG_ATTR,Java Server Pages
+JSP_TAG_LIB,Java Server Pages
+JSP_TILES_DEF_FILE,Java Server Pages
+JSP_XMLCONFIG_FILE,Java Server Pages
+JV_APPLET,Java
+JV_CLASS,Java
+JV_CTOR,Java
+JV_ENUM,Java
+JV_ENUM_ITEM,Java
+JV_FIELD,Java
+JV_FILE,Java
+JV_GENERIC_CLASS,Java
+JV_GENERIC_CTOR,Java
+JV_GENERIC_INTERFACE,Java
+JV_GENERIC_METHOD,Java
+JV_IMPORT,Java
+JV_INIT,Java
+JV_INST_CLASS,Java
+JV_INST_CTOR,Java
+JV_INST_INTERFACE,Java
+JV_INST_METHOD,Java
+JV_INTERFACE,Java
+JV_METHOD,Java
+JV_PACKAGE,Java
+JV_RECORD,Java
+JV_RECORD_COMPONENT,Java
+JV_TYPEPARAM,Java
+MENUBar,Cobol
+MENUItem,Cobol
+PB_ANALYSE,PowerBuilder
+PB_APPLICATION,PowerBuilder
+PB_CONTROL,PowerBuilder
+PB_DATASTORE,PowerBuilder
+PB_DATAWINDOW,PowerBuilder
+PB_DEC_CURSOR,PowerBuilder
+PB_DEC_PROC,PowerBuilder
+PB_EVENT,PowerBuilder
+PB_EXTFUNCTION,PowerBuilder
+PB_FUNCINCLASS,PowerBuilder
+PB_FUNCTION,PowerBuilder
+PB_GLOBALVARIABLE,PowerBuilder
+PB_LIBRARY,PowerBuilder
+PB_MEMBERVARIABLE,PowerBuilder
+PB_MENU,PowerBuilder
+PB_PROXYOBJECT,PowerBuilder
+PB_RPCFUNC,PowerBuilder
+PB_STRUCTURE,PowerBuilder
+PB_USEROBJECT,PowerBuilder
+PB_WINDOW,PowerBuilder
+PLCDB2Table,IBM PL/1
+PLCErrorBlock,IBM PL/1
+PLCFileStructure,IBM PL/1
+PLCFunction,IBM PL/1
+PLCInclude,IBM PL/1
+PLCMainProcedure,IBM PL/1
+PLCProcedure,IBM PL/1
+PLIDB2Table,IBM PL/1
+PLIErrorBlock,IBM PL/1
+PLIFileStructure,IBM PL/1
+PLIFunction,IBM PL/1
+PLIMainProcedure,IBM PL/1
+PLIProcedure,IBM PL/1
+RPG300CopyProgram,RPG
+RPG300DataQueueCall,RPG
+RPG300DataQueueReceive,RPG
+RPG300DataUnknownQueueCall,RPG
+RPG300DataUnknownQueueReceive,RPG
+RPG300FileDisk,RPG
+RPG300FilePrinter,RPG
+RPG300FileSeq,RPG
+RPG300FileSpecial,RPG
+RPG300FileWorkstn,RPG
+RPG300IBMMQQueueCall,RPG
+RPG300IBMMQQueueReceive,RPG
+RPG300IBMMQUnknownQueueCall,RPG
+RPG300IBMMQUnknownQueueReceive,RPG
+RPG300MainSubroutine,RPG
+RPG300Program,RPG
+RPG300SQLStructure,RPG
+RPG300Subroutine,RPG
+RPG300UnknownCopy,RPG
+RPG300UnknownDDSDiskFile,DDS Db2 for i
+RPG300UnknownDDSDisplayFile,DDS
+RPG300UnknownDDSPrinterFile,DDS
+RPG300UnknownProgram,RPG
+RPG400CopyProgram,RPG
+RPG400DataQueueCall,RPG
+RPG400DataQueueReceive,RPG
+RPG400DataUnknownQueueCall,RPG
+RPG400DataUnknownQueueReceive,RPG
+RPG400DeleteResourceService,RPG
+RPG400FileDisk,RPG
+RPG400FilePrinter,RPG
+RPG400FileSeq,RPG
+RPG400FileSpecial,RPG
+RPG400FileWorkstn,RPG
+RPG400GetResourceService,RPG
+RPG400IBMMQQueueCall,RPG
+RPG400IBMMQQueueReceive,RPG
+RPG400IBMMQUnknownQueueCall,RPG
+RPG400IBMMQUnknownQueueReceive,RPG
+RPG400MainSubroutine,RPG
+RPG400Module,RPG
+RPG400PostOperation,RPG
+RPG400PostResourceService,RPG
+RPG400Procedure,RPG
+RPG400ProcedurePrototype,RPG
+RPG400Program,RPG
+RPG400PutResourceService,RPG
+RPG400SQLStructure,RPG
+RPG400Subroutine,RPG
+RPG400UnknownCopy,RPG
+RPG400UnknownDDSDiskFile,DDS Db2 for i
+RPG400UnknownDDSDisplayFile,DDS
+RPG400UnknownDDSPrinterFile,DDS
+RPG400UnknownProcedure,RPG
+RPG400UnknownProgram,RPG
+Rexxfile,REXX
+Rexxfunction,REXX
+Rexxprocedure,REXX
+Rexxprogram,REXX
+SAPCDSView,ABAP
+SAPUnresolvedFolder,ABAP
+SHELLFunction,Shell
+SHELLSpecialFunction,Shell
+SOAP_JV_CLIENT_ENDPOINT,Java
+SOAP_JV_CLIENT_OPERATION,Java
+SOAP_JV_CLIENT_SERVICE,Java
+SOAP_JV_OPERATION,Java
+SOAP_JV_PORTTYPE,Java
+SOAP_JV_SERVICE,Java
+SQLScriptDatabaseLink,SQL
+SQLScriptFunction,SQL
+SQLScriptMacro,SQL
+SQLScriptMethod,SQL
+SQLScriptProcedure,SQL
+SQLScriptSchema,SQL
+SQLScriptTable,SQL
+SQLScriptTableColumn,SQL
+SQLScriptTrigger,SQL
+SQLScriptType,SQL
+SQLScriptUnresolvedFunction,SQL
+SQLScriptUnresolvedSchema,SQL
+SQLScriptUnresolvedTable,SQL
+SQLScript_Missing_Procedure,SQL
+SQLScript_Missing_Schema,SQL
+SQLScript_Missing_Table,SQL
+ScriptFunction,ActionScript
+ScriptSection,ActionScript
+Tibco_AECLASS,TIBCO
+Tibco_AECLASSFIELD,TIBCO
+Tibco_AESCHEMA,TIBCO
+Tibco_ApplicationModule,TIBCO
+Tibco_ApplicationModule_Directory,TIBCO
+Tibco_JDBCSharedResource,TIBCO
+Tibco_JMSConnectionKey,TIBCO
+Tibco_Process,TIBCO
+Tibco_ProcessActivity,TIBCO
+Tibco_ProcessActivityInput,TIBCO
+Tibco_ProcessActivityJavaProcessCall,TIBCO
+Tibco_ProcessActivityOutput,TIBCO
+Tibco_ProcessEnd,TIBCO
+Tibco_ProcessStarter,TIBCO
+Tibco_ProcessTransition,TIBCO
+Tibco_ProcessVariable,TIBCO
+Tibco_ProcessVariableGroup,TIBCO
+Tibco_Processgroup,TIBCO
+Tibco_Service,TIBCO
+Tibco_ServiceOperation,TIBCO
+Tibco_SharedModule,TIBCO
+Tibco_SharedModule_Directory,TIBCO
+URL,HTML
+Unknown_JCL_Dataset,IBM z/OS JCL
+Unknown_Rexxprogram,REXX
+VALIDATION_FORM,Java
+VALIDATION_FORMS_SET,Java
+VALIDATION_FORM_FIELD,Java
+VB_CLASS_MODULE,Visual Basic
+VB_CONST,Visual Basic
+VB_CONTROL,Visual Basic
+VB_DESIGNER,Visual Basic
+VB_ENUM,Visual Basic
+VB_EVENT,Visual Basic
+VB_EXTFUNCTION,Visual Basic
+VB_EXTSUB,Visual Basic
+VB_FORM,Visual Basic
+VB_FUNCTION,Visual Basic
+VB_MDI_FORM,Visual Basic
+VB_MODULE,Visual Basic
+VB_PROJECT_GROUP,Visual Basic
+VB_PROPERTY_GET,Visual Basic
+VB_PROPERTY_LET,Visual Basic
+VB_PROPERTY_PAGE,Visual Basic
+VB_PROPERTY_SET,Visual Basic
+VB_SUB,Visual Basic
+VB_TYPE,Visual Basic
+VB_USER_CONTROL,Visual Basic
+VB_USER_DOC,Visual Basic
+VB_VAR,Visual Basic
+XML_BEAN,Java Server Pages
+abapBadi,ABAP
+abapBookmarkFile,ABAP
+abapEventBlock,ABAP
+abapFlowLogicFile,ABAP
+abapForm,ABAP
+abapFrame,ABAP
+abapFunction,ABAP
+abapFunctionPool,ABAP
+abapInclude,ABAP
+abapMacro,ABAP
+abapModule,ABAP
+abapModulePool,ABAP
+abapProcessingScreen,ABAP
+abapProgram,ABAP
+abapSelectionScreen,ABAP
+abapTypePool,ABAP
+abapUnresolvedFolder,ABAP
+abapUnresolvedObject,ABAP
+abapUserExit,ABAP
+phpArray,PHP
+phpClass,PHP
+phpConstants,PHP
+phpConstructor,PHP
+phpDefine,PHP
+phpFunction,PHP
+phpInterface,PHP
+phpMember,PHP
+phpMethod,PHP
+phpSection,PHP
+phpSymfonyController,PHP
+phpSymfonyControllerClass,PHP
+phpSymfonyRoute,PHP
+phpSymfonyService,PHP

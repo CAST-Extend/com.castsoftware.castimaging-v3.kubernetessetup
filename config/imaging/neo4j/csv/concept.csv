@@ -1,0 +1,28 @@
+name,description
+Class,"In object-oriented programming, a class is a template definition of the methods and variables in a particular kind of object. "
+Class Constructor,Class Constructor Artifacts.
+Class Destructor,Class Destructor Artifacts.
+Cloud Function,Cloud Function
+Cloud Resource,Cloud Resource
+Collection,NoSQL storage collections
+Data Object,All database objects which are not database sources
+Data Query,Data Query Object Types
+Data Source,"Database table or view, IMS database segment, File dataset, NoSQL collection"
+Enumeration,Enumeration Artifacts
+Exposed Web Services,Exposed Web Services Artifacts
+Function,"The Function category gathers programming languages functions, methods and procedures"
+Message Queue Publisher,Message Queue Publisher Artifacts.
+Message Queue Subscriber,Message Queue Subscriber
+Procedure,Procedure
+Property Getter,Property Getter Artifacts
+Property Setter,Property Setter Artifacts
+Schema,RBDMS Schema Artifacts.
+Storage,Storage
+Storage Connection,Storage Connection
+Table,RDBMS Table Artifacts.
+Table Column,Table Column Artifacts
+Trigger,Trigger
+UI,User Interface Objects
+Variable,"This category is for all objects related to variables, constants, and parameters declared in source code executable elements."
+Web Services,Web Services
+Web Services Call,Web Services Call Artifacts

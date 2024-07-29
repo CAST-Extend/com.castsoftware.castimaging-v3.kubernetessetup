@@ -1,0 +1,89 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: viewer-server
+  labels:
+    app: viewer-server
+spec:
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 8080
+    - name: https
+      port: 443
+      targetPort: 443
+    - name: login
+      port: 9000
+      targetPort: 9000
+  selector:
+    app: viewer-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: viewer-server
+    version: {{.Values.ViewerServiceImage.tag| default .Values.version}}
+  name: viewer-server
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ViewerServerReplicaCount }}
+  selector:
+    matchLabels:
+      app: viewer-server
+  template:
+    metadata:
+      labels:
+        app: viewer-server
+    spec:
+      initContainers:
+        - name: neo4jhealthcheck
+          image: busybox:latest
+          command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done"]     
+      containers:
+        - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
+          imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
+          command: ['sh', '-c', "/opt/imaging/config/init.sh"]
+          name: viewer-server
+          env:
+            - name: TIME_ZONE
+              value: "Europe/Paris"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 443
+              protocol: TCP
+            - containerPort: 9000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.ViewerServerServiceResources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /opt/imaging/config
+            - name: log
+              mountPath: /opt/imaging/imaging-service/logs
+            - name: csv
+              mountPath: /opt/imaging/imaging-service/upload
+            - name: servernginxconf
+              mountPath: /opt/imaging/config/nginx/conf/nginx.conf
+              subPath: nginx.conf
+            - name: serverappconfig
+              mountPath: /opt/imaging/config/app.config
+              subPath: app.config
+        
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-server-config
+        - name: log
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-server-log
+        - name: csv
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-server-csv
+        - name: servernginxconf
+          configMap:
+            name: servernginxconf
+        - name: serverappconfig
+          configMap:
+            name: serverappconfig

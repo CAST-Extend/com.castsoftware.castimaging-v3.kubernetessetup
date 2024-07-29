@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: console-analysis-node
+  labels:
+    console.service: console-analysis-node
+    component: core
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+    - name: "8099"
+      port: 8099
+      targetPort: 8099
+  selector:
+    console.service: console-analysis-node  
+    component: core
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    console.service: console-analysis-node
+    version: {{ .Values.ConsoleAnalysisNodeImage.tag| default .Values.version }}
+  name: console-analysis-node-core
+  namespace: {{ .Release.Namespace }}   
+spec:
+  replicas: {{ .Values.AnalysisNodeReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: console-analysis-node
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: console-analysis-node
+        component: core
+    spec:
+      containers:
+        - env:
+            - name: DEPLOY_VOLUME_MACHINE
+              value: /shared/deploy
+            - name: DELIVERY_VOLUME_MACHINE
+              value: /shared/delivery
+            - name: SHARED_VOLUME_MACHINE
+              value: /shared/common-data
+            - name: LOGS_VOLUME_MACHINE
+              value: /usr/share/CAST/CAST/Logs
+            - name: ANDATA_VOLUME_MACHINE
+              value: /usr/share/CAST/CASTMS/LISA
+            - name: CONSOLE_REGISTRY_URL
+              value: http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098
+            - name: HOST_AUTH_SERVICE
+              value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_AUTH_SERVICE
+              value: "8092"
+          image: "{{ .Values.ConsoleAnalysisNodeImage.name }}:{{ .Values.ConsoleAnalysisNodeImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleAnalysisNodeImage.pullPolicy }}"
+          name: console-analysis-node
+          ports:
+            - containerPort: 8099
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /usr/share/CAST
+              name: castdir
+            - mountPath: /shared
+              name: datadir
+      restartPolicy: Always
+            
+  volumeClaimTemplates:
+    - metadata:
+        name: castdir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: "{{ .Values.storageClassName.name }}"
+        resources:
+          requests:
+            storage: "2Gi"
+    - metadata:
+        name: datadir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: "{{ .Values.storageClassName.name }}"
+        resources:
+          requests:
+            storage: "2Gi"

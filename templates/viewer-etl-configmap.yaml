@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  app.config: "{\n  \"PORT\": \"9001\",\n  \"WORKER_POOL_SIZE\": 4,\n  \"NEO4J_BOLT_ENDPOINT\":
+    \"viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7687\",\n  \"NEO4J_USERNAME\":
+    \"neo4j\",\n  \"NEO4J_PASSWORD\": \"imaging\",\n  \"TOKEN\": \"D5ED6A406775FC71B8D2A978883E8ED4\",\n
+    \ \"NEO4J_IMPORT_PATH\": \"/opt/imaging/imaging-etl/upload/\",\n  \"NEO4J_ARCHIVE_PATH\":
+    \"/opt/imaging/imaging-etl/upload/archive/\",\n  \"NEO4J_IMPORT_BATCH_SIZE\":
+    \"1000\", \n  \"LOG_PATH\": \"/opt/imaging/imaging-etl/logs/\",\n  \"LOG_LEVEL\":
+    \"debug\",\n  \"HTTP_ENDPOINT\": \"http://viewer-server.{{ .Release.Namespace }}.svc.cluster.local:8084\",\n
+    \ \"EUREKA_HOST\": \"console-control-panel.{{ .Release.Namespace }}.svc.cluster.local\",\n
+    \ \"EUREKA_PORT\": \"8098\",\n  \"SERVICE_HOST\": \"viewer-etl.{{ .Release.Namespace }}.svc.cluster.local\",\n
+    \ \"SERVICE_NAME\": \"ImagingEtl\"\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: etlappconfig
+  namespace: castimaging-v3

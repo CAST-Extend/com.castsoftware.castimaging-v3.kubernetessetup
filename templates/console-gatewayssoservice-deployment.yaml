@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: console-gateway-service
+  name: console-gateway-service
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8096"
+      port: 8096
+      targetPort: 8080
+    - name: "8090"
+      port: 8090
+      targetPort: 8090
+  selector:
+    console.service: console-gateway-service
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    console.service: console-gateway-service
+    version: {{ .Values.ConsoleGatewayServiceImage.tag| default .Values.version }}
+  name: console-gateway-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.GatewayServiceReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: console-gateway-service
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: console-gateway-service
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - kubtest2
+      containers:
+        - env:
+            - name: KC_DB_USERNAME
+              value: postgres
+            - name: KC_DB_PASSWORD
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://console-postgres.{{ .Release.Namespace }}.svc.cluster.local:2285/keycloak
+            - name: KC_HTTP_RELATIVE_PATH
+              value: /auth
+            - name: KC_HOSTNAME
+              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: admin
+          image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
+          name: console-sso-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.SSOServiceResources | nindent 12 }}
+        - env:
+            - name: HOST_GATEWAY
+              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_GATEWAY
+              value: "8090"
+            - name: HOST_CONTROL_PANEL
+              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_CONTROL_PANEL
+              value: "8098"
+            - name: HOST_KEYCLOAK
+              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_KEYCLOAK
+              value: "8096"             
+          image: "{{ .Values.ConsoleGatewayServiceImage.name }}:{{ .Values.ConsoleGatewayServiceImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleGatewayServiceImage.pullPolicy }}"
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8090/actuator/health
+            failureThreshold: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+          name: console-gateway-service
+          ports:
+            - containerPort: 8090
+              hostPort: 8090
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.GatewayServiceResources | nindent 12 }}
+      restartPolicy: Always

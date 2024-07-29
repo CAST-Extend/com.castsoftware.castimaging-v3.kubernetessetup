@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: console-dashboards
+  name: console-dashboards
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8087"
+      port: 8087
+      targetPort: 8087
+  selector:
+    console.service: console-dashboards  
+---  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    console.service: console-dashboards
+    version: {{ .Values.ConsoleIntegratedDashboardsImage.tag| default .Values.version }}
+  name: console-dashboards
+  namespace: {{ .Release.Namespace }}  
+spec:
+  replicas: {{ .Values.DashboardReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: console-dashboards
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: console-dashboards
+    spec:    
+      containers:
+        - env:
+            - name: HOST_HOSTNAME
+              value: console-dashboards.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_DASHBOARDS
+              value: "8087"
+            - name: HOST_CONTROL_PANEL
+              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_CONTROL_PANEL
+              value: "8098"
+            - name: DB_HOST
+              value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
+            - name: DB_PORT
+              value: "2285"
+            - name: HOST_GATEWAY
+              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_GATEWAY
+              value: "8090"
+            - name: HOST_AUTH_SERVICE
+              value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_AUTH_SERVICE
+              value: "8092"
+          image: "{{ .Values.ConsoleIntegratedDashboardsImage.name }}:{{ .Values.ConsoleIntegratedDashboardsImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleIntegratedDashboardsImage.pullPolicy }}"
+          name: dashboards
+          ports:
+            - containerPort: 8087
+              hostPort: 8087
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.DashboardsResources | nindent 12 }}
+      restartPolicy: Always

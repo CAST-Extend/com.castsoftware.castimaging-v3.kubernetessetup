@@ -1,0 +1,130 @@
+worker_processes 1;
+
+events { worker_connections 1024; }
+
+http {
+
+    sendfile on;
+
+    limit_req_zone $binary_remote_addr zone=default:10m rate=30r/m;
+
+    gzip              on;
+    gzip_http_version 1.0;
+    gzip_proxied      any;
+    gzip_min_length   500;
+    gzip_disable      "MSIE [1-6]\.";
+    gzip_types        application/json text/plain text/css text/xml text/javascript application/x-javascript application/xml;
+    client_max_body_size 0;
+
+    include            mime.types;
+    include            proxy.conf;
+    server_tokens off;
+    # List of application servers
+    upstream app_servers {
+        least_conn;
+        server localhost:8098 weight=10 max_fails=3 fail_timeout=30s;
+    }
+
+    # Configuration for the server
+    server {
+
+        # Running port
+        listen 80;
+
+        gzip on;	
+        gzip_static on;    	
+        gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;	
+        gzip_proxied  any;	
+        gzip_vary on;	
+        gzip_comp_level 6;	
+        gzip_buffers 16 8k;	
+        gzip_http_version 1.1; 
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        proxy_pass_header Server;	
+
+        root /opt/imaging/web/dist;
+        index index.html;
+
+        location ~ .*html$ {
+          expires -1;
+          add_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+        }
+
+        location ~ ^/imaging(.*) {
+            index index.html;
+            try_files $1 $1/ /index.html;
+        }
+
+        location ^~ /imaging/api/ {
+            proxy_pass         http://localhost:9000/;
+        }
+
+        location ^~ /imaging/etl/api/ {
+            proxy_pass         http://viewer-etl.castimaging-v3.svc.cluster.local:9001/;
+        }
+
+        location ^~ /imaging/neo4j/api/ {
+            proxy_pass         http://localhost:8084/neo4j/api/;
+        }
+        
+        # Proxying the connections
+        location ^~ /imaging/login/api/ {
+            limit_req zone=default burst=6 nodelay;
+            proxy_pass         http://localhost:8084/;
+        }
+
+        location ^~ /imaging/saml/ {
+            proxy_pass         http://localhost:8084/saml/;
+        }
+
+        location ^~ /saml/ {
+            proxy_pass         http://localhost:8084/saml/;
+        }
+
+        location = /imaging/sourcecode/api/health {
+           proxy_pass         http://localhost:8084/sourcecode/api/health;
+        }
+
+        location = /imaging/sourcecode/api/datasources/load {
+           proxy_pass        http://localhost:8084/sourcecode/api/datasources/load;
+        }
+
+        location = /imaging/sourcecode/api/datasource {
+           proxy_pass        http://localhost:8084/sourcecode/api/datasource;
+        }
+
+        location ^~ /imaging/ed/ {
+           proxy_pass        http://localhost:8081/;
+        }
+
+        location ^~ /imaging/sourcecode/api/ {
+            if ($http_domain_name = '') {
+                return 404;
+            }
+            if ($http_app_name = '') {
+                return 404;
+            }    
+            auth_request       /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;
+            proxy_pass         http://localhost:8084/sourcecode/api/;
+        }
+
+        location ^~ /imaging/ai/ {
+           proxy_pass        http://viewer-aimanager.castimaging-v3.svc.cluster.local:8082/;
+        }
+        
+        # location ^~ /imaging/api/ {
+        #     proxy_pass         http://localhost:8084/api/;
+        # }
+
+        # location ^~ /imaging/etl/api/ {
+        #     proxy_pass         http://localhost:8084/etl/api/;
+        # }
+
+        # location ^~ /imaging/neo4j/api/ {
+        #     proxy_pass         http://localhost:8084/neo4j/api/;
+        # }
+        
+        error_log /opt/imaging/imaging-service/logs/error.log warn;
+        access_log /opt/imaging/imaging-service/logs/access.log;
+    }
+}

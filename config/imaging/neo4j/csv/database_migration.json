@@ -1,0 +1,2132 @@
+[
+    {
+        "name": "Database Migration ",
+        "id": 1202139,
+        "category": "START",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Migrating the database before moving to the cloud ensures compatibility, performance optimization, security, compliance adherence, cost optimization, high availability, disaster recovery, and seamless integration with cloud-native services. It enables organizations to fully leverage the benefits of cloud computing while maintaining data integrity and application functionality."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202140,
+            1202144,
+            1202244,
+            1202247
+        ]
+    },
+    {
+        "name": "DB2 Database to PostgreSQL",
+        "id": 1202140,
+        "category": "BRANCHING-STEP",
+        "branchType": "CHOICE",
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to PostgreSQL including different remediation types."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202139
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202141,
+            1202142,
+            1202143
+        ]
+    },
+    {
+        "name": "DB2 Database to PostgreSQL with Data Type Remediation",
+        "id": 1202141,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to PostgreSQL that will require data type remediation.\n\nUsed Data type is not supported by the target Database service. Automatic migration and conversion are not possible. Manual conversion with a dedicated equivalent data type is required."
+        },
+        "remediations": {},
+        "populations": {
+            "Mainframe": "Check if any violation of rules with TC 61045 and with tag AIP-M2C-DataType"
+        },
+        "description": "This rule checks all unsupported used Data types",
+        "impacts": [
+            "replatform"
+        ],
+        "effort": "moderate",
+        "parents": [
+            1202140
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106052,
+            1106054,
+            1106058,
+            1106064,
+            1106066,
+            1106068,
+            1106070
+        ]
+    },
+    {
+        "name": "DB2 Database to PostgreSQL with Object Type Remediation",
+        "id": 1202142,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to PostgreSQL that will require object type remediation.\n\n\nTarget Database does not provide the support of the Object Type and sometimes does not provide a directly comparable alternative.  Automatic migration and conversion are not possible. However, other functions can be used as workarounds under certain conditions."
+        },
+        "remediations": {},
+        "populations": {
+            "Mainframe": "TC 61045 + tag Objcet Type Remediation"
+        },
+        "description": "This rule checks all unsupported used objects types",
+        "impacts": [
+            "replatform",
+            "review"
+        ],
+        "effort": "high",
+        "parents": [
+            1202140
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106104
+        ]
+    },
+    {
+        "name": "DB2 Database to PostgreSQL with Syntax Remediation",
+        "id": 1202143,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "to migrate your DB2 Database to PostgreSQL that will require syntaxes remediation.\n\nUsed Syntax is not supported by the target Database service. Automatic migration and conversion are not possible. Manual conversion with dedicated equivalent syntax is required."
+        },
+        "remediations": {},
+        "populations": {
+            "Mainframe": "TC 61045 + tag  Syntax Remediation"
+        },
+        "description": "This rule checks all unsupported Syntaxes",
+        "impacts": [
+            "replatform",
+            "review"
+        ],
+        "effort": "low",
+        "parents": [
+            1202140
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106072,
+            1106074,
+            1106076,
+            1106078,
+            1106080,
+            1106082,
+            1106084,
+            1106088,
+            1106090,
+            1106092,
+            1106094,
+            1106096,
+            1106100,
+            1106102,
+            1106106,
+            1106108
+        ]
+    },
+    {
+        "name": "Oracle Database to PostgreSQL",
+        "id": 1202144,
+        "category": "BRANCHING-STEP",
+        "branchType": "CHOICE",
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your Oracle Database to PostgreSQL including different remediation types."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202139
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202145,
+            1202146,
+            1202147
+        ]
+    },
+    {
+        "name": "Oracle Database to PostgreSQL with Data Type Remediation",
+        "id": 1202145,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your Oracle Database to PostgreSQL that will require data type remediation."
+        },
+        "remediations": {},
+        "populations": {
+            "Mainframe": "Check if any violation of rules with TC 61045 and with tag AIP-M2C-DataType"
+        },
+        "description": "This rule checks all unsupported used Data types",
+        "impacts": [
+            "replatform"
+        ],
+        "effort": "moderate",
+        "parents": [
+            1202144
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106020
+        ]
+    },
+    {
+        "name": "Oracle Database to PostgreSQL with Object Type Remediation",
+        "id": 1202146,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your Oracle Database to PostgreSQL that will require object type remediation."
+        },
+        "remediations": {},
+        "populations": {
+            "Mainframe": "Check if any violation of rules with TC 61045 and with tag AIP-M2C-DataType"
+        },
+        "description": "This rule checks all unsupported used Data types",
+        "impacts": [
+            "replatform"
+        ],
+        "effort": "high",
+        "parents": [
+            1202144
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106006,
+            1106008,
+            1106010,
+            1106012,
+            1106014,
+            1106036,
+            1106040,
+            1106042,
+            1106044
+        ]
+    },
+    {
+        "name": "Oracle Database to PostgreSQL with Syntax Remediation",
+        "id": 1202147,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your Oracle Database to PostgreSQL that will require syntax type remediation."
+        },
+        "remediations": {},
+        "populations": {
+            "Mainframe": "Check if any violation of rules with TC 61045 and with tag AIP-M2C-DataType"
+        },
+        "description": "This rule checks all unsupported used Data types",
+        "impacts": [
+            "replatform"
+        ],
+        "effort": "low",
+        "parents": [
+            1202144
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106002,
+            1106022,
+            1106038
+        ]
+    },
+    {
+        "name": "DB2 Database to MySQL with Data Type Remediation",
+        "id": 1202243,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to MySQL that will require data type remediation."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202244
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106152,
+            1106154,
+            1106156,
+            1106158,
+            1106160,
+            1106166,
+            1106168,
+            1106170
+        ]
+    },
+    {
+        "name": "DB2 Database to MySQL",
+        "id": 1202244,
+        "category": "BRANCHING-STEP",
+        "branchType": "CHOICE",
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to MySQL including different remediation types."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202139
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202243,
+            1202245,
+            1202246
+        ]
+    },
+    {
+        "name": "DB2 Database to MySQL with Object Type Remediation",
+        "id": 1202245,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to MySQL that will require object type remediation."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202244
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106150
+        ]
+    },
+    {
+        "name": "DB2 Database to MySQL with Syntax Remediation",
+        "id": 1202246,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your DB2 Database to MySQL that will require synatxes remediation."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202244
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106148,
+            1106162,
+            1106174,
+            1106176
+        ]
+    },
+    {
+        "name": "SQL Server Database to PostgreSQL",
+        "id": 1202247,
+        "category": "BRANCHING-STEP",
+        "branchType": "CHOICE",
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your SQL Server Database to PostgreSQL including different remediation types."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202139
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": [
+            1202248,
+            1202249,
+            1202250
+        ]
+    },
+    {
+        "name": "SQL server to PostgreSQL with Data Type Remediation",
+        "id": 1202248,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to SQL Server Database migration PostgreSQL that will require data type remediation."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202247
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106114,
+            1106116,
+            1106118,
+            1106120,
+            1106122,
+            1106124,
+            1106126,
+            1106128,
+            1106130
+        ]
+    },
+    {
+        "name": "SQL server to PostgreSQL with Object Type Remediation",
+        "id": 1202249,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your SQL server Database to PostgreSQL that will require object type remediation."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202247
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106142
+        ]
+    },
+    {
+        "name": "SQL server to PostgreSQL with Syntax Remediation",
+        "id": 1202250,
+        "category": "BRANCHING-STEP",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Recommendations to migrate your SQL server Database to PostgreSQL that will require Syntaxes remediation."
+        },
+        "remediations": {},
+        "populations": {},
+        "description": "",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202247
+        ],
+        "outputTable": {
+            "template": "violations-table",
+            "table": {
+                "head": [
+                    "OBJECT FULLNAME",
+                    "OBJECT TYPE",
+                    "OCCURRENCES"
+                ],
+                "body": null
+            }
+        },
+        "outputGraph": {
+            "template": "violations-graph"
+        },
+        "children": [
+            1106110,
+            1106112,
+            1106132,
+            1106134,
+            1106136,
+            1106138,
+            1106140,
+            1106144,
+            1106146
+        ]
+    },
+    {
+        "name": "Ensure MERGE statement is not used",
+        "id": 1106002,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "MERGE statement is not supported and it cannot be automatically converted by AWS SCT. Manual conversion is straight-forward in most cases."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL does not support the usage of MERGE SQL statement. \nAs an alternative, consider using the INSERT… ON CONFLICT clause, which can handle cases where insert clauses might cause a conflict, and then redirect the operation as an update."
+        },
+        "populations": null,
+        "description": "This rule checks if Oracle MERGE Statement is used.",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202147
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PL/SQL package UTL_FILE is not used",
+        "id": 1106006,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "PostgreSQL doesn’t currently provide a directly comparable alternative for the Oracle UTL_FILE package."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL doesn’t currently provide a directly comparable alternative for the Oracle UTL_FILE package."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of the UTL_FILE package in the Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PL/SQL package DBMS_SCHEDULER is not used",
+        "id": 1106008,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "DBMS_SCHEDULER is not supported by Aurora PostgreSQL"
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL doesn’t currently provide a directly comparable alternative for the Oracle DBMS_SCHEDULER package."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of the DBMS_SCHEDULER package in the Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PL/SQL package DBMS_RANDOM is not used",
+        "id": 1106010,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Oracle’s DBMS_RANDOM package provides functionality for generating random numbers or strings as part of an SQL statement or PL/SQL procedure. PostgreSQL does not provide a dedicated package equivalent to Oracle DBMS_RANDOM : Migration is not possible. However, other PostgreSQL functions can be used as workarounds under certain conditions."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL: Generating random numbers can be performed using the random() function. \nFor generating random strings, you can use the value returned from the random() function coupled with an md5() function."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of the DBMS_RANDOM package in the Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PL/SQL package DBMS_OUTPUT is not used",
+        "id": 1106012,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "The Oracle DBMS_OUTPUT package is typically used for debugging or for displaying output messages from PL/SQL procedures.\n\nAmazon Aurora PostgreSQL doesn’t currently provides a directly comparable alternative for Oracle DBMS_OUTPUT package."
+        },
+        "remediations": {
+            "Agnostic": "You can use the PostgreSQL RAISE statement as an alternative to DBMS_OUTPUT.\n\nHave a look to github \"orafce\" project, maybe you can find a better remediation."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of the DBMS_OUTPUT package in Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PL/SQL package DBMS_AUTO_INDEX is not used",
+        "id": 1106014,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Package DBMS_AUTO_INDEX is used to configure auto indexes and generate reports.\nPostgreSQL does not provide an Automatic Indexing feature.\n\nIn self-managed PostgreSQL instances, extensions like Dexter (https://github.com/ankane/dexter) and HypoPG (https://hypopg.readthedocs.io/en/latest/ ) can be utilized for generating indexes with limitations. Amazon Aurora PostgreSQL does not support these extensions."
+        },
+        "remediations": {
+            "Agnostic": "Remove References to DBMS_AUTO_INDEX and replace with PostgreSQL Solution.\n\nPostgreSQL does not provide Automatic Indexing feature, but in self-managed PostgreSQL instances, extensions like Dexter (https://github.com/ankane/dexter) and HypoPG (https://hypopg.readthedocs.io/en/latest/ ) can\nbe utilized for generating indexes with limitations (Amazon Aurora PostgreSQL does not support these extensions).\nThe approach taken by these extensions are :\n- Identify the queries.\n- Update the table statistics if they haven’t been analyzed recently.\n- Get the initial cost of the queries and create hypothetical indexes on columns that aren’t already indexes.\n- Get costs again and see if any hypothetical indexes were used. Hypothetical indexes that were used and significantly reduced cost are selected to be indexes."
+        },
+        "populations": null,
+        "description": "This rule checks the usage or DBMS_AUTO_INDEX package in Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure LOB data types are not used",
+        "id": 1106020,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "LOB storage is not supported by PostgreSQL."
+        },
+        "remediations": {
+            "Agnostic": "Replace Oracle LOB data types with the following PostgreSQL data types:\n- BFILE can be replaced with VARCHAR(255) or CHARACTER VARYING(255)\n- BLOB can be replaced with BYTEA\n- CLOB and NCLOB can be replaced with TEXT"
+        },
+        "populations": null,
+        "description": "This rule checks the usage of LOB Storage in Oracle Database(s) and the explicit conversion functions TO_CLOB and TO_NCLOB which convert other data types to LOB data types.",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202145
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure you don't have unsupported option GENERATED BY DEFAULT for identity columns",
+        "id": 1106022,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Identity Columns with GENERATED BY DEFAULT option are not supported by PostgreSQL. But PostgreSQL suggests a specific way to create an autoincrementing column as equivalent feature"
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL enables you to create a sequence that is similar to the IDENTITY property supported by Oracle 12c identity column feature. When creating a new table using the SERIAL pseudo-type, a sequence is created.\n\nAdditional types from the same family are SMALLSERIAL and BIGSERIAL.\nBy assigning a SERIAL type to a column as part of table creation, PostgreSQL creates a sequence using default configuration and adds the NOT NULL constraint to the column. The new sequence can be altered and configured as a regular sequence.\n\nSince PostgreSQL 10, there is a new option called identity columns which is similar to SERIAL data type but more SQL standard compliant. The identity columns are highly compatibility compare to Oracle identity columns."
+        },
+        "populations": null,
+        "description": "This rule checks if tables with identity columns has GENERATED BY DEFAULT option in Oracle Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202147
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure Database Links are not used",
+        "id": 1106036,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "Migrating database links from Oracle to PostgreSQL requires a full rewrite the mechanism that managed the database links."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL Usage\nQuerying data in remote databases in PostgreSQL is available via two primary options:\n1. dblink database link function.\n2. postgresql_fdw (Foreign Data Wrapper, FDW) extension.\n\nThe Postgres foreign data wrapper extension is new to PostgreSQL and offers functionality that is similar to dblink. However, the Postgres foreign data wrapper aligns closer with the SQL standard and can provide improved performance."
+        },
+        "populations": null,
+        "description": "This rule checks if database links objects exists or are referenced in Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure Unused Column is not used",
+        "id": 1106038,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "PostgreSQL doesn’t support marking table columns as unused."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL doesn’t support marking table columns as unused. However, when running the ALTER TABLE… DROP COLUMN command, the drop column statement doesn’t physically remove the column; it only makes it invisible to SQL operations"
+        },
+        "populations": null,
+        "description": "This rule checks if any Column table is set as Unused in the Oracle Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202147
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure READ ONLY Table is not used",
+        "id": 1106040,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "READ ONLY mode for Table is not supported by PostgreSQL."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL does not provide an equivalent to the READ ONLY mode supported in Oracle.\nThe following alternatives could be used as workarounds:\nl “Read-only” User or Role.\nl “Read-only” database.\nl Creating a “read-only” database trigger or a using a “read-only” constraint."
+        },
+        "populations": null,
+        "description": "This rule checks if any READ ONLY table exists in Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure Invisible Index is not used",
+        "id": 1106042,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "PostgreSQL does not support Invisible Indexes"
+        },
+        "remediations": {
+            "Agnostic": "Currently, PostgreSQL does not provide a directly comparable alternative for Oracle Invisible Indexes."
+        },
+        "populations": null,
+        "description": "This rule checks if any Invisible Indexes exists in Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PL/SQL packages UTL_MAIL and UTL_SMTP are not used",
+        "id": 1106044,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "The Oracle UTL_MAIL package provides functionality for sending email messages. Unlike UTL_SMTP, which is more complex and provided in earlier versions of Oracle, UTL_MAIL supports attachment."
+        },
+        "remediations": {
+            "Agnostic": "The remediation is to remove all references to UTL_MAIL or UTL_SMTP and try to replace with a PostgreSQL solution."
+        },
+        "populations": null,
+        "description": "This rule checks if the UTL_MAIL or UTL_SMTP PL/SQL packages are used in Oracle Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202146
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure BLOB data type is not used",
+        "id": 1106052,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Replace BLOB(n) data type with BYTEA data type."
+        },
+        "populations": null,
+        "description": "This rule checks if any BLOB data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure CLOB data type is not used",
+        "id": 1106054,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Replace CLOB(n) data type with TEXT data type."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of CLOB Storage and the explicit conversion function TO_CLOB which convert other data types to CLOB.",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure VARCHAR(n) FOR BIT DATA data type is not used",
+        "id": 1106058,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Replace VARCHAR(n) FOR BIT DATA data type with BYTEA data type."
+        },
+        "populations": null,
+        "description": "This rule checks if any VARCHAR(n) FOR BIT DATA data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure NCHAR VARYING data type is not used",
+        "id": 1106064,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Replace NCHAR VARYING(n) data type with VARCHAR(n) data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any NCHAR VARYING data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure GRAPHIC data type is not used",
+        "id": 1106066,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Replace GRAPHIC(n) data type with CHAR(n) data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any GRAPHIC data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure FLOAT data type is not used",
+        "id": 1106068,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace FLOAT(p) data type with DOUBLE PRECISION data type."
+        },
+        "populations": null,
+        "description": "This rule checks if any FLOAT data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DECFLOAT data type is not used",
+        "id": 1106070,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Replace DECFLOAT(16|34) data type with FLOAT data type."
+        },
+        "populations": null,
+        "description": "This rule checks if any DECFLOAT data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202141
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function DATE is not used",
+        "id": 1106072,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Converts the input to date value :\nDATE('2006-09-21') in DB2 to be changed to TO_DATE('21-02-2006','DD-MMYYYY') in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function DATE is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function SMALLINT is not used",
+        "id": 1106074,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "In DB2, SMALLINT converts either a number or a valid character value into a smallint value.SMALLINT(<Decimal Number>) in DB2 gets replaced by TO_NUMBER(<field>, <format>) in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function SMALLINT is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function LCASE is not used",
+        "id": 1106076,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "LOWER(<FIELD>) (or) LCASE(<FIELD>) is supported in DB2 where as only LOWER(<FIELD>) is supported in PostgreSQL. Thus, if LCASE(<FIELD>) is used in DB2, then it should be changed to LOWER(<FIELD>) for PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function LCASE is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function POSSTR is not used",
+        "id": 1106078,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "POSSTR(<FIELD_1>, <FIELD_2>) in DB2 gets replaced by  POSITION(<FIELD_1> IN <FIELD_2>) in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function POSSTR is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function RAND is not used",
+        "id": 1106080,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "RAND() in DB2 get replaced by RANDOM() in PostgreSQL and Returns a pseudorandom floating-point value in the range of zero to one inclusive."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function RAND is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function TIMESTAMP is not used",
+        "id": 1106082,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "TIMESTAMP(<FIELD>) Converts the input into a time value, and it has to be changed to TO_TIMESTAMP (<FIELD>, <format>) in PostgreSQL.\nCURRENT TIMESTAMP has to be changed to CURRENT_TIMESTAMP."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function TIMESTAMP is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function CHAR is not used",
+        "id": 1106084,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "CHAR in DB2 should be replaced by TO_CHAR( <timestamp / interval / int / double precision / numeric type>, text) in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function CHAR is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function YEAR is not used",
+        "id": 1106088,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Returns the year part of a date value. The output format is an integer.\nReplace YEAR (<DATE_FIELD>) with DATE_PART ('YEAR',<DATE_FIELD>)."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function YEAR is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Function MONTH is not used",
+        "id": 1106090,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Returns the month part of the date value. The output format is integer.\nReplace DATE_PART ('MONTH', <DATE_FIELD>) with MONTH (<DATE_FIELD>)."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Function MONTH is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Functions DAY/DAYS are not used",
+        "id": 1106092,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "DAY returns the day (as in day of the month) part of a date (or equivalent) value. The output format is integer.\nDAY (<DATE_FIELD>) should be replaced with : DATE_PART(‘day’, <DATE_FIELD>).\n\nDAYS converts a date (or equivalent) value into a number that represents the number of days since the date \"0001-01-01\" inclusive. The output format is integer.\nDAYS is not available in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Functions DAY/DAYS are used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Scalar Functions DECIMAL/DEC are not used",
+        "id": 1106094,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "DECIMAL/DEC converts either character or numeric input to decimal. PostgreSQL has no direct equivalent, you should use TO_NUMBER instead."
+        },
+        "populations": null,
+        "description": "This rule checks the DB2 Scalar Functions DECIMAL/DEC are used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure PARTITION is not used in ALTER TABLE statements",
+        "id": 1106096,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "AWS SCT can convert Db2 LUW tables to partitioned tables in PostgreSQL 10. There are several restrictions when converting a Db2 LUW partitioned table to PostgreSQL:\n\nYou can create a partitioned table with a nullable column in Db2 LUW, and you can specify a partition to store NULL values. However, PostgreSQL doesn’t support NULL values for RANGE partitioning.\n\nDb2 LUW can use an INCLUSIVE or EXCLUSIVE clause to set range boundary values. PostgreSQL only supports INCLUSIVE for a starting boundary and EXCLUSIVE for an ending boundary. The converted partition name is in the format <original_table_name>_<original_partition_name>.\n\nYou can create primary or unique keys for partitioned tables in Db2 LUW. PostgreSQL requires you to create primary or unique key for each partition directly. Primary or unique key constraints must be removed from the parent table. The converted key name is in the format <original_key_name>_<original_partition _name>.\n\nYou can create a foreign key constraint from and to a partitioned table in Db2 LUW. However, PostgreSQL doesn’t support foreign keys references in partitioned tables. PostgreSQL also doesn’t support foreign key references from a partitioned table to another table.\n\nYou can create an index on a partitioned table in Db2 LUW. However, PostgreSQL requires you to create an index for each partition directly. Indexes must be removed from the parent table. The converted index name is in the format <original_index_name>_<original_partition_name>.\n\nYou must define row triggers on individual partitions, not on the partitioned table. Triggers must be removed from the parent table. The converted trigger name is in the format <original_trigger_name>_<original_partition_name>."
+        },
+        "remediations": {
+            "Agnostic": "The remediation is to remove unsupported options."
+        },
+        "populations": null,
+        "description": "This rule will check if the following sql statements exist into DB2 SQL files:\n   ALTER TABLE ADD PARTITION\n   ALTER TABLE DETACH PARTITION\n   ALTER TABLE ATTACH PARTITION",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DECLARE cursor is not used",
+        "id": 1106100,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Cursor operations SQL statements used in stored procedures, functions and triggers from IBM DB2 to PostgreSQL should be Converted as follows: \n\n1-Cursor declaration: DECLARE cur CURSOR FOR query  To be Replaced by  cur CURSOR FOR query\n2-Return result set DECLARE cur CURSOR WITH RETURN  To be Replaced by cur REFCURSOR\n3-Dynamic cursors: DECLARE cur WITH RETURN FOR stmt PREPARE stmt FROM 'query_string'  To be Replaced by  OPEN cur FOR EXECUTE 'query_string'"
+        },
+        "populations": null,
+        "description": "This rule checks Cursor operations 'DECLARE cur' Statements in SQL DB2 files and Embedded SQL Queries.",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 DECLARE variable is not used",
+        "id": 1106102,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Variable declarations statements used in DML files, stored procedures, functions and triggers should be converted before re-platforming your DB2 Database to PostgreSQL:\n\n1- Declarations are inside BEGIN END block   Should be before BEGIN END block\n2- DECLARE var datatype DEFAULT value        Should be replaced by var datatype DEFAULT value\n3- DECLARE var, var2, … datatype   Should be replaced by  var datatype; var2 datatype; …"
+        },
+        "populations": null,
+        "description": "This rule checks the variable declaration in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SYSIBM.SYSDUMMY1 table is not used",
+        "id": 1106104,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "There is no “SYSIBM.SYSDUMMY1” table in PostgreSQL. PostgreSQL allows a “SELECT” without ”FROM” clause. You can remove this by using script."
+        },
+        "populations": null,
+        "description": "This rule checks if SYSIBM.SYSDUMMY1 table is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202142
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure VALUES statement is not used",
+        "id": 1106106,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "DB2 VALUES statement should be replaced in PostgresSQL with SELECT ... UNION ALL SELECT ..."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of the VALUES statement in the DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 SET variable is not used",
+        "id": 1106108,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Converting Variable setting statements used in stored procedures, functions and triggers from IBM DB2 to PostgreSQL as follows: \n\n1    SET v1 = value   To be replaced by   v1 := value\n2    SET v1 = value, v2 = value2, …   To be replaced by   v1 := value; v2 := value2; …\n3    SET (v1, v2, …) = (value, value2, …)   To be replaced by   v1 := value; v2 := value2; …\n4    SET (v1, v2, …) = (SELECT c1, c2, …)   To be replaced by   SELECT c1, c2, … INTO v1, v2, …"
+        },
+        "populations": null,
+        "description": "This rule checks the variable assignment in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202143
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure MERGE statement is not used",
+        "id": 1106110,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "MERGE statement is not supported and it cannot be automatically converted. Manual conversion is straightforward in most cases."
+        },
+        "remediations": {
+            "Agnostic": "PostgreSQL ( until version 15) doesn’t support the use of the MERGE command. As an alternative, consider using the INSERT… ON CONFLICT clause, which can handle cases where insert clauses might cause a conflict, and then redirect the operation as an update."
+        },
+        "populations": null,
+        "description": "This rule checks if MERGE Statement is used in SQL server files and Embedded SQL Queries.",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure FROM keyword is used in DELETE Statement",
+        "id": 1106112,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error."
+        },
+        "remediations": {
+            "Agnostic": "FROM keyword is required for DELETE FROM tab"
+        },
+        "populations": null,
+        "description": "This rule checks if FROM keyword is used in DELETE Statement.",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250,
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure VARBINARY data type is not used",
+        "id": 1106114,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace VARBINARY(n) data type with BYTEA data type\nReplace VARBINARY(max) data type with BYTEA data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any VARBINARY data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure TINYINT data type is not used",
+        "id": 1106116,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace TINYINT data type with SMALLINT data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any TINYINT data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure TIMESTAMP data type is not used",
+        "id": 1106118,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace TIMESTAMP data type with BYTEA data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any TIMESTAMP data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SMALLMONEY data type is not used",
+        "id": 1106120,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace SMALLMONEY data type with MONEY data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any SMALLMONEY data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure ROWVERSION data type is not used",
+        "id": 1106122,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace ROWVERSION data type with BYTEA data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any ROWVERSION data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure NVARCHAR data type is not used",
+        "id": 1106124,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace NVARCHAR(n)  data type with VARCHAR(n)  data type\nReplace NVARCHAR(max)  data type with TEXT  data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any NVARCHAR data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure NTEXT data type is not used",
+        "id": 1106126,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace NTEXT data type with TEXT data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any TEXT data type is used in SQL Server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure NCHAR data type is not used",
+        "id": 1106128,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace NCHAR(n) data type with CHAR(n) data type"
+        },
+        "populations": null,
+        "description": "This rule checks if any NCHAR data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DATETIMEOFFSET data type is not used",
+        "id": 1106130,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from the SQL server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to an error"
+        },
+        "remediations": {
+            "Agnostic": "Replace DATETIMEOFFSET(p) data type with TIMESTAMP(p) WITH TIME ZONE"
+        },
+        "populations": null,
+        "description": "This rule checks if any DATETIMEOFFSET(p) data type is used in SQL server Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202248
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL server Scalar Function CONVERT is not used",
+        "id": 1106132,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL serevr to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Convert to integer\n\nScalar Function CONVERT(BIGINT, exp) in SQL server should be replaced by CAST(exp AS BIGINT) in PostgreSQL.\nScalar Function CONVERT(INT | INTEGER, exp in SQL server should be replaced by CAST(exp AS INT | INTEGER) in PostgreSQL.\nScalar Function CONVERT(SMALLINT, exp) in SQL server should be replaced by CAST(exp AS SMALLINT) in PostgreSQL.\nScalar Function CONVERT(TINYINT, exp) in SQL server should be replaced by CAST(exp AS SMALLINT) in PostgreSQL.\n\nConvert to number \nScalar Function CONVERT(NUMERIC(p,s), exp) in SQL server should be replaced by CAST(exp AS NUMERIC(p,s)) in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of CONVERT Scalar Function in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL server Scalar Function DATEADD is not used",
+        "id": 1106134,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL serevr to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Scalar Function DATEADD in SQL server should be replaced '+ INTERVAL 'X days/months/years'' in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of DATEADD Scalar Function in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL server Scalar Function DATEDIFF is not used",
+        "id": 1106136,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL serevr to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Scalar Function DATEDIFF in SQL server should be replaced interval expression."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of DATEDIFF Scalar Function in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL server Scalar Function GETDATE is not used",
+        "id": 1106138,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL serevr to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Scalar Function GETDATE in SQL server should be replaced by NOW() in PostgreSQL."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of GETDATE Scalar Function in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL server Scalar Function ISNULL is not used",
+        "id": 1106140,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL serevr to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error"
+        },
+        "remediations": {
+            "Agnostic": "Scalar Function ISNULL SQL server should be replaced with a specified NULL  value: COALESCE(exp, replacement)"
+        },
+        "populations": null,
+        "description": "This rule checks the usage of ISNULL Scalar Function in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure IDENTITY Columns is not used",
+        "id": 1106142,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL Server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "The IDENTITY property allows you to automatically assign incremental integer values to a column. In PostgreSQL you can use the GENERATED AS IDENTITY property."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of IDENTITY Columns in CREATE TABLE statement in SQL server Database(s).",
+        "impacts": [],
+        "effort": "high",
+        "parents": [
+            1202249
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL Server SET/SELECT variable is not used",
+        "id": 1106144,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL Server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Variable assignments statements used in DML files, stored procedures, functions and triggers should be converted before re-platforming your SQL Server Database to PostgreSQL:\n\nSET @var = expression should be replaced with var := expression\nSET @var = (SELECT expression FROM …) should be replaced with var := (SELECT expression FROM …)\nSELECT @var = exp, @var2 = exp2 FROM … should be replaced with SELECT exp, exp2 INTO var, var2 FROM …."
+        },
+        "populations": null,
+        "description": "This rule checks the variable assignment in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SQL Server DECLARE variable is not used",
+        "id": 1106146,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from SQL Server to PostgreSQL, it is important to note the changes to be taken care of during the migration process. Without adaptation, the SQL script won’t compile on Postgresql, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Variable declarations statements used in DML files, stored procedures, functions and triggers should be converted before re-platforming your SQL Server Database to PostgreSQL:\n\nDECLARE @var [AS] type [= default_value] should be replaced with DECLARE var type [= | := | DEFAULT default_value]\nDECLARE @tab [AS] TABLE (…) should be replaced with CREATE TEMPORARY TABLE tab (…)."
+        },
+        "populations": null,
+        "description": "This rule checks the variable declaration in SQL server Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202250
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure VALUES statement is not used",
+        "id": 1106148,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "DB2 VALUES statement should be replaced in MySQL with SELECT statement."
+        },
+        "populations": null,
+        "description": "This rule checks the usage of the VALUES statement in the DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202246
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure SYSIBM.SYSDUMMY1 table is not used",
+        "id": 1106150,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "There is no “SYSIBM.SYSDUMMY1” table in MySQL. MySQL a “SELECT” without ”FROM” clause. You can remove this by using script."
+        },
+        "populations": null,
+        "description": "This rule checks if SYSIBM.SYSDUMMY1 table is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": null,
+        "parents": [
+            1202245
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure TIMESTAMP data type is not used",
+        "id": 1106152,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace TIMESTAMP data type with DATETIME data type."
+        },
+        "populations": null,
+        "description": "This rule checks if any TIMESTAMP data type is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure VARCHAR(n) with implicit default values is not used",
+        "id": 1106154,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace VARCHAR(n) WITH DEFAULT in DB2 with VARCHAR(n) DEFAULT '' in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if VARCHAR(n) with implicit default values is used in DB2 CREATE TABLE Statement.",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure NUMERIC(p, s) with implicit default values is not used",
+        "id": 1106156,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace NUMERIC(p, s) WITH DEFAULT in DB2 with NUMERIC(p, s) DEFAULT 0 in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if NUMERIC(p, s) with implicit default values is used in DB2 CREATE TABLE Statement.",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure INTEGER with implicit default values is not used",
+        "id": 1106158,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace INTEGER WITH DEFAULT in DB2 with INTEGER DEFAULT 0 in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if INTEGER WITH DEFAULT is used in DB2 Database(s) in CREATE TABLE Statement.",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DECIMAL(p, s) with implicit default values is not used",
+        "id": 1106160,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace DECIMAL(p, s) WITH DEFAULT in DB2 with DECIMAL(p, s) DEFAULT 0 in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if DECIMAL(p, s) WITH DEFAULT is used in DB2 Database(s) in CREATE TABLE Statement.",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DATE with implicit default values is not used",
+        "id": 1106162,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace DATE WITH DEFAULT in DB2 with DATE DEFAULT CURRENT_DATE in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if DATE WITH DEFAULT is used in DB2 Database(s) in CREATE TABLE Statement.",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202246
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure FOR BIT DATA column clause is not used",
+        "id": 1106166,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Remove DB2 FOR BIT DATE column clause as it is not supported in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if FOR BIT DATA column clause in CREATE TABLE statement is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure FOR SBCS | MIXED DATA column clause is not used",
+        "id": 1106168,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Remove DB2 FOR SBCS | MIXED DATA column clause as it is not supported in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if FOR SBCS | MIXED DATA column clause in CREATE TABLE statement is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure CCSID ASCII | UNICODE | EBCDIC column clause is not used",
+        "id": 1106170,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Remove DB2 CCSID ASCII | UNICODE | EBCDIC column clause as it is not supported in MySQL."
+        },
+        "populations": null,
+        "description": "This rule checks if CCSID ASCII | UNICODE | EBCDIC column clause in CREATE TABLE statement is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "moderate",
+        "parents": [
+            1202243
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure GENERATED AS IDENTITY is not used",
+        "id": 1106174,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace DB2 GENERATED AS IDENTITY option with MySQL AUTO_INCREMENT option."
+        },
+        "populations": null,
+        "description": "This rule checks if any CREATE TABLE statement the option GENERATED [ALWAYS | BY DEFAULT] AS IDENTITY is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202246,
+            1202246
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    },
+    {
+        "name": "Ensure DB2 Built-in Function CURRENT DATE is not used",
+        "id": 1106176,
+        "category": "TASK",
+        "branchType": null,
+        "rationales": {
+            "Agnostic": "As you decide to migrate from DB2 to MySQL, it is important to note the changes to be taken care of during the migration process. Without adapting the changes, the SQL script won’t compile for MySQL, leading to error."
+        },
+        "remediations": {
+            "Agnostic": "Replace DB2 CURRENT DATE built-in function with CURRENT_DATE MySQL SQL Function."
+        },
+        "populations": null,
+        "description": "This rule checks if any CURRENT DATE built-in function is used in DB2 Database(s).",
+        "impacts": [],
+        "effort": "low",
+        "parents": [
+            1202246
+        ],
+        "outputTable": null,
+        "outputGraph": null,
+        "children": []
+    }
+]

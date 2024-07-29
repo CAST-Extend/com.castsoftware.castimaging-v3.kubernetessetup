@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: console-control-panel
+  name: console-control-panel
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "2281"
+      port: 2281
+      targetPort: 2281
+    - name: "8098"
+      port: 8098
+      targetPort: 8098
+      # nodePort: 30098
+  selector:
+    console.service: console-control-panel
+  # type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    console.service: console-control-panel
+    version: {{ .Values.ConsoleControlPaneImage.tag| default .Values.version }}
+  name: console-control-panel
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ControlPaneReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: console-control-panel
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: console-control-panel
+    spec:
+      containers:
+        - env:
+            - name: HOST_AUTH_SERVICE
+              value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_AUTH_SERVICE
+              value: "8092"
+            - name: HOST_CONTROL_PANEL
+              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_CONTROL_PANEL
+              value: "8098"
+            - name: DB_HOST
+              value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
+            - name: DB_PORT
+              value: "2285"
+            - name: HOST_CONSOLE
+              value: console-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: PORT_CONSOLE
+              value: "8091" 
+            - name: DELIVERY_FOLDER
+              value: /home/aip-node-data/delivery
+            - name: DEPLOY_FOLDER
+              value: /home/aip-node-data/deploy
+            - name: SHARED_FOLDER
+              value: /home/aip-node-data/common-data
+          image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8098/actuator/health
+            failureThreshold: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+          name: console-control-panel
+          ports:
+            - containerPort: 2281
+              protocol: TCP
+            - containerPort: 8098
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.ControlPaneResources | nindent 12 }}
+      restartPolicy: Always

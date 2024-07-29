@@ -1,0 +1,18 @@
+{
+ "PORT": "9000",
+ "NEO4J_USERNAME": "neo4j",
+ "NEO4J_PASSWORD": "imaging",
+ "NEO4J_BOLT_ENDPOINT": "viewer-neo4j.castimaging-v3.svc.cluster.local:7687",
+ "ETL_ENDPOINT": "etl:9001",
+ "TOKEN": "D5ED6A406775FC71B8D2A978883E8ED4",
+ "NEO4J_IMPORT_PATH": "/opt/imaging/imaging-service/upload/",
+ "LOG_PATH": "/opt/imaging/imaging-service/logs/",
+ "LOG_LEVEL": "debug",
+ "APP_CONFIG": "app-config.json",
+ "LOGGER_TIMEOUT": 60,
+ "EUREKA_HOST": "console-control-panel.castimaging-v3.svc.cluster.local",
+ "EUREKA_PORT": "8098",
+ "SERVICE_HOST": "viewer-server.castimaging-v3.svc.cluster.local",
+ "SERVICE_NAME": "Imaging",
+ "FE_PORT":8083
+}
