@@ -10,10 +10,10 @@ spec:
     - name: "2285"
       port: 2285
       targetPort: 5432
-      nodePort: 30285
+      # nodePort: 30285
   selector:
     console.service: console-postgres
-  type: NodePort
+  # type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
