@@ -66,9 +66,7 @@ spec:
               name: castdir
             - mountPath: /shared
               name: datadir
-      restartPolicy: Always
-      imagePullSecrets:
-        - name: castbuild-sec 
+      restartPolicy: Always 
             
   volumeClaimTemplates:
     - metadata:
