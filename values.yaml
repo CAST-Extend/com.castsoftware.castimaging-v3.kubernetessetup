@@ -27,70 +27,83 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: kubtest3
+  exthostname: aks-agentpool-13622101-vmss000000
   pubextendurl: "https://extend.castsoftware.com"
 
 #
 # Console images
 #
 ConsolePostgresImage:
-  name: quay.io/enterprisedb/postgresql
-  tag: 13.3
+  # Azure container registry / image name
+  name: registryarmy.azurecr.io/cast_imaging_services-postgres
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: castbuild/sso-service
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/sso-service
+  #name: castimaging/sso-service
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: castbuild/console
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/console
+  #name: castimaging/console
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: castbuild/gateway
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/gateway
+  #name: castimaging/gateway
+  tag: army-latest-aku
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
-  name: castbuild/analysis-node
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/analysis-node
+  #name: castimaging/analysis-node
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: castbuild/admin-center
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/admin-center
+  #name: castimaging/admin-center
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: castbuild/auth-service
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/auth-service
+  #name: castimaging/auth-service
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: castbuild/dashboards
-  tag: latest
+  name: registryarmy.azurecr.io/dashboards
+  #name: castimaging/dashboards
+  tag: army-2.12.5-SNAPSHOT-aku
   pullPolicy: IfNotPresent
   
 #
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: castbuild/neo4j
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/neo4j
+  #name: castimaging/neo4j
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: castbuild/viewer
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/viewer
+  #name: castimaging/viewer
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: castbuild/etl-service
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/etl-service
+  #name: castimaging/etl-service
+  tag: army-latest-aku
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
-  name: castbuild/ai-service
-  tag: us-army-latest
+  name: registryarmy.azurecr.io/ai-service
+  #name: castimaging/ai-service
+  tag: army-latest-aku
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
-  name: castbuild/extend-proxy
-  tag: 1.0.0.1675
+  name: registryarmy.azurecr.io/extend-proxy
+  #name: castimaging/extend-proxy
+  tag: army-latest-aku
   pullPolicy: IfNotPresent  
   
   
