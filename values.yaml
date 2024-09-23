@@ -38,59 +38,59 @@ ConsolePostgresImage:
   tag: 13.3
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: castimaging/sso-service
-  tag: 3.0.0
+  name: castbuild/sso-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: castimaging/console
-  tag: 3.0.0
+  name: castbuild/console
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: castimaging/gateway
-  tag: 3.0.0
+  name: castbuild/gateway
+  tag: us-army-latest
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
-  name: castimaging/analysis-node
-  tag: 3.0.0_current_build17
+  name: castbuild/analysis-node
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: castimaging/admin-center
-  tag: 3.0.0
+  name: castbuild/admin-center
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: castimaging/auth-service
-  tag: 3.0.0
+  name: castbuild/auth-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: castimaging/dashboards
-  tag: 2.12.4
+  name: castbuild/dashboards
+  tag: latest
   pullPolicy: IfNotPresent
   
 #
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: castimaging/neo4j
-  tag: 3.0.0
+  name: castbuild/neo4j
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: castimaging/viewer
-  tag: 3.0.0
+  name: castbuild/viewer
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: castimaging/etl-service
-  tag: 3.0.0
+  name: castbuild/etl-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
-  name: castimaging/ai-service
-  tag: 3.0.0
+  name: castbuild/ai-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
-  name: castimaging/extend-proxy
-  tag: latest
+  name: castbuild/extend-proxy
+  tag: 1.0.0.1675
   pullPolicy: IfNotPresent  
   
   
