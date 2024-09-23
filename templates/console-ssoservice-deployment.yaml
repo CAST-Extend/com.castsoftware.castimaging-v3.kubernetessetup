@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: console-sso-service
+  name: console-sso-service
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8096"
+      port: 8096
+      targetPort: 8080
+  selector:
+    console.service: console-sso-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    console.service: console-sso-service
+    version: {{ .Values.ConsoleSSOServiceImage.tag| default .Values.version }}
+  name: console-sso-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.SSOServiceReplicaCount }}
+  selector:
+    matchLabels:
+      console.service: console-sso-service
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        console.network/aip-network: "true"
+        console.service: console-sso-service
+    spec:
+      containers:
+        - env:
+            - name: KC_DB_USERNAME
+              value: postgres
+            - name: KC_DB_PASSWORD
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://console-postgres.{{ .Release.Namespace }}.svc.cluster.local:2285/keycloak
+            - name: KC_HTTP_RELATIVE_PATH
+              value: /auth
+            - name: KC_HOSTNAME
+              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: admin
+          image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
+          imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
+          name: console-sso-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.SSOServiceResources | nindent 12 }}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuild-sec 
