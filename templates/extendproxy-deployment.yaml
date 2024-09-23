@@ -55,8 +55,6 @@ spec:
             - mountPath: /opt/cast_extend_proxy
               name: extendproxy
       restartPolicy: Always
-      imagePullSecrets:
-        - name: castbuild-sec 
       volumes:
         - name: extendproxy
           persistentVolumeClaim:
