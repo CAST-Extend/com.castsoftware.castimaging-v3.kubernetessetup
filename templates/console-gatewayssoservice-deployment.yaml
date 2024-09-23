@@ -37,15 +37,6 @@ spec:
         console.network/aip-network: "true"
         console.service: console-gateway-service
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - kubtest2
       containers:
         - env:
             - name: KC_DB_USERNAME
