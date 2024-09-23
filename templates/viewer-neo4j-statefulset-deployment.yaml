@@ -72,8 +72,6 @@ spec:
             - name: neo4jconf
               mountPath: /var/lib/neo4j/config/configuration/neo4j.conf
               subPath: neo4j.conf
-      imagePullSecrets:
-        - name: castbuild-sec 
       volumes:
         - name: neo4jconf
           configMap:
