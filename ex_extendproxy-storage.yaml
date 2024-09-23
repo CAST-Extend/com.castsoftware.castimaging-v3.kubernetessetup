@@ -11,8 +11,10 @@ spec:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
-  local:
-    path: "/home/jar/pv/console-v3-extendproxy"
+  csi:
+    driver: disk.csi.azure.com
+    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-extendproxy-v3
+    fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-extendproxy-v3

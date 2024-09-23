@@ -42,7 +42,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - kubtest2
+                - aks-agentpool-13622101-vmss000000
       containers:
         - env:
             - name: HOST_GATEWAY
