@@ -44,7 +44,7 @@ spec:
             - name: PORT_CONTROL_PANEL
               value: "8098"
             - name: HOST_KEYCLOAK
-              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-sso-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_KEYCLOAK
               value: "8096"
             - name: DB_HOST
@@ -80,3 +80,5 @@ spec:
           resources:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuild-sec 
