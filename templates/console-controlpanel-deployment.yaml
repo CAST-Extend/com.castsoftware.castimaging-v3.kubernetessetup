@@ -7,16 +7,14 @@ metadata:
   namespace: {{ .Release.Namespace }}  
 spec:
   ports:
-    - name: "2281"
-      port: 2281
-      targetPort: 2281
+    - name: "2381"
+      port: 2381
+      targetPort: 2381
     - name: "8098"
       port: 8098
       targetPort: 8098
-      # nodePort: 30098
   selector:
     console.service: console-control-panel
-  # type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -52,6 +50,8 @@ spec:
               value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
             - name: DB_PORT
               value: "2285"
+            - name: DB_ENCRYPTED_PASSWORD
+              value: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
             - name: HOST_CONSOLE
               value: console-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_CONSOLE
@@ -75,10 +75,12 @@ spec:
             timeoutSeconds: 2
           name: console-control-panel
           ports:
-            - containerPort: 2281
+            - containerPort: 2381
               protocol: TCP
             - containerPort: 8098
               protocol: TCP
           resources:
             {{- toYaml .Values.ControlPaneResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuild-sec 
