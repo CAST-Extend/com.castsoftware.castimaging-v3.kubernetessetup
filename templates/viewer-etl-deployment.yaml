@@ -57,6 +57,8 @@ spec:
             - name: etlappconfig
               mountPath: /opt/imaging/imaging-etl/config/app.config
               subPath: app.config
+      imagePullSecrets:
+        - name: castbuild-sec 
       volumes:
         - name: etlconfig
           configMap:
