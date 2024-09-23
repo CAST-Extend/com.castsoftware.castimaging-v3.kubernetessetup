@@ -66,5 +66,3 @@ spec:
           resources:
             {{- toYaml .Values.DashboardsResources | nindent 12 }}
       restartPolicy: Always
-      imagePullSecrets:
-        - name: castbuild-sec 
