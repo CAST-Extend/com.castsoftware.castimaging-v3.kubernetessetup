@@ -53,6 +53,8 @@ spec:
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
               subPath: app.config
+      imagePullSecrets:
+        - name: castbuild-sec 
       volumes:
         - name: aimanagerconfig
           configMap:
