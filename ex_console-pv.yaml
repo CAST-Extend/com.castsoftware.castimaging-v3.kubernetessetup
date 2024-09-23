@@ -21,10 +21,10 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - aks-agentpool-13622101-vmss000000
   csi:
   driver: disk.csi.azure.com
-  volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-db-data-disk
+  volumeHandle: /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-db-data-disk
   fsType: ext4
 # ---
 # apiVersion: v1
@@ -52,7 +52,7 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
 
 # #
 # # 3 CASTDIR Persistent Volumes
@@ -84,7 +84,7 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
 # ---
 # apiVersion: v1
 # kind: PersistentVolume
@@ -111,7 +111,7 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
 # ---
 # apiVersion: v1
 # kind: PersistentVolume
@@ -138,7 +138,7 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
 
 # #
 # # 3 DATADIR Persistent Volumes
@@ -170,7 +170,7 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
 # ---
 # apiVersion: v1
 # kind: PersistentVolume
@@ -197,7 +197,7 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
 # ---
 # apiVersion: v1
 # kind: PersistentVolume
@@ -224,4 +224,4 @@ spec:
 #         - key: kubernetes.io/hostname
 #           operator: In
 #           values:
-#           - kubtest3
+#           - aks-agentpool-13622101-vmss000000
