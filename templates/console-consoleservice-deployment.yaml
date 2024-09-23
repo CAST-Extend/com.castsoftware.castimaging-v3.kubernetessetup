@@ -61,5 +61,3 @@ spec:
           resources:
             {{- toYaml .Values.ConsoleServiceResources | nindent 12 }} 
       restartPolicy: Always
-      imagePullSecrets:
-        - name: castbuild-sec 
