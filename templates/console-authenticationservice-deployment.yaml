@@ -60,8 +60,7 @@ spec:
             - name: PORT_GATEWAY
               value: "8090"
             - name: NGINX_HOST
-              value: http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:8090
-
+              value: https://imgv3.castsoftware.com
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"
           livenessProbe:

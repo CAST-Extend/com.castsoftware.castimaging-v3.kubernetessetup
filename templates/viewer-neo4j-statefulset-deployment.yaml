@@ -10,16 +10,16 @@ spec:
   ports:
     - port: 7474
       targetPort: 7474
-      nodePort: 30074
+      #nodePort: 30074
       name: browser
     - port: 7687
       targetPort: 7687
       name: bolt
-      nodePort: 30087
+      #nodePort: 30087
     - port: 6362
       targetPort: 6362
       name: backup
-  type: NodePort
+  #type: NodePort
   selector:
     app: viewer-neo4j
     component: core

@@ -7,24 +7,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-aimanager-config
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-aimanager-config
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -35,24 +28,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-aimanager-logs
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-aimanager-logs
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -63,24 +49,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-aimanager-csv
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-aimanager-csv
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -91,24 +70,17 @@ spec:
     storage: 2Gi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-logdir
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-logdir-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: logdir-viewer-neo4j-core-0
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -119,24 +91,17 @@ spec:
     storage: 10Gi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-config
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-config-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: confdir-viewer-neo4j-core-0
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -147,24 +112,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-config
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-config
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-server-config
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -175,24 +133,17 @@ spec:
     storage: 100Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-log
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-log
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-server-log
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -203,24 +154,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-csv
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-csv
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-server-csv
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -231,24 +175,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-config
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-config
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-etl-config
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -259,24 +196,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-logs
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-logs
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-etl-logs
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -287,24 +217,17 @@ spec:
     storage: 10Mi
   volumeMode: Filesystem
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-upload
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-upload
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
     name: pvc-imagingviewer-v3-etl-upload
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - aks-agentpool-13622101-vmss000000
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
