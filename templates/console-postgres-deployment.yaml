@@ -60,6 +60,7 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: db-data
+              subPath: postgres
             - name: pgconf
               mountPath: "/usr/pgsql-13/share/postgresql.conf.sample"              
               subPath: postgresql.conf.sample
