@@ -47,23 +47,9 @@ kubectl get pods -n castimaging-v3
 
 Additional configuration steps
 ```
-# -------------------
-# Update config files
-# -------------------
-# app.config in etl, server, aimanager
-# nginx.conf in server
-
 # ----------------
 # Database updates
 # ----------------
-update admin_center.properties set
-value = 'console-postgres.castimaging-v3.svc.cluster.local' where prop_key = 'database.host';
-
-update admin_center.properties set
-value = 'http://console-gateway-service.castimaging-v3.svc.cluster.local:8090' where prop_key = 'keycloak.uri';
-
---update admin_center.properties set
---value = 'console-control-panel.castimaging-v3.svc.cluster.local' where prop_key = 'eureka.host';
 
 update admin_center.properties set
 value = '/shared/delivery'  where prop_key = 'application.paths.delivery-folder';
@@ -72,49 +58,58 @@ value = '/shared/deploy'  where prop_key = 'application.paths.deploy-folder';
 update admin_center.properties set
 value = '/shared/common-data' where prop_key = 'application.paths.shared-folder';
 
-# ------------------
-# Console PV folders
-# ------------------
-sudo rm -r /home/jar/pv/console-v3-db-data /home/jar/pv/console-v3-analysis-node-data /home/jar/pv/console-v3-analysis-node-cast* /home/jar/pv/console-v3-restapi-domains
-sudo mkdir -p /home/jar/pv/console-v3-db-data /home/jar/pv/console-v3-restapi-domains
-sudo mkdir -p /home/jar/pv/console-v3-analysis-node-cast0/CAST/Logs /home/jar/pv/console-v3-analysis-node-cast0/CASTMS/LISA
-sudo mkdir -p /home/jar/pv/console-v3-analysis-node-cast1/CAST/Logs /home/jar/pv/console-v3-analysis-node-cast1/CASTMS/LISA
-sudo mkdir -p /home/jar/pv/console-v3-analysis-node-cast2/CAST/Logs /home/jar/pv/console-v3-analysis-node-cast2/CASTMS/LISA
-sudo mkdir -p /home/jar/pv/console-v3-analysis-node-data/deploy  /home/jar/pv/console-v3-analysis-node-data/delivery  /home/jar/pv/console-v3-analysis-node-data/common-data
-sudo chmod -R 777 /home/jar/pv/console-v3-db-data /home/jar/pv/console-v3-analysis-node-data /home/jar/pv/console-v3-analysis-node-cast* /home/jar/pv/console-v3-restapi-domains
-
-# ----------------------
-# ExtendProxy PV folders
-# ----------------------
-sudo rm -r /home/jar/pv/console-v3-extendproxy
-sudo mkdir -p /home/jar/pv/console-v3-extendproxy
-sudo chmod 777 /home/jar/pv/console-v3-extendproxy
-
 # ------------------------------------------
-# Imaging Viewer PV folders and config files
+# Imaging Viewer folders updates
 # ------------------------------------------
+
+In order to create the some required folders and permissions, Viewer pods will need to be temporarily re-started as root and put on hold using a "sleep" command.
+-> To restart as root, add this in the deployment yaml file, at container definition level:
+          securityContext:
+            runAsUser: 0
+-> To put them on hold, insert a "sleep 30000" command. For instance, in the viewer-etl-deployment.yaml:
+line 40:		command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
+
+It will then besome possible to perform the necessary folders and files updates:
+
+1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
+2) To copy any required configuration files into the pod using the "kubectl cp" command:
+   For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
+   > kubectl cp .\config\imaging\neo4j\csv\. viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
+
+Upon completion, root securityContext and sleep command can be removed and pod restarted.
+
+
 # neo4j:
-sudo rm -r /home/jar/pv/imagingviewer-v3/neo4j
-sudo mkdir -p /home/jar/pv/imagingviewer-v3/neo4j/logs /home/jar/pv/imagingviewer-v3/neo4j/config /home/jar/pv/imagingviewer-v3/neo4j/config/neo4j5_data
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/neo4j/* /home/jar/pv/imagingviewer-v3/neo4j/config
-sudo chmod -R 777  /home/jar/pv/imagingviewer-v3/neo4j
+1) Command to be executed inside pod:
+	mkdir -p /var/lib/neo4j/config/neo4j5_data
+	chmod -R 777 /var/lib/neo4j
+2) Files to be copied inside pod
+	config\imaging\neo4j\. -> /var/lib/neo4j/config
+
 # server:
-sudo rm -r /home/jar/pv/imagingviewer-v3/server
-sudo mkdir -p /home/jar/pv/imagingviewer-v3/server/logs /home/jar/pv/imagingviewer-v3/server/config /home/jar/pv/imagingviewer-v3/server/csv
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/server/* /home/jar/pv/imagingviewer-v3/server/config
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/neo4j/csv/* /home/jar/pv/imagingviewer-v3/server/csv
-sudo chmod -R 777  /home/jar/pv/imagingviewer-v3/server
+1) Command to be executed inside pod:
+	chmod -R 777 /opt/imaging/imaging-service/logs
+	chmod -R 777 /opt/imaging/imaging-service/upload
+2) Files to be copied inside pod
+	config\imaging\server\. -> /opt/imaging/config
+	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-service/upload
+
 # etl:
-sudo rm -r /home/jar/pv/imagingviewer-v3/etl
-sudo mkdir -p /home/jar/pv/imagingviewer-v3/etl/config /home/jar/pv/imagingviewer-v3/etl/logs /home/jar/pv/imagingviewer-v3/etl/upload
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/etl/* /home/jar/pv/imagingviewer-v3/etl/config
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/neo4j/csv/* /home/jar/pv/imagingviewer-v3/etl/upload
-sudo chmod -R 777  /home/jar/pv/imagingviewer-v3/etl
+1) Command to be executed inside pod:
+	chmod -R 777  /opt/imaging/imaging-etl/config
+	chmod -R 777  /opt/imaging/imaging-etl/log
+	chmod -R 777  /opt/imaging/imaging-etl/upload
+2) Files to be copied inside pod
+	config\imaging\etl\. -> /opt/imaging/imaging-etl/config
+	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-etl/upload
+
 # aimanager:
-sudo rm -r /home/jar/pv/imagingviewer-v3/aimanager
-sudo mkdir -p /home/jar/pv/imagingviewer-v3/aimanager/config /home/jar/pv/imagingviewer-v3/aimanager/logs /home/jar/pv/imagingviewer-v3/aimanager/csv
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/open_ai-manager/* /home/jar/pv/imagingviewer-v3/aimanager/config
-sudo cp -r /home/jar/CastImaging-v3_Helm/config/imaging/neo4j/csv/* /home/jar/pv/imagingviewer-v3/aimanager/csv
-sudo chmod -R 777  /home/jar/pv/imagingviewer-v3/aimanager
+1) Command to be executed inside pod:
+	chmod -R 777  /opt/imaging/open_ai-manager/config
+	chmod -R 777  /opt/imaging/open_ai-manager/log
+	chmod -R 777  /opt/imaging/open_ai-manager/upload
+2) Files to be copied inside pod
+	config\imaging\open_ai-manager/* -> /opt/imaging/open_ai-manager/config
+	config\imaging\neo4j\csv\. -> /opt/imaging/open_ai-manager/csv
 
 ```
