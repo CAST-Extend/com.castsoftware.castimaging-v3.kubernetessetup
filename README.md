@@ -72,6 +72,13 @@ line 40:		command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/ini
 It will then become possible to perform the necessary folders and files updates:
 
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
+	Create the below folders in the console-analysis-node
+	  /shared/common-data
+	  /shared/delivery
+	  /shared/deploy
+	Set the permissions
+	 sudo chmod 777 /shared
+	 sudo chmod -R 777 /shared/*
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
    > kubectl cp .\config\imaging\neo4j\csv\. viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
