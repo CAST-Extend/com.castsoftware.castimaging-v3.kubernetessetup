@@ -34,7 +34,11 @@ kubectl apply -f ex_console-pvc.yaml
 kubectl apply -f ex_extendproxy-storage.yaml
 ```
 Expose an external IP (LoadBalancer) for the gateway kubernetes service
-Prepare a CDN like Azure Front Door or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
+
+Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
+
+DNS should be updated for NGINX_HOST(authenticationservice) and KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, KC_HOSTNAME_ADMIN_URL(ssoservice) variable in deployment.yml
+
 Make configuration for redirecting from DNS to external IP.
 
 Run below helm command to install Console
@@ -121,4 +125,9 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 	config\imaging\open_ai-manager/* -> /opt/imaging/open_ai-manager/config
 	config\imaging\neo4j\csv\. -> /opt/imaging/open_ai-manager/csv
 
+# extend-proxy:
+1) Command to be executed inside pod:
+        chmod -R 777  /opt/cast_extend_proxy
+
+To use extend-proxy, prepare an kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 ```
