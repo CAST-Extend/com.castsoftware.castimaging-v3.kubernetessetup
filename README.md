@@ -62,14 +62,14 @@ value = '/shared/common-data' where prop_key = 'application.paths.shared-folder'
 # Imaging Viewer folders updates
 # ------------------------------------------
 
-In order to create the some required folders and permissions, Viewer pods will need to be temporarily re-started as root and put on hold using a "sleep" command.
+In order to create some required folders and permissions, Viewer pods will need to be temporarily re-started as root and put on hold using a "sleep" command.
 -> To restart as root, add this in the deployment yaml file, at container definition level:
           securityContext:
             runAsUser: 0
 -> To put them on hold, insert a "sleep 30000" command. For instance, in the viewer-etl-deployment.yaml:
 line 40:		command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
 
-It will then besome possible to perform the necessary folders and files updates:
+It will then become possible to perform the necessary folders and files updates:
 
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
