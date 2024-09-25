@@ -13,7 +13,7 @@ spec:
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-extendproxy-v3
+    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-extendproxy-v3-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3

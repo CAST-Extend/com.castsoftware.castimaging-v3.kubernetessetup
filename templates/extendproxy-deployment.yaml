@@ -45,6 +45,8 @@ spec:
           image: "{{ .Values.ExtendProxyImage.name }}:{{ .Values.ExtendProxyImage.tag}}"
           imagePullPolicy: "{{ .Values.ExtendProxyImage.pullPolicy }}"
           name: extendproxy
+          #securityContext:
+          #  runAsUser: 0
           ports:
             - containerPort: 8085
               hostPort: 8085

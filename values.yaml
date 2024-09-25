@@ -170,7 +170,7 @@ ViewerNeo4jResources:
     # memory: 16G
   requests:
     cpu: 0.2
-    memory: 8G
+    memory: 12G
 ViewerServerServiceResources:
   # limits:
     # cpu: 2500m

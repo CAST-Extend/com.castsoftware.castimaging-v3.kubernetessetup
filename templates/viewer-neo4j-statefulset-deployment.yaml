@@ -44,13 +44,15 @@ spec:
       containers:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
+          securityContext:
+            runAsUser: 0
           imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
-          command: ['sh', '-c', "/var/lib/neo4j/config/init.sh"]
+          command: ['sh', '-c', "ls -laR /var/lib/neo4j;/var/lib/neo4j/config/init.sh"]
           env:
             - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
               value: "yes"
             - name: NEO4J_dbms_memory_heap_maxSize
-              value: "8G"
+              value: "12G"
             - name: TIME_ZONE
               value: "Europe/Paris"
           ports:
@@ -60,29 +62,36 @@ spec:
               name: bolt
             - containerPort: 6362
               name: backup
-          securityContext:
-            privileged: true
+
           resources:
             {{- toYaml .Values.ViewerNeo4jResources | nindent 12 }}
           volumeMounts:
             - name: logdir
-              mountPath: /logs
+              mountPath: /var/lib/neo4j/logs
             - name: confdir
               mountPath: /var/lib/neo4j/config
             - name: neo4jconf
               mountPath: /var/lib/neo4j/config/configuration/neo4j.conf
               subPath: neo4j.conf
+            - name: initsh
+              mountPath: /var/lib/neo4j/config/init.sh
+              subPath: init.sh
       volumes:
         - name: neo4jconf
           configMap:
             name: neo4jconf
+            defaultMode: 0777
+        - name: initsh
+          configMap:
+            name: initsh
+            defaultMode: 0777
 
   volumeClaimTemplates:
     - metadata:
         name: logdir
       spec:
         accessModes:
-          - ReadWriteMany
+          - ReadWriteOnce
         storageClassName: "{{ .Values.storageClassName.name }}"
         resources:
           requests:
@@ -91,8 +100,8 @@ spec:
         name: confdir
       spec:
         accessModes:
-          - ReadWriteMany
+          - ReadWriteOnce
         storageClassName: "{{ .Values.storageClassName.name }}"
         resources:
           requests:
-            storage: "10Gi"
+            storage: "6Gi"

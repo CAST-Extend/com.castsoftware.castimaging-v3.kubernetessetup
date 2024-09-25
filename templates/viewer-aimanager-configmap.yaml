@@ -13,7 +13,7 @@ data:
     DEBUG=False
     PORT=8082
     LOGS_FOLDER='/opt/imaging/open_ai-manager/logs'
-    CSV_FOLDER='/opt/imaging/open_ai-manager/csvs'
+    CSV_FOLDER='/opt/imaging/open_ai-manager/csv'
     EXECUTABLE_PATH='/opt/imaging/open_ai-manager/nlp_modules/moduleBuilderLean'
 kind: ConfigMap
 metadata:
