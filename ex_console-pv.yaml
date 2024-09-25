@@ -16,7 +16,7 @@ spec:
     name: db-data
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-db-data-disk
+    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-db-data-disk
     fsType: ext4
 ---
 apiVersion: v1
@@ -34,7 +34,7 @@ spec:
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-restapi-domains  # Specify your managed disk path
+    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-restapi-domains  # Specify your managed disk path
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -59,7 +59,7 @@ spec:
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir0-disk
+    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir0-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -81,7 +81,7 @@ spec:
 #   storageClassName: castimaging-v3-local-storage
 #   csi:
 #     driver: disk.csi.azure.com
-#     volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir1  # Specify your managed disk path
+#     volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir1  # Specify your managed disk path
 #     fsType: ext4
 #   claimRef:
 #     namespace: castimaging-v3
@@ -103,7 +103,7 @@ spec:
 #   storageClassName: castimaging-v3-local-storage
 #   csi:
 #     driver: disk.csi.azure.com
-#     volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir2-disk  # Specify your managed disk path
+#     volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir2-disk  # Specify your managed disk path
 #     fsType: ext4
 #   claimRef:
 #     namespace: castimaging-v3
@@ -128,7 +128,7 @@ spec:
   storageClassName: castimaging-v3-local-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir0-disk
+    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir0-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -150,7 +150,7 @@ spec:
 #   storageClassName: castimaging-v3-local-storage
 #   csi:
 #     driver: disk.csi.azure.com
-#     volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir1-disk
+#     volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir1-disk
 #     fsType: ext4
 #   claimRef:
 #     namespace: castimaging-v3
@@ -172,7 +172,7 @@ spec:
 #   storageClassName: castimaging-v3-local-storage
 #   csi:
 #     driver: disk.csi.azure.com
-#     volumeHandle: /subscriptions/d4a45be0-a00d-498a-979f-ef768fa2956b/resourceGroups/aks-cluster-us-army_group/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir2-disk
+#     volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir2-disk
 #     fsType: ext4
 #   claimRef:
 #     namespace: castimaging-v3
