@@ -1,45 +1,51 @@
 # CAST Imaging V3
 
-This Helm Chart is for the deployment of Cast Imaging 3.0.0 on Kubernetes
+This Helm chart facilitates the deployment of CAST Imaging 3.0.0 on a Azure Kubernetes cluster.
 
 ## Pre-requisites
 
 - Kubernetes
 - helm
+- CAST Imaging Docker images
+
+## System Requirement and Environment Setup
+
+- Please refer CAST production documentation for storage requirements https://doc.castsoftware.com/requirements/
+- Setup AKS environment with minimum node-vm-size B16ms
+- AKS v1.29.7 or Higher
+- Azure/ubuntu Linux SKU
+- Azure Container Registry(ACR)
+- Storage: SSD 500GB (256GB minimum) with option to allow expansion 
 
 ## Setup
 
-Make sure your kubernetes cluster is up and helm is installed on your system.
+Ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
 
-Create kubernetes namespace where you want to install Imaging Console system
+**Create a Kubernetes Namespace**
 
-Below command will create namespace console
+Define the namespace where CAST Imaging will be installed. Use the following command to create the namespace:
+
 ```
 kubectl create ns castimaging-v3
 
 ```
+**Configure configuration files for CAST Imaging**
 
-Create Imaging storage
+A sample configuration for Persistent Volumes is available. To apply this storage configuration, clone the Git repository and update the configuration files before using it. 
+1. Update value.yaml file specific to your deployment environment
+   - update the image name and tag based on images  
+2. Update yaml file for persistant volumne and storage to replace <your-subscription-id> and <your-resource-group> with actual values for subscription-id and resource group name.
+   - ex_console-pv.yaml
+   - ex_extendproxy-storage.yaml
+   - ex_imagingviewer-storage.yaml
 ```
-# A sample storage configuration based on Persistent Volumes of type "local" is provided for testing purposes.
-#                 As "local", those Persistent Volumes are attached to a specific node 
-#                 (kubtestx => to be replaced in nodeAffinity section of config files). 
-#
-# To apply the configuration, first create PV folders (see "Additional configuration steps" section below), then:
-
 kubectl apply -f ex_storageclass.yaml
 kubectl apply -f ex_imagingviewer-storage.yaml
 kubectl apply -f ex_console-pv.yaml
 kubectl apply -f ex_console-pvc.yaml
 kubectl apply -f ex_extendproxy-storage.yaml
 ```
-Expose an external IP (LoadBalancer) for the gateway kubernetes service
-
-Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
-
-DNS should be updated for NGINX_HOST(authenticationservice) and KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, KC_HOSTNAME_ADMIN_URL(ssoservice) variable in deployment.yml
-
-Make configuration for redirecting from DNS to external IP.
+**Install CAST Imaging**
 
 Run below helm command to install Console
 ```
@@ -53,6 +59,15 @@ kubectl get pods -n castimaging-v3
 
 Additional configuration steps
 ```
+
+#---------------------
+# Network Setting
+#--------------------
+ - Expose an external IP (LoadBalancer) for the gateway kubernetes service
+ - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
+ - DNS should be updated for NGINX_HOST value in console-authenticationservice-deployment.yaml and KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, KC_HOSTNAME_ADMIN_URL(ssoservice) variable in deployment.yml
+ - Make configuration for redirecting from DNS to external IP.
+
 # ----------------
 # Database updates
 # ----------------
