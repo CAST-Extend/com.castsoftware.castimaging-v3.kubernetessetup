@@ -33,6 +33,9 @@ kubectl apply -f ex_console-pv.yaml
 kubectl apply -f ex_console-pvc.yaml
 kubectl apply -f ex_extendproxy-storage.yaml
 ```
+Expose an external IP (LoadBalancer) for the gateway kubernetes service
+Prepare a CDN like Azure Front Door or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
+Make configuration for redirecting from DNS to external IP.
 
 Run below helm command to install Console
 ```
@@ -42,7 +45,6 @@ helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
 
 kubectl get pods -n castimaging-v3
 
-# Once all pods are "Running", access Imaging Console on http://console-gateway-service-xxx:8090
 ```
 
 Additional configuration steps
