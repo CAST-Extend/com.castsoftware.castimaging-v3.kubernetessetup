@@ -129,5 +129,5 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 1) Command to be executed inside pod:
         chmod -R 777  /opt/cast_extend_proxy
 
-To use extend-proxy, prepare an kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
+To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 ```
