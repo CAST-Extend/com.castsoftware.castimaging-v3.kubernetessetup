@@ -69,13 +69,17 @@ kubectl get pods -n castimaging-v3
  - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com).
    The DNS should also have an SSL certificate.
 
- - Ensure the DNS is configured for the NGINX_HOST parameter in the templates/console-authenticationservice-deployment.yaml file. For example 
-	Replace NGINX_HOST value https://test.castsoftware.com with https://dev.imaginghost.com
+ - Ensure the DNS is configured for the NGINX_HOST parameter in the templates/console-authenticationservice-deployment.yaml file.
+ 	- For example, replace NGINX_HOST from default value https://test.castsoftware.com with https://dev.imaginghost.com
 
- - Update the DNS for the KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, and KC_HOSTNAME_ADMIN_URL parameters in the templates/console-ssoservice-deployment.yaml file. For example
-	Replace KC_HOSTNAME value from https://test.castsoftware.com to https://dev.imaginghost.com,
-	Replace KEYCLOAK_FRONTEND_URL value from https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
-	Replace KC_HOSTNAME_ADMIN_URL value from https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
+ - Update the DNS for the KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, and KC_HOSTNAME_ADMIN_URL parameters in the templates/console-ssoservice-deployment.yaml file.
+ 	- For example,
+    
+		Replace KC_HOSTNAME from default value https://test.castsoftware.com to https://dev.imaginghost.com,
+
+		Replace KEYCLOAK_FRONTEND_URL from default value https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
+
+ 		Replace KC_HOSTNAME_ADMIN_URL from default value https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
 
  - Make configuration for redirecting from DNS to external IP.
 
@@ -88,10 +92,14 @@ update admin_center.properties set value = '/shared/common-data' where prop_key 
 
 **4.3 Imaging Viewer folders updates**
 
-In order to create some required folders and permissions, Viewer pods will need to be temporarily re-started as root and put on hold using a "sleep" command.
--> To restart as root, add this in the deployment yaml file, at container definition level:
-          securityContext:
-            runAsUser: 0
+To set up the necessary folders and permissions, the Viewer pods must be temporarily restarted as the root user and paused using a "sleep" command
+
+- To restart as root, add this in the deployment yaml file, at container definition level:
+  
+  	securityContext:
+
+  	runAsUser: 0
+  
 -> To put them on hold, insert a "sleep 30000" command. For instance, in the viewer-etl-deployment.yaml:
 line 40:		command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
 
