@@ -1,4 +1,4 @@
-# CAST Imaging V 3.x
+# CAST Imaging Version 3.x
 
 This guide outlines the process for setting up **CAST Imaging** in a **Azure Kubernetes Cluster environment** using Helm charts.
 
