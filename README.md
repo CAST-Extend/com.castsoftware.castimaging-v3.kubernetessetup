@@ -5,7 +5,7 @@ This Helm chart facilitates the deployment of CAST Imaging 3.0.0 on a Azure Kube
 ## Pre-requisites
 
 - Kubernetes
-- helm
+- Install helm ( https://helm.sh/docs/intro/quickstart/ )
 - CAST Imaging Docker images
 
 ## System Requirement and Environment Setup
@@ -56,32 +56,32 @@ helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
 kubectl get pods -n castimaging-v3
 
 ```
+**Additional configuration steps**
 
-Additional configuration steps
-```
-
-#---------------------
-# Network Setting
-#--------------------
+**1. Network Setting**
  - Expose an external IP (LoadBalancer) for the gateway kubernetes service
- - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
- - DNS should be updated for NGINX_HOST value in console-authenticationservice-deployment.yaml and KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, KC_HOSTNAME_ADMIN_URL(ssoservice) variable in deployment.yml
+
+ - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com).
+   The DNS should also have an SSL certificate.
+
+ - Ensure the DNS is configured for the NGINX_HOST parameter in the templates/console-authenticationservice-deployment.yaml file. For example 
+	Replace NGINX_HOST value https://test.castsoftware.com with https://dev.imaginghost.com
+
+ - Update the DNS for the KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, and KC_HOSTNAME_ADMIN_URL parameters in the templates/console-ssoservice-deployment.yaml file. For example
+	Replace KC_HOSTNAME value from https://test.castsoftware.com to https://dev.imaginghost.com,
+	Replace KEYCLOAK_FRONTEND_URL value from https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
+	Replace KC_HOSTNAME_ADMIN_URL value from https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
+
  - Make configuration for redirecting from DNS to external IP.
 
-# ----------------
-# Database updates
-# ----------------
+**2. Database updates**
+```
+update admin_center.properties set value = '/shared/delivery'  where prop_key = 'application.paths.delivery-folder';
+update admin_center.properties set value = '/shared/deploy'  where prop_key = 'application.paths.deploy-folder';
+update admin_center.properties set value = '/shared/common-data' where prop_key = 'application.paths.shared-folder';
+```
 
-update admin_center.properties set
-value = '/shared/delivery'  where prop_key = 'application.paths.delivery-folder';
-update admin_center.properties set
-value = '/shared/deploy'  where prop_key = 'application.paths.deploy-folder';
-update admin_center.properties set
-value = '/shared/common-data' where prop_key = 'application.paths.shared-folder';
-
-# ------------------------------------------
-# Imaging Viewer folders updates
-# ------------------------------------------
+**3. Imaging Viewer folders updates**
 
 In order to create some required folders and permissions, Viewer pods will need to be temporarily re-started as root and put on hold using a "sleep" command.
 -> To restart as root, add this in the deployment yaml file, at container definition level:
@@ -91,7 +91,7 @@ In order to create some required folders and permissions, Viewer pods will need 
 line 40:		command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
 
 It will then become possible to perform the necessary folders and files updates:
-
+```
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
 	1.1) Create the below folders in the console-analysis-node
 	  	/shared/common-data
@@ -103,10 +103,10 @@ It will then become possible to perform the necessary folders and files updates:
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
    > kubectl cp .\config\imaging\neo4j\csv\. viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
-
+```
 Upon completion, root securityContext and sleep command can be removed and pod restarted.
 
-
+```
 # neo4j:
 1) Command to be executed inside pod:
 	mkdir -p /var/lib/neo4j/config/neo4j5_data
@@ -143,6 +143,6 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 # extend-proxy:
 1) Command to be executed inside pod:
         chmod -R 777  /opt/cast_extend_proxy
-
-To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 ```
+To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
+
