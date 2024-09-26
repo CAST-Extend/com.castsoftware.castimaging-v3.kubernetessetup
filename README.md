@@ -107,13 +107,6 @@ To ensure the correct folder setup and permissions, the Viewer pods need to be r
 This will allow the necessary folder and file updates to be made during the pause:
 ```
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
-	1.1) Create the below folders in the console-analysis-node
-	  	/shared/common-data
-	  	/shared/delivery
-	  	/shared/deploy
-	1.2) Set the permissions for the folders created
-	 	sudo chmod 777 /shared
-	 	sudo chmod -R 777 /shared/*
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
 	
@@ -122,16 +115,25 @@ This will allow the necessary folder and file updates to be made during the paus
 ```
 Upon completion, root securityContext and sleep command can be removed and pod restarted.
 
+List of updates to be made:
+
 ```
+# node:
+1) Commands to be executed inside pod:
+	  	mkdir /shared/common-data
+	  	mkdir /shared/delivery
+	  	mkdir /shared/deploy
+		chmod -R 777 /shared
+
 # neo4j:
-1) Command to be executed inside pod:
+1) Commands to be executed inside pod:
 	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
 2) Files to be copied inside pod
 	config\imaging\neo4j\. -> /var/lib/neo4j/config
 
 # server:
-1) Command to be executed inside pod:
+1) Commands to be executed inside pod:
 	chmod -R 777 /opt/imaging/imaging-service/logs
 	chmod -R 777 /opt/imaging/imaging-service/upload
 2) Files to be copied inside pod
@@ -139,7 +141,7 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-service/upload
 
 # etl:
-1) Command to be executed inside pod:
+1) Commands to be executed inside pod:
 	chmod -R 777  /opt/imaging/imaging-etl/config
 	chmod -R 777  /opt/imaging/imaging-etl/log
 	chmod -R 777  /opt/imaging/imaging-etl/upload
@@ -148,7 +150,7 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-etl/upload
 
 # aimanager:
-1) Command to be executed inside pod:
+1) Commands to be executed inside pod:
 	chmod -R 777  /opt/imaging/open_ai-manager/config
 	chmod -R 777  /opt/imaging/open_ai-manager/log
 	chmod -R 777  /opt/imaging/open_ai-manager/upload
@@ -157,7 +159,7 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 	config\imaging\neo4j\csv\. -> /opt/imaging/open_ai-manager/csv
 
 # extend-proxy:
-1) Command to be executed inside pod:
+1) Commands to be executed inside pod:
         chmod -R 777  /opt/cast_extend_proxy
 ```
 To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
