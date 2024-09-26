@@ -1,43 +1,50 @@
-# CAST Imaging V3
+# CAST Imaging V 3.x
 
-This Helm chart facilitates the deployment of CAST Imaging 3.0.0 on a Azure Kubernetes cluster.
+This guide outlines the process for setting up **CAST Imaging** in a **Azure Kubernetes Cluster environment** using Helm charts.
 
-## Pre-requisites
+## Prerequisites
 
-- Kubernetes
-- Install helm ( https://helm.sh/docs/intro/quickstart/ )
-- CAST Imaging Docker images
+- A Kubernetes cluster
+- Helm installed on your local machine (https://helm.sh/docs/intro/quickstart/ )
+- kubectl and Azure CLI configured to communicate with your cluster
+- CAST Imaging Docker images uploaded to your Azure Container Registry (ACR)
+- A valid CAST Imaging License
 
 ## System Requirement and Environment Setup
 
-- Please refer CAST production documentation for storage requirements https://doc.castsoftware.com/requirements/
-- Setup AKS environment with minimum node-vm-size B16ms
-- AKS v1.29.7 or Higher
+- AKS environment with minimum node VM size B16ms
+- AKS v1.29.7 or higher
 - Azure/ubuntu Linux SKU
 - Azure Container Registry(ACR)
-- Storage: SSD 500GB (256GB minimum) with option to allow expansion 
-
-## Setup
+- Storage: SSD 500GB (256GB minimum) with the option to allow expansion
+- Refer to the CAST production documentation https://doc.castsoftware.com for any additional details
+## Installation Steps
 
 Ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
 
-**Create a Kubernetes Namespace**
-
-Define the namespace where CAST Imaging will be installed. Use the following command to create the namespace:
+**1. Create a Kubernetes Namespace for CAST Imaging**
 
 ```
 kubectl create ns castimaging-v3
-
 ```
-**Configure configuration files for CAST Imaging**
+**2. Update Configuration Files for CAST Imaging**
 
-A sample configuration for Persistent Volumes is available. To apply this storage configuration, clone the Git repository and update the configuration files before using it. 
-1. Update value.yaml file specific to your deployment environment
-   - update the image name and tag based on images  
-2. Update yaml file for persistant volumne and storage to replace <your-subscription-id> and <your-resource-group> with actual values for subscription-id and resource group name.
-   - ex_console-pv.yaml
-   - ex_extendproxy-storage.yaml
-   - ex_imagingviewer-storage.yaml
+A sample configuration for Persistent Volumes is available. Clone the Git repository and update the configuration files before applying them. 
+
+2.1 Update **value.yaml** to reflect your deployment environment
+
+    Update the image name and tag based on the available images. 
+
+2.2 Modify the persistent volume and storage YAML files to replace <your-subscription-id>, <your-resource-group> and agent pool for nodeAffinity with your actual subscription ID, resource group name and aks agent pool name.
+
+    ex_console-pv.yaml
+    ex_extendproxy-storage.yaml
+    ex_imagingviewer-storage.yaml
+    
+    Optional: If you prefer to use a different name for the storage class instead of the default castimaging-v3-local-storage, ensure to update all related configuration files accordingly.
+
+2.3 Run the below commands to create storage, persistance volume and persistance volumne claim. 
+
 ```
 kubectl apply -f ex_storageclass.yaml
 kubectl apply -f ex_imagingviewer-storage.yaml
@@ -45,20 +52,18 @@ kubectl apply -f ex_console-pv.yaml
 kubectl apply -f ex_console-pvc.yaml
 kubectl apply -f ex_extendproxy-storage.yaml
 ```
-**Install CAST Imaging**
+**3. Install CAST Imaging using Helm**
 
-Run below helm command to install Console
 ```
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
-
-# Get pods status in kubernetes:
-
-kubectl get pods -n castimaging-v3
-
 ```
-**Additional configuration steps**
+Get kubernetes pods status 
+```
+kubectl get pods -n castimaging-v3
+```
+**4. Additional configuration steps**
 
-**1. Network Setting**
+**4.1 Network Setting**
  - Expose an external IP (LoadBalancer) for the gateway kubernetes service
 
  - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com).
@@ -74,14 +79,14 @@ kubectl get pods -n castimaging-v3
 
  - Make configuration for redirecting from DNS to external IP.
 
-**2. Database updates**
+**4.2 Database updates**
 ```
 update admin_center.properties set value = '/shared/delivery'  where prop_key = 'application.paths.delivery-folder';
 update admin_center.properties set value = '/shared/deploy'  where prop_key = 'application.paths.deploy-folder';
 update admin_center.properties set value = '/shared/common-data' where prop_key = 'application.paths.shared-folder';
 ```
 
-**3. Imaging Viewer folders updates**
+**4.3 Imaging Viewer folders updates**
 
 In order to create some required folders and permissions, Viewer pods will need to be temporarily re-started as root and put on hold using a "sleep" command.
 -> To restart as root, add this in the deployment yaml file, at container definition level:
