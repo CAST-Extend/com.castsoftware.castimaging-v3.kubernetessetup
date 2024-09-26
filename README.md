@@ -164,3 +164,4 @@ List of updates to be made:
 ```
 To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 
+
