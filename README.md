@@ -75,7 +75,7 @@ kubectl get pods -n castimaging-v3
  - Update the DNS for the KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, and KC_HOSTNAME_ADMIN_URL parameters in the templates/console-ssoservice-deployment.yaml file.
  	- For example,
     
-		Replace KC_HOSTNAME from default value https://test.castsoftware.com to https://dev.imaginghost.com,
+		Replace KC_HOSTNAME from default value test.castsoftware.com to dev.imaginghost.com
 
 		Replace KEYCLOAK_FRONTEND_URL from default value https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
 
