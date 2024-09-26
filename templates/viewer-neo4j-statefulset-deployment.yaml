@@ -44,8 +44,8 @@ spec:
       containers:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
-          securityContext:
-            runAsUser: 0
+          #securityContext:
+          #  runAsUser: 0
           imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
           command: ['sh', '-c', "ls -laR /var/lib/neo4j;/var/lib/neo4j/config/init.sh"]
           env:
