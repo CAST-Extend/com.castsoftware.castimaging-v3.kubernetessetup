@@ -164,4 +164,8 @@ List of updates to be made:
 ```
 To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 
+**5. Scale the Pods in the order**
 
+**For Console**: console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
+
+**For Viewer**: viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
