@@ -1,3 +1,4 @@
+exclude_*
 config/
 scripts/
 */left/
