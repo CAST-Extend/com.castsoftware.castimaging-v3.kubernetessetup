@@ -9,7 +9,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 - kubectl and Azure CLI configured to communicate with your cluster
 - CAST Imaging Docker images uploaded to your Azure Container Registry (ACR)
 - A valid CAST Imaging License
-- OPTIONAL: Deploy Kubernetes Dashboard (https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) to troubleshoot containers, and manage the cluster resources
+- OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
 
 ## System Requirement and Environment Setup
 
