@@ -118,7 +118,7 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 List of updates to be made:
 
 ```
-# node:
+# analysis-node:
 1) Commands to be executed inside pod:
 	  	mkdir /shared/common-data
 	  	mkdir /shared/delivery
