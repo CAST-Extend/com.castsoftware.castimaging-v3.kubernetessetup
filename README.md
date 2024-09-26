@@ -65,9 +65,9 @@ kubectl get pods -n castimaging-v3
 **4. Additional configuration steps**
 
 **4.1 Network Setting**
- - Expose an external IP (LoadBalancer) for the gateway kubernetes service
+ - Expose an external IP (LoadBalancer) for the console-gatewayservice kubernetes service
 
- - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the gateway service (with a DNS i.e castimagingv3.com).
+ - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com).
    The DNS should also have an SSL certificate.
 
  - Ensure the DNS is configured for the NGINX_HOST parameter in the templates/console-authenticationservice-deployment.yaml file.
