@@ -109,8 +109,8 @@ This will allow the necessary folder and file updates to be made during the paus
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
-	
-   	kubectl cp .\config\imaging\neo4j\csv\. viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
+
+   kubectl cp .\config\imaging\neo4j\csv\. castimaging-v3/viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
 	
 ```
 Upon completion, root securityContext and sleep command can be removed and pod restarted.
