@@ -31,11 +31,11 @@ kubectl create ns castimaging-v3
 
 A sample configuration for Persistent Volumes is available. Clone the Git repository and update the configuration files before applying them. 
 
-2.1 Update **value.yaml** to reflect your deployment environment
+Update **value.yaml** to reflect your deployment environment
 
     Update the image name and tag based on the available images. 
 
-2.2 Modify the persistent volume and storage YAML files to replace <your-subscription-id>, <your-resource-group> and agent pool for nodeAffinity with your actual subscription ID, resource group name and aks agent pool name.
+Modify the persistent volume and storage YAML files to replace <your-subscription-id>, <your-resource-group> and agent pool for nodeAffinity with your actual subscription ID, resource group name and aks agent pool name.
 
     ex_console-pv.yaml
     ex_extendproxy-storage.yaml
@@ -43,7 +43,7 @@ A sample configuration for Persistent Volumes is available. Clone the Git reposi
     
     Optional: If you prefer to use a different name for the storage class instead of the default castimaging-v3-local-storage, ensure to update all related configuration files accordingly.
 
-2.3 Run the below commands to create storage, persistance volume and persistance volumne claim. 
+Run the below commands to create storage, persistance volume and persistance volumne claim. 
 
 ```
 kubectl apply -f ex_storageclass.yaml
