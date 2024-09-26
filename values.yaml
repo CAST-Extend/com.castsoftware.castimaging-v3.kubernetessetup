@@ -27,7 +27,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: aks-agentpool-13622101-vmss000000
+  exthostname: xxx-agentpool-xxxxx-vmssxxxx
   pubextendurl: "https://extend.castsoftware.com"
 
 #

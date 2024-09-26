@@ -44,7 +44,7 @@ spec:
             - name: KC_HTTP_RELATIVE_PATH
               value: /auth
             - name: KC_HOSTNAME
-              value: imgv3.castsoftware.com
+              value: test.castsoftware.com
             - name: KEYCLOAK_ADMIN
               value: admin
             - name: KEYCLOAK_ADMIN_PASSWORD
@@ -52,13 +52,13 @@ spec:
             - name: KC_PROXY 
               value: "edge"
             - name: KEYCLOAK_FRONTEND_URL
-              value: https://imgv3.castsoftware.com/auth
+              value: https://test.castsoftware.com/auth
             - name: KC_HOSTNAME_STRICT_HTTPS
               value: "true"
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"             
             - name: KC_HOSTNAME_ADMIN_URL
-              value: https://imgv3.castsoftware.com/auth
+              value: https://test.castsoftware.com/auth
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service

@@ -24,7 +24,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 
 ---
 apiVersion: v1
@@ -53,7 +53,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -81,7 +81,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -109,7 +109,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -137,7 +137,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -165,7 +165,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -193,7 +193,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -221,7 +221,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -249,7 +249,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -277,7 +277,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -305,7 +305,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - aks-agentpool-13622101-vmss000000
+          - xxx-agentpool-xxxxx-vmssxxxx
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
