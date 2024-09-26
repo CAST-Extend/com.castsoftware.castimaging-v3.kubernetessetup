@@ -92,18 +92,19 @@ update admin_center.properties set value = '/shared/common-data' where prop_key 
 
 **4.3 Imaging Viewer folders updates**
 
-To set up the necessary folders and permissions, the Viewer pods must be temporarily restarted as the root user and paused using a "sleep" command
+To ensure the correct folder setup and permissions, the Viewer pods need to be restarted temporarily as the root user and paused using a **sleep** command
 
-- To restart as root, add this in the deployment yaml file, at container definition level:
-  
-  	securityContext:
+- To restart the pods as root, add the following to the container definition in the deployment YAML file:
+  ```
+  securityContext:
+   runAsUser: 0
+  ```
+- To pause the process, insert a "sleep 30000" command. For example, in the viewer-etl-deployment.yaml at line 40
+  ```
+  command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
+  ```
 
-  	runAsUser: 0
-  
--> To put them on hold, insert a "sleep 30000" command. For instance, in the viewer-etl-deployment.yaml:
-line 40:		command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
-
-It will then become possible to perform the necessary folders and files updates:
+This will allow the necessary folder and file updates to be made during the pause:
 ```
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
 	1.1) Create the below folders in the console-analysis-node
@@ -115,7 +116,9 @@ It will then become possible to perform the necessary folders and files updates:
 	 	sudo chmod -R 777 /shared/*
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
-   > kubectl cp .\config\imaging\neo4j\csv\. viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
+	
+   	kubectl cp .\config\imaging\neo4j\csv\. viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
+	
 ```
 Upon completion, root securityContext and sleep command can be removed and pod restarted.
 
