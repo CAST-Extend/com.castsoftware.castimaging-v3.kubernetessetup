@@ -17,7 +17,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 - Azure/ubuntu Linux SKU
 - Azure Container Registry(ACR)
 - Storage: SSD 500GB (256GB minimum) with the option to allow expansion
-- Refer to the CAST production documentation https://doc.castsoftware.com for any additional details
+- Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
 ## Installation Steps
 
 Ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
