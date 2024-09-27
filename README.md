@@ -110,13 +110,6 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 List of updates to be made:
 
 ```
-# analysis-node:
-1) Commands to be executed inside pod:
-	  	mkdir /shared/common-data
-	  	mkdir /shared/delivery
-	  	mkdir /shared/deploy
-		chmod -R 777 /shared
-
 # neo4j:
 1) Commands to be executed inside pod:
 	mkdir -p /var/lib/neo4j/config/neo4j5_data
