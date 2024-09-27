@@ -82,14 +82,7 @@ kubectl get pods -n castimaging-v3
 
  - Make configuration for redirecting from DNS to external IP.
 
-**4.2 Database updates**
-```
-update admin_center.properties set value = '/shared/delivery'  where prop_key = 'application.paths.delivery-folder';
-update admin_center.properties set value = '/shared/deploy'  where prop_key = 'application.paths.deploy-folder';
-update admin_center.properties set value = '/shared/common-data' where prop_key = 'application.paths.shared-folder';
-```
-
-**4.3 Imaging Viewer folders updates**
+**4.2 Imaging Viewer folders updates**
 
 To ensure the correct folder setup and permissions, the Viewer pods need to be restarted temporarily as the root user and paused using a **sleep** command
 
