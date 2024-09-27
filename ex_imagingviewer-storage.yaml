@@ -9,10 +9,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-config-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-config-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -38,10 +38,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-logs-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-logs-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -66,10 +66,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-csv-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pvc-imagingviewer-v3-aimanager-csv-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -94,10 +94,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-logdir-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-logdir-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -122,10 +122,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-config-disk2
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-neo4j-config-disk2
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -150,10 +150,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-config-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-config-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -178,10 +178,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-log-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-log-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -206,10 +206,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-csv-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-server-csv-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -234,10 +234,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-config-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-config-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -262,10 +262,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-logs-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-logs-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -290,10 +290,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-upload-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-imagingviewer-v3-etl-upload-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -318,7 +318,7 @@ spec:
   volumeName: pv-imagingviewer-v3-server-config
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -334,7 +334,7 @@ spec:
   volumeName: pv-imagingviewer-v3-server-log
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 100Mi
@@ -350,7 +350,7 @@ spec:
   volumeName: pv-imagingviewer-v3-server-csv
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -366,7 +366,7 @@ spec:
   volumeName: pv-imagingviewer-v3-etl-config
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -382,7 +382,7 @@ spec:
   volumeName: pv-imagingviewer-v3-etl-logs
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -398,7 +398,7 @@ spec:
   volumeName: pv-imagingviewer-v3-etl-upload
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -414,7 +414,7 @@ spec:
   volumeName: pv-imagingviewer-v3-aimanager-config
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -430,7 +430,7 @@ spec:
   volumeName: pv-imagingviewer-v3-aimanager-logs
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
@@ -446,7 +446,7 @@ spec:
   volumeName: pv-imagingviewer-v3-aimanager-csv
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi

@@ -67,6 +67,7 @@ spec:
             - name: pginit
               mountPath: "/docker-entrypoint-initdb.d/init-db.sh"               
               subPath: init-db.sh
+          
       restartPolicy: Always
       volumes:
         - name: db-data

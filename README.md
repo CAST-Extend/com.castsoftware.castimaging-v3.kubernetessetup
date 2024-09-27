@@ -42,7 +42,7 @@ Modify the persistent volume and storage YAML files to replace <your-subscriptio
     ex_extendproxy-storage.yaml
     ex_imagingviewer-storage.yaml
     
-    Optional: If you prefer to use a different name for the storage class instead of the default castimaging-v3-local-storage, ensure to update all related configuration files accordingly.
+    Optional: If you prefer to use a different name for the storage class instead of the default castimaging-storage, ensure to update all related configuration files accordingly.
 
 Run the below commands to create storage, persistance volume and persistance volumne claim. 
 

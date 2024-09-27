@@ -9,7 +9,7 @@ spec:
   volumeName: pv-console-v3-db-data
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 5Gi
@@ -25,7 +25,7 @@ spec:
   volumeName: pv-console-v3-restapi-domains
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi

@@ -40,37 +40,30 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: registryarmy.azurecr.io/sso-service
-  #name: castimaging/sso-service
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: registryarmy.azurecr.io/console
-  #name: castimaging/console
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: registryarmy.azurecr.io/gateway
-  #name: castimaging/gateway
   tag: army-latest-aku
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: registryarmy.azurecr.io/analysis-node
-  #name: castimaging/analysis-node
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: registryarmy.azurecr.io/admin-center
-  #name: castimaging/admin-center
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: registryarmy.azurecr.io/auth-service
-  #name: castimaging/auth-service
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: registryarmy.azurecr.io/dashboards
-  #name: castimaging/dashboards
   tag: army-2.12.5-SNAPSHOT-aku
   pullPolicy: IfNotPresent
   
@@ -79,22 +72,18 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: registryarmy.azurecr.io/neo4j
-  #name: castimaging/neo4j
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: registryarmy.azurecr.io/viewer
-  #name: castimaging/viewer
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: registryarmy.azurecr.io/etl-service
-  #name: castimaging/etl-service
   tag: army-latest-aku
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: registryarmy.azurecr.io/ai-service
-  #name: castimaging/ai-service
   tag: army-latest-aku
   pullPolicy: IfNotPresent
 #
@@ -102,7 +91,6 @@ ViewerAiManagerImage:
 #
 ExtendProxyImage:
   name: registryarmy.azurecr.io/extend-proxy
-  #name: castimaging/extend-proxy
   tag: army-latest-aku
   pullPolicy: IfNotPresent  
   
@@ -115,23 +103,14 @@ ConsolePostgresResources:
     cpu: 1
     memory: 8G
 SSOServiceResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 100M
 ConsoleServiceResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 100M
 GatewayServiceResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 100M
@@ -140,23 +119,14 @@ AnalysisNodeReplicaResources:
     cpu: 0.5
     memory: 4G
 ControlPaneResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 200M
 AuthenticationServiceResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 100M
 IntegratedDashboardsResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 100M
@@ -165,30 +135,18 @@ IntegratedDashboardsResources:
 # Viewer resources
 #
 ViewerNeo4jResources:
-  # limits:
-    # cpu: 4
-    # memory: 16G
   requests:
     cpu: 0.2
-    memory: 12G
+    memory: 16G
 ViewerServerServiceResources:
-  # limits:
-    # cpu: 2500m
-    # memory: 2528Mi
   requests:
     cpu: 0.1
     memory: 1G
 ViewerEtlResources:
-  # limits:
-    # cpu: 2500m
-    # memory: 3Gi
   requests:
     cpu: 0.1
     memory: 1G
 ViewerAiManagerResources:
-  # limits:
-    # cpu: 2500m
-    # memory: 3Gi
   requests:
     cpu: 0.1
     memory: 100M
@@ -197,12 +155,9 @@ ViewerAiManagerResources:
 # ExtendProxy resources
 #
 ExtendProxyResources:
-  # limits:
-    # cpu: 1
-    # memory: 1G
   requests:
     cpu: 0.1
     memory: 100M    
     
 storageClassName:
-  name: castimaging-v3-local-storage
+  name: castimaging-storage

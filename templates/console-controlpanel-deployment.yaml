@@ -57,11 +57,11 @@ spec:
             - name: PORT_CONSOLE
               value: "8091" 
             - name: DELIVERY_FOLDER
-              value: /home/aip-node-data/delivery
+              value: /shared/delivery
             - name: DEPLOY_FOLDER
-              value: /home/aip-node-data/deploy
+              value: /shared/deploy
             - name: SHARED_FOLDER
-              value: /home/aip-node-data/common-data
+              value: /shared/common-data
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           livenessProbe:

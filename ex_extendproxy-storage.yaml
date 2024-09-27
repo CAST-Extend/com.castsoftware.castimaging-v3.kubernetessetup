@@ -10,10 +10,10 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   csi:
     driver: disk.csi.azure.com
-    volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-extendproxy-v3-disk
+    #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-extendproxy-v3-disk
     fsType: ext4
   claimRef:
     namespace: castimaging-v3
@@ -31,7 +31,7 @@ spec:
   volumeName: pv-extendproxy-v3
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-v3-local-storage
+  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 5Gi
