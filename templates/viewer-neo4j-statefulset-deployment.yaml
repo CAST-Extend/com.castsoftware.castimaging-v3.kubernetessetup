@@ -92,7 +92,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storageClassName.name }}"
+        storageClassName: "{{ .Values.storage.className }}"
         resources:
           requests:
             storage: "1Gi"
@@ -101,7 +101,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storageClassName.name }}"
+        storageClassName: "{{ .Values.storage.className }}"
         resources:
           requests:
             storage: "6Gi"
