@@ -35,6 +35,17 @@ spec:
         console.service: console-analysis-node
         component: core
     spec:
+      initContainers:
+        - name: init-shared-directories
+          image: busybox
+          #command: ["sh", "-c", "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy; chmod -R 777 /shared"]
+          command:
+            - "sh"
+            - "-c"
+            - "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy; chmod -R 777 /shared"
+          volumeMounts:
+           - mountPath: /shared
+             name: datadir
       containers:
         - env:
             - name: DEPLOY_VOLUME_MACHINE
@@ -74,7 +85,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storageClassName.name }}"
+        storageClassName: "{{ .Values.storage.className }}"
         resources:
           requests:
             storage: "2Gi"
@@ -83,7 +94,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storageClassName.name }}"
+        storageClassName: "{{ .Values.storage.className }}"
         resources:
           requests:
             storage: "2Gi"

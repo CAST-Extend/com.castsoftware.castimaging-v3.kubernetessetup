@@ -3,29 +3,49 @@ kind: PersistentVolumeClaim
 metadata:
   name: db-data
   namespace: castimaging-v3
-  labels:
-    console.service: db-data
 spec:
-  volumeName: pv-console-v3-db-data
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 5Gi
+  storageClassName: castimaging-storage
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: restapi-domains
   namespace: castimaging-v3
-  labels:
-    console.service: restapi-domains
 spec:
-  volumeName: pv-console-v3-restapi-domains
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
   resources:
     requests:
       storage: 10Mi
+  storageClassName: castimaging-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: castdir-console-analysis-node-core
+  namespace: castimaging-v3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: castimaging-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: datadir-console-analysis-node-core
+  namespace: castimaging-v3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: castimaging-storage

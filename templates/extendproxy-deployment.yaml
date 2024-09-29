@@ -34,7 +34,17 @@ spec:
       labels:
         console.network/aip-network: "true"
         console.service: extendproxy
-    spec: 
+    spec:
+      initContainers:
+        - name: init-chmod
+          image: busybox
+          command:
+            - "sh"
+            - "-c"
+            - "chmod -R 777 /opt/cast_extend_proxy"
+          volumeMounts:
+           - mountPath: /opt/cast_extend_proxy
+             name: extendproxy
       containers:
         - env:
             - name: host_port
@@ -61,4 +71,4 @@ spec:
       volumes:
         - name: extendproxy
           persistentVolumeClaim:
-            claimName: pvc-extendproxy-v3
+            claimName: pvc-extendproxy-data

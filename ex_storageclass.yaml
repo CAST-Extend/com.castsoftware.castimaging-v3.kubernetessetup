@@ -8,4 +8,4 @@ parameters:
   kind: Managed
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
-allowVolumeExpansion: true
+allowVolumeExpansion: true # Ensure dynamic resizing is allowed

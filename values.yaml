@@ -4,6 +4,14 @@
 
 version: 3.0.0
 
+# Define the namespace here
+namespace: castimaging-v3  # Change this to your desired default namespace
+
+# Storage configuration
+storage:
+  size: "20Gi"  # Adjust size as needed, default 20Gi
+  className: castimaging-storage  # Reference storage class
+
 #
 # Console  
 #
@@ -27,7 +35,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: xxx-agentpool-xxxxx-vmssxxxx
+  exthostname: aks-nodepool1-41640544-vmss000000  #Open question
   pubextendurl: "https://extend.castsoftware.com"
 
 #
@@ -100,7 +108,7 @@ ExtendProxyImage:
 #
 ConsolePostgresResources:
   requests:
-    cpu: 1
+    cpu: 2
     memory: 8G
 SSOServiceResources:
   requests:
@@ -136,7 +144,7 @@ IntegratedDashboardsResources:
 #
 ViewerNeo4jResources:
   requests:
-    cpu: 0.2
+    cpu: 1
     memory: 16G
 ViewerServerServiceResources:
   requests:
@@ -158,6 +166,5 @@ ExtendProxyResources:
   requests:
     cpu: 0.1
     memory: 100M    
-    
-storageClassName:
-  name: castimaging-storage
+
+

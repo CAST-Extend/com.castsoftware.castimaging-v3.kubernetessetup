@@ -11,9 +11,9 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: castimaging-storage
-  claimRef:
-    namespace: castimaging-v3
-    name: db-data
+  #claimRef:
+  #  namespace: castimaging-v3
+  #  name: db-data
   csi:
     driver: disk.csi.azure.com
     #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-db-data-disk
@@ -36,9 +36,9 @@ spec:
     driver: disk.csi.azure.com
     #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-restapi-domains  # Specify your managed disk path
     fsType: ext4
-  claimRef:
-    namespace: castimaging-v3
-    name: restapi-domains
+ # claimRef:
+ #   namespace: castimaging-v3
+ #   name: restapi-domains
 #
 # 3 CASTDIR Persistent Volumes
 # for aip_node statefulSet
@@ -61,9 +61,9 @@ spec:
     driver: disk.csi.azure.com
     #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-castdir0-disk
     fsType: ext4
-  claimRef:
-    namespace: castimaging-v3
-    name: castdir-console-analysis-node-core-0
+  #claimRef:
+  #  namespace: castimaging-v3
+  #  name: castdir-console-analysis-node-core-0
 
 # --- ONLY NEED pv-console-v3-analysis-node-castdir1 if there is more than 1 analysis nodes
 # apiVersion: v1
@@ -130,9 +130,9 @@ spec:
     driver: disk.csi.azure.com
     #volumeHandle: /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Compute/disks/pv-console-v3-analysis-node-datadir0-disk
     fsType: ext4
-  claimRef:
-    namespace: castimaging-v3
-    name: datadir-console-analysis-node-core-0
+#  claimRef:
+#    namespace: castimaging-v3
+#    name: datadir-console-analysis-node-core-0
 
 # --- ONLY NEED pv-console-v3-analysis-node-datadir1 if there is more than 1 analysis nodes
 # apiVersion: v1
