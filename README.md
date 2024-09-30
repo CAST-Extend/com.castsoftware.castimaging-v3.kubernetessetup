@@ -96,11 +96,11 @@ To ensure the correct folder setup and permissions, the Viewer pods need to be r
   ```
 
 This will allow the necessary folder and file updates to be made during the pause:
-```
+
 1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
-
+```
    kubectl cp .\config\imaging\neo4j\csv\. castimaging-v3/viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
 	
 ```
@@ -108,30 +108,40 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 
 List of updates to be made:
 
+**Updates for neo4j POD**
 ```
-# neo4j:
 1) Commands to be executed inside pod:
 	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
 2) Files to be copied inside pod
 	config\imaging\neo4j\. -> /var/lib/neo4j/config
-
-# server:
+```
+**Updates for server POD**
+```
 1) Commands to be executed inside pod:
 	chmod -R 777 /opt/imaging/imaging-service/logs
 	chmod -R 777 /opt/imaging/imaging-service/upload
 2) Files to be copied inside pod
 	config\imaging\server\. -> /opt/imaging/config
 	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-service/upload
-
-# etl:
+```
+**Updates for server ETL**
+```
 1) Commands to be executed inside pod:
 	chmod -R 777  /opt/imaging/imaging-etl/config
 	chmod -R 777  /opt/imaging/imaging-etl/log
 	chmod -R 777  /opt/imaging/imaging-etl/upload
-2) Files to be copied inside pod
-	config\imaging\etl\. -> /opt/imaging/imaging-etl/config
-	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-etl/upload
+```
+3) Files to be copied inside pod
+	**REPLACE** castimaging-v3/viewer-aimanager-78896db4f6-zmbzh with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using kubectl get pods -n castimaging-v3)
+```
+	kubectl cp config\imaging\open_ai-manager\. castimaging-v3/viewer-aimanager-78896db4f6-zmbzh:/opt/imaging/open_ai-manager/config
+	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-aimanager-78896db4f6-zmbzh:/opt/imaging/open_ai-manager/csv
+```
+4) Command to be executed inside the pod
+	chmod -R 777  /opt/imaging/open_ai-manager/config
+	chmod -R 777  /opt/imaging/open_ai-manager/logs
+	chmod -R 777  /opt/imaging/open_ai-manager/csv
 
 # aimanager:
 1) Commands to be executed inside pod:
