@@ -136,10 +136,10 @@ List of updates to be made:
 # aimanager:
 1) Commands to be executed inside pod:
 	chmod -R 777  /opt/imaging/open_ai-manager/config
-	chmod -R 777  /opt/imaging/open_ai-manager/log
-	chmod -R 777  /opt/imaging/open_ai-manager/upload
+	chmod -R 777  /opt/imaging/open_ai-manager/logs
+	chmod -R 777  /opt/imaging/open_ai-manager/csv
 2) Files to be copied inside pod
-	config\imaging\open_ai-manager/* -> /opt/imaging/open_ai-manager/config
+	config\imaging\open_ai-manager/. -> /opt/imaging/open_ai-manager/config
 	config\imaging\neo4j\csv\. -> /opt/imaging/open_ai-manager/csv
 
 # extend-proxy:
