@@ -29,6 +29,7 @@ Create Imaging storage
 
 kubectl apply -f ex_storageclass.yaml
 kubectl apply -f ex_imagingviewer-storage.yaml
+kubectl apply -f ex_console-pv.yaml
 kubectl apply -f ex_console-pvc.yaml
 kubectl apply -f ex_extendproxy-storage.yaml
 ```
