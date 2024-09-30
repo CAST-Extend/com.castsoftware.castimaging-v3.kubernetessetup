@@ -60,7 +60,7 @@ spec:
             - name: PORT_GATEWAY
               value: "8090"
             - name: NGINX_HOST
-              value: https://test.castsoftware.com
+              value: https://img-ps.cast.fr
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"
           livenessProbe:
