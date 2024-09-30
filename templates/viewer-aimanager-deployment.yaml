@@ -33,10 +33,11 @@ spec:
       containers:
         - image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
-          command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
+          command: ['sh', '-c', "ls -l /opt/imaging/open_ai-manager/config/ && /opt/imaging/open_ai-manager/config/init.sh"]
+          #command: ['sh', '-c', "sleep 3000 && ls -l /opt/imaging/open_ai-manager/config/ && /opt/imaging/open_ai-manager/config/init.sh"]
           name: viewer-aimanager
           #securityContext:
-          #  runAsUser: 0
+            #runAsUser: 0
           ports:
             - containerPort: 8082
               protocol: TCP
