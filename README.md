@@ -127,33 +127,36 @@ List of updates to be made:
 ```
 **4.2.3 Updates for Viewer ETL**
 1. Commands to be executed inside pod:
-```
-chmod -R 777  /opt/imaging/imaging-etl/config
-chmod -R 777  /opt/imaging/imaging-etl/log
-chmod -R 777  /opt/imaging/imaging-etl/upload
-```
+	```
+	chmod -R 777  /opt/imaging/imaging-etl/config
+	chmod -R 777  /opt/imaging/imaging-etl/log
+	chmod -R 777  /opt/imaging/imaging-etl/upload
+	```
 
 **4.2.4 Updates for Viewer AI Manager**
-1) Commands to be executed inside pod:
- ```
-chmod -R 777  /opt/imaging/open_ai-manager/config
-chmod -R 777  /opt/imaging/open_ai-manager/logs
-chmod -R 777  /opt/imaging/open_ai-manager/csv
- ```
+1) In the deployment file 'viewer-aimanager-deployment.yaml', comment line number 36 and un-comment line 37, 39 and 40. Save the changes and run the helm update command **helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .**. Get into the pod to execute the chmod commands 
+	 ```
+	chmod -R 777  /opt/imaging/open_ai-manager/config
+	chmod -R 777  /opt/imaging/open_ai-manager/logs
+	chmod -R 777  /opt/imaging/open_ai-manager/csv
+ 	```
 2. Files to be copied inside pod,
    
    **REPLACE** _castimaging-v3/viewer-aimanager-78896db4f6-zmbzh_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
-```
-	kubectl cp config\imaging\open_ai-manager\. castimaging-v3/viewer-aimanager-78896db4f6-zmbzh:/opt/imaging/open_ai-manager/config
-	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-aimanager-78896db4f6-zmbzh:/opt/imaging/open_ai-manager/csv
-```
+	```
+	kubectl cp config\imaging\open_ai-manager\. castimaging-v3/viewer-aimanager-78896db4f6-fqn2x:/opt/imaging/open_ai-manager/config
+	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-aimanager-78896db4f6-fqn2x:/opt/imaging/open_ai-manager/csv
+	```
 3. Command to be executed inside the pod
-```
-chmod -R 777  /opt/imaging/open_ai-manager/config
-chmod -R 777  /opt/imaging/open_ai-manager/logs
-chmod -R 777  /opt/imaging/open_ai-manager/csv
-```
+	```
+	chmod -R 777  /opt/imaging/open_ai-manager/config
+	chmod -R 777  /opt/imaging/open_ai-manager/logs
+	chmod -R 777  /opt/imaging/open_ai-manager/csv
+	```
+4. In the deployment file 'viewer-aimanager-deployment.yaml', un-comment line number 36 and comment line 37, 39 and 40.
 
+   Save the changes and run the helm update command **helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .**.
+   
 **4.2.5 Updates for Extend Proxy**
 1) Commands to be executed inside pod:
 ```
