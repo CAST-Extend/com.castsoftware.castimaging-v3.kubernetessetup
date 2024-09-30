@@ -108,7 +108,7 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 
 List of updates to be made:
 
-**Updates for neo4j POD**
+**4.2.1 Updates for Viewer Neo4j**
 ```
 1) Commands to be executed inside pod:
 	mkdir -p /var/lib/neo4j/config/neo4j5_data
@@ -116,7 +116,7 @@ List of updates to be made:
 2) Files to be copied inside pod
 	config\imaging\neo4j\. -> /var/lib/neo4j/config
 ```
-**Updates for server POD**
+**4.2.2 Updates for Viewer Server**
 ```
 1) Commands to be executed inside pod:
 	chmod -R 777 /opt/imaging/imaging-service/logs
@@ -125,36 +125,39 @@ List of updates to be made:
 	config\imaging\server\. -> /opt/imaging/config
 	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-service/upload
 ```
-**Updates for server ETL**
+**4.2.3 Updates for Viewer ETL**
+1. Commands to be executed inside pod:
 ```
+chmod -R 777  /opt/imaging/imaging-etl/config
+chmod -R 777  /opt/imaging/imaging-etl/log
+chmod -R 777  /opt/imaging/imaging-etl/upload
+```
+
+**4.2.4 Updates for Viewer AI Manager**
 1) Commands to be executed inside pod:
-	chmod -R 777  /opt/imaging/imaging-etl/config
-	chmod -R 777  /opt/imaging/imaging-etl/log
-	chmod -R 777  /opt/imaging/imaging-etl/upload
-```
-3) Files to be copied inside pod
-	**REPLACE** castimaging-v3/viewer-aimanager-78896db4f6-zmbzh with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using kubectl get pods -n castimaging-v3)
+ ```
+chmod -R 777  /opt/imaging/open_ai-manager/config
+chmod -R 777  /opt/imaging/open_ai-manager/logs
+chmod -R 777  /opt/imaging/open_ai-manager/csv
+ ```
+2. Files to be copied inside pod,
+   
+   **REPLACE** _castimaging-v3/viewer-aimanager-78896db4f6-zmbzh_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
 ```
 	kubectl cp config\imaging\open_ai-manager\. castimaging-v3/viewer-aimanager-78896db4f6-zmbzh:/opt/imaging/open_ai-manager/config
 	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-aimanager-78896db4f6-zmbzh:/opt/imaging/open_ai-manager/csv
 ```
-4) Command to be executed inside the pod
-	chmod -R 777  /opt/imaging/open_ai-manager/config
-	chmod -R 777  /opt/imaging/open_ai-manager/logs
-	chmod -R 777  /opt/imaging/open_ai-manager/csv
+3. Command to be executed inside the pod
+```
+chmod -R 777  /opt/imaging/open_ai-manager/config
+chmod -R 777  /opt/imaging/open_ai-manager/logs
+chmod -R 777  /opt/imaging/open_ai-manager/csv
+```
 
-# aimanager:
+**4.2.5 Updates for Extend Proxy**
 1) Commands to be executed inside pod:
-	chmod -R 777  /opt/imaging/open_ai-manager/config
-	chmod -R 777  /opt/imaging/open_ai-manager/logs
-	chmod -R 777  /opt/imaging/open_ai-manager/csv
-2) Files to be copied inside pod
-	config\imaging\open_ai-manager/. -> /opt/imaging/open_ai-manager/config
-	config\imaging\neo4j\csv\. -> /opt/imaging/open_ai-manager/csv
-
-# extend-proxy:
-1) Commands to be executed inside pod:
-        chmod -R 777  /opt/cast_extend_proxy
+```
+chmod -R 777  /opt/cast_extend_proxy
 ```
 To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 
