@@ -90,9 +90,9 @@ To ensure the correct folder setup and permissions, the Viewer pods need to be r
   securityContext:
    runAsUser: 0
   ```
-- To pause the process, insert a "sleep 30000" command. For example, in the viewer-etl-deployment.yaml at line 40
+- To pause the process, insert a "sleep 3000" command. For example, in the viewer-etl-deployment.yaml at line 41
   ```
-  command: ['sh', '-c', "sleep 30000;/opt/imaging/imaging-etl/config/init.sh"]
+  command: ['sh', '-c', "sleep 3000 && /opt/imaging/imaging-etl/config/init.sh"]
   ```
 
 This will allow the necessary folder and file updates to be made during the pause:
@@ -101,7 +101,7 @@ This will allow the necessary folder and file updates to be made during the paus
 2) To copy any required configuration files into the pod using the "kubectl cp" command:
    For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
 ```
-   kubectl cp .\config\imaging\neo4j\csv\. castimaging-v3/viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
+   kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
 	
 ```
 Upon completion, root securityContext and sleep command can be removed and pod restarted.
@@ -109,13 +109,19 @@ Upon completion, root securityContext and sleep command can be removed and pod r
 List of updates to be made:
 
 **4.2.1 Updates for Viewer Neo4j**
-```
-1) Commands to be executed inside pod:
-	mkdir -p /var/lib/neo4j/config/neo4j5_data
+1) In the viewer-neo4j-statefulset-deployment.yaml file, comment line 50, then un-comment out lines 47, 48, and 51. After saving your changes, execute the following Helm upgrade command:
+	 ```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+  	 ```
+    Get into the pod to execute the chmod commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-server-7d9c66448d-vvm96 -- /bin/bash'
+	```
+ 	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
+	```
 2) Files to be copied inside pod
+   	```
 	config\imaging\neo4j\. -> /var/lib/neo4j/config
-```
+	```
 **4.2.2 Updates for Viewer Server**
 ```
 1) Commands to be executed inside pod:
@@ -134,7 +140,11 @@ List of updates to be made:
 	```
 
 **4.2.4 Updates for Viewer AI Manager**
-1) In the deployment file 'viewer-aimanager-deployment.yaml', comment line number 36 and un-comment line 37, 39 and 40. Save the changes and run the helm update command **helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .**. Get into the pod to execute the chmod commands 
+1) In the viewer-aimanager-deployment.yaml file, comment line 36, then un-comment out lines 37, 39, and 40. After saving your changes, execute the following Helm upgrade command:
+	 ```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+  	 ```
+   Get into the pod to execute the chmod commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-server-7d9c66448d-vvm96 -- /bin/bash'
 	 ```
 	chmod -R 777  /opt/imaging/open_ai-manager/config
 	chmod -R 777  /opt/imaging/open_ai-manager/logs
@@ -153,15 +163,16 @@ List of updates to be made:
 	chmod -R 777  /opt/imaging/open_ai-manager/logs
 	chmod -R 777  /opt/imaging/open_ai-manager/csv
 	```
-4. In the deployment file 'viewer-aimanager-deployment.yaml', un-comment line number 36 and comment line 37, 39 and 40.
-
-   Save the changes and run the helm update command **helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .**.
+4. In the viewer-aimanager-deployment.yaml file, un-comment line 36, then comment out lines 37, 39, and 40. After saving your changes, execute the following Helm upgrade command:
+	```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+ 	```
    
 **4.2.5 Updates for Extend Proxy**
 1) Commands to be executed inside pod:
-```
-chmod -R 777  /opt/cast_extend_proxy
-```
+	```
+	chmod -R 777  /opt/cast_extend_proxy
+	```
 To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 
 **5. Scale the Pods in the order**
