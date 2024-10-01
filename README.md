@@ -4,10 +4,9 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 
 # Table of Contents
 
-1. [CAST Imaging Version 3.x](#cast-imaging-version-3x)
-2. [Prerequisites](#prerequisites)
-3. [System Requirements and Environment Setup](#system-requirements-and-environment-setup)
-4. [Installation Steps](#installation-steps)
+1. [Prerequisites](#prerequisites)
+2. [System Requirements and Environment Setup](#system-requirements-and-environment-setup)
+3. [Installation Steps](#installation-steps)
    - [1. Create a Kubernetes Namespace for CAST Imaging](#1-create-a-kubernetes-namespace-for-cast-imaging)
    - [2. Update Configuration Files for CAST Imaging](#2-update-configuration-files-for-cast-imaging)
    - [3. Install CAST Imaging using Helm](#3-install-cast-imaging-using-helm)
@@ -20,6 +19,8 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
        - [4.2.4 Updates for Viewer AI Manager](#424-updates-for-viewer-ai-manager)
        - [4.2.5 Updates for Extend Proxy](#425-updates-for-extend-proxy)
 5. [Scale the Pods in Order](#scale-the-pods-in-order)
+6. [OPTIONAL: Install Kubernetes Dashboard](#kubernetes-dashboard)
+7. [OPTIONAL: Common Azure CLI and Kubectl commands ](#azure-cli-and-kubectl-commands)
 
 
 ## Prerequisites
@@ -243,7 +244,104 @@ List of updates to be made:
 To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 
 **5. Scale the Pods in the order**
+	
+For Console: 
+ 	```
+  	console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
+	```
 
-**For Console**: console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
+For Viewer: 
+  	```
+   	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
+	```
+ 
+**6. Install Kubernetes Dashboard**
 
-**For Viewer**: viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
+To install the Kubernetes Dashboard, run the command below. For more information, please refer to the Kubernetes Dashboard documentation at https://github.com/kubernetes/dashboard. Please note that internet access is required to retrieve the Helm repository from https://kubernetes.github.io/dashboard
+ 	
+1. Add the helm repo to your local helm repository 
+  	```	
+   	helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+ 	```
+2. Run the helm upgrade 
+	```
+	helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+	```
+3. For Helm-based installation when kong is being installed by our Helm chart simply run:
+ 	```
+   	kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+   	```
+5. Now access Dashboard at: https://localhost:8443
+   
+6. Run command to generate the access token required for admin login, login to dashboard and select castimaging-v3 namespace from the dropdown menu to manage Imaging deployment. 
+	```
+ 	kubectl -n kubernetes-dashboard create token admin-user
+ 	```
+**7. Common Azure CLI and Kubectl commands**
+
+_**Login to Azure instance**_
+
+``` 
+az login 
+``` 
+
+_**Connect Kubernetes client (kubectl) to connect to a specific Azure Kubernetes Service (AKS) cluster**_
+
+``` 
+az aks get-credentials --resource-group rg_infra-2024 --name aks-cluster-infra-2024
+```
+
+_**Create namespace**_
+
+``` 
+kubectl create ns castimaging-v3
+
+``` 
+
+_**Create or update the resources using the YAML file**_
+
+``` 
+kubectl apply -f ex_storageclass.yaml
+```
+
+_**Copy files into the POD**_
+
+``` 
+kubectl cp config\imaging\neo4j\. castimaging-v3/viewer-neo4j-core-0:/var/lib/neo4j/config
+```
+
+_**Get the kubernetes POD logs**_
+	
+ ``` 
+ kubectl logs console-gateway-service-67d549bfb4-pvdhj -n castimaging-v3
+```
+
+_**Save the kubernetes POD logs to local disk**_
+
+```
+kubectl logs console-gateway-service-67d549bfb4-pvdhj -n castimaging-v3 -c console-sso-service > D:\CAST\Logs\console-sso-service.txt
+```
+
+_**Execute a command in a running pod within a Kubernetes cluster**_
+
+```
+kubectl exec -it console-analysis-node-core-0 -n castimaging-v3 -- /bin/sh
+```
+
+_**Get configmap details for specific namespace in Kubernetes cluster**_
+
+```
+kubectl get configmap -n castimaging-v3
+```
+
+_**Get details of PersistentVolumeClaims(PVC) for specific namespace in Kubernetes cluster**_
+
+```
+kubectl get pvc castdir-console-analysis-node-core-0 -n castimaging-v3
+```
+
+_**Save the kubernetes POD logs to local disk**_
+
+```
+kubectl edit pvc datadir-console-analysis-node-core-0 -n castimaging-v3
+```
