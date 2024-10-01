@@ -24,6 +24,20 @@ Ensure that your Kubernetes cluster is running, all the CAST Imaging docker imag
 
 **1. Create a Kubernetes Namespace for CAST Imaging**
 
+Login to Azure instance
+
+``` 
+az login 
+``` 
+
+Connect Kubernetes client (kubectl) to connect to a specific Azure Kubernetes Service (AKS) cluster
+
+``` 
+az aks get-credentials --resource-group rg_infra-2024 --name aks-cluster-infra-2024
+```
+
+Create namesapce using below command
+
 ```
 kubectl create ns castimaging-v3
 ```
