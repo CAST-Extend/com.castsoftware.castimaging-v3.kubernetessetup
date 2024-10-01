@@ -2,27 +2,6 @@
 
 This guide outlines the process for setting up **CAST Imaging** in a **Azure Kubernetes Cluster environment** using Helm charts.
 
-# Table of Contents
-
-1. [Prerequisites](#prerequisites)
-2. [System Requirements and Environment Setup](#system-requirements-and-environment-setup)
-3. [Installation Steps](#installation-steps)
-   - [1. Create a Kubernetes Namespace for CAST Imaging](#1-create-a-kubernetes-namespace-for-cast-imaging)
-   - [2. Update Configuration Files for CAST Imaging](#2-update-configuration-files-for-cast-imaging)
-   - [3. Install CAST Imaging using Helm](#3-install-cast-imaging-using-helm)
-   - [4. Additional Configuration Steps](#4-additional-configuration-steps)
-     - [4.1 Network Setting](#41-network-setting)
-     - [4.2 Imaging Viewer Folders Updates](#42-imaging-viewer-folders-updates)
-       - [4.2.1 Updates for Viewer Neo4j](#421-updates-for-viewer-neo4j)
-       - [4.2.2 Updates for Viewer Server](#422-updates-for-viewer-server)
-       - [4.2.3 Updates for Viewer ETL](#423-updates-for-viewer-etl)
-       - [4.2.4 Updates for Viewer AI Manager](#424-updates-for-viewer-ai-manager)
-       - [4.2.5 Updates for Extend Proxy](#425-updates-for-extend-proxy)
-5. [Scale the Pods in Order](#scale-the-pods-in-order)
-6. [OPTIONAL: Install Kubernetes Dashboard](#optional-install-kubernetes-dashboard)
-7. [OPTIONAL: Common Azure CLI and Kubectl commands](#optional-common-azure-cli-and-kubectl-commands)
-
-
 ## Prerequisites
 
 - A Kubernetes cluster
@@ -31,7 +10,6 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 - CAST Imaging Docker images uploaded to your Azure Container Registry (ACR)
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
-
 ## System Requirement and Environment Setup
 
 - AKS environment with minimum node VM size B16ms
@@ -40,7 +18,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 - Azure Container Registry(ACR)
 - Storage: SSD 500GB (256GB minimum) with the option to allow expansion
 - Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
-## Installation Steps
+## Installation Steps for CAST Imaging
 
 Ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
 
@@ -255,7 +233,7 @@ For Viewer:
    	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
 	```
  
-**6. Install Kubernetes Dashboard**
+## Install Kubernetes Dashboard
 
 To install the Kubernetes Dashboard, run the command below. For more information, please refer to the Kubernetes Dashboard documentation at https://github.com/kubernetes/dashboard. Please note that internet access is required to retrieve the Helm repository from https://kubernetes.github.io/dashboard
  	
@@ -277,7 +255,7 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
-**7. Common Azure CLI and Kubectl commands**
+## Common Azure CLI and Kubectl commands
 
 _**Login to Azure instance**_
 
