@@ -113,14 +113,20 @@ List of updates to be made:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
-    Get into the pod to execute the chmod commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-server-7d9c66448d-vvm96 -- /bin/bash'
+    Get into the pod to execute the commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-neo4j-core-0 -- /bin/bash'
 	```
  	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
 	```
 2) Files to be copied inside pod
+   
+   **REPLACE** _castimaging-v3/viewer-neo4j-core-0_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
+	```
+	kubectl cp config\imaging\neo4j\. castimaging-v3/viewer-neo4j-core-0:/var/lib/neo4j/config
    	```
-	config\imaging\neo4j\. -> /var/lib/neo4j/config
+4) Update the file permissions
+   	```
+	chmod -R 777 /var/lib/neo4j
 	```
 **4.2.2 Updates for Viewer Server**
 ```
@@ -132,19 +138,40 @@ List of updates to be made:
 	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-service/upload
 ```
 **4.2.3 Updates for Viewer ETL**
-1. Commands to be executed inside pod:
+1. In the viewer-etl-deployment.yaml file, comment line 40, then un-comment out lines 41, and 43. After saving your changes, execute the following Helm upgrade command:
+	 ```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+  	 ```
+    Get into the pod to execute the commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-etl-6cccc5d569-sk2fm -- /bin/bash'
 	```
 	chmod -R 777  /opt/imaging/imaging-etl/config
 	chmod -R 777  /opt/imaging/imaging-etl/log
 	chmod -R 777  /opt/imaging/imaging-etl/upload
 	```
+2. Files to be copied inside pod,
+   
+   **REPLACE** _castimaging-v3/viewer-etl-6cccc5d569-sk2fm_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
+	```
+	kubectl cp config\imaging\etl\. castimaging-v3/viewer-etl-6cccc5d569-sk2fm:/opt/imaging/imaging-etl/config
+	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-etl-6cccc5d569-sk2fm:/opt/imaging/imaging-etl/upload
+	```
+3. Command to be executed inside the pod
+	```
+	chmod -R 777  /opt/imaging/imaging-etl/config
+	chmod -R 777  /opt/imaging/imaging-etl/log
+	chmod -R 777  /opt/imaging/imaging-etl/upload
+	```
+4. In the viewer-etl-deployment.yaml file, un-comment line 40, then comment out lines 41, and 43. After saving your changes, execute the following Helm upgrade command:
+	```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+ 	```
 
 **4.2.4 Updates for Viewer AI Manager**
 1) In the viewer-aimanager-deployment.yaml file, comment line 36, then un-comment out lines 37, 39, and 40. After saving your changes, execute the following Helm upgrade command:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
-   Get into the pod to execute the chmod commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-server-7d9c66448d-vvm96 -- /bin/bash'
+   Get into the pod to execute the chmod commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-etl-6cccc5d569-sk2fm -- /bin/bash'
 	 ```
 	chmod -R 777  /opt/imaging/open_ai-manager/config
 	chmod -R 777  /opt/imaging/open_ai-manager/logs
