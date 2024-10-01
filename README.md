@@ -233,7 +233,7 @@ For Viewer:
    	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
 	```
  
-## Install Kubernetes Dashboard
+## Install Kubernetes Dashboard (OPTIONAL)
 
 To install the Kubernetes Dashboard, run the command below. For more information, please refer to the Kubernetes Dashboard documentation at https://github.com/kubernetes/dashboard. Please note that internet access is required to retrieve the Helm repository from https://kubernetes.github.io/dashboard
  	
