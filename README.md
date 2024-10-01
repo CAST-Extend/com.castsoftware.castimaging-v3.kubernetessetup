@@ -19,8 +19,8 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
        - [4.2.4 Updates for Viewer AI Manager](#424-updates-for-viewer-ai-manager)
        - [4.2.5 Updates for Extend Proxy](#425-updates-for-extend-proxy)
 5. [Scale the Pods in Order](#scale-the-pods-in-order)
-6. [OPTIONAL: Install Kubernetes Dashboard](#kubernetes-dashboard)
-7. [OPTIONAL: Common Azure CLI and Kubectl commands ](#azure-cli-and-kubectl-commands)
+6. [OPTIONAL: Install Kubernetes Dashboard](#optional-install-kubernetes-dashboard)
+7. [OPTIONAL: Common Azure CLI and Kubectl commands](#optional-common-azure-cli-and-kubectl-commands)
 
 
 ## Prerequisites
