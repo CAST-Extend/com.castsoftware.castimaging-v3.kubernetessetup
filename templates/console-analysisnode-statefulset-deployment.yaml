@@ -38,7 +38,6 @@ spec:
       initContainers:
         - name: init-shared-directories
           image: busybox
-          #command: ["sh", "-c", "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy; chmod -R 777 /shared"]
           command:
             - "sh"
             - "-c"
