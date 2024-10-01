@@ -129,23 +129,43 @@ List of updates to be made:
 	chmod -R 777 /var/lib/neo4j
 	```
 **4.2.2 Updates for Viewer Server**
-```
-1) Commands to be executed inside pod:
+1. In the viewer-server-deployment.yaml, comment line 47, then un-comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
+	 ```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+  	 ```
+    Get into the pod to execute the commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-server-7d9c66448d-4hnxb -- /bin/bash'
+	```
 	chmod -R 777 /opt/imaging/imaging-service/logs
 	chmod -R 777 /opt/imaging/imaging-service/upload
-2) Files to be copied inside pod
-	config\imaging\server\. -> /opt/imaging/config
-	config\imaging\neo4j\csv\. -> /opt/imaging/imaging-service/upload
-```
+ 	chmod -R 777 /opt/imaging/config
+	```
+2. Files to be copied inside pod,
+   
+   **REPLACE** _castimaging-v3/viewer-server-7d9c66448d-4hnxb_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
+	```
+	kubectl cp config\imaging\server\. castimaging-v3/viewer-server-7d9c66448d-4hnxb:/opt/imaging/config
+	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-server-7d9c66448d-4hnxb:/opt/imaging/imaging-service/upload
+	```
+3. Command to be executed inside the pod
+	```
+	chmod -R 777 /opt/imaging/imaging-service/logs
+	chmod -R 777 /opt/imaging/imaging-service/upload
+ 	chmod -R 777 /opt/imaging/config
+	```
+4. In the viewer-etl-deployment.yaml file, un-comment line 47, then comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
+	```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+ 	```
+ 
 **4.2.3 Updates for Viewer ETL**
-1. In the viewer-etl-deployment.yaml file, comment line 40, then un-comment out lines 41, and 43. After saving your changes, execute the following Helm upgrade command:
+1. In the viewer-etl-deployment.yaml file, comment line 40, then un-comment out lines 41, 43 and 44. After saving your changes, execute the following Helm upgrade command:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
     Get into the pod to execute the commands (You can use Kubernetes Dashboard or command kubectl exec like 'kubectl exec -it viewer-etl-6cccc5d569-sk2fm -- /bin/bash'
 	```
 	chmod -R 777  /opt/imaging/imaging-etl/config
-	chmod -R 777  /opt/imaging/imaging-etl/log
+	chmod -R 777  /opt/imaging/imaging-etl/logs
 	chmod -R 777  /opt/imaging/imaging-etl/upload
 	```
 2. Files to be copied inside pod,
@@ -158,10 +178,10 @@ List of updates to be made:
 3. Command to be executed inside the pod
 	```
 	chmod -R 777  /opt/imaging/imaging-etl/config
-	chmod -R 777  /opt/imaging/imaging-etl/log
+	chmod -R 777  /opt/imaging/imaging-etl/logs
 	chmod -R 777  /opt/imaging/imaging-etl/upload
 	```
-4. In the viewer-etl-deployment.yaml file, un-comment line 40, then comment out lines 41, and 43. After saving your changes, execute the following Helm upgrade command:
+4. In the viewer-etl-deployment.yaml file, un-comment line 40, then comment out lines 41, 43 and 44. After saving your changes, execute the following Helm upgrade command:
 	```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
  	```
