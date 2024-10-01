@@ -72,9 +72,9 @@ spec:
           resources:
             {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}
           volumeMounts:
-            - mountPath: /usr/share/CAST
+            - mountPath: /usr/share/CAST # For storage of CASTMS, Extensions, Logs and this is specific to POD
               name: castdir
-            - mountPath: /shared
+            - mountPath: /shared    # For storage of shared data for deploy, delivery and common data. This is shared with other analysis nodes PODs
               name: datadir
       restartPolicy: Always 
             
@@ -89,7 +89,7 @@ spec:
           requests:
             storage: "2Gi"
     - metadata:
-        name: datadir
+        name: datadir     # For storage of shared data for deploy, delivery and common data. This is shared with other analysis nodes PODs
       spec:
         accessModes:
           - ReadWriteOnce

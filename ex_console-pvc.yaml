@@ -1,3 +1,4 @@
+# For storage postgres data
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -8,7 +9,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 250Gi  # Default for Postgres, change according to deployment and applications in portfolio
   storageClassName: castimaging-storage
 ---
 apiVersion: v1
@@ -24,28 +25,30 @@ spec:
       storage: 10Mi
   storageClassName: castimaging-storage
 ---
+# For storage of CASTMS, Extensions, Logs and this is specific to POD
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: castdir-console-analysis-node-core
+  name: castdir-console-analysis-node-core-0
   namespace: castimaging-v3
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 100Gi
   storageClassName: castimaging-storage
 ---
+# For storage of shared data for deploy, delivery and common data. This is shared with other analysis nodes PODs
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: datadir-console-analysis-node-core
+  name: datadir-console-analysis-node-core-0
   namespace: castimaging-v3
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 200Gi
   storageClassName: castimaging-storage
