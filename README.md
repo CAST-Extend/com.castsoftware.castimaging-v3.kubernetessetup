@@ -49,7 +49,7 @@ Update **value.yaml** to reflect your deployment environment
 
     Update the image name and tag based on the available images. 
 
-Modify the persistent volume and storage YAML files to replace <your-subscription-id>, <your-resource-group> and agent pool for nodeAffinity with your actual subscription ID, resource group name and aks agent pool name.
+Modify the storage YAML files for storage requirement specific to your deployment based on the number of application and other parameters.
 
     ex_console-pv.yaml
     ex_extendproxy-storage.yaml
