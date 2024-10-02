@@ -233,9 +233,35 @@ List of updates to be made:
 	```
 	chmod -R 777  /opt/cast_extend_proxy
 	```
-To use extend-proxy, prepare a kubernetes serivce with external IP. And for security that should control under a DNS with SSL cerf.
 
-**5. Scale the Pods in the order**
+**5. Upload Extensions Bundle for Extend Proxy**
+
+Access the Extend Proxy pod to run the commands needed to retrieve the public URL and API key, which are required for uploading the extensions bundle.
+	
+```
+cat /opt/cast_extend_proxy/config.proxy.json
+```
+Take note of the PUBLIC_URL and APIKEY from the output, as well as the location of the extarchive file provided by CAST. Update the curl command below by replacing <APIKEY> with the APIKEY, <extend_proxy_url> with the PUBLIC_URL, and <extarchive_file_path> with the path to the extarchive file.
+
+```
+curl -H "x-cxproxy-apikey:<API-KEY>" -F "data=@<extarchive_file_path>" <extend_proxy_url>api/synchronization/bundle/upload
+
+```
+After the updates, the curl command will look like this:
+
+_curl -H "x-cxproxy-apikey:**XCGN1-F5172C2698CFF29E0E1EFDC9D21346FE684C81A8698E0833445C3F58269865DEE**" -F "data=@**D:\CAST\CastArchive_linux_x64.extarchive**" **http://172.31.187.232:8085**/api/synchronization/bundle/upload_
+
+Execute the CURL command, and if successful, it will produce output similar to the following: 
+
+{"juid":"2cfee965-774f-1234-b656-f07113e34d83","getStatus":"http://test-nodepool1-123456-vmss000000:8085/api/synchronization?juid=2cfee965-774f-1234-b656-f07113e34d83"}
+
+To validate the extension upload, run the following command, and you should see multiple files with the .nupkg extension in the directory /opt/cast_extend_proxy/data/packages/.
+
+```
+ls -l /opt/cast_extend_proxy/data/packages/  
+```
+
+**6. Scale the Pods in the order**
 	
 For Console: 
  	```
