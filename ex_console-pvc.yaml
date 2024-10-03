@@ -9,7 +9,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 250Gi  # Default for Postgres, change according to deployment and applications in portfolio
+      storage: 128Gi  # Default for Postgres, change according to deployment and applications in portfolio
   storageClassName: castimaging-storage
 ---
 apiVersion: v1
@@ -22,7 +22,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Mi
+      storage: 1Gi
   storageClassName: castimaging-storage
 ---
 # For storage of CASTMS, Extensions, Logs and this is specific to POD

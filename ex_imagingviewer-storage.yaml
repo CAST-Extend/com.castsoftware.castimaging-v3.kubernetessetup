@@ -7,12 +7,12 @@ metadata:
   labels:
     console.service: viewer-server
 spec:
-   accessModes:
+  accessModes:
     - ReadWriteOnce
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -28,7 +28,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 100Mi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -44,7 +44,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 8Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -60,7 +60,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -76,7 +76,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -92,7 +92,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 8Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -108,7 +108,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -124,7 +124,7 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -140,4 +140,4 @@ spec:
   storageClassName: castimaging-storage
   resources:
     requests:
-      storage: 10Mi
+      storage: 6Gi
