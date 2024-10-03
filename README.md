@@ -358,7 +358,7 @@ _**Get details of PersistentVolumeClaims(PVC) for specific namespace in Kubernet
 kubectl get pvc castdir-console-analysis-node-core-0 -n castimaging-v3
 ```
 
-_**Save the kubernetes POD logs to local disk**_
+_**Edit PersistentVolumeClaims(PVC) for specific namespace in Kubernetes cluster**_
 
 ```
 kubectl edit pvc datadir-console-analysis-node-core-0 -n castimaging-v3
