@@ -173,7 +173,7 @@ List of updates to be made:
 	chmod -R 777 /opt/imaging/imaging-service/upload
  	chmod -R 777 /opt/imaging/config
 	```
-4. In the viewer-etl-deployment.yaml file, un-comment line 47, then comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
+4. In the viewer-server-deployment.yaml file, un-comment line 47, then comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
 	```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
  	```
