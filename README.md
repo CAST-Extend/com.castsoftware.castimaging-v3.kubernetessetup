@@ -139,10 +139,15 @@ List of updates to be made:
 	```
 	kubectl cp config\imaging\neo4j\. castimaging-v3/viewer-neo4j-core-0:/var/lib/neo4j/config
    	```
-4) Update the file permissions
+4) Update the file permissions and exit. 
    	```
 	chmod -R 777 /var/lib/neo4j
 	```
+5. In the viewer-neo4j-statefulset-deployment.yaml file, un-comment line 50, then comment out lines 47, 48 and 51. After saving your changes, execute the following Helm upgrade command:
+	```
+   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+ 	```
+ 
 **4.2.2 Updates for Viewer Server**
 1. In the viewer-server-deployment.yaml, comment line 47, then un-comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
 	 ```
