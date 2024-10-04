@@ -70,7 +70,7 @@ kubectl apply -f ex_extendproxy-storage.yaml
 ```
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
 ```
-Get kubernetes pods status 
+Get kubernetes pods status, it will approx 2-3 min for PODS to start, PODS viewer-aimanager*, viewer-etl-*, viewer-neo4j-* and viewer-server- will not run successfully. This is expected as additional steps required to make them work.
 ```
 kubectl get pods -n castimaging-v3
 ```
