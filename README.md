@@ -129,7 +129,7 @@ List of updates to be made:
    Check if viewer-neo4j POD is running, if not, scale to 0 and then scale to 1.
 	```
  	kubectl scale --replicas=0 statefulset viewer-neo4j-core -n castimaging-v3
- 	kubectl scale --replicas=0 statefulset viewer-neo4j-core -n castimaging-v3
+ 	kubectl scale --replicas=1 statefulset viewer-neo4j-core -n castimaging-v3
    	```
    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-neo4j-core-0 -- /bin/bash
 	```
