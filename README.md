@@ -158,6 +158,12 @@ List of updates to be made:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
+     Check if viewer-server POD is running, if not, scale to 0 and then scale to 1.
+	```
+ 	kubectl scale --replicas=0 deployment viewer-server -n castimaging-v3
+ 	kubectl scale --replicas=1 deployment viewer-server -n castimaging-v3
+   	```
+  
     Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-server-7d9c66448d-4hnxb -- /bin/sh
 	```
 	chmod -R 777 /opt/imaging/imaging-service/logs
