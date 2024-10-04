@@ -142,6 +142,7 @@ List of updates to be made:
 4) Update the file permissions and exit. 
    	```
 	chmod -R 777 /var/lib/neo4j
+    	sudo chmod -R 777 /logs
 	```
 5. In the viewer-neo4j-statefulset-deployment.yaml file, un-comment line 50, then comment out lines 47, 48 and 51. After saving your changes, execute the following Helm upgrade command:
 	```
