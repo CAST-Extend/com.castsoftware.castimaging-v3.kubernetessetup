@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 cp  /opt/imaging/open_ai-manager/config/app.config /opt/imaging/open_ai-manager/
 
