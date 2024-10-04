@@ -164,7 +164,7 @@ List of updates to be made:
  	kubectl scale --replicas=1 deployment viewer-server -n castimaging-v3
    	```
   
-    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-server-7d9c66448d-4hnxb -- /bin/sh
+    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example **kubectl exec -it -n castimaging-v3 viewer-server-7d9c66448d-4hnxb -- /bin/sh**
 	```
 	chmod -R 777 /opt/imaging/imaging-service/logs
 	chmod -R 777 /opt/imaging/imaging-service/upload
@@ -229,7 +229,12 @@ List of updates to be made:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
-   Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-etl-6cccc5d569-sk2fm -- /bin/bash
+     Check if viewer-aimanager POD is running, if not, scale to 0 and then scale to 1.
+	```
+ 	kubectl scale --replicas=0 deployment viewer-aimanager -n castimaging-v3
+ 	kubectl scale --replicas=1 deployment viewer-aimanager -n castimaging-v3
+   	```
+   Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example **kubectl exec -it -n castimaging-v3 viewer-aimanager-6cccc5d569-sk2fm -- /bin/bash**
 	 ```
 	chmod -R 777  /opt/imaging/open_ai-manager/config
 	chmod -R 777  /opt/imaging/open_ai-manager/logs
