@@ -5,9 +5,10 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 ## Prerequisites
 
 - A Kubernetes cluster
-- Helm installed on your local machine (https://helm.sh/docs/intro/quickstart/ )
-- kubectl and Azure CLI configured to communicate with your cluster
+- Helm installed on your system (https://helm.sh/docs/intro/quickstart/ )
+- kubectl and Azure CLI configured on your system to communicate with your cluster
 - CAST Imaging Docker images uploaded to your Azure Container Registry (ACR)
+- Clone the Git repo branch 3.0.0-usa using _git clone -b 3.0.0-usa https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
 ## System Requirement and Environment Setup
@@ -16,11 +17,10 @@ This guide outlines the process for setting up **CAST Imaging** in a **Azure Kub
 - AKS v1.29.7 or higher
 - Azure/ubuntu Linux SKU
 - Azure Container Registry(ACR)
-- Storage: SSD 500GB (256GB minimum) with the option to allow expansion
 - Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
 ## Installation Steps for CAST Imaging
 
-Ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
+Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
 
 **1. Create a Kubernetes Namespace for CAST Imaging**
 
@@ -30,22 +30,22 @@ Login to Azure instance
 az login 
 ``` 
 
-Connect Kubernetes client (kubectl) to connect to a specific Azure Kubernetes Service (AKS) cluster
+Connect Kubernetes client (kubectl) to connect to Azure Kubernetes Service (AKS) cluster created for CAST Imaging deployment. Replace <Resource_Group> with AKS resource group name and <AKS_CLUSTER> with AKS Cluster name.
 
 ``` 
-az aks get-credentials --resource-group rg_infra-2024 --name aks-cluster-infra-2024
+az aks get-credentials --resource-group <Resource_Group> --name <AKS_CLUSTER>
 ```
 
-Create namesapce using below command
+Create namesapce using below command, it will create namespace with name castimaging-v3
 
 ```
 kubectl create ns castimaging-v3
 ```
 **2. Update Configuration Files for CAST Imaging**
 
-Clone the Git repository and update the configuration files before applying them. A sample configuration for Persistent Volumes is available. 
+Update the configuration files before applying them. A sample configuration for Persistent Volumes is available. 
 
-Update **value.yaml** to reflect your deployment environment
+Update **value.yaml** to reflect your deployment environment - Update line 39 with name of node for AKS cluster and name & tag for container images.
 
     Update the image name and tag based on the available images. 
 
@@ -257,7 +257,12 @@ List of updates to be made:
 	```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
  	```
-   
+     Check if viewer-aimanager POD is running, if not, scale to 0 and then scale to 1.
+	```
+ 	kubectl scale --replicas=0 deployment viewer-aimanager -n castimaging-v3
+ 	kubectl scale --replicas=1 deployment viewer-aimanager -n castimaging-v3
+   	```
+
 **4.2.5 Updates for Extend Proxy**
 1) Commands to be executed inside pod:
 	```
@@ -291,8 +296,9 @@ To validate the extension upload, run the following command, and you should see 
 ls -l /opt/cast_extend_proxy/data/packages/  
 ```
 
-**6. Scale the Pods in the order**
-	
+**6. (OPTIONAL)Scale the Pods in the order**
+Scale the PODs in the order listed if you have to scale for any reason. 
+
 For Console: 
  	```
   	console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
