@@ -43,7 +43,7 @@ kubectl create ns castimaging-v3
 ```
 **2. Update Configuration Files for CAST Imaging**
 
-A sample configuration for Persistent Volumes is available. Clone the Git repository and update the configuration files before applying them. 
+Clone the Git repository and update the configuration files before applying them. A sample configuration for Persistent Volumes is available. 
 
 Update **value.yaml** to reflect your deployment environment
 
