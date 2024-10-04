@@ -109,15 +109,15 @@ ExtendProxyImage:
 ConsolePostgresResources:
   requests:
     cpu: 2
-    memory: 8G
+    memory: 16G
 SSOServiceResources:
   requests:
     cpu: 0.1
-    memory: 100M
+    memory: 1G
 ConsoleServiceResources:
   requests:
     cpu: 0.1
-    memory: 100M
+    memory: 1G
 GatewayServiceResources:
   requests:
     cpu: 0.1
@@ -133,7 +133,7 @@ ControlPaneResources:
 AuthenticationServiceResources:
   requests:
     cpu: 0.1
-    memory: 100M
+    memory: 2G
 IntegratedDashboardsResources:
   requests:
     cpu: 0.1

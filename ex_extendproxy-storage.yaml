@@ -8,5 +8,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi  # Specify the storage size required
+      storage: 10Gi
   storageClassName: castimaging-storage
