@@ -35,7 +35,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: aks-nodepool1-41640544-vmss000000  #Open question
+  exthostname: aks-nodepool1-41640544-vmss000000  #Node Pool used by AKS cluster
   pubextendurl: "https://extend.castsoftware.com"
 
 #
@@ -43,35 +43,35 @@ ExtendProxy:
 #
 ConsolePostgresImage:
   # Azure container registry / image name
-  name: registryarmy.azurecr.io/cast_imaging_services-postgres
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/cast_imaging_services-postgres
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: registryarmy.azurecr.io/sso-service
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/sso-service
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: registryarmy.azurecr.io/console
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/console
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: registryarmy.azurecr.io/gateway
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/gateway
+  tag: latest
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
-  name: registryarmy.azurecr.io/analysis-node
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/analysis-node
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: registryarmy.azurecr.io/admin-center
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/admin-center
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: registryarmy.azurecr.io/auth-service
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/auth-service
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: registryarmy.azurecr.io/dashboards
+  name: registrydev.azurecr.io/dashboards
   tag: army-2.12.5-SNAPSHOT-aku
   pullPolicy: IfNotPresent
   
@@ -79,27 +79,27 @@ ConsoleIntegratedDashboardsImage:
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: registryarmy.azurecr.io/neo4j
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/neo4j
+  tag: latest
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: registryarmy.azurecr.io/viewer
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/viewer
+  tag: latest
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: registryarmy.azurecr.io/etl-service
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/etl-service
+  tag: latest
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
-  name: registryarmy.azurecr.io/ai-service
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/ai-service
+  tag: latest
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
-  name: registryarmy.azurecr.io/extend-proxy
-  tag: army-latest-aku
+  name: registrydev.azurecr.io/extend-proxy
+  tag: latest
   pullPolicy: IfNotPresent  
   
   
