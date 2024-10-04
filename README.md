@@ -126,12 +126,14 @@ List of updates to be made:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
-    Get into the pod to execute the commands (You can use Kubernetes Dashboard or use kubectl command. For example kubectl exec -it viewer-neo4j-core-0 -- /bin/bash
+   Check if viewer-neo4j POD is running, if not, scale to 0 and then scale to 1.
+   
+   Get into the pod to execute the commands (You can use Kubernetes Dashboard or use kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-neo4j-core-0 -- /bin/bash
 	```
  	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
 	```
-2) Files to be copied inside pod
+3) Files to be copied inside pod
    
    **REPLACE** _castimaging-v3/viewer-neo4j-core-0_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
 	```
