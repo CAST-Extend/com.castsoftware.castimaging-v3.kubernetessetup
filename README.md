@@ -195,7 +195,12 @@ List of updates to be made:
 	 ```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
   	 ```
-    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-etl-6cccc5d569-sk2fm -- /bin/bash
+     Check if viewer-etl POD is running, if not, scale to 0 and then scale to 1.
+	```
+ 	kubectl scale --replicas=0 deployment viewer-etl -n castimaging-v3
+ 	kubectl scale --replicas=1 deployment viewer-etl -n castimaging-v3
+   	```
+    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example **kubectl exec -it -n castimaging-v3 viewer-etl-6cccc5d569-sk2fm -- /bin/bash**
 	```
 	chmod -R 777  /opt/imaging/imaging-etl/config
 	chmod -R 777  /opt/imaging/imaging-etl/logs
