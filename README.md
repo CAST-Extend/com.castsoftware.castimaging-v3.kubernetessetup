@@ -133,7 +133,7 @@ List of updates to be made:
  	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
 	```
-3) Files to be copied inside pod
+3) Files to be copied inside pod, **open a new terminal window** to run below command
    
    **REPLACE** _castimaging-v3/viewer-neo4j-core-0_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
 	```
