@@ -271,15 +271,15 @@ Access the Extend Proxy pod to run the commands needed to retrieve the public UR
 ```
 cat /opt/cast_extend_proxy/config.proxy.json
 ```
-Take note of the PUBLIC_URL and APIKEY from the output, as well as the location of the extarchive file provided by CAST. Update the curl command below by replacing <APIKEY> with the APIKEY, <extend_proxy_url> with the PUBLIC_URL, and <extarchive_file_path> with the path to the extarchive file.
+Take note of the PUBLIC_URL and APIKEY from the output, as well as the location of the extarchive file provided by CAST. Update the curl command below by replacing <APIKEY> with the APIKEY, <extend_proxy_url> with the external IP of extendproxy, and <extarchive_file_path> with the path to the extarchive file.
 
 ```
-curl -H "x-cxproxy-apikey:<API-KEY>" -F "data=@<extarchive_file_path>" <extend_proxy_url>api/synchronization/bundle/upload
+curl -H "x-cxproxy-apikey:<API-KEY>" -F "data=@<extarchive_file_path>" <extend_proxy_url>:8085/api/synchronization/bundle/upload
 
 ```
 After the updates, the curl command will look like this:
 
-_curl -H "x-cxproxy-apikey:**XCGN1-F5172C2698CFF29E0E1EFDC9D21346FE684C81A8698E0833445C3F58269865DEE**" -F "data=@**D:\CAST\CastArchive_linux_x64.extarchive**" **http://172.31.187.232:8085**/api/synchronization/bundle/upload_
+_curl -H "x-cxproxy-apikey:**XCGN1-F5172C2698CFF29E0E1EFDC9D21346FE684C81A8698E0833445C3F58269865DEE**" -F "data=@**D:\CAST\CastArchive_linux_x64.extarchive**" **http://172.xx.xxx.232:8085**/api/synchronization/bundle/upload_
 
 Execute the CURL command, and if successful, it will produce output similar to the following: 
 
