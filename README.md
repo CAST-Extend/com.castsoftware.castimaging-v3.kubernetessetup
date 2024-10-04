@@ -131,7 +131,8 @@ List of updates to be made:
  	kubectl scale --replicas=0 statefulset viewer-neo4j-core -n castimaging-v3
  	kubectl scale --replicas=1 statefulset viewer-neo4j-core -n castimaging-v3
    	```
-   Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example kubectl exec -it -n castimaging-v3 viewer-neo4j-core-0 -- /bin/bash
+   Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command.
+   For example **kubectl exec -it -n castimaging-v3 viewer-neo4j-core-0 -- /bin/bash**
 	```
  	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
