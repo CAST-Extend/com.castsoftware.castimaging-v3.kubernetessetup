@@ -177,6 +177,8 @@ List of updates to be made:
 	```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
  	```
+   If error "sh: /opt/imaging/config/init.sh: not found" is reported in logs then vi the file /opt/imaging/config/init.sh, if any special character then run command, dos2unix init.sh, repeat point 4. 
+
  
 **4.2.3 Updates for Viewer ETL**
 1. In the viewer-etl-deployment.yaml file, comment line 40, then un-comment out lines 41, 43 and 44. After saving your changes, execute the following Helm upgrade command:
