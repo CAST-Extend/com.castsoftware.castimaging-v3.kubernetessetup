@@ -400,10 +400,10 @@ _**Edit PersistentVolumeClaims(PVC) for specific namespace in Kubernetes cluster
 kubectl edit pvc datadir-console-analysis-node-core-0 -n castimaging-v3
 ```
 
-_**Copy files from PVC attached to POD to local drive**_
+_**Copy files from PVC attached to POD to current local drive**_
 
 ```
-kubectl cp -n castimaging-v3 castimaging-v3/console-analysis-node-core-0:/usr/share/CAST/CASTMS/. C:/Users/temp/Documents/logs/Documents/logs
+kubectl cp -n castimaging-v3 castimaging-v3/console-analysis-node-core-0:/usr/share/CAST/CASTMS/. .
 ```
 
 
