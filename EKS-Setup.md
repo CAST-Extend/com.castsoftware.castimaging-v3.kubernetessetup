@@ -141,7 +141,7 @@ https://github.com/helm/helm/releases
 
 * Update ex_eks-mycluster.yaml file (VPC id, subnets, EC2 key)
 
-* *Apply it: 
+* Apply it: 
 
 ```eksctl create cluster -f ex_eks-mycluster.yaml```
 

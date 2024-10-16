@@ -41,7 +41,6 @@ Modify the storage YAML files for storage requirement specific to your deploymen
     ex_extendproxy-storage.yaml
     ex_imagingviewer-storage.yaml
     
-    Optional: If you prefer to use a different name for the storage class instead of the default castimaging-storage, ensure to update all related configuration files accordingly.
 
 Run the below commands to create storage, persistance volume and persistance volumne claim. 
 
@@ -329,7 +328,7 @@ kubectl create ns castimaging-v3
 _**Create or update the resources using the YAML file**_
 
 ``` 
-kubectl apply -f ex_storageclass.yaml
+kubectl apply -f xxx.yaml
 ```
 
 _**Copy files into the POD**_
