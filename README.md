@@ -31,7 +31,7 @@ kubectl create ns castimaging-v3
 
 Update the configuration files before applying them. A sample configuration for Persistent Volumes is available. 
 
-Update **value.yaml** to reflect your deployment environment - Update line 39 with name of node for AKS cluster and name & tag for container images.
+Update **value.yaml** to reflect your deployment environment - Update line 39 with name of node for EKS cluster and name & tag for container images.
 
     Update the image name and tag based on the available images. 
 
