@@ -14,8 +14,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 
 ## System Requirement and Environment Setup
 
-- EKS environment
-	Follow instructions in EKS-Setup.md to create your EKS cluster
+- EKS environment: follow the instructions in EKS-Setup.md to create your EKS cluster
 - Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
 ## Installation Steps for CAST Imaging
 
