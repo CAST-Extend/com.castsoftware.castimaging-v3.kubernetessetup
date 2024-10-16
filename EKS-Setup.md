@@ -146,8 +146,10 @@ https://github.com/helm/helm/releases
 
 # Enable EBS CSI Driver
 
-```eksctl utils associate-iam-oidc-provider --region=us-east-2 --cluster=eks-highlight --approve```
+## Update region and cluster name in below commands before executing them
 
-```eksctl create iamserviceaccount   --region us-east-2   --name ebs-csi-controller-sa   --namespace kube-system   --cluster eks-highlight   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole```
+```eksctl utils associate-iam-oidc-provider --region=us-east-2 --cluster=eks-mycluster --approve```
 
-```eksctl create addon --name aws-ebs-csi-driver --cluster eks-highlight --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force```
+```eksctl create iamserviceaccount   --region us-east-2   --name ebs-csi-controller-sa   --namespace kube-system   --cluster eks-mycluster   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole```
+
+```eksctl create addon --name aws-ebs-csi-driver --cluster eks-mycluster --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force```
