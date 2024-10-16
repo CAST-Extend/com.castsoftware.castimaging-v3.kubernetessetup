@@ -9,4 +9,4 @@ spec:
   resources:
     requests:
       storage: 10Gi  # Specify the storage size required
-  storageClassName: castimaging-storage
+  storageClassName: gp2

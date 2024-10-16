@@ -10,7 +10,7 @@ namespace: castimaging-v3  # Change this to your desired default namespace
 # Storage configuration
 storage:
   size: "20Gi"  # Adjust size as needed, default 20Gi
-  className: castimaging-storage  # Reference storage class
+  className: gp2  # Reference storage class
 
 #
 # Console  
@@ -42,63 +42,62 @@ ExtendProxy:
 # Console images
 #
 ConsolePostgresImage:
-  # Azure container registry / image name
-  name: registrydev.azurecr.io/cast_imaging_services-postgres
-  tag: latest
+  name: quay.io/enterprisedb/postgresql
+  tag: 13.3
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: registrydev.azurecr.io/sso-service
-  tag: latest
+  name: jartero/sso-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: registrydev.azurecr.io/console
-  tag: latest
+  name: jartero/console
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: registrydev.azurecr.io/gateway
-  tag: latest
+  name: jartero/gateway
+  tag: us-army-latest
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
-  name: registrydev.azurecr.io/analysis-node
-  tag: latest
+  name: jartero/analysis-node
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: registrydev.azurecr.io/admin-center
-  tag: latest
+  name: jartero/admin-center
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: registrydev.azurecr.io/auth-service
-  tag: latest
+  name: jartero/auth-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: registrydev.azurecr.io/dashboards
-  tag: army-2.12.5-SNAPSHOT-aku
+  name: jartero/dashboards
+  tag: latest
   pullPolicy: IfNotPresent
   
 #
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: registrydev.azurecr.io/neo4j
-  tag: latest
+  name: jartero/neo4j
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: registrydev.azurecr.io/viewer
-  tag: latest
+  name: jartero/viewer
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: registrydev.azurecr.io/etl-service
-  tag: latest
+  name: jartero/etl-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
-  name: registrydev.azurecr.io/ai-service
-  tag: latest
+  name: jartero/ai-service
+  tag: us-army-latest
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
-  name: registrydev.azurecr.io/extend-proxy
+  name: jartero/extend-proxy
   tag: latest
   pullPolicy: IfNotPresent  
   
@@ -108,8 +107,10 @@ ExtendProxyImage:
 #
 ConsolePostgresResources:
   requests:
-    cpu: 2
-    memory: 16G
+    #cpu: 2
+    cpu: 0.2
+    # memory: 16G
+    memory: 2G
 SSOServiceResources:
   requests:
     cpu: 0.1
@@ -124,8 +125,10 @@ GatewayServiceResources:
     memory: 100M
 AnalysisNodeReplicaResources:
   requests:
-    cpu: 0.5
-    memory: 4G
+    #cpu: 0.5
+    cpu: 0.2
+    #memory: 4G
+    memory: 1G
 ControlPaneResources:
   requests:
     cpu: 0.1
@@ -144,8 +147,10 @@ IntegratedDashboardsResources:
 #
 ViewerNeo4jResources:
   requests:
-    cpu: 1
-    memory: 16G
+    #cpu: 1
+    cpu: 0.2
+    #memory: 16G
+    memory: 1G
 ViewerServerServiceResources:
   requests:
     cpu: 0.1

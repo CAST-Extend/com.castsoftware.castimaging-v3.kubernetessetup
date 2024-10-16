@@ -9,7 +9,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 1Gi
@@ -25,7 +25,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 1Gi
@@ -41,7 +41,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 8Gi
@@ -57,7 +57,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 1Gi
@@ -73,7 +73,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 1Gi
@@ -89,7 +89,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 8Gi
@@ -105,7 +105,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 2Gi
@@ -121,7 +121,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 2Gi
@@ -137,7 +137,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: castimaging-storage
+  storageClassName: gp2
   resources:
     requests:
       storage: 6Gi

@@ -10,7 +10,7 @@ spec:
   resources:
     requests:
       storage: 128Gi  # Default for Postgres, change according to deployment and applications in portfolio
-  storageClassName: castimaging-storage
+  storageClassName: gp2
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -23,7 +23,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: castimaging-storage
+  storageClassName: gp2
 ---
 # For storage of CASTMS, Extensions, Logs and this is specific to POD
 apiVersion: v1
@@ -37,7 +37,7 @@ spec:
   resources:
     requests:
       storage: 100Gi
-  storageClassName: castimaging-storage
+  storageClassName: gp2
 ---
 # For storage of shared data for deploy, delivery and common data. This is shared with other analysis nodes PODs
 apiVersion: v1
@@ -51,4 +51,4 @@ spec:
   resources:
     requests:
       storage: 200Gi
-  storageClassName: castimaging-storage
+  storageClassName: gp2

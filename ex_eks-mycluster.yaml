@@ -1,0 +1,30 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eks-mycluster
+  region: us-east-2
+
+vpc:
+  id: "vpc-00cc924f9fd39aa06" 
+  cidr: "172.31.0.0/16"       
+
+  subnets:
+    public:
+      us-east-2a:
+        id: "subnet-0caa9ab6e95ca6a7d"  
+        cidr: "172.31.0.0/20"
+      us-east-2b:
+        id: "subnet-0555f6ef1c5ce88da"  
+        cidr: "172.31.16.0/20"
+      us-east-2c:
+        id: "subnet-0f31e9b3c381d9081"  
+        cidr: "172.31.32.0/20"        
+    
+nodeGroups:
+  - name: ng-1
+    instanceType: t2.large
+    desiredCapacity: 2
+    privateNetworking: false
+    ssh: # use existing EC2 key
+      publicKeyName: eks-mycluster  

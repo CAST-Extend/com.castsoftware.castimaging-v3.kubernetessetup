@@ -48,6 +48,7 @@ spec:
           livenessProbe:
             exec:
               command: ["pg_isready", "-U", "postgres"]
+              #command: ['sh', '-c', "sleep 3000"]
             failureThreshold: 5
             periodSeconds: 10
             timeoutSeconds: 5
@@ -72,7 +73,7 @@ spec:
       volumes:
         - name: db-data
           persistentVolumeClaim:
-            claimName: db-data           
+            claimName: db-data 
         - name: pgconf
           configMap:
             name: console-v3-postgresqlconf

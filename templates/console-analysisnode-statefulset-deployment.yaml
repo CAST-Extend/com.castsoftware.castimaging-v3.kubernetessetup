@@ -38,6 +38,8 @@ spec:
       initContainers:
         - name: init-shared-directories
           image: busybox
+          securityContext:
+            runAsUser: 0
           command:
             - "sh"
             - "-c"
