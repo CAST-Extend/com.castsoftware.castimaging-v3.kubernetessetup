@@ -11,10 +11,11 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 - Clone the Git repo branch 3.0.0-eks-cast using _git clone -b 3.0.0-eks-cast https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
+
 ## System Requirement and Environment Setup
 
 - EKS environment
-- Node: Amazon Linux 2 Instance type t2.large
+	Follow instructions in EKS-Setup.md to create your EKS cluster
 - Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
 ## Installation Steps for CAST Imaging
 
