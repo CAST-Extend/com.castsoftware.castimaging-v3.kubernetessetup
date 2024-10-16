@@ -129,26 +129,26 @@ Follow instructions from here: https://kubernetes.io/docs/tasks/tools/
 
 # Install Helm
 
-# Documentation:
+* Documentation:
 https://helm.sh/docs/intro/quickstart/
 
-# Binary download:
+* Binary download:
 https://github.com/helm/helm/releases
 
 
 
 # Create cluster
 
-## Update ex_eks-mycluster.yaml file (VPC id, subnets, EC2 key)
+* Update ex_eks-mycluster.yaml file (VPC id, subnets, EC2 key)
 
-## Apply it: 
+* *Apply it: 
 
 ```eksctl create cluster -f ex_eks-mycluster.yaml```
 
 
 # Enable EBS CSI Driver
 
-## Update region and cluster name in below commands before executing them
+* Update region and cluster name in below commands before executing them
 
 ```
 eksctl utils associate-iam-oidc-provider --region=us-east-2 --cluster=eks-mycluster --approve
