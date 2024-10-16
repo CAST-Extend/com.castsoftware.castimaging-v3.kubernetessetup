@@ -1,6 +1,5 @@
-###############
 # Prerequisites
-###############
+
 
 ## IAM user and permissions
 For EKS, user needs to have certain privileges to e.g. create all the required resources and objects.  
@@ -76,9 +75,7 @@ eks-mycluster
   AWS-console => IAM => Users => <your user> => tab *Security credentials* => button *Create access key*
 * Download the .csv file (contains the Access key ID)
 
-###############
 # Setup aws cli
-###############
 
 Follow instructions from here: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
@@ -93,9 +90,7 @@ aws configure
 * Provide Access key ID, Default region name (us-east-2), Default output format (json)
 
 
-#################
 # Setup of eksctl 
-#################
 
 ## Installation
 for non-Linux OS you can find a binary download here:
@@ -115,10 +110,8 @@ This utility will use the same _credentials_ file as we explored for the AWS cli
 ```eksctl version```
 
 
-####################################
 # kubectl - the commandline K8s tool
-####################################
-# 
+
 
 ## install _kubectl
 
@@ -132,9 +125,7 @@ Follow instructions from here: https://kubernetes.io/docs/tasks/tools/
 ```kubectl.exe version --short --client```
 
 
-##############
 # Install Helm
-##############
 
 # Documentation:
 https://helm.sh/docs/intro/quickstart/
@@ -144,9 +135,7 @@ https://github.com/helm/helm/releases
 
 
 
-################
 # Create cluster
-################
 
 ## Update eks-mycluster.yaml file (VPC id, subnets, EC2 key)
 
@@ -155,18 +144,7 @@ https://github.com/helm/helm/releases
 ```eksctl create cluster -f eks-mycluster.yaml```
 
 
-
-################
-# Create cluster
-################
-
-```eksctl create cluster -f eks-mycluster.yaml```
-
-
-
-#######################
 # Enable EBS CSI Driver
-#######################
 
 ```eksctl utils associate-iam-oidc-provider --region=us-east-2 --cluster=eks-highlight --approve```
 ```eksctl create iamserviceaccount   --region us-east-2   --name ebs-csi-controller-sa   --namespace kube-system   --cluster eks-highlight   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole```
