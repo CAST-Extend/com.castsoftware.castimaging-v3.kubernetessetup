@@ -10,11 +10,11 @@ There are 2 attempts to follow:
 1. provide admin access  
 login with an admin of your AWS account
 go to "IAM" => "users" => click on your user => "Permissions" => "Add permission" => then search for _AdministratorAccess_ and attach this policy  
-Basically your user just requires *one* policy being attached
-  - AdministratorAccess  
+Basically your user just requires *one* policy being attached:  _AdministratorAccess_
 
 2. provide a dedicated list of privileges/policies  
 to cover all the required privileges, first you have to create additional policies  
+
 EKS-Admin-policy:
 ```
 {
@@ -30,6 +30,7 @@ EKS-Admin-policy:
     ]
 }
 ```
+
 CloudFormation-Admin-policy:
 ```
 {
@@ -51,7 +52,8 @@ Finally, assign the following policies to your IAM user you are going to use:
   - AmazonVPCFullAccess
   - CloudFormation-Admin-policy
   - EKS-Admin-policy  
-where the last 2 policies are the ones you created above
+
+...where the last 2 policies are the ones you created above
 
 ### create IAM role
 AWSServiceRoleForAmazonEKS 
