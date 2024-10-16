@@ -79,7 +79,7 @@ eks-mycluster
 
 Follow instructions from here: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
-## TEST
+## Test
 ```bash
 aws --version
 ```
@@ -147,5 +147,7 @@ https://github.com/helm/helm/releases
 # Enable EBS CSI Driver
 
 ```eksctl utils associate-iam-oidc-provider --region=us-east-2 --cluster=eks-highlight --approve```
+
 ```eksctl create iamserviceaccount   --region us-east-2   --name ebs-csi-controller-sa   --namespace kube-system   --cluster eks-highlight   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole```
+
 ```eksctl create addon --name aws-ebs-csi-driver --cluster eks-highlight --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force```
