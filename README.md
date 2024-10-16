@@ -1,40 +1,26 @@
 # CAST Imaging Version 3.x
 
-This guide outlines the process for setting up **CAST Imaging** in a **Azure Kubernetes Cluster environment** using Helm charts.
+This guide outlines the process for setting up **CAST Imaging** in a **Amazon Kubernetes Cluster environment** using Helm charts.
 
 ## Prerequisites
 
 - A Kubernetes cluster
 - Helm installed on your system (https://helm.sh/docs/intro/quickstart/ )
-- kubectl and Azure CLI configured on your system to communicate with your cluster
-- CAST Imaging Docker images uploaded to your Azure Container Registry (ACR)
-- Clone the Git repo branch 3.0.0-usa using _git clone -b 3.0.0-usa https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
+- kubectl and EKS CLI configured on your system to communicate with your cluster
+- CAST Imaging Docker images
+- Clone the Git repo branch 3.0.0-eks-cast using _git clone -b 3.0.0-eks-cast https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
 ## System Requirement and Environment Setup
 
-- AKS environment with minimum node VM size B16ms
-- AKS v1.29.7 or higher
-- Azure/ubuntu Linux SKU
-- Azure Container Registry(ACR)
+- EKS environment
+- Node: Amazon Linux 2 Instance type t2.large
 - Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
 ## Installation Steps for CAST Imaging
 
-Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are uploaded to ACR and that Helm is installed on your system.
+Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm is installed on your system.
 
 **1. Create a Kubernetes Namespace for CAST Imaging**
-
-Login to Azure instance
-
-``` 
-az login 
-``` 
-
-Connect Kubernetes client (kubectl) to connect to Azure Kubernetes Service (AKS) cluster created for CAST Imaging deployment. Replace <Resource_Group> with AKS resource group name and <AKS_CLUSTER> with AKS Cluster name.
-
-``` 
-az aks get-credentials --resource-group <Resource_Group> --name <AKS_CLUSTER>
-```
 
 Create namesapce using below command, it will create namespace with name castimaging-v3
 
@@ -60,7 +46,7 @@ Modify the storage YAML files for storage requirement specific to your deploymen
 Run the below commands to create storage, persistance volume and persistance volumne claim. 
 
 ```
-kubectl apply -f ex_storageclass.yaml
+kubectl apply -f ex_storage.yaml
 kubectl apply -f ex_imagingviewer-storage.yaml
 kubectl apply -f ex_console-pvc.yaml
 kubectl apply -f ex_extendproxy-storage.yaml
@@ -77,7 +63,7 @@ kubectl get pods -n castimaging-v3
 **4. Additional configuration steps**
 
 **4.1 Network Setting**
- - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com).
+ - Prepare a CDN, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com).
    The DNS should also have an SSL certificate.
 
  - Ensure the DNS is configured for the NGINX_HOST parameter in the templates/console-authenticationservice-deployment.yaml file.
@@ -331,19 +317,7 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
-## Common Azure CLI and Kubectl commands
-
-_**Login to Azure instance**_
-
-``` 
-az login 
-``` 
-
-_**Connect Kubernetes client (kubectl) to connect to a specific Azure Kubernetes Service (AKS) cluster**_
-
-``` 
-az aks get-credentials --resource-group rg_infra-2024 --name aks-cluster-infra-2024
-```
+## Common Kubectl commands
 
 _**Create namespace**_
 
