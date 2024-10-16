@@ -137,11 +137,11 @@ https://github.com/helm/helm/releases
 
 # Create cluster
 
-## Update eks-mycluster.yaml file (VPC id, subnets, EC2 key)
+## Update ex_eks-mycluster.yaml file (VPC id, subnets, EC2 key)
 
 ## Apply it: 
 
-```eksctl create cluster -f eks-mycluster.yaml```
+```eksctl create cluster -f ex_eks-mycluster.yaml```
 
 
 # Enable EBS CSI Driver
