@@ -301,12 +301,12 @@ Scale the PODs in the order listed if you have to scale for any reason.
 
 For Console: 
  	```
-  	console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
+  	console-postgres -> console-sso-service -> console-control-panel -> console-gateway-service -> console-authentication-service -> console-console-service -> console-analysis-node-core -> console-dashboard
 	```
 
 For Viewer: 
   	```
-   	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
+   	viewer-neo4j-core -> viewer-server -> viewer-etl -> viewer-aimanager
 	```
  
 ## Install Kubernetes Dashboard (OPTIONAL)
