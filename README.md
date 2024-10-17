@@ -137,18 +137,18 @@ List of updates to be made:
  	mkdir -p /var/lib/neo4j/config/neo4j5_data
 	chmod -R 777 /var/lib/neo4j
 	```
-3) Files to be copied inside pod, **open a new terminal window** to run below command
+2) Files to be copied inside pod, **open a new terminal window** to run below command
    
    **REPLACE** _castimaging-v3/viewer-neo4j-core-0_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
 	```
 	kubectl cp config\imaging\neo4j\. castimaging-v3/viewer-neo4j-core-0:/var/lib/neo4j/config
    	```
-4) Update the file permissions and exit. 
+3) Update the file permissions and exit. 
    	```
 	chmod -R 777 /var/lib/neo4j
     sudo chmod -R 777 /logs
 	```
-5. In the viewer-neo4j-statefulset-deployment.yaml file, un-comment line 50, then comment out lines 47, 48 and 51. After saving your changes, execute the following Helm upgrade command:
+4) In the viewer-neo4j-statefulset-deployment.yaml file, un-comment line 50, then comment out lines 47, 48 and 51. After saving your changes, execute the following Helm upgrade command:
 	```
    	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
  	```
