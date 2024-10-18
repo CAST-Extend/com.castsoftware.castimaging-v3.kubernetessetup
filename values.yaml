@@ -35,7 +35,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: aks-nodepool1-41640544-vmss000000  #Node Pool used by AKS cluster
+  exthostname: aaf3c690fb83541a2b7806c715838cab-1493243683.us-east-2.elb.amazonaws.com
   pubextendurl: "https://extend.castsoftware.com"
 
 #
@@ -98,7 +98,7 @@ ViewerAiManagerImage:
 #
 ExtendProxyImage:
   name: jartero/extend-proxy
-  tag: latest
+  tag: 1.0.0.1675
   pullPolicy: IfNotPresent  
   
   
@@ -107,10 +107,8 @@ ExtendProxyImage:
 #
 ConsolePostgresResources:
   requests:
-    #cpu: 2
-    cpu: 0.2
-    # memory: 16G
-    memory: 2G
+    cpu: 2
+    memory: 8G
 SSOServiceResources:
   requests:
     cpu: 0.1
@@ -125,10 +123,8 @@ GatewayServiceResources:
     memory: 100M
 AnalysisNodeReplicaResources:
   requests:
-    #cpu: 0.5
-    cpu: 0.2
-    #memory: 4G
-    memory: 1G
+    cpu: 0.5
+    memory: 4G
 ControlPaneResources:
   requests:
     cpu: 0.1
@@ -147,10 +143,8 @@ IntegratedDashboardsResources:
 #
 ViewerNeo4jResources:
   requests:
-    #cpu: 1
-    cpu: 0.2
-    #memory: 16G
-    memory: 1G
+    cpu: 1
+    memory: 16G
 ViewerServerServiceResources:
   requests:
     cpu: 0.1

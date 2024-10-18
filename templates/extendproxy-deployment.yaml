@@ -35,18 +35,10 @@ spec:
         console.network/aip-network: "true"
         console.service: extendproxy
     spec:
-      initContainers:
-        - name: init-chmod
-          image: busybox
-          securityContext:
-            runAsUser: 0
-          command:
-            - "sh"
-            - "-c"
-            - "chmod -R 777 /opt/cast_extend_proxy"
-          volumeMounts:
-           - mountPath: /opt/cast_extend_proxy
-             name: extendproxy
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch" 
       containers:
         - env:
             - name: host_port
@@ -60,7 +52,7 @@ spec:
           name: extendproxy
           ports:
             - containerPort: 8085
-              hostPort: 8085
+              #hostPort: 8085
               protocol: TCP 
           resources:
             {{- toYaml .Values.ExtendProxyResources | nindent 12 }}

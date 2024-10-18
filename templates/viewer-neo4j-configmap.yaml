@@ -1,5 +1,16 @@
 apiVersion: v1
 data:
+  apoc.conf: |
+    apoc.import.file.enabled=true
+    apoc.export.file.enabled=true
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: neo4japocconf
+  namespace: {{.Release.Namespace}}
+---
+apiVersion: v1
+data:
   init.sh: |
     #!/bin/bash
     
@@ -19,7 +30,7 @@ data:
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: initsh
+  name: neo4jinitsh
   namespace: {{.Release.Namespace}}
 ---
 apiVersion: v1
@@ -60,6 +71,7 @@ data:
     # heap size.
     server.memory.heap.initial_size=12G
     server.memory.heap.max_size=12G
+
 
     # The amount of memory to use for mapping the store files, in bytes (or
     # kilobytes with the 'k' suffix, megabytes with 'm' and gigabytes with 'g').

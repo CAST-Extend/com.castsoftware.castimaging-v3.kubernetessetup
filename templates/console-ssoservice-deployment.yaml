@@ -44,7 +44,7 @@ spec:
             - name: KC_HTTP_RELATIVE_PATH
               value: /auth
             - name: KC_HOSTNAME
-              value: test.castsoftware.com
+              value: d1e146x9exlp0p.cloudfront.net
             - name: KEYCLOAK_ADMIN
               value: admin
             - name: KEYCLOAK_ADMIN_PASSWORD
@@ -52,13 +52,13 @@ spec:
             - name: KC_PROXY 
               value: "edge"
             - name: KEYCLOAK_FRONTEND_URL
-              value: https://test.castsoftware.com/auth
+              value: https://d1e146x9exlp0p.cloudfront.net/auth
             - name: KC_HOSTNAME_STRICT_HTTPS
               value: "true"
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"             
             - name: KC_HOSTNAME_ADMIN_URL
-              value: https://test.castsoftware.com/auth
+              value: https://d1e146x9exlp0p.cloudfront.net/auth
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service

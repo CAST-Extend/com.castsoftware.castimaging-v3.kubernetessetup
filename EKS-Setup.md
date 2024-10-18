@@ -148,16 +148,9 @@ https://github.com/helm/helm/releases
 
 # Enable EBS CSI Driver
 
-* Update region and cluster name in below commands before executing them
+* Go to EKS > Clusters > eks-mycluster
+* Click _Get more add-ons_
+* Tick the _Amazon EBS CSI Driver_ checkbox and confirm
 
-```
-eksctl utils associate-iam-oidc-provider --region=us-east-2 --cluster=eks-mycluster --approve
-```
-
-```
-eksctl create iamserviceaccount   --region us-east-2   --name ebs-csi-controller-sa   --namespace kube-system   --cluster eks-mycluster   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole
-```
-
-```
-eksctl create addon --name aws-ebs-csi-driver --cluster eks-mycluster --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force
-```
+More information about storing Kubernetes volumes with Amazon EBS:
+https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html

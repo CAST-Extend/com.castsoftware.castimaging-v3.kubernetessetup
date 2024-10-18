@@ -35,6 +35,11 @@ spec:
         console.network/aip-network: "true"
         console.service: console-postgres
     spec:
+      securityContext:
+        runAsUser: 26
+        runAsGroup: 26
+        fsGroup: 26
+        fsGroupChangePolicy: "OnRootMismatch"  
       containers:
         - env:
             - name: POSTGRES_INITDB_ARGS
@@ -48,7 +53,6 @@ spec:
           livenessProbe:
             exec:
               command: ["pg_isready", "-U", "postgres"]
-              #command: ['sh', '-c', "sleep 3000"]
             failureThreshold: 5
             periodSeconds: 10
             timeoutSeconds: 5

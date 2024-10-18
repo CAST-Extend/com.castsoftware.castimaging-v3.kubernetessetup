@@ -36,6 +36,10 @@ spec:
       labels:
         app: viewer-server
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       initContainers:
         - name: neo4jhealthcheck
           image: busybox:latest
@@ -43,11 +47,11 @@ spec:
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
-          command: ['sh', '-c', "sleep 3000 && ls -l /opt/imaging/config && /opt/imaging/config/init.sh"]
-          #command: ['sh', '-c', "/opt/imaging/config/init.sh"]
+          #securityContext:
+          #  runAsUser: 0          
+          #command: ['sh', '-c', "sleep 3000 && ls -l /opt/imaging/config && /opt/imaging/config/init.sh"]
+          command: ['sh', '-c', "/opt/imaging/config/init.sh"]
           name: viewer-server
-          securityContext:
-            runAsUser: 0
           env:
             - name: TIME_ZONE
               value: "Europe/Paris"
@@ -73,6 +77,23 @@ spec:
             - name: serverappconfig
               mountPath: /opt/imaging/config/app.config
               subPath: app.config
+
+            - name: serverapp-configjson
+              mountPath: /opt/imaging/config/app-config.json
+              subPath: app-config.json
+            - name: serversrcapplicationproperties
+              mountPath: /opt/imaging/config/sourcecode/application.properties
+              subPath: application.properties
+            - name: serverproxyconf
+              mountPath: /opt/imaging/config/nginx/conf/proxy.conf
+              subPath: proxy.conf
+            - name: servermimetypes
+              mountPath: /opt/imaging/config/nginx/conf/mime.types
+              subPath: mime.types
+            - name: serverinitsh
+              mountPath: /opt/imaging/config/init.sh
+              subPath: init.sh              
+
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -86,6 +107,29 @@ spec:
         - name: servernginxconf
           configMap:
             name: servernginxconf
+            defaultMode: 0777
         - name: serverappconfig
           configMap:
             name: serverappconfig
+            defaultMode: 0777
+
+        - name: serverapp-configjson
+          configMap:
+            name: serverapp-configjson
+            defaultMode: 0777
+        - name: serversrcapplicationproperties
+          configMap:
+            name: serversrcapplicationproperties
+            defaultMode: 0777
+        - name: serverproxyconf
+          configMap:
+            name: serverproxyconf
+            defaultMode: 0777
+        - name: servermimetypes
+          configMap:
+            name: servermimetypes
+            defaultMode: 0777                                                
+        - name: serverinitsh
+          configMap:
+            name: serverinitsh
+            defaultMode: 0777

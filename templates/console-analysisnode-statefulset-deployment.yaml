@@ -35,18 +35,23 @@ spec:
         console.service: console-analysis-node
         component: core
     spec:
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: "OnRootMismatch"
       initContainers:
         - name: init-shared-directories
           image: busybox
-          securityContext:
-            runAsUser: 0
           command:
             - "sh"
             - "-c"
-            - "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy; chmod -R 777 /shared"
+            - "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy"
           volumeMounts:
-           - mountPath: /shared
-             name: datadir
+            - mountPath: /usr/share/CAST
+              name: castdir
+            - mountPath: /shared
+              name: datadir
       containers:
         - env:
             - name: DEPLOY_VOLUME_MACHINE
@@ -67,6 +72,9 @@ spec:
               value: "8092"
           image: "{{ .Values.ConsoleAnalysisNodeImage.name }}:{{ .Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleAnalysisNodeImage.pullPolicy }}"
+          #securityContext:
+          #  runAsUser: 0
+          #command: ['sh', '-c', "sleep 3000"]
           name: console-analysis-node
           ports:
             - containerPort: 8099
