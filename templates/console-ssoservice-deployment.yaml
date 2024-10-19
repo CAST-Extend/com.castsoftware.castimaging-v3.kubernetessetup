@@ -44,7 +44,9 @@ spec:
             - name: KC_HTTP_RELATIVE_PATH
               value: /auth
             - name: KC_HOSTNAME
-              value: d1e146x9exlp0p.cloudfront.net
+              #value: d1e146x9exlp0p.cloudfront.net
+              #value: 3.128.155.153
+              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: KEYCLOAK_ADMIN
               value: admin
             - name: KEYCLOAK_ADMIN_PASSWORD
@@ -52,13 +54,17 @@ spec:
             - name: KC_PROXY 
               value: "edge"
             - name: KEYCLOAK_FRONTEND_URL
-              value: https://d1e146x9exlp0p.cloudfront.net/auth
+              #value: https://d1e146x9exlp0p.cloudfront.net/auth
+              #value: http://3.128.155.153:30090/auth
+              value: http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local/auh
             - name: KC_HOSTNAME_STRICT_HTTPS
               value: "true"
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"             
             - name: KC_HOSTNAME_ADMIN_URL
-              value: https://d1e146x9exlp0p.cloudfront.net/auth
+              #value: https://d1e146x9exlp0p.cloudfront.net/auth
+              #value: http://3.128.155.153:30090/auth
+              value: http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:8090/auh
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service

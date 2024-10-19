@@ -52,7 +52,7 @@ spec:
           name: extendproxy
           ports:
             - containerPort: 8085
-              #hostPort: 8085
+              hostPort: 8085
               protocol: TCP 
           resources:
             {{- toYaml .Values.ExtendProxyResources | nindent 12 }}
