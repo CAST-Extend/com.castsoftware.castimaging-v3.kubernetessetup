@@ -6,6 +6,7 @@ set VIEWER-SERVER-SEARCH-ARG=viewer-server
 set VIEWER-ETL-SEARCH-ARG=viewer-etl
 set VIEWER-NEO4J-SEARCH-ARG=viewer-neo4j
 
+kubectl create ns %NAMESPACE%
 
 echo Creating Persistent Volume Claims...
 echo Console PVC...
@@ -135,13 +136,17 @@ if errorlevel 1 (
 ) else (
     echo Files successfully copied to the pod.
 )
+echo Copy complete. 
+
+echo Scaling down some pods... 
+kubectl scale statefulset viewer-neo4j-core --replicas=0 -n %NAMESPACE%
+kubectl scale statefulset console-analysis-node-core --replicas=0 -n %NAMESPACE%
+kubectl scale deployment viewer-etl --replicas=0 -n %NAMESPACE%
+kubectl scale deployment viewer-server --replicas=0 -n %NAMESPACE%
 
 echo *****************************************************************************************
-echo Copy complete. Next actions:
-echo 1) Remove the "sleep 3000" command from viewer-etl deployment file
-echo 2) Scale down (0) below deployments/statefulsets:
-echo           %VIEWER-NEO4J-SEARCH-ARG%
-echo           %VIEWER-SERVER-SEARCH-ARG%
-echo           %VIEWER-ETL-SEARCH-ARG% and console-analysis-node
-echo 3) Run helm-upgrade.bat
+echo Next actions:
+echo ------------
+echo  1) Remove the "sleep 3000" command from viewer-etl deployment file
+echo  2) Run helm-upgrade.bat
 echo *****************************************************************************************
