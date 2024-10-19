@@ -60,9 +60,6 @@ spec:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
           imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
-          #securityContext:
-          #  runAsUser: 0
-          #command: ['sh', '-c', "sleep 3000"]
           command: ['sh', '-c', "chmod u+x /var/lib/neo4j/config/data-model/*sh; /var/lib/neo4j/config/init.sh"]
           env:
             - name: NEO4J_ACCEPT_LICENSE_AGREEMENT

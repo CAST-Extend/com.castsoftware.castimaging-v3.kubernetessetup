@@ -61,7 +61,6 @@ spec:
               value: "8090"
             - name: NGINX_HOST
               #value: https://d1e146x9exlp0p.cloudfront.net
-              #value: http://3.128.155.153:30090
               value: http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:8090
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"

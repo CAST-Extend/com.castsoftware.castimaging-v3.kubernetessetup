@@ -1,5 +1,19 @@
 apiVersion: v1
 data:
+  init.sh: |-
+    #!/bin/bash
+
+    cp  /opt/imaging/open_ai-manager/config/app.config /opt/imaging/open_ai-manager/
+
+    python /opt/imaging/open_ai-manager/server.py "/opt/imaging/open_ai-manager/app.config"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: openaiinitsh
+  namespace: {{.Release.Namespace}}
+---  
+apiVersion: v1
+data:
   app.config: |-
     GPT_KEY=""
     DB_HOST="console-postgres.{{ .Release.Namespace }}.svc.cluster.local"

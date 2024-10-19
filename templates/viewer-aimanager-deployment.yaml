@@ -38,10 +38,8 @@ spec:
       containers:
         - image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
-          #securityContext:
-          #  runAsUser: 0
-          command: ['sh', '-c', "sleep 3000"]
-          #command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
+          #command: ['sh', '-c', "sleep 3000"]
+          command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
           name: viewer-aimanager
           ports:
             - containerPort: 8082
@@ -61,6 +59,9 @@ spec:
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
               subPath: app.config
+            - name: openaiinitsh
+              mountPath: /opt/imaging/open_ai-manager/config/init.sh
+              subPath: init.sh
       volumes:
         - name: aimanagerconfig
           configMap:
@@ -75,3 +76,8 @@ spec:
         - name: openaiappconfig
           configMap:
             name: openaiappconfig
+            defaultMode: 0777
+        - name: openaiinitsh
+          configMap:
+            name: openaiinitsh
+            defaultMode: 0777
