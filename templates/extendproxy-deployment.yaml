@@ -49,6 +49,8 @@ spec:
               value: "{{ .Values.ExtendProxy.pubextendurl }}"
           image: "{{ .Values.ExtendProxyImage.name }}:{{ .Values.ExtendProxyImage.tag}}"
           imagePullPolicy: "{{ .Values.ExtendProxyImage.pullPolicy }}"
+          #command: ['sh', '-c', "sleep 3000"]
+          #command: ['sh', '-c', "/opt/pre-init-container.sh"]
           name: extendproxy
           ports:
             - containerPort: 8085

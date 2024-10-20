@@ -35,7 +35,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: a7f04af97d44c466ab2ff93aad8c63e7-1369254673.us-east-2.elb.amazonaws.com
+  exthostname: a7a305dadf5524ce49d20b6c2074a8e7-1394103855.us-east-2.elb.amazonaws.com
   pubextendurl: "https://extend.castsoftware.com"
 
 #
@@ -99,7 +99,7 @@ ViewerAiManagerImage:
 ExtendProxyImage:
   name: jartero/extend-proxy
   tag: 1.0.0.1675
-  pullPolicy: IfNotPresent  
+  pullPolicy: IfNotPresent
   
   
 #
