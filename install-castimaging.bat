@@ -159,8 +159,9 @@ if errorlevel 1 (
 
 echo **********************************************************************************************
 echo Extendproxy setup (optional):
+echo **********************************************************************************************
 echo     - run this command to create the extendproxy PVC:
-            kubectl apply -f ex_pvc-extend-proxy.yaml
+echo        kubectl apply -f ex_pvc-extend-proxy.yaml
 echo     - rename ex_extendproxy-service.yaml into extendproxy-service.yaml
 echo     - run "helm-upgrade.bat"
 echo     - Get the extendproxy service "External Endpoint" DNS name from K8S Dashboard
