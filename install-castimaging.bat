@@ -170,4 +170,5 @@ echo        ExtendProxy:
 echo          exthostname: a33300000000004523be8231c11431899-1907755555.us-east-2.elb.amazonaws.com
 echo     - rename ex_extendproxy-deployment.yaml into extendproxy-deployment.yaml
 echo     - run "helm-upgrade.bat"
+echo     - Review the log of extendproxy pod to get the administration URL and extend token
 echo **********************************************************************************************
