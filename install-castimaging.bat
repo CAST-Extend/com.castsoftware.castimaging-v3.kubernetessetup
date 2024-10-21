@@ -26,7 +26,7 @@ if errorlevel 1 (
     echo helm install succeeded.
 )
 
-timeout 30
+timeout 10
 
 echo Running helm install...
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
@@ -144,16 +144,22 @@ kubectl scale statefulset console-analysis-node-core --replicas=0 -n %NAMESPACE%
 kubectl scale deployment viewer-etl --replicas=0 -n %NAMESPACE%
 kubectl scale deployment viewer-server --replicas=0 -n %NAMESPACE%
 
-echo **********************************************************************************************
-echo **********************************************************************************************
-echo Next actions:
-echo ------------
-echo  1) Remove the "sleep 3000" command from viewer-etl deployment file
-echo  2) Run helm-upgrade.bat
-echo **********************************************************************************************
+timeout 30
+
+echo Running helm upgrade...
+helm upgrade castimaging-v3 --namespace %NAMESPACE% --set version=3.0.0 .
+if errorlevel 1 (
+    echo Failed to run helm upgrade.
+    exit /b 1
+) else (
+    echo ******
+    echo Done.
+    echo ******
+)
+
 echo **********************************************************************************************
 echo Extendproxy setup (optional):
-echo     - run this command to create the PVC:
+echo     - run this command to create the extendproxy PVC:
             kubectl apply -f ex_pvc-extend-proxy.yaml
 echo     - rename ex_extendproxy-service.yaml into extendproxy-service.yaml
 echo     - run "helm-upgrade.bat"
@@ -164,5 +170,4 @@ echo        ExtendProxy:
 echo          exthostname: a33300000000004523be8231c11431899-1907755555.us-east-2.elb.amazonaws.com
 echo     - rename ex_extendproxy-deployment.yaml into extendproxy-deployment.yaml
 echo     - run "helm-upgrade.bat"
-echo **********************************************************************************************
 echo **********************************************************************************************
