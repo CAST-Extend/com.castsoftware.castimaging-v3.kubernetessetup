@@ -22,7 +22,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -48,7 +48,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -74,7 +74,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -100,7 +100,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -126,7 +126,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -152,7 +152,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -178,7 +178,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -204,7 +204,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -230,7 +230,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -256,7 +256,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -282,7 +282,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest2
+          - worker01
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

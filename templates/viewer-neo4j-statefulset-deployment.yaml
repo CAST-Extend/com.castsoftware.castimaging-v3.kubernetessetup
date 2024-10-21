@@ -76,6 +76,8 @@ spec:
         - name: neo4jconf
           configMap:
             name: neo4jconf
+      imagePullSecrets:
+        - name: castbuildkey
 
   volumeClaimTemplates:
     - metadata:

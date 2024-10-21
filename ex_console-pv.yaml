@@ -23,7 +23,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -50,7 +50,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 
 #
 # 3 CASTDIR Persistent Volumes
@@ -82,7 +82,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -109,7 +109,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -136,7 +136,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 
 #
 # 3 DATADIR Persistent Volumes
@@ -168,7 +168,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -195,7 +195,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -222,4 +222,4 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - kubtest3
+          - worker02

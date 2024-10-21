@@ -27,7 +27,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: kubtest3
+  exthostname: worker02
   pubextendurl: "https://extend.castsoftware.com"
 
 #
@@ -39,27 +39,27 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castbuild/sso-service
-  tag: us-army-latest
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castbuild/console
-  tag: us-army-latest
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castbuild/gateway
-  tag: us-army-latest
+  tag: latest
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castbuild/analysis-node
-  tag: us-army-latest
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castbuild/admin-center
-  tag: us-army-latest
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castbuild/auth-service
-  tag: us-army-latest
+  tag: latest
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castbuild/dashboards
@@ -71,19 +71,19 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castbuild/neo4j
-  tag: us-army-latest
+  tag: 3.0.0-953
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castbuild/viewer
-  tag: us-army-latest
+  tag: 3.0.0-953
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castbuild/etl-service
-  tag: us-army-latest
+  tag: 3.0.0-953
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castbuild/ai-service
-  tag: us-army-latest
+  tag: 3.0.0-953
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image

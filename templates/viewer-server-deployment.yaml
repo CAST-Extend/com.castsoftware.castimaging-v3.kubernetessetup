@@ -70,6 +70,8 @@ spec:
             - name: serverappconfig
               mountPath: /opt/imaging/config/app.config
               subPath: app.config
+      imagePullSecrets:
+        - name: castbuildkey
       volumes:
         - name: config
           persistentVolumeClaim:

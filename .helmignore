@@ -5,3 +5,4 @@ scripts/
 */docker*
 */ex_*
 ex_*
+.git/

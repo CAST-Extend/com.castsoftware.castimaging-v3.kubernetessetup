@@ -42,7 +42,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - kubtest2
+                - worker01
       containers:
         - env:
             - name: HOST_GATEWAY
@@ -76,3 +76,5 @@ spec:
           resources:
             {{- toYaml .Values.GatewayServiceResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuildkey

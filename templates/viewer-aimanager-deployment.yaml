@@ -67,3 +67,5 @@ spec:
         - name: openaiappconfig
           configMap:
             name: openaiappconfig
+      imagePullSecrets:
+        - name: castbuildkey

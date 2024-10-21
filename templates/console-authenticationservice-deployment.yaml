@@ -80,4 +80,6 @@ spec:
           resources:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuildkey
 
