@@ -13,8 +13,7 @@ spec:
       nodePort: 30090
   selector:
     console.service: console-gateway-service
-  type: NodePort
-  #type: LoadBalancer
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment

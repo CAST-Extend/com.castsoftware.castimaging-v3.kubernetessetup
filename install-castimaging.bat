@@ -138,15 +138,31 @@ if errorlevel 1 (
 )
 echo Copy complete. 
 
-echo Scaling down some pods... 
+echo Scaling down some deployments... 
 kubectl scale statefulset viewer-neo4j-core --replicas=0 -n %NAMESPACE%
 kubectl scale statefulset console-analysis-node-core --replicas=0 -n %NAMESPACE%
 kubectl scale deployment viewer-etl --replicas=0 -n %NAMESPACE%
 kubectl scale deployment viewer-server --replicas=0 -n %NAMESPACE%
 
-echo *****************************************************************************************
+echo **********************************************************************************************
+echo **********************************************************************************************
 echo Next actions:
 echo ------------
 echo  1) Remove the "sleep 3000" command from viewer-etl deployment file
 echo  2) Run helm-upgrade.bat
-echo *****************************************************************************************
+echo **********************************************************************************************
+echo **********************************************************************************************
+echo Extendproxy setup (optional):
+echo     - run this command to create the PVC:
+            kubectl apply -f ex_pvc-extend-proxy.yaml
+echo     - rename ex_extendproxy-service.yaml into extendproxy-service.yaml
+echo     - run "helm-upgrade.bat"
+echo     - Get the extendproxy service "External Endpoint" DNS name from K8S Dashboard
+echo         For instance: a33300000000004523be8231c11431899-1907755555.us-east-2.elb.amazonaws.com
+echo     - Update the exthostname variable in values.yaml with this name, for instance:
+echo        ExtendProxy:
+echo          exthostname: a33300000000004523be8231c11431899-1907755555.us-east-2.elb.amazonaws.com
+echo     - rename ex_extendproxy-deployment.yaml into extendproxy-deployment.yaml
+echo     - run "helm-upgrade.bat"
+echo **********************************************************************************************
+echo **********************************************************************************************

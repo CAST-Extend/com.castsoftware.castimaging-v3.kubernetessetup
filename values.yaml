@@ -35,7 +35,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: a7a305dadf5524ce49d20b6c2074a8e7-1394103855.us-east-2.elb.amazonaws.com
+  exthostname: a3330dd4cca844523be8231c11431899-1907791326.us-east-2.elb.amazonaws.com
   pubextendurl: "https://extend.castsoftware.com"
 
 #

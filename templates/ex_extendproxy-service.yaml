@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    console.service: extendproxy
+  name: extendproxy
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8085"
+      port: 8085
+      targetPort: 8085
+  selector:
+    console.service: extendproxy
+  type: LoadBalancer
