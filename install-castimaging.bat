@@ -26,7 +26,7 @@ if errorlevel 1 (
     echo helm install succeeded.
 )
 
-timeout 10
+timeout 30
 
 echo Running helm install...
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
@@ -149,13 +149,12 @@ timeout 30
 echo Running helm upgrade...
 helm upgrade castimaging-v3 --namespace %NAMESPACE% --set version=3.0.0 .
 if errorlevel 1 (
-    echo Failed to run helm upgrade.
+    echo helm upgrade failed.
     exit /b 1
 ) else (
-    echo ******
-    echo Done.
-    echo ******
+    echo helm upgrade succeeded.
 )
+
 
 echo **********************************************************************************************
 echo Extendproxy setup (optional):
