@@ -13,6 +13,7 @@ echo Console PVC...
 kubectl apply -f ex_pvc-console.yaml
 if errorlevel 1 (
     echo helm install failed.
+    pause
     exit /b 1
 ) else (
     echo helm install succeeded.
@@ -21,6 +22,7 @@ echo Viewer PVC...
 kubectl apply -f ex_pvc-imagingviewer.yaml
 if errorlevel 1 (
     echo helm install failed.
+    pause
     exit /b 1
 ) else (
     echo helm install succeeded.
@@ -32,6 +34,7 @@ echo Running helm install...
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
 if errorlevel 1 (
     echo helm install failed.
+    pause
     exit /b 1
 ) else (
     echo helm install succeeded.
@@ -74,6 +77,7 @@ for /f "tokens=*" %%i in ('kubectl get pods -n %NAMESPACE% --no-headers -o "cust
 :: Check if the pod name was found
 if "%VIEWER-SERVER-POD-NAME%"=="" (
     echo No pod found starting with %VIEWER-SERVER-SEARCH-ARG% in namespace %NAMESPACE%.
+    pause
     exit /b 1
 )
 echo Pod found: %VIEWER-SERVER-POD-NAME%
@@ -83,6 +87,7 @@ for /f "tokens=*" %%i in ('kubectl get pods -n %NAMESPACE% --no-headers -o "cust
 :: Check if the pod name was found
 if "%VIEWER-ETL-POD-NAME%"=="" (
     echo No pod found starting with %VIEWER-ETL-SEARCH-ARG% in namespace %NAMESPACE%.
+    pause
     exit /b 1
 )
 echo Pod found: %VIEWER-ETL-POD-NAME%
@@ -92,6 +97,7 @@ for /f "tokens=*" %%i in ('kubectl get pods -n %NAMESPACE% --no-headers -o "cust
 :: Check if the pod name was found
 if "%VIEWER-NEO4J-POD-NAME%"=="" (
     echo No pod found starting with %VIEWER-NEO4J-SEARCH-ARG% in namespace %NAMESPACE%.
+    pause
     exit /b 1
 )
 echo Pod found: %VIEWER-NEO4J-POD-NAME%
@@ -100,38 +106,43 @@ echo Pod found: %VIEWER-NEO4J-POD-NAME%
 :: Execute the kubectl cp commands
 echo Copying files inside pods...
 
-kubectl cp config\imaging\server\.     %NAMESPACE%/%VIEWER-SERVER-POD-NAME%:/opt/imaging/config
+kubectl cp config\imaging\server\.     %NAMESPACE%/%VIEWER-SERVER-POD-NAME%:/opt/imaging/config --container=viewer-server
 if errorlevel 1 (
     echo Failed to copy files.
+    pause
     exit /b 1
 ) else (
     echo Files successfully copied to the pod.
 )
-kubectl cp config\imaging\neo4j\csv\.  %NAMESPACE%/%VIEWER-SERVER-POD-NAME%:/opt/imaging/imaging-service/upload
+kubectl cp -n viewer-server config\imaging\neo4j\csv\.  %NAMESPACE%/%VIEWER-SERVER-POD-NAME%:/opt/imaging/imaging-service/upload --container=viewer-server
 if errorlevel 1 (
     echo Failed to copy files.
+    pause
     exit /b 1
 ) else (
     echo Files successfully copied to the pod.
 )
-kubectl cp config\imaging\etl\.        %NAMESPACE%/%VIEWER-ETL-POD-NAME%:/opt/imaging/imaging-etl/config
+kubectl cp -n viewer-etl config\imaging\etl\.        %NAMESPACE%/%VIEWER-ETL-POD-NAME%:/opt/imaging/imaging-etl/config --container=viewer-etl
 if errorlevel 1 (
     echo Failed to copy files.
+    pause
     exit /b 1
 ) else (
     echo Files successfully copied to the pod.
 )
-kubectl cp config\imaging\neo4j\csv\.  %NAMESPACE%/%VIEWER-ETL-POD-NAME%:/opt/imaging/imaging-etl/upload
+kubectl cp -n viewer-etl config\imaging\neo4j\csv\.  %NAMESPACE%/%VIEWER-ETL-POD-NAME%:/opt/imaging/imaging-etl/upload --container=viewer-etl
 if errorlevel 1 (
     echo Failed to copy files.
+    pause
     exit /b 1
 ) else (
     echo Files successfully copied to the pod.
 )
-kubectl cp config\imaging\neo4j\.      %NAMESPACE%/%VIEWER-NEO4J-POD-NAME%:/var/lib/neo4j/config
+kubectl cp -n viewer-neo4j config\imaging\neo4j\.      %NAMESPACE%/%VIEWER-NEO4J-POD-NAME%:viewer-neo4j/var/lib/neo4j/config --container=viewer-neo4j
 :: Check if the copy command succeeded
 if errorlevel 1 (
     echo Failed to copy files.
+    pause
     exit /b 1
 ) else (
     echo Files successfully copied to the pod.
@@ -150,25 +161,9 @@ echo Running helm upgrade...
 helm upgrade castimaging-v3 --namespace %NAMESPACE% --set version=3.0.0 .
 if errorlevel 1 (
     echo helm upgrade failed.
+    pause
     exit /b 1
 ) else (
     echo helm upgrade succeeded.
 )
 
-
-echo **********************************************************************************************
-echo Extendproxy setup (optional):
-echo **********************************************************************************************
-echo     - run this command to create the extendproxy PVC:
-echo        kubectl apply -f ex_pvc-extend-proxy.yaml
-echo     - rename ex_extendproxy-service.yaml into extendproxy-service.yaml
-echo     - run "helm-upgrade.bat"
-echo     - Get the extendproxy service "External Endpoint" DNS name from K8S Dashboard
-echo         For instance: a33300000000004523be8231c11431899-1907755555.us-east-2.elb.amazonaws.com
-echo     - Update the exthostname variable in values.yaml with this name, for instance:
-echo        ExtendProxy:
-echo          exthostname: a33300000000004523be8231c11431899-1907755555.us-east-2.elb.amazonaws.com
-echo     - rename ex_extendproxy-deployment.yaml into extendproxy-deployment.yaml
-echo     - run "helm-upgrade.bat"
-echo     - Review the log of extendproxy pod to get the administration URL and extend token
-echo **********************************************************************************************
