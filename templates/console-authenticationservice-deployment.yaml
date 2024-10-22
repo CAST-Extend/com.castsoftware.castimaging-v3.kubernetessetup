@@ -60,8 +60,7 @@ spec:
             - name: PORT_GATEWAY
               value: "8090"
             - name: NGINX_HOST
-              #value: https://d1e146x9exlp0p.cloudfront.net
-              value: http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:8090
+              value: https://d1e146x9exlp0p.cloudfront.net
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"
           livenessProbe:
