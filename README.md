@@ -22,32 +22,58 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 
 **1. Run the installation batch**
 
-c:\templatefolder\install-castimaging.bat
+ - install-castimaging.bat
 
 
 **2. Network Setting**
 
- - Prepare a CDN, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com).
-   The DNS should also have an SSL certificate.
+ - AWS CloudFront setup:
+    - Get the console-gateway-service service EXTERNAL-IP:
+         run "kubectl get service -n castimaging-v3 console-gateway-service"
+         For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
+	- Create a new CloudFront in AWS Console
+		- In AWS Console, go to CloudFront and click _Create distribution_
+			- Set "Origin domain" value to the console-gateway-service service EXTERNAL-IP
+				For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
+			- Protocol: _HTTP only_
+			- HTTP Port: _8090_
+			- Name: _castimging-v3_
+			- Web Application Firewall: _Do not enable security protections_
+			- _Description (optional)_: enter a description
+			- Click _Create Distribution_ 
+		- Go to _Behaviors_ tab
+			- Delete all behaviors except the _Default (*)_ one
+			- In _Viewer protocol policy_: select _HTTPS only_
+			- In _Cache key and origin requests_: select _Legacy cache settings_
+				- _Headers_: _All_
+				- _Query strings_: _All_
+				- _Cookies_: _All_
+				- _Object caching_: _Use origin cache headers_ 
+				- Click _Save behavior_
+	- Open the Distribution that has just been created and copy the _Distribution domain name_ value
+	- Update the _CloudFrontDomain_ variable in values.yaml
+		CloudFrontDomain: xxxxxxxxxxx.cloudfront.net
+ 	- Apply helm chart changes:
+         run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net
 
- - Ensure the DNS is configured for the NGINX_HOST parameter in the templates/console-authenticationservice-deployment.yaml file.
- 	- For example, replace NGINX_HOST from default value https://test.castsoftware.com with https://dev.imaginghost.com
 
- - Update the DNS for the KC_HOSTNAME, KEYCLOAK_FRONTEND_URL, and KC_HOSTNAME_ADMIN_URL parameters in the templates/console-ssoservice-deployment.yaml file.
- 	- For example,
-    
-		Replace KC_HOSTNAME from default value test.castsoftware.com to dev.imaginghost.com
+**3. Install Extend Proxy (optional)**
 
-		Replace KEYCLOAK_FRONTEND_URL from default value https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
+ - Rename template/ex_extendproxy-service.yaml into template/extendproxy-service.yaml
+ - Apply helm chart changes:
+         run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+ - Get the extendproxy service EXTERNAL-IP:
+         run "kubectl get service -n castimaging-v3 extendproxy"
+         For instance: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
+ - Update the exthostname variable in values.yaml with this value, for instance:
+        ExtendProxy:
+          exthostname: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
+ - Rename template/ex_extendproxy-deployment.yaml into template/extendproxy-deployment.yaml
+ - Apply helm chart changes:
+         run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+ - Review the log of the extendproxy pod to see the administration URL and extend token
 
- 		Replace KC_HOSTNAME_ADMIN_URL from default value https://test.castsoftware.com/auth to https://dev.imaginghost.com/auth
-
- - Make configuration for redirecting from DNS to external IP.
-
-
-**3. Install Extend Proxy**
-
-Follow instructions in install-extendproxy.bat
 
 **4. Configure Extend Proxy**
 

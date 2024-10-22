@@ -11,6 +11,9 @@ namespace: castimaging-v3  # Change this to your desired default namespace
 storage:
   className: gp2  # Reference storage class
 
+# Network access
+CloudFrontDomain: d1e146x9exlp0p.cloudfront.net
+
 #
 # Console  
 #

@@ -50,13 +50,13 @@ spec:
             - name: KC_PROXY 
               value: "edge"
             - name: KEYCLOAK_FRONTEND_URL
-              value: https://d1e146x9exlp0p.cloudfront.net/auth
+              value: https://{{ .Values.CloudFrontDomain }}/auth
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"             
             - name: KC_HOSTNAME_ADMIN
-              value: https://d1e146x9exlp0p.cloudfront.net/auth
+              value: https://{{ .Values.CloudFrontDomain }}/auth
             - name: KC_HOSTNAME
-              value: https://d1e146x9exlp0p.cloudfront.net/auth
+              value: https://{{ .Values.CloudFrontDomain }}/auth
             - name: KC_PROXY_HEADERS
               value: "forwarded"
 
