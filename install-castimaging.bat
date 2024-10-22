@@ -8,27 +8,26 @@ set VIEWER-NEO4J-SEARCH-ARG=viewer-neo4j
 
 kubectl create ns %NAMESPACE%
 
-echo Creating Persistent Volume Claims...
-echo Console PVC...
-kubectl apply -f ex_pvc-console.yaml
-if errorlevel 1 (
-    echo helm install failed.
-    pause
-    exit /b 1
-) else (
-    echo helm install succeeded.
-)
-echo Viewer PVC...
-kubectl apply -f ex_pvc-imagingviewer.yaml
-if errorlevel 1 (
-    echo helm install failed.
-    pause
-    exit /b 1
-) else (
-    echo helm install succeeded.
-)
-
-timeout 30
+@REM echo Creating Persistent Volume Claims...
+@REM echo Console PVC...
+@REM kubectl apply -f ex_pvc-console.yaml
+@REM if errorlevel 1 (
+@REM     echo helm install failed.
+@REM     pause
+@REM     exit /b 1
+@REM ) else (
+@REM     echo helm install succeeded.
+@REM )
+@REM echo Viewer PVC...
+@REM kubectl apply -f ex_pvc-imagingviewer.yaml
+@REM if errorlevel 1 (
+@REM     echo helm install failed.
+@REM     pause
+@REM     exit /b 1
+@REM ) else (
+@REM     echo helm install succeeded.
+@REM )
+@REM timeout 30
 
 echo Running helm install...
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
@@ -138,7 +137,7 @@ if errorlevel 1 (
 ) else (
     echo Files successfully copied to the pod.
 )
-kubectl cp -n viewer-neo4j config\imaging\neo4j\.      %NAMESPACE%/%VIEWER-NEO4J-POD-NAME%:viewer-neo4j/var/lib/neo4j/config --container=viewer-neo4j
+kubectl cp -n viewer-neo4j config\imaging\neo4j\.      %NAMESPACE%/%VIEWER-NEO4J-POD-NAME%:/var/lib/neo4j/config --container=viewer-neo4j
 :: Check if the copy command succeeded
 if errorlevel 1 (
     echo Failed to copy files.

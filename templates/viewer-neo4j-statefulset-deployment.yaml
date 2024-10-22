@@ -45,7 +45,7 @@ spec:
         runAsUser: 7474
         runAsGroup: 7474
         fsGroup: 7474
-        fsGroupChangePolicy: "OnRootMismatch"      
+        fsGroupChangePolicy: "Always"      
       initContainers:
         - name: init-shared-directories
           image: busybox

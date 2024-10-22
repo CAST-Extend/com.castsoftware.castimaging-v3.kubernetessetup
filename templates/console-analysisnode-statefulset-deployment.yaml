@@ -39,7 +39,7 @@ spec:
         runAsUser: 10001
         runAsGroup: 10001
         fsGroup: 10001
-        fsGroupChangePolicy: "OnRootMismatch"
+        fsGroupChangePolicy: "Always"
       initContainers:
         - name: init-shared-directories
           image: busybox
@@ -94,7 +94,7 @@ spec:
         storageClassName: "{{ .Values.storage.className }}"
         resources:
           requests:
-            storage: "2Gi"
+            storage: "100Gi"
     - metadata:
         name: datadir
       spec:
@@ -103,4 +103,4 @@ spec:
         storageClassName: "{{ .Values.storage.className }}"
         resources:
           requests:
-            storage: "2Gi"
+            storage: "200Gi"

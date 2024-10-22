@@ -3,8 +3,6 @@ set NAMESPACE=castimaging-v3
 echo **********************************************************************************************
 echo Extendproxy setup (optional):
 echo **********************************************************************************************
-echo     - Create the extendproxy PVC:
-echo         run "kubectl apply -f ex_pvc-extend-proxy.yaml"
 echo     - Rename template/ex_extendproxy-service.yaml into template/extendproxy-service.yaml
 echo     - Apply helm chart changes:
 echo         run "helm upgrade castimaging-v3 --namespace %NAMESPACE% --set version=3.0.0 ."

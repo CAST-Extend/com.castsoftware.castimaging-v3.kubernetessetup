@@ -1,0 +1,251 @@
+# For storage postgres data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-data
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 128Gi  # Default for Postgres, change according to deployment and applications in portfolio
+  storageClassName: {{ .Values.storage.className }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-server-config
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-server-log
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+
+  labels:
+    console.service: viewer-server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-server-csv
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+
+  labels:
+    console.service: viewer-server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-etl-config
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-etl
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-etl-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-etl
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-etl-upload
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-etl
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-aimanager-config
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-aimanager
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-aimanager-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-aimanager
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-imagingviewer-v3-aimanager-csv
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-aimanager
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className }}
+  resources:
+    requests:
+      storage: 6Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-extendproxy-data
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi  # Specify the storage size required
+  storageClassName: {{ .Values.storage.className }}
+---
+# For storage of CASTMS, Extensions, Logs and this is specific to POD
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: castdir-console-analysis-node-core-0
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: {{ .Values.storage.className }}
+---
+# For storage of shared data for deploy, delivery and common data. This is shared with other analysis nodes PODs
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: datadir-console-analysis-node-core-0
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi
+  storageClassName: {{ .Values.storage.className }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: confdir-viewer-neo4j-core-0
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 6Gi
+  storageClassName: {{ .Values.storage.className }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logdir-viewer-neo4j-core-0
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: {{ .Values.storage.className }}
+
+
+  

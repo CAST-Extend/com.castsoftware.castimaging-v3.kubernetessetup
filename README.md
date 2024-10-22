@@ -20,48 +20,13 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm is installed on your system.
 
-**1. Create a Kubernetes Namespace for CAST Imaging**
+**1. Run the installation batch**
 
-Create namesapce using below command, it will create namespace with name castimaging-v3
+c:\templatefolder\install-castimaging.bat
 
-```
-kubectl create ns castimaging-v3
-```
-**2. Update Configuration Files for CAST Imaging**
 
-Update the configuration files before applying them. A sample configuration for Persistent Volumes is available. 
+**2. Network Setting**
 
-Update **value.yaml** to reflect your deployment environment - Update line 39 with name of node for EKS cluster and name & tag for container images.
-
-    Update the image name and tag based on the available images. 
-
-Modify the storage YAML files for storage requirement specific to your deployment based on the number of application and other parameters.
-
-    ex_console-pv.yaml
-    ex_extendproxy-storage.yaml
-    ex_imagingviewer-storage.yaml
-    
-
-Run the below commands to create storage, persistance volume and persistance volumne claim. 
-
-```
-kubectl apply -f ex_storage.yaml
-kubectl apply -f ex_imagingviewer-storage.yaml
-kubectl apply -f ex_console-pvc.yaml
-kubectl apply -f ex_extendproxy-storage.yaml
-```
-**3. Install CAST Imaging using Helm**
-
-```
-helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
-```
-Get kubernetes pods status, it will approx 2-3 min for PODS to start, PODS viewer-aimanager*, viewer-etl-*, viewer-neo4j-* and viewer-server- will not run successfully. This is expected as additional steps required to make them work.
-```
-kubectl get pods -n castimaging-v3
-```
-**4. Additional configuration steps**
-
-**4.1 Network Setting**
  - Prepare a CDN, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com).
    The DNS should also have an SSL certificate.
 
@@ -79,209 +44,18 @@ kubectl get pods -n castimaging-v3
 
  - Make configuration for redirecting from DNS to external IP.
 
-**4.2 Imaging Viewer folders updates**
 
-To ensure the correct folder setup and permissions, the Viewer pods need to be restarted temporarily as the root user and paused using a **sleep** command
+**3. Install Extend Proxy**
 
-- To restart the pods as root, add the following to the container definition in the deployment YAML file:
-  ```
-  securityContext:
-   runAsUser: 0
-  ```
-- To pause the process, insert a "sleep 3000" command. For example, in the viewer-etl-deployment.yaml at line 41
-  ```
-  command: ['sh', '-c', "sleep 3000 && /opt/imaging/imaging-etl/config/init.sh"]
-  ```
+Follow instructions in install-extendproxy.bat
 
-This will allow the necessary folder and file updates to be made during the pause:
+**4. Configure Extend Proxy**
 
-1) To create folders and set permissions: by connecting to the pod with shell from kubernetes dashboard
-2) To copy any required configuration files into the pod using the "kubectl cp" command:
-   For instance, to copy csv files from the local config folder to the viewer-server pod, get the pod name and run:
-```
-   kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-server-c6fb588dd-88fwr:/opt/imaging/imaging-service/upload
-	
-```
-Upon completion, root securityContext and sleep command can be removed and pod restarted.
+Use the admin URL shown in extendproxy pod log file to connect to the admin page and configure it.
+You can open the log file from the Kubernetes Dashboard.
+Alternatively, get the extendproxy pod name by running "kubectl get pods -n castimaging-v3" then run "kubectl logs -n castimaging-v3 castextend-xxxxxxxx" to display the log
 
-List of updates to be made:
-
-**4.2.1 Updates for Viewer Neo4j**
-1) In the viewer-neo4j-statefulset-deployment.yaml file, comment line 50, then un-comment out lines 47, 48, and 51. After saving your changes, execute the following Helm upgrade command:
-	 ```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
-  	 ```
-   Check if viewer-neo4j POD is running, if not, scale to 0 and then scale to 1.
-	```
- 	kubectl scale --replicas=0 statefulset viewer-neo4j-core -n castimaging-v3
- 	kubectl scale --replicas=1 statefulset viewer-neo4j-core -n castimaging-v3
-   	```
-   Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command.
-   For example **kubectl exec -it -n castimaging-v3 viewer-neo4j-core-0 -- /bin/bash**
-	```
- 	mkdir -p /var/lib/neo4j/config/neo4j5_data
-	chmod -R 777 /var/lib/neo4j
-	```
-3) Files to be copied inside pod, **open a new terminal window** to run below command
-   
-   **REPLACE** _castimaging-v3/viewer-neo4j-core-0_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
-	```
-	kubectl cp config\imaging\neo4j\. castimaging-v3/viewer-neo4j-core-0:/var/lib/neo4j/config
-   	```
-4) Update the file permissions and exit. 
-   	```
-	chmod -R 777 /var/lib/neo4j
-    sudo chmod -R 777 /logs
-	```
-5. In the viewer-neo4j-statefulset-deployment.yaml file, un-comment line 50, then comment out lines 47, 48 and 51. After saving your changes, execute the following Helm upgrade command:
-	```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
- 	```
- 
-**4.2.2 Updates for Viewer Server**
-1. In the viewer-server-deployment.yaml, comment line 47, then un-comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
-	 ```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
-  	 ```
-     Check if viewer-server POD is running, if not, scale to 0 and then scale to 1.
-	```
- 	kubectl scale --replicas=0 deployment viewer-server -n castimaging-v3
- 	kubectl scale --replicas=1 deployment viewer-server -n castimaging-v3
-   	```
-  
-    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example **kubectl exec -it -n castimaging-v3 viewer-server-7d9c66448d-4hnxb -- /bin/sh**
-	```
-	chmod -R 777 /opt/imaging/imaging-service/logs
-	chmod -R 777 /opt/imaging/imaging-service/upload
- 	chmod -R 777 /opt/imaging/config
-	```
-2. Files to be copied inside pod,
-   
-   **REPLACE** _castimaging-v3/viewer-server-7d9c66448d-4hnxb_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
-	```
-	kubectl cp config\imaging\server\. castimaging-v3/viewer-server-7d9c66448d-4hnxb:/opt/imaging/config
-	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-server-7d9c66448d-4hnxb:/opt/imaging/imaging-service/upload
-	```
-3. Command to be executed inside the pod
-	```
-	chmod -R 777 /opt/imaging/imaging-service/logs
-	chmod -R 777 /opt/imaging/imaging-service/upload
- 	chmod -R 777 /opt/imaging/config
-	```
-4. In the viewer-server-deployment.yaml file, un-comment line 47, then comment out lines 46, 49 and 50. After saving your changes, execute the following Helm upgrade command:
-	```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
- 	```
-   If error "sh: /opt/imaging/config/init.sh: not found" is reported in logs then vi the file /opt/imaging/config/init.sh, if any special character then run command, dos2unix init.sh, repeat point 4. 
-
- 
-**4.2.3 Updates for Viewer ETL**
-1. In the viewer-etl-deployment.yaml file, comment line 40, then un-comment out lines 41, 43 and 44. After saving your changes, execute the following Helm upgrade command:
-	 ```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
-  	 ```
-     Check if viewer-etl POD is running, if not, scale to 0 and then scale to 1.
-	```
- 	kubectl scale --replicas=0 deployment viewer-etl -n castimaging-v3
- 	kubectl scale --replicas=1 deployment viewer-etl -n castimaging-v3
-   	```
-    Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example **kubectl exec -it -n castimaging-v3 viewer-etl-6cccc5d569-sk2fm -- /bin/bash**
-	```
-	chmod -R 777  /opt/imaging/imaging-etl/config
-	chmod -R 777  /opt/imaging/imaging-etl/logs
-	chmod -R 777  /opt/imaging/imaging-etl/upload
-	```
-2. Files to be copied inside pod,
-   
-   **REPLACE** _castimaging-v3/viewer-etl-6cccc5d569-sk2fm_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
-	```
-	kubectl cp config\imaging\etl\. castimaging-v3/viewer-etl-6cccc5d569-sk2fm:/opt/imaging/imaging-etl/config
-	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-etl-6cccc5d569-sk2fm:/opt/imaging/imaging-etl/upload
-	```
-3. Command to be executed inside the pod
-	```
-	chmod -R 777  /opt/imaging/imaging-etl/config
-	chmod -R 777  /opt/imaging/imaging-etl/logs
-	chmod -R 777  /opt/imaging/imaging-etl/upload
-	```
-4. In the viewer-etl-deployment.yaml file, un-comment line 40, then comment out lines 41, 43 and 44. After saving your changes, execute the following Helm upgrade command:
-	```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
- 	```
-
-**4.2.4 Updates for Viewer AI Manager**
-1) In the viewer-aimanager-deployment.yaml file, comment line 36, then un-comment out lines 37, 39, and 40. After saving your changes, execute the following Helm upgrade command:
-	 ```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
-  	 ```
-     Check if viewer-aimanager POD is running, if not, scale to 0 and then scale to 1.
-	```
- 	kubectl scale --replicas=0 deployment viewer-aimanager -n castimaging-v3
- 	kubectl scale --replicas=1 deployment viewer-aimanager -n castimaging-v3
-   	```
-   Get into the pod to execute the commands. Use either Kubernetes Dashboard or  kubectl command. For example **kubectl exec -it -n castimaging-v3 viewer-aimanager-6cccc5d569-sk2fm -- /bin/bash**
-	 ```
-	chmod -R 777  /opt/imaging/open_ai-manager/config
-	chmod -R 777  /opt/imaging/open_ai-manager/logs
-	chmod -R 777  /opt/imaging/open_ai-manager/csv
- 	```
-2. Files to be copied inside pod,
-   
-   **REPLACE** _castimaging-v3/viewer-aimanager-78896db4f6-zmbzh_ with actual namespace/POD name as per deployment environment (Assuming your namespace name is castimaging-v3, You can get the pod name using _kubectl get pods -n castimaging-v3_)
-	```
-	kubectl cp config\imaging\open_ai-manager\. castimaging-v3/viewer-aimanager-78896db4f6-fqn2x:/opt/imaging/open_ai-manager/config
-	kubectl cp config\imaging\neo4j\csv\. castimaging-v3/viewer-aimanager-78896db4f6-fqn2x:/opt/imaging/open_ai-manager/csv
-	```
-3. Command to be executed inside the pod
-	```
-	chmod -R 777  /opt/imaging/open_ai-manager/config
-	chmod -R 777  /opt/imaging/open_ai-manager/logs
-	chmod -R 777  /opt/imaging/open_ai-manager/csv
-	```
-4. In the viewer-aimanager-deployment.yaml file, un-comment line 36, then comment out lines 37, 39, and 40. After saving your changes, execute the following Helm upgrade command:
-	```
-   	helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
- 	```
-     Check if viewer-aimanager POD is running, if not, scale to 0 and then scale to 1.
-	```
- 	kubectl scale --replicas=0 deployment viewer-aimanager -n castimaging-v3
- 	kubectl scale --replicas=1 deployment viewer-aimanager -n castimaging-v3
-   	```
-
-**4.2.5 Updates for Extend Proxy**
-1) Commands to be executed inside pod:
-	```
-	chmod -R 777  /opt/cast_extend_proxy
-	```
-
-**5. Upload Extensions Bundle for Extend Proxy**
-
-Access the Extend Proxy pod to run the commands needed to retrieve the public URL and API key, which are required for uploading the extensions bundle.
-	
-```
-cat /opt/cast_extend_proxy/config.proxy.json
-```
-Take note of the PUBLIC_URL and APIKEY from the output, as well as the location of the extarchive file provided by CAST. Update the curl command below by replacing <APIKEY> with the APIKEY, <extend_proxy_url> with the external IP of extendproxy, and <extarchive_file_path> with the path to the extarchive file.
-
-```
-curl -H "x-cxproxy-apikey:<API-KEY>" -F "data=@<extarchive_file_path>" <extend_proxy_url>:8085/api/synchronization/bundle/upload
-
-```
-After the updates, the curl command will look like this:
-
-_curl -H "x-cxproxy-apikey:**XCGN1-F5172C2698CFF29E0E1EFDC9D21346FE684C81A8698E0833445C3F58269865DEE**" -F "data=@**D:\CAST\CastArchive_linux_x64.extarchive**" **http://172.xx.xxx.232:8085**/api/synchronization/bundle/upload_
-
-Execute the CURL command, and if successful, it will produce output similar to the following: 
-
-{"juid":"2cfee965-774f-1234-b656-f07113e34d83","getStatus":"http://test-nodepool1-123456-vmss000000:8085/api/synchronization?juid=2cfee965-774f-1234-b656-f07113e34d83"}
-
-To validate the extension upload, run the following command, and you should see multiple files with the .nupkg extension in the directory /opt/cast_extend_proxy/data/packages/.
-
-```
-ls -l /opt/cast_extend_proxy/data/packages/  
-```
-
-**6. (OPTIONAL)Scale the Pods in the order**
+**5. (OPTIONAL)Scale the Pods in the order**
 Scale the PODs in the order listed if you have to scale for any reason. 
 
 For Console: 
@@ -316,67 +90,3 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
-## Common Kubectl commands
-
-_**Create namespace**_
-
-``` 
-kubectl create ns castimaging-v3
-
-``` 
-
-_**Create or update the resources using the YAML file**_
-
-``` 
-kubectl apply -f xxx.yaml
-```
-
-_**Copy files into the POD**_
-
-``` 
-kubectl cp config\imaging\neo4j\. castimaging-v3/viewer-neo4j-core-0:/var/lib/neo4j/config
-```
-
-_**Get the kubernetes POD logs**_
-	
- ``` 
- kubectl logs console-gateway-service-67d549bfb4-pvdhj -n castimaging-v3
-```
-
-_**Save the kubernetes POD logs to local disk**_
-
-```
-kubectl logs console-gateway-service-67d549bfb4-pvdhj -n castimaging-v3 -c console-sso-service > D:\CAST\Logs\console-sso-service.txt
-```
-
-_**Execute a command in a running pod within a Kubernetes cluster**_
-
-```
-kubectl exec -it console-analysis-node-core-0 -n castimaging-v3 -- /bin/sh
-```
-
-_**Get configmap details for specific namespace in Kubernetes cluster**_
-
-```
-kubectl get configmap -n castimaging-v3
-```
-
-_**Get details of PersistentVolumeClaims(PVC) for specific namespace in Kubernetes cluster**_
-
-```
-kubectl get pvc castdir-console-analysis-node-core-0 -n castimaging-v3
-```
-
-_**Edit PersistentVolumeClaims(PVC) for specific namespace in Kubernetes cluster**_
-
-```
-kubectl edit pvc datadir-console-analysis-node-core-0 -n castimaging-v3
-```
-
-_**Copy files from PVC attached to POD to current local drive**_
-
-```
-kubectl cp -n castimaging-v3 castimaging-v3/console-analysis-node-core-0:/usr/share/CAST/CASTMS/. .
-```
-
-

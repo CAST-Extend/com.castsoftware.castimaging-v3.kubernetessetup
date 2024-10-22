@@ -22,7 +22,7 @@ spec:
       securityContext:
         runAsUser: 1001
         fsGroup: 0
-        fsGroupChangePolicy: "OnRootMismatch" 
+        fsGroupChangePolicy: "Always" 
       containers:
         - env:
             - name: host_port

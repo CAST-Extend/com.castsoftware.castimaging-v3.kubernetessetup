@@ -9,7 +9,6 @@ namespace: castimaging-v3  # Change this to your desired default namespace
 
 # Storage configuration
 storage:
-  size: "20Gi"  # Adjust size as needed, default 20Gi
   className: gp2  # Reference storage class
 
 #
@@ -35,7 +34,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: a3330dd4cca844523be8231c11431899-1907791326.us-east-2.elb.amazonaws.com
+  exthostname: aef52c46422ad4178825b672896dd1f1-530966954.us-east-2.elb.amazonaws.com
   pubextendurl: "https://extend.castsoftware.com"
 
 #
