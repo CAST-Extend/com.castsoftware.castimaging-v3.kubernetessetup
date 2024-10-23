@@ -8,27 +8,6 @@ set VIEWER-NEO4J-SEARCH-ARG=viewer-neo4j
 
 kubectl create ns %NAMESPACE%
 
-@REM echo Creating Persistent Volume Claims...
-@REM echo Console PVC...
-@REM kubectl apply -f ex_pvc-console.yaml
-@REM if errorlevel 1 (
-@REM     echo helm install failed.
-@REM     pause
-@REM     exit /b 1
-@REM ) else (
-@REM     echo helm install succeeded.
-@REM )
-@REM echo Viewer PVC...
-@REM kubectl apply -f ex_pvc-imagingviewer.yaml
-@REM if errorlevel 1 (
-@REM     echo helm install failed.
-@REM     pause
-@REM     exit /b 1
-@REM ) else (
-@REM     echo helm install succeeded.
-@REM )
-@REM timeout 30
-
 echo Running helm install...
 helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
 if errorlevel 1 (
