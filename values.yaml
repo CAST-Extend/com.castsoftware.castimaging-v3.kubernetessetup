@@ -5,11 +5,11 @@
 version: 3.0.0
 
 # Define the namespace here
-namespace: castimaging-v3  # Change this to your desired default namespace
+namespace: castimaging-v3
 
-# Storage configuration
+# Storage class configuration
 storage:
-  className: gp2  # Reference storage class
+  className: gp2
 
 # Network access
 CloudFrontDomain: d1vd80vaqxedlg.cloudfront.net

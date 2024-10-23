@@ -64,13 +64,13 @@ AWSServiceRoleForAmazonEKS
 * click _Next: Review_
 
 ### create keypair
-eks-mycluster
+eks-mykeypair
 
 * open EC2 dashboard https://console.aws.amazon.com/ec2
 * click _KeyPairs_ in left navigation bar under section "Network&Security"
 * click _Create Key Pair_
-* provide name for keypair, _eks-mycluster_ and click *_Create_*
-* !! the keypair will be downloaded immediately => file *eks-mycluster.pem* !!
+* provide name for keypair, _eks-mykeypair_ and click *_Create_*
+* !! the keypair will be downloaded immediately => file *eks-mykeypair.pem* !!
 
 ### create API Access key/-secret
 * create key+secret via AWS console
@@ -82,7 +82,7 @@ eks-mycluster
 Follow instructions from here: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
 ## Test
-```bash
+```
 aws --version
 ```
 ## Configure AWS access
