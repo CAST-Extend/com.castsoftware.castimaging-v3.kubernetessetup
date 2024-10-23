@@ -71,7 +71,7 @@ Before procedding, you have to validate the name of the Storage Class name to be
 
  - Rename template/ex_extendproxy-service.yaml into template/extendproxy-service.yaml
  - Apply helm chart changes:
-         run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
  - Get the extendproxy service EXTERNAL-IP:
 	- run "kubectl get service -n castimaging-v3 extendproxy"
 	- For instance: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
