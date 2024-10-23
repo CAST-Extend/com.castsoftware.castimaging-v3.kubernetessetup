@@ -139,7 +139,7 @@ https://github.com/helm/helm/releases
 
 # Create cluster
 
-* Update ex_eks-mycluster.yaml file (VPC id, subnets, EC2 key)
+* Update fields in ex_eks-mycluster.yaml to match values from your environment, including VPC id, subnets, EC2 key.
 
 * Apply it: 
 
