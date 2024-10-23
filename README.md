@@ -20,8 +20,10 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 
 Before procedding, you have to validate the name of the Storage Class name to be used during the setup of Persistent volumes:
  - Run "kubectl get sc" to see the available Storage Classes. For instance:
+		```
 		NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
  		gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  5d15h
+		```
  - Update values.yaml file with the name of the Storage Class (usually gp2 or gp3)
 		storage:
   			className: gp2  # Reference storage class
@@ -35,12 +37,12 @@ Before procedding, you have to validate the name of the Storage Class name to be
 
  - AWS CloudFront setup:
     - Get the console-gateway-service service EXTERNAL-IP:
-         run "kubectl get service -n castimaging-v3 console-gateway-service"
-         For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
+    	- run "kubectl get service -n castimaging-v3 console-gateway-service"
+    	- For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
 	- Create a new CloudFront in AWS Console
 		- In AWS Console, go to CloudFront and click _Create distribution_
 			- Set "Origin domain" value to the console-gateway-service service EXTERNAL-IP
-				For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
+				- For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
 			- Protocol: _HTTP only_
 			- HTTP Port: _8090_
 			- Name: _castimging-v3_
@@ -58,9 +60,9 @@ Before procedding, you have to validate the name of the Storage Class name to be
 				- Click _Save behavior_
 	- Open the Distribution that has just been created and copy the _Distribution domain name_ value
 	- Update the _CloudFrontDomain_ variable in values.yaml
-		CloudFrontDomain: xxxxxxxxxxx.cloudfront.net
+		- CloudFrontDomain: xxxxxxxxxxx.cloudfront.net
  	- Apply helm chart changes:
-         run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+    	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
 	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net
 
 
@@ -70,14 +72,16 @@ Before procedding, you have to validate the name of the Storage Class name to be
  - Apply helm chart changes:
          run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
  - Get the extendproxy service EXTERNAL-IP:
-         run "kubectl get service -n castimaging-v3 extendproxy"
-         For instance: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
+	- run "kubectl get service -n castimaging-v3 extendproxy"
+	- For instance: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
  - Update the exthostname variable in values.yaml with this value, for instance:
-        ExtendProxy:
+	```
+	ExtendProxy:
           exthostname: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
+	```
  - Rename template/ex_extendproxy-deployment.yaml into template/extendproxy-deployment.yaml
  - Apply helm chart changes:
-         run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
  - Review the log of the extendproxy pod to see the administration URL and extend token
 
 
