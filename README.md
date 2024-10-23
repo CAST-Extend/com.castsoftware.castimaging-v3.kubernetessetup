@@ -25,9 +25,10 @@ Before procedding, you have to validate the name of the Storage Class name to be
  		gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  5d15h
 
  - Update values.yaml file with the name of the Storage Class (usually gp2 or gp3)
-
+		"""
 		storage:
   			className: gp2  # Reference storage class
+		"""
 
 **1. Run the installation batch**
 
