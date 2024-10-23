@@ -12,7 +12,7 @@ storage:
   className: gp2
 
 # Network access
-CloudFrontDomain: d1vd80vaqxedlg.cloudfront.net
+CloudFrontDomain: d313reevm4vbam.cloudfront.net
 
 #
 # Console  
@@ -37,7 +37,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: a07e38b2cc8514937b9ddabb91edec84-365027673.us-east-2.elb.amazonaws.com
+  exthostname: a56c82ab1898e4a239d7a557fb4231df-1101772276.us-east-2.elb.amazonaws.com
   pubextendurl: "https://extend.castsoftware.com"
 
 #
