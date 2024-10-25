@@ -1,9 +1,0 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: castimaging-efs
-  annotations:
-    helm.sh/resource-policy: keep  
-provisioner: efs.csi.aws.com
-volumeBindingMode: Immediate
-reclaimPolicy: Retain

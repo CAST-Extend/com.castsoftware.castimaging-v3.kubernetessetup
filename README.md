@@ -29,7 +29,7 @@ Before proceding, you have to validate the name of the EBS Storage Class name to
 	- Run "kubectl apply -f ex_ebs-storage-class.yaml"
 	- This will create a Storage Class named _castimaging-ebs_
 
- - Update values.yaml file with the name of the Storage Class (gp2 or castimaging-ebs for instance):
+ - Update values.yaml file with the name of the Storage Class (gp2 if available or castimaging-ebs for instance):
 
 		storage:
   			className: gp2
