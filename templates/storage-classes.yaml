@@ -17,10 +17,10 @@ metadata:
   name: castimaging-efs
   annotations:
     helm.sh/resource-policy: keep
-provisioner: efs.csi.aws.com
+provisioner: efs.csi.aws.com # Amazon EFS CSI driver
 parameters:
   provisioningMode: efs-ap
-  fileSystemId: fs-0fd447f93933b0c43
+  fileSystemId: {{ .Values.storage.EFSsystemID }}
   accessPointId: fsap-0d9e79de14c37f1f8
   directoryPerms: "770"
   basePath: "/"

@@ -18,16 +18,11 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
-Before procedding, you have to validate the name of the Storage Class name to be used during the setup of Persistent volumes:
- - Run "kubectl get sc" to see the available Storage Classes. For instance:
+Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-node):
+ - Create one EFS in AWS Console
+ - Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
+ - Get the File System ID of the EFS and update the storage.EFSsystemID variable in the values.yaml file
 
-		NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
- 		gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  5d15h
-
- - Update values.yaml file with the name of the Storage Class (usually gp2 or gp3):
-
-		storage:
-  			className: gp2  # Reference storage class
 
 **1. Run the installation batch**
 
