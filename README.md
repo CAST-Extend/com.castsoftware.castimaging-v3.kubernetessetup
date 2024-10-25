@@ -52,7 +52,6 @@ Before procedding, you have to validate the name of the Storage Class name to be
             - IPv6: _Off_
 			- Click _Create Distribution_ 
 		- Go to _Behaviors_ tab
-			- Delete all behaviors except the _Default (*)_ one
 			- In _Viewer protocol policy_: select _HTTPS only_
 	- Open the Distribution that has just been created and copy the _Distribution domain name_ value
 	- Update the _CloudFrontDomain_ variable in values.yaml

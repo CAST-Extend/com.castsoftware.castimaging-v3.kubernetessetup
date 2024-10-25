@@ -51,7 +51,7 @@ spec:
             - mountPath: /usr/share/CAST
               name: castdir
             - mountPath: /shared
-              name: shared-datadir
+              name: shared-efs-datadir
       containers:
         - env:
             - name: DEPLOY_VOLUME_MACHINE
@@ -82,12 +82,12 @@ spec:
             - mountPath: /usr/share/CAST
               name: castdir
             - mountPath: /shared
-              name: datadir
+              name: shared-efs-datadir
       restartPolicy: Always 
       volumes:
-        - name: shared-datadir
+        - name: shared-efs-datadir
           persistentVolumeClaim:
-            claimName: shared-datadir            
+            claimName: pvc-shared-efs-datadir
   volumeClaimTemplates:
     - metadata:
         name: castdir

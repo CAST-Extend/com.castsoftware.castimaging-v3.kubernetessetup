@@ -13,7 +13,7 @@ storage:
   EFSclassName: castimaging-efs
 
 # Network access
-CloudFrontDomain: d313reevm4vbam.cloudfront.net
+CloudFrontDomain: dfc9qk1mfg2b7.cloudfront.net
 
 #
 # Console  

@@ -201,20 +201,21 @@ spec:
   storageClassName: {{ .Values.storage.EBSclassName }}
 ---
 # For storage of shared data for deploy, delivery and common data. This is shared with other analysis nodes PODs
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: datadir-console-analysis-node-core-0
+  name: pvc-shared-efs-datadir
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 200Gi
-  storageClassName: {{ .Values.storage.EBSclassName }}
+      storage: 100Gi  # EFS is unlimited, so this value is just a placeholder
+  storageClassName: {{ .Values.storage.EFSclassName }}
 
 ---
 apiVersion: v1
@@ -246,18 +247,4 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: {{ .Values.storage.EBSclassName }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: logdir-viewer-neo4j-core-0
-  namespace: {{ .Release.Namespace }}
-  annotations:
-    helm.sh/resource-policy: keep  
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: {{ .Values.storage.EFSclassName }}
+
