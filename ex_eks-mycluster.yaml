@@ -2,23 +2,23 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: jar-rd-castimaging-v3
+  name: jar-rd-castimaging-efs
   region: us-east-2
 
 vpc:
-  id: "vpc-a0a0a0a0a0aa11aaa" 
+  id: "vpc-00cc924f9fd39aa06" 
   cidr: "172.31.0.0/16"       
 
   subnets:
     public:
       us-east-2a:
-        id: "subnet-abcdabcd123412341"  
+        id: "subnet-0caa9ab6e95ca6a7d"  
         cidr: "172.31.0.0/20"
       us-east-2b:
-        id: "subnet-abcdabcd456456456"  
+        id: "subnet-0555f6ef1c5ce88da"  
         cidr: "172.31.16.0/20"
       us-east-2c:
-        id: "subnet-abcdabcd789789789"  
+        id: "subnet-0f31e9b3c381d9081"  
         cidr: "172.31.32.0/20"        
     
 nodeGroups:
@@ -29,5 +29,6 @@ nodeGroups:
     iam:
       withAddonPolicies:
         ebs: true         # Enable IAM permissions for the EBS CSI driver
+        efs: true         # Enable IAM permissions for the EFS CSI driver
     ssh:
-      publicKeyName: eks-mykeypair   # use existing EC2 key
+      publicKeyName: eks-highlight   # use existing EC2 key
