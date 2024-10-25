@@ -49,6 +49,7 @@ Before procedding, you have to validate the name of the Storage Class name to be
 			- Name: _castimging-v3_
 			- Web Application Firewall: _Do not enable security protections_
 			- _Description (optional)_: enter a description
+                        - IPv6: Off
 			- Click _Create Distribution_ 
 		- Go to _Behaviors_ tab
 			- Delete all behaviors except the _Default (*)_ one
