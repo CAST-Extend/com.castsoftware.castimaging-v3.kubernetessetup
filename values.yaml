@@ -9,7 +9,8 @@ namespace: castimaging-v3
 
 # Storage class configuration
 storage:
-  className: gp2
+  className: cast-gp2
+  EFSclassName: cast-efs
 
 # Network access
 CloudFrontDomain: d313reevm4vbam.cloudfront.net

@@ -51,7 +51,7 @@ spec:
             - mountPath: /usr/share/CAST
               name: castdir
             - mountPath: /shared
-              name: datadir
+              name: shared-datadir
       containers:
         - env:
             - name: DEPLOY_VOLUME_MACHINE
@@ -84,7 +84,10 @@ spec:
             - mountPath: /shared
               name: datadir
       restartPolicy: Always 
-            
+      volumes:
+        - name: shared-datadir
+          persistentVolumeClaim:
+            claimName: shared-datadir            
   volumeClaimTemplates:
     - metadata:
         name: castdir
@@ -95,12 +98,12 @@ spec:
         resources:
           requests:
             storage: "100Gi"
-    - metadata:
-        name: datadir
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: "{{ .Values.storage.className }}"
-        resources:
-          requests:
-            storage: "200Gi"
+    #- metadata:
+    #    name: datadir
+    #  spec:
+    #    accessModes:
+    #      - ReadWriteOnce
+    #    storageClassName: "{{ .Values.storage.className }}"
+    #    resources:
+    #      requests:
+    #        storage: "200Gi"

@@ -246,6 +246,18 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: {{ .Values.storage.className }}
-
-
-  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logdir-viewer-neo4j-core-0
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: {{ .Values.storage.EFSclassName }}

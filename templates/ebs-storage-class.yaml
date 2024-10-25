@@ -1,0 +1,10 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: cast-gp2
+provisioner: ebs.csi.aws.com # Amazon EBS CSI driver
+parameters:
+  type: gp2
+  encrypted: 'true'
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
