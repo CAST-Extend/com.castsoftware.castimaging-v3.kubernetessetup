@@ -29,5 +29,6 @@ nodeGroups:
     iam:
       withAddonPolicies:
         ebs: true         # Enable IAM permissions for the EBS CSI driver
+        efs: true         # Enable IAM permissions for the EFS CSI driver
     ssh:
       publicKeyName: eks-mykeypair   # use existing EC2 key

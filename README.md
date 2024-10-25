@@ -18,16 +18,21 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
-Before procedding, you have to validate the name of the Storage Class name to be used during the setup of Persistent volumes:
+Before proceding, you have to validate the name of the EBS Storage Class name to be used during the setup of Persistent volumes:
  - Run "kubectl get sc" to see the available Storage Classes. For instance:
 
 		NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
  		gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  5d15h
 
- - Update values.yaml file with the name of the Storage Class (usually gp2 or gp3):
+
+ - If no suitable Storage Class is available, use ex_ebs-storage-class.yaml to create one:
+	- Run "kubectl apply -f ex_ebs-storage-class.yaml"
+	- This will create a Storage Class named _castimaging-ebs_
+
+ - Update values.yaml file with the name of the Storage Class (gp2 or castimaging-ebs for instance):
 
 		storage:
-  			className: gp2  # Reference storage class
+  			className: gp2
 
 **1. Run the installation batch**
 
