@@ -9,7 +9,7 @@ set VIEWER-NEO4J-SEARCH-ARG=viewer-neo4j
 kubectl create ns %NAMESPACE%
 
 echo Running helm install...
-helm install castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 .
+helm install castimaging-v3 --namespace %NAMESPACE% --set version=3.0.0 .
 if errorlevel 1 (
     echo helm install failed.
     pause

@@ -61,7 +61,6 @@ spec:
           name: dashboards
           ports:
             - containerPort: 8087
-              #hostPort: 8087
               protocol: TCP
           resources:
             {{- toYaml .Values.DashboardsResources | nindent 12 }}

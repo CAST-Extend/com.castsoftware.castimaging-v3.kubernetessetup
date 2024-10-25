@@ -10,7 +10,6 @@ spec:
     - name: "8090"
       port: 8090
       targetPort: 8090
-      nodePort: 30090
   selector:
     console.service: console-gateway-service
   type: LoadBalancer
@@ -63,7 +62,6 @@ spec:
           name: console-gateway-service
           ports:
             - containerPort: 8090
-              hostPort: 8090
               protocol: TCP
           resources:
             {{- toYaml .Values.GatewayServiceResources | nindent 12 }}

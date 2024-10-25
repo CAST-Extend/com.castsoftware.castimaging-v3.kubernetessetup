@@ -87,7 +87,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: servernginxconf
-  namespace: castimaging-v3
+  namespace: {{.Release.Namespace}}
 ---
 apiVersion: v1
 data:
