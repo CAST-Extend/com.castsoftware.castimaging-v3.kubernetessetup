@@ -46,7 +46,7 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy"
+            - "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy; sleep 120"
           volumeMounts:
             - mountPath: /usr/share/CAST
               name: castdir
