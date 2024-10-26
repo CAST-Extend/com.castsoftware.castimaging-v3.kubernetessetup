@@ -7,9 +7,9 @@ version: 3.0.0
 # Define the namespace here
 namespace: castimaging-v3
 
-# Storage class configuration
+# Name of the Storage class that will be created and then used
 storage:
-  className: gp2
+  EBSclassName: castimaging-ebs
 
 # Network access
 CloudFrontDomain: d313reevm4vbam.cloudfront.net

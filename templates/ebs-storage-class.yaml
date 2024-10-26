@@ -1,12 +1,12 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: castimaging-ebs
+  name: {{ .Values.storage.EBSclassName }}
   annotations:
-    helm.sh/resource-policy: keep  
+    helm.sh/resource-policy: keep
 provisioner: ebs.csi.aws.com # Amazon EBS CSI driver
 parameters:
-  type: gp2
-  encrypted: 'true'
+  type: gp3
+  fsType: ext4
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
