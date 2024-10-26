@@ -7,14 +7,14 @@ version: 3.0.0
 # Define the namespace here
 namespace: castimaging-v3
 
-# Storage class configuration
+# Storage configuration
 storage:
   EBSclassName: castimaging-ebs
   EFSclassName: castimaging-efs
   EFSsystemID: fs-0fd447f93933b0c43
 
 # Network access
-CloudFrontDomain: dfc9qk1mfg2b7.cloudfront.net
+CloudFrontDomain: d2mc9awk386pg8.cloudfront.net
 
 #
 # Console  

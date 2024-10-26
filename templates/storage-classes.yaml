@@ -21,8 +21,6 @@ provisioner: efs.csi.aws.com # Amazon EFS CSI driver
 parameters:
   provisioningMode: efs-ap
   fileSystemId: {{ .Values.storage.EFSsystemID }}
-  accessPointId: fsap-0d9e79de14c37f1f8
   directoryPerms: "770"
-  basePath: "/"
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
