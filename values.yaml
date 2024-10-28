@@ -11,6 +11,7 @@ namespace: castimaging-v3
 storage:
   EBSclassName: castimaging-ebs
   EFSclassName: castimaging-efs
+  EFSbasePath: /castimaging
   EFSsystemID: fs-0fd447f93933b0c43
 
 # Network access

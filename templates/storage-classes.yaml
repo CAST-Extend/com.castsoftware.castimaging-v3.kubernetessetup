@@ -22,5 +22,6 @@ parameters:
   provisioningMode: efs-ap
   fileSystemId: {{ .Values.storage.EFSsystemID }}
   directoryPerms: "770"
+  basePath : "{{ .Values.storage.EFSbasePath }}"
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
