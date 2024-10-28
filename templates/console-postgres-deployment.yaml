@@ -65,8 +65,8 @@ spec:
               name: db-data
               subPath: postgres
             - name: pgconf
-              mountPath: "/var/lib/postgresql/data/pgdata/postgresql.conf"              
-              subPath: postgresql.conf
+              mountPath: "/usr/pgsql-13/share/postgresql.conf.sample"              
+              subPath: postgresql.conf.sample
             - name: pginit
               mountPath: "/docker-entrypoint-initdb.d/init-db.sh"               
               subPath: init-db.sh
