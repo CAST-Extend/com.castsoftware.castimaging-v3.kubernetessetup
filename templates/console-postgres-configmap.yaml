@@ -121,16 +121,16 @@ data:
 
     # - Memory -
 
-    #shared_buffers = 32MB			# min 128kB
+    shared_buffers = 2GB			# min 128kB
                         # (change requires restart)
-    #huge_pages = try			# on, off, or try
+    huge_pages = off			# on, off, or try
                         # (change requires restart)
     #temp_buffers = 8MB			# min 800kB
     #max_prepared_transactions = 0		# zero disables the feature
                         # (change requires restart)
     # Caution: it is not advisable to set max_prepared_transactions nonzero unless
     # you actively intend to use prepared transactions.
-    #work_mem = 4MB				# min 64kB
+    work_mem = 1765kB				# min 64kB
     #hash_mem_multiplier = 1.0		# 1-1000.0 multiplier on hash table work_mem
     maintenance_work_mem = 512MB		# min 1MB
     #autovacuum_work_mem = -1		# min 1MB, or -1 to use maintenance_work_mem
@@ -177,7 +177,7 @@ data:
 
     # - Asynchronous Behavior -
 
-    #effective_io_concurrency = 1		# 1-1000; 0 disables prefetching
+    effective_io_concurrency = 200		# 1-1000; 0 disables prefetching
     #maintenance_io_concurrency = 10	# 1-1000; 0 disables prefetching
     #max_worker_processes = 8		# (change requires restart)
     #max_parallel_maintenance_workers = 2	# taken from max_parallel_workers
@@ -216,7 +216,7 @@ data:
                         # (change requires restart)
     #wal_init_zero = on			# zero-fill new WAL files
     #wal_recycle = on			# recycle WAL files
-    #wal_buffers = -1			# min 32kB, -1 sets based on shared_buffers
+    wal_buffers = 16MB			# min 32kB, -1 sets based on shared_buffers
                         # (change requires restart)
     #wal_writer_delay = 200ms		# 1-10000 milliseconds
     #wal_writer_flush_after = 1MB		# measured in pages, 0 disables
@@ -228,8 +228,8 @@ data:
     # - Checkpoints -
 
     #checkpoint_timeout = 5min		# range 30s-1d
-    #max_wal_size = 1GB
-    #min_wal_size = 80MB
+    max_wal_size = 4GB
+    min_wal_size = 1GB
     checkpoint_completion_target = 0.9	# checkpoint target duration, 0.0 - 1.0
     #checkpoint_flush_after = 0		# measured in pages, 0 disables
     #checkpoint_warning = 30s		# 0 disables
@@ -375,7 +375,7 @@ data:
     # - Planner Cost Constants -
 
     #seq_page_cost = 1.0			# measured on an arbitrary scale
-    #random_page_cost = 4.0			# same scale as above
+    random_page_cost = 1.1			# same scale as above
     #cpu_tuple_cost = 0.01			# same scale as above
     #cpu_index_tuple_cost = 0.005		# same scale as above
     #cpu_operator_cost = 0.0025		# same scale as above
@@ -393,7 +393,7 @@ data:
 
     #min_parallel_table_scan_size = 8MB
     #min_parallel_index_scan_size = 512kB
-    #effective_cache_size = 4GB
+    effective_cache_size = 6GB
 
     # - Genetic Query Optimizer -
 
@@ -407,7 +407,7 @@ data:
 
     # - Other Planner Options -
 
-    #default_statistics_target = 100	# range 1-10000
+    default_statistics_target = 100	# range 1-10000
     #constraint_exclusion = partition	# on, off, or partition
     cursor_tuple_fraction = 1.0		# range 0.0-1.0
     #from_collapse_limit = 8
@@ -678,7 +678,7 @@ data:
 
     # - Locale and Formatting -
 
-    #datestyle = 'iso, mdy'
+    datestyle = 'iso, mdy'
     #intervalstyle = 'postgres'
     #timezone = 'GMT'
     #timezone_abbreviations = 'Default'     # Select the set of available time zone
@@ -694,11 +694,11 @@ data:
                         # encoding
 
     # These settings are initialized by initdb, but they can be changed.
-    #lc_messages = 'C'			# locale for system error message
+    lc_messages = 'C'			# locale for system error message
                         # strings
-    #lc_monetary = 'C'			# locale for monetary formatting
-    #lc_numeric = 'C'			# locale for number formatting
-    #lc_time = 'C'				# locale for time formatting
+    lc_monetary = 'C'			# locale for monetary formatting
+    lc_numeric = 'C'			# locale for number formatting
+    lc_time = 'C'				# locale for time formatting
 
     # default configuration for text search
     #default_text_search_config = 'pg_catalog.simple'
