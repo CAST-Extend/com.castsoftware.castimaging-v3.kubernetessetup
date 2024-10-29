@@ -112,8 +112,8 @@ ExtendProxyImage:
 #
 ConsolePostgresResources:
   requests:
-    cpu: 2
-    memory: 8G
+    cpu: 1
+    memory: 12G
 SSOServiceResources:
   requests:
     cpu: 0.1
@@ -128,7 +128,7 @@ GatewayServiceResources:
     memory: 100M
 AnalysisNodeReplicaResources:
   requests:
-    cpu: 0.5
+    cpu: 1
     memory: 4G
 ControlPaneResources:
   requests:
