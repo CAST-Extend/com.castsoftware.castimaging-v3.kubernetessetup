@@ -7,12 +7,15 @@ version: 3.0.0
 # Define the namespace here
 namespace: castimaging-v3
 
-# Name of the Storage class that will be created and then used
+# Storage configuration
 storage:
   EBSclassName: castimaging-ebs
+  EFSclassName: castimaging-efs
+  EFSbasePath: /castimaging
+  EFSsystemID: fs-0fd447f93933b0c43
 
 # Network access
-CloudFrontDomain: d313reevm4vbam.cloudfront.net
+CloudFrontDomain: d2mc9awk386pg8.cloudfront.net
 
 #
 # Console  
@@ -109,8 +112,8 @@ ExtendProxyImage:
 #
 ConsolePostgresResources:
   requests:
-    cpu: 2
-    memory: 8G
+    cpu: 1
+    memory: 12G
 SSOServiceResources:
   requests:
     cpu: 0.1
@@ -125,7 +128,7 @@ GatewayServiceResources:
     memory: 100M
 AnalysisNodeReplicaResources:
   requests:
-    cpu: 0.5
+    cpu: 1
     memory: 4G
 ControlPaneResources:
   requests:
