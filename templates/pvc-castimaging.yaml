@@ -205,7 +205,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-shared-efs-datadir
+  name: pvc-shared-datadir
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  

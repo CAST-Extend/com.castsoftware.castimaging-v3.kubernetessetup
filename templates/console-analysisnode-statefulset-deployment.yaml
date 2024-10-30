@@ -51,7 +51,7 @@ spec:
             - mountPath: /usr/share/CAST
               name: castdir
             - mountPath: /shared
-              name: shared-efs-datadir
+              name: shared-datadir
       containers:
         - env:
             - name: DEPLOY_VOLUME_MACHINE
@@ -82,12 +82,12 @@ spec:
             - mountPath: /usr/share/CAST
               name: castdir
             - mountPath: /shared
-              name: shared-efs-datadir
+              name: shared-datadir
       restartPolicy: Always 
       volumes:
-        - name: shared-efs-datadir
+        - name: shared-datadir
           persistentVolumeClaim:
-            claimName: pvc-shared-efs-datadir
+            claimName: pvc-shared-datadir
   volumeClaimTemplates:
     - metadata:
         name: castdir
@@ -98,12 +98,3 @@ spec:
         resources:
           requests:
             storage: "100Gi"
-    #- metadata:
-    #    name: datadir
-    #  spec:
-    #    accessModes:
-    #      - ReadWriteOnce
-    #    storageClassName: "{{ .Values.storage.EBSclassName }}"
-    #    resources:
-    #      requests:
-    #        storage: "200Gi"
