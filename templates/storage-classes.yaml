@@ -1,7 +1,7 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: castimaging-ebs
+  name: castimaging-bs
   annotations:
     helm.sh/resource-policy: keep
 provisioner: ebs.csi.aws.com # Amazon EBS CSI driver
@@ -14,7 +14,7 @@ reclaimPolicy: Retain
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: castimaging-efs
+  name: castimaging-fs
   annotations:
     helm.sh/resource-policy: keep
 provisioner: efs.csi.aws.com # Amazon EFS CSI driver

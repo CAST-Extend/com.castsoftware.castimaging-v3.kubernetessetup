@@ -9,8 +9,8 @@ namespace: castimaging-v3
 
 # Storage configuration
 storage:
-  EBSclassName: castimaging-ebs
-  EFSclassName: castimaging-efs
+  BSclassName: castimaging-bs
+  FSclassName: castimaging-fs
   EFSbasePath: /castimaging
   EFSsystemID: fs-0fd447f93933b0c43
 
