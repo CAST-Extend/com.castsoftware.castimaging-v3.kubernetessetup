@@ -21,7 +21,6 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  
-
   labels:
     console.service: viewer-server
 spec:
