@@ -57,11 +57,11 @@ spec:
             - name: PORT_CONSOLE
               value: "8091" 
             - name: DELIVERY_FOLDER
-              value: /shared/delivery
+              value: {{ .Values.anadir.delivery }}
             - name: DEPLOY_FOLDER
-              value: /shared/deploy
+              value: {{ .Values.anadir.deploy }}
             - name: SHARED_FOLDER
-              value: /shared/common-data
+              value: {{ .Values.anadir.common }}
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           livenessProbe:

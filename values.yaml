@@ -9,10 +9,22 @@ namespace: castimaging-v3
 
 # Storage configuration
 storage:
-  BSclassName: castimaging-bs
-  FSclassName: castimaging-fs
-  EFSbasePath: /castimaging
+  BSdriver: ebs.csi.aws.com
+  FSdriver: efs.csi.aws.com
+  BSclassName: castimaging-bs       # this storage class will be created
+  FSclassName: castimaging-fs       # this storage class will be created
   EFSsystemID: fs-0fd447f93933b0c43
+  EFSaccessPointID: fsap-0c96e8254cfd3eeb2
+
+anadir:
+  datadirmount: /shared
+  deploy: /shared/deploy
+  delivery: /shared/delivery
+  common: /shared/common-data
+  castdirmount: /usr/share/CAST
+  logs: /usr/share/CAST/CAST/Logs
+  lisa: /usr/share/CAST/CASTMS/LISA
+  extensions: /usr/share/CAST/Extensions
 
 # Network access
 CloudFrontDomain: d2mc9awk386pg8.cloudfront.net
@@ -40,7 +52,7 @@ ViewerAiManagerReplicaCount: 1
 #
 ExtendProxyReplicaCount: 1
 ExtendProxy:
-  exthostname: a56c82ab1898e4a239d7a557fb4231df-1101772276.us-east-2.elb.amazonaws.com
+  exthostname: a436145bf5d1e400f85bfb59038ff845-866138637.us-east-2.elb.amazonaws.com
   pubextendurl: "https://extend.castsoftware.com"
 
 #
@@ -64,7 +76,7 @@ ConsoleGatewayServiceImage:
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castbuild/analysis-node
-  tag: 3.1.1._dev_core8.4.0.1497_rel_build21
+  tag: 3.1.1.dev_core8.4.0.1497
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castbuild/admin-center
@@ -103,7 +115,7 @@ ViewerAiManagerImage:
 #
 ExtendProxyImage:
   name: castbuild/extend-proxy
-  tag: 1.0.0.1726
+  tag: 1.0.0.1468
   pullPolicy: IfNotPresent 
   
   

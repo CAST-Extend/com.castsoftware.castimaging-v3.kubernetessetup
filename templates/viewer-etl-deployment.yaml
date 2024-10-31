@@ -42,7 +42,7 @@ spec:
       containers:
         - image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
-          command: ['sh', '-c', 'while [ $(find /opt/imaging/imaging-etl/upload -maxdepth 1 -name "*.csv" | wc -l) -lt 14 ]; do echo waiting for csv files; sleep 5;done; /opt/imaging/imaging-etl/config/init.sh']
+          command: ['sh', '-c', '/opt/imaging/imaging-etl/config/init.sh']
           name: viewer-etl
           ports:
             - containerPort: 9001

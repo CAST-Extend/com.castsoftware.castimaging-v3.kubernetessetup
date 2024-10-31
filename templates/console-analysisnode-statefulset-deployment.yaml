@@ -46,24 +46,24 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "mkdir -p /shared/common-data; mkdir -p /shared/delivery; mkdir -p /shared/deploy; sleep 120"
+            - "mkdir -p {{ .Values.anadir.common }} {{ .Values.anadir.delivery }} {{ .Values.anadir.deploy }} {{ .Values.anadir.extensions }}; sleep 120"
           volumeMounts:
-            - mountPath: /usr/share/CAST
+            - mountPath: {{ .Values.anadir.castdirmount }}
               name: castdir
-            - mountPath: /shared
+            - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
       containers:
         - env:
             - name: DEPLOY_VOLUME_MACHINE
-              value: /shared/deploy
+              value: {{ .Values.anadir.deploy }}
             - name: DELIVERY_VOLUME_MACHINE
-              value: /shared/delivery
+              value: {{ .Values.anadir.delivery }}
             - name: SHARED_VOLUME_MACHINE
-              value: /shared/common-data
+              value: {{ .Values.anadir.common }}
             - name: LOGS_VOLUME_MACHINE
-              value: /usr/share/CAST/CAST/Logs
+              value: {{ .Values.anadir.logs }}
             - name: ANDATA_VOLUME_MACHINE
-              value: /usr/share/CAST/CASTMS/LISA
+              value: {{ .Values.anadir.lisa }}
             - name: CONSOLE_REGISTRY_URL
               value: http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098
             - name: HOST_AUTH_SERVICE
@@ -79,9 +79,9 @@ spec:
           resources:
             {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}
           volumeMounts:
-            - mountPath: /usr/share/CAST
+            - mountPath: {{ .Values.anadir.castdirmount }}
               name: castdir
-            - mountPath: /shared
+            - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
       restartPolicy: Always 
       imagePullSecrets:

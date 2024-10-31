@@ -20,13 +20,20 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 
 Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-node):
  - Create one EFS in AWS Console
+ - In the EFS, create an Access Point:
+	- Name: castimaging-shared-datadir
+	- Root directory path: /castimaging-shared-datadir
+	- Root directory creation permissions
+		- Owner user ID: 10001
+		- Owner group ID: 10001
+		- Access point permissions: 0777
+ - Copy the File System ID of the EFS as well as the Access point ID
+ - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
  - Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
- - Get the File System ID of the EFS and update the storage.EFSsystemID variable in the values.yaml file
 
+**1. Run the installation**
 
-**1. Run the installation batch**
-
- - install-castimaging.bat
+ - helm-install.bat
 
 
 **2. Network Setting**

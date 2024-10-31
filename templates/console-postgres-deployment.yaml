@@ -79,8 +79,6 @@ spec:
         - name: pgconf
           configMap:
             name: console-v3-postgresqlconf
-            defaultMode: 0777     
         - name: pginit
           configMap:
             name: console-v3-init-db
-            defaultMode: 0777   

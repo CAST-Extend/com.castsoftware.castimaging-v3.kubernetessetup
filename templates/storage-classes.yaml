@@ -1,10 +1,10 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: castimaging-bs
+  name: {{ .Values.storage.BSclassName }}
   annotations:
     helm.sh/resource-policy: keep
-provisioner: ebs.csi.aws.com # Amazon EBS CSI driver
+provisioner: {{ .Values.storage.BSdriver }}
 parameters:
   type: gp3
   fsType: ext4
@@ -14,14 +14,12 @@ reclaimPolicy: Retain
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: castimaging-fs
+  name: {{ .Values.storage.FSclassName }}
   annotations:
     helm.sh/resource-policy: keep
-provisioner: efs.csi.aws.com # Amazon EFS CSI driver
+provisioner: {{ .Values.storage.FSdriver }}
 parameters:
-  provisioningMode: efs-ap
-  fileSystemId: {{ .Values.storage.EFSsystemID }}
-  directoryPerms: "770"
-  basePath : "{{ .Values.storage.EFSbasePath }}"
+  provisioningMode: efs-ap 
+  directoryPerms: "0777"
 volumeBindingMode: Immediate
 reclaimPolicy: Retain

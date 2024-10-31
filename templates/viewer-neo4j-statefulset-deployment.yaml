@@ -46,12 +46,12 @@ spec:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
           imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
-          command: ['sh', '-c', "chmod u+x /var/lib/neo4j/config/data-model/*sh; /var/lib/neo4j/config/init.sh"]
+          command: ['sh', '-c', "/var/lib/neo4j/config/init.sh"]
           env:
             - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
               value: "yes"
             - name: NEO4J_dbms_memory_heap_maxSize
-              value: "12G"
+              value: "8G"
             - name: TIME_ZONE
               value: "Europe/Paris"
           ports:
@@ -61,7 +61,6 @@ spec:
               name: bolt
             - containerPort: 6362
               name: backup
-
           resources:
             {{- toYaml .Values.ViewerNeo4jResources | nindent 12 }}
           volumeMounts:
@@ -91,8 +90,8 @@ spec:
         name: logdir
       spec:
         accessModes:
-          - ReadWriteMany
-        storageClassName: "{{ .Values.storageClassName.name }}"
+          - ReadWriteOnce
+        storageClassName: "{{ .Values.storage.BSclassName }}"
         resources:
           requests:
             storage: "1Gi"
@@ -100,8 +99,8 @@ spec:
         name: neo4jdata
       spec:
         accessModes:
-          - ReadWriteMany
-        storageClassName: "{{ .Values.storageClassName.name }}"
+          - ReadWriteOnce
+        storageClassName: "{{ .Values.storage.BSclassName }}"
         resources:
           requests:
             storage: "10Gi"
@@ -109,8 +108,8 @@ spec:
         name: neo4jconfigfolder
       spec:
         accessModes:
-          - ReadWriteMany
-        storageClassName: "{{ .Values.storageClassName.name }}"
+          - ReadWriteOnce
+        storageClassName: "{{ .Values.storage.BSclassName }}"
         resources:
           requests:
             storage: "10Gi"

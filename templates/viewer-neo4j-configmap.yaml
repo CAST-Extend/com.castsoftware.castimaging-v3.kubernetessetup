@@ -45,8 +45,8 @@ data:
     # calculated based on available system resources.
     # Uncomment these lines to set specific initial and maximum
     # heap size.
-    server.memory.heap.initial_size=8G
-    server.memory.heap.max_size=8G
+    server.memory.heap.initial_size=12G
+    server.memory.heap.max_size=12G
 
     # The amount of memory to use for mapping the store files, in bytes (or
     # kilobytes with the 'k' suffix, megabytes with 'm' and gigabytes with 'g').

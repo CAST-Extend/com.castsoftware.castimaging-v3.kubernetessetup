@@ -3,8 +3,8 @@ set NAMESPACE=castimaging-v3
 
 echo ABOUT TO DELETE ALL PVCs IN %NAMESPACE%, ARE YOU SURE?
 pause
-echo PLEASE CONFIRM DELETION.
-pause     
+@REM echo PLEASE CONFIRM DELETION.
+@REM pause     
 REM Retrieve and delete all Persistent Volumes (PVCs)
 for /f "tokens=*" %%p in ('kubectl get pvc -n %NAMESPACE% --no-headers -o "custom-columns=NAME:.metadata.name"') do (
     echo %%p
@@ -12,10 +12,10 @@ for /f "tokens=*" %%p in ('kubectl get pvc -n %NAMESPACE% --no-headers -o "custo
     )
 )
 
-echo ABOUT TO DELETE ALL PVs IN THE CLUSTER, ARE YOU SURE?
-pause
-echo PLEASE CONFIRM DELETION.
-pause
+@REM echo ABOUT TO DELETE ALL PVs IN THE CLUSTER, ARE YOU SURE?
+@REM pause
+@REM echo PLEASE CONFIRM DELETION.
+@REM pause
 REM Retrieve and delete all Persistent Volumes (PVs)
 for /f "tokens=*" %%p in ('kubectl get pv --no-headers -o "custom-columns=NAME:.metadata.name" ^|findstr "^pvc-"') do (
     echo %%p
