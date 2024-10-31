@@ -69,3 +69,5 @@ spec:
           resources:
             {{- toYaml .Values.SSOServiceResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuild-sec  

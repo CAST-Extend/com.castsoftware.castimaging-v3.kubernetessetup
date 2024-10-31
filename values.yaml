@@ -51,60 +51,60 @@ ConsolePostgresImage:
   tag: 13.3
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: jartero/sso-service
-  tag: us-army-latest
+  name: castbuild/sso-service
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: jartero/console
-  tag: us-army-latest
+  name: castbuild/console
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: jartero/gateway
-  tag: us-army-latest
+  name: castbuild/gateway
+  tag: 3.1.1
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
-  name: jartero/analysis-node
-  tag: us-army-latest
+  name: castbuild/analysis-node
+  tag: 3.1.1._dev_core8.4.0.1497_rel_build21
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: jartero/admin-center
-  tag: us-army-latest
+  name: castbuild/admin-center
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: jartero/auth-service
-  tag: us-army-latest
+  name: castbuild/auth-service
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: jartero/dashboards
-  tag: latest
+  name: castbuild/dashboards
+  tag: 2.13.0-SNAPSHOT
   pullPolicy: IfNotPresent
   
 #
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: jartero/neo4j
-  tag: us-army-latest
+  name: castbuild/neo4j
+  tag: 3.1.1-76
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: jartero/viewer
-  tag: us-army-latest
+  name: castbuild/viewer
+  tag: 3.1.1-76
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: jartero/etl-service
-  tag: us-army-latest
+  name: castbuild/etl-service
+  tag: 3.1.1-76
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
-  name: jartero/ai-service
-  tag: us-army-latest
+  name: castbuild/ai-service
+  tag: 3.1.1-76
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
-  name: jartero/extend-proxy
-  tag: 1.0.0.1675
-  pullPolicy: IfNotPresent
+  name: castbuild/extend-proxy
+  tag: 1.0.0.1726
+  pullPolicy: IfNotPresent 
   
   
 #

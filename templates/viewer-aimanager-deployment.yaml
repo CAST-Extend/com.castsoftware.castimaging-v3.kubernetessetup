@@ -46,37 +46,18 @@ spec:
           resources:
             {{- toYaml .Values.ViewerAiManagerResources | nindent 12 }}
           volumeMounts:
-            - name: aimanagerconfig
-              mountPath: /opt/imaging/open_ai-manager/config
-              readOnly: false
-            - name: csv
-              mountPath: /opt/imaging/open_ai-manager/csv
-              readOnly: false
             - name: logdir
               mountPath: /opt/imaging/open_ai-manager/logs
               readOnly: false
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
               subPath: app.config
-            - name: openaiinitsh
-              mountPath: /opt/imaging/open_ai-manager/config/init.sh
-              subPath: init.sh
+      imagePullSecrets:
+        - name: castbuild-sec
       volumes:
-        - name: aimanagerconfig
-          configMap:
-          persistentVolumeClaim:
-            claimName: pvc-imagingviewer-v3-aimanager-config
-        - name: csv
-          persistentVolumeClaim:
-            claimName: pvc-imagingviewer-v3-aimanager-csv
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-aimanager-logs
         - name: openaiappconfig
           configMap:
             name: openaiappconfig
-            defaultMode: 0777
-        - name: openaiinitsh
-          configMap:
-            name: openaiinitsh
-            defaultMode: 0777

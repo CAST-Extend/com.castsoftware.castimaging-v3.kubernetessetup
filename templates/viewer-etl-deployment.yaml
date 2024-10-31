@@ -50,36 +50,18 @@ spec:
           resources:
             {{- toYaml .Values.ViewerEtlResources | nindent 12 }}
           volumeMounts:
-            - name: etlconfig
-              mountPath: /opt/imaging/imaging-etl/config
-              readOnly: false
-            - name: upload
-              mountPath: /opt/imaging/imaging-etl/upload
-              readOnly: false
             - name: logdir
               mountPath: /opt/imaging/imaging-etl/logs
               readOnly: false
             - name: etlappconfig
               mountPath: /opt/imaging/imaging-etl/config/app.config
-              subPath: app.config 
-            - name: etlinitsh
-              mountPath: /opt/imaging/imaging-etl/config/init.sh
-              subPath: init.sh
+              subPath: app.config
+      imagePullSecrets:
+        - name: castbuild-sec
       volumes:
-        - name: etlconfig
-          persistentVolumeClaim:
-            claimName: pvc-imagingviewer-v3-etl-config
-        - name: upload
-          persistentVolumeClaim:
-            claimName: pvc-imagingviewer-v3-etl-upload
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-etl-logs
         - name: etlappconfig
           configMap:
             name: etlappconfig
-            defaultMode: 0777
-        - name: etlinitsh
-          configMap:
-            name: etlinitsh
-            defaultMode: 0777

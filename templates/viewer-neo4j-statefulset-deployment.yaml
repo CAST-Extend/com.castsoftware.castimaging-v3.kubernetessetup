@@ -42,16 +42,6 @@ spec:
         runAsGroup: 7474
         fsGroup: 7474
         fsGroupChangePolicy: "Always"      
-      initContainers:
-        - name: init-shared-directories
-          image: busybox
-          command:
-            - "sh"
-            - "-c"
-            - "mkdir -p /var/lib/neo4j/config/neo4j5_data"
-          volumeMounts:
-            - name: confdir
-              mountPath: /var/lib/neo4j/config
       containers:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
@@ -77,47 +67,50 @@ spec:
           volumeMounts:
             - name: logdir
               mountPath: /logs
-            - name: confdir
-              mountPath: /var/lib/neo4j/config
+            - name: neo4jdata
+              mountPath: /var/lib/neo4j/config/neo4j5_data
+            - name: neo4jconfigfolder
+              mountPath: /var/lib/neo4j/config/configuration              
             - name: neo4jconf
               mountPath: /var/lib/neo4j/config/configuration/neo4j.conf
               subPath: neo4j.conf
-            - name: initsh
-              mountPath: /var/lib/neo4j/config/init.sh
-              subPath: init.sh
             - name: apocconf
               mountPath: /var/lib/neo4j/config/configuration/apoc.conf
               subPath: apoc.conf
+      imagePullSecrets:
+        - name: castbuild-sec
       volumes:
         - name: neo4jconf
           configMap:
             name: neo4jconf
-            defaultMode: 0777
-        - name: initsh
-          configMap:
-            name: neo4jinitsh
-            defaultMode: 0777
         - name: apocconf
           configMap:
             name: neo4japocconf
-            defaultMode: 0777
-
   volumeClaimTemplates:
     - metadata:
         name: logdir
       spec:
         accessModes:
-          - ReadWriteOnce
-        storageClassName: "{{ .Values.storage.BSclassName }}"
+          - ReadWriteMany
+        storageClassName: "{{ .Values.storageClassName.name }}"
         resources:
           requests:
             storage: "1Gi"
     - metadata:
-        name: confdir
+        name: neo4jdata
       spec:
         accessModes:
-          - ReadWriteOnce
-        storageClassName: "{{ .Values.storage.BSclassName }}"
+          - ReadWriteMany
+        storageClassName: "{{ .Values.storageClassName.name }}"
         resources:
           requests:
-            storage: "6Gi"
+            storage: "10Gi"
+    - metadata:
+        name: neo4jconfigfolder
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: "{{ .Values.storageClassName.name }}"
+        resources:
+          requests:
+            storage: "10Gi"

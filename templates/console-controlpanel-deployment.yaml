@@ -82,3 +82,5 @@ spec:
           resources:
             {{- toYaml .Values.ControlPaneResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuild-sec  

@@ -84,6 +84,8 @@ spec:
             - mountPath: /shared
               name: shared-datadir
       restartPolicy: Always 
+      imagePullSecrets:
+        - name: castbuild-sec  
       volumes:
         - name: shared-datadir
           persistentVolumeClaim:

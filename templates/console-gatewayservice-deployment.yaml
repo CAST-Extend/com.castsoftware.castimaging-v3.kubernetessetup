@@ -68,3 +68,5 @@ spec:
           resources:
             {{- toYaml .Values.GatewayServiceResources | nindent 12 }}
       restartPolicy: Always
+      imagePullSecrets:
+        - name: castbuild-sec  

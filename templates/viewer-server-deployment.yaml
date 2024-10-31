@@ -62,77 +62,23 @@ spec:
           resources:
             {{- toYaml .Values.ViewerServerServiceResources | nindent 12 }}
           volumeMounts:
-            - name: config
-              mountPath: /opt/imaging/config
             - name: log
               mountPath: /opt/imaging/imaging-service/logs
-            - name: csv
-              mountPath: /opt/imaging/imaging-service/upload
             - name: servernginxconf
               mountPath: /opt/imaging/config/nginx/conf/nginx.conf
               subPath: nginx.conf
             - name: serverappconfig
               mountPath: /opt/imaging/config/app.config
               subPath: app.config
-            - name: serverapp-configjson
-              mountPath: /opt/imaging/config/app-config.json
-              subPath: app-config.json
-            - name: serversrcapplicationproperties
-              mountPath: /opt/imaging/config/sourcecode/application.properties
-              subPath: application.properties
-            - name: serverproxyconf
-              mountPath: /opt/imaging/config/nginx/conf/proxy.conf
-              subPath: proxy.conf
-            - name: servermimetypes
-              mountPath: /opt/imaging/config/nginx/conf/mime.types
-              subPath: mime.types
-            - name: serverinitsh
-              mountPath: /opt/imaging/config/init.sh
-              subPath: init.sh              
-            - name: serverappconfigjs
-              mountPath: /opt/imaging/config/nginx/html/app-config.js
-              subPath: app-config.js
-
+      imagePullSecrets:
+        - name: castbuild-sec
       volumes:
-        - name: config
-          persistentVolumeClaim:
-            claimName: pvc-imagingviewer-v3-server-config
         - name: log
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-server-log
-        - name: csv
-          persistentVolumeClaim:
-            claimName: pvc-imagingviewer-v3-server-csv
         - name: servernginxconf
           configMap:
             name: servernginxconf
-            defaultMode: 0777
         - name: serverappconfig
           configMap:
             name: serverappconfig
-            defaultMode: 0777
-
-        - name: serverapp-configjson
-          configMap:
-            name: serverapp-configjson
-            defaultMode: 0777
-        - name: serversrcapplicationproperties
-          configMap:
-            name: serversrcapplicationproperties
-            defaultMode: 0777
-        - name: serverproxyconf
-          configMap:
-            name: serverproxyconf
-            defaultMode: 0777
-        - name: servermimetypes
-          configMap:
-            name: servermimetypes
-            defaultMode: 0777                                                
-        - name: serverinitsh
-          configMap:
-            name: serverinitsh
-            defaultMode: 0777
-        - name: serverappconfigjs
-          configMap:
-            name: serverappconfigjs
-            defaultMode: 0777
