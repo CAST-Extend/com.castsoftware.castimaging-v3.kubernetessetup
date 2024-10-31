@@ -48,7 +48,7 @@ Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-
 				- For instance: _a8ec2379b09fexxxxxxxxx-532570000.us-east-2.elb.amazonaws.com_
 			- Protocol: _HTTP only_
 			- HTTP Port: _8090_
-			- Name: _castimging-v3_
+			- Name: _castimaging-v3_
 			- Web Application Firewall: _Do not enable security protections_
 			- _Description (optional)_: enter a description
             - IPv6: _Off_
