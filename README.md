@@ -5,7 +5,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 ## Prerequisites
 
 - CAST Imaging Docker images
-- Clone the Git repo branch 3.0.0-eks-cast using _git clone -b 3.0.0-eks-cast https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
+- Clone the Git repo branch 3.1.1-eks-cast using _git clone -b 3.1.1-eks-cast https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
 
@@ -59,7 +59,7 @@ Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-
 	- Update the _CloudFrontDomain_ variable in values.yaml
 		- CloudFrontDomain: xxxxxxxxxxx.cloudfront.net
  	- Apply helm chart changes:
-    	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+    	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
 	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net
 
 
@@ -67,7 +67,7 @@ Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-
 
  - Rename template/ex_extendproxy-service.yaml into template/extendproxy-service.yaml
  - Apply helm chart changes:
-	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
  - Get the extendproxy service EXTERNAL-IP:
 	- run "kubectl get service -n castimaging-v3 extendproxy"
 	- For instance: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
@@ -78,7 +78,7 @@ Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-
 	```
  - Rename template/ex_extendproxy-deployment.yaml into template/extendproxy-deployment.yaml
  - Apply helm chart changes:
-	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.0.0 ."
+	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
  - Review the log of the extendproxy pod to see the administration URL and extend token
 
 

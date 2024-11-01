@@ -29,6 +29,8 @@ kind: PersistentVolume
 metadata:
   name: pv-shared-datadir
   namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
 spec:
   capacity:
     storage: 100Gi

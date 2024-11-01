@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.0.0
+version: 3.1.1
 
 # Define the namespace here
 namespace: castimaging-v3
@@ -11,8 +11,8 @@ namespace: castimaging-v3
 storage:
   BSdriver: ebs.csi.aws.com
   FSdriver: efs.csi.aws.com
-  BSclassName: castimaging-bs       # this storage class will be created
-  FSclassName: castimaging-fs       # this storage class will be created
+  BSclassName: castimaging-bs
+  FSclassName: castimaging-fs
   EFSsystemID: fs-0fd447f93933b0c43
   EFSaccessPointID: fsap-0c96e8254cfd3eeb2
 
@@ -27,7 +27,7 @@ anadir:
   extensions: /usr/share/CAST/Extensions
 
 # Network access
-CloudFrontDomain: d2mc9awk386pg8.cloudfront.net
+CloudFrontDomain: d313reevm4vbam.cloudfront.net
 
 #
 # Console  
