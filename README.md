@@ -18,8 +18,14 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
-Before proceeding, you need to have one EFS ready (use by CAST Imaging analysis-node):
- - Create one EFS in AWS Console
+## Optional: setup an EFS 
+All pods will use EBS (block storage) by default.
+For the console-analysis-node StatefulSet, it is however possible to configure an EFS (file storage) in order to enable its scalability, if needed.
+You will have to:
+- Rename ex_storage-bsfs.yaml into storage-bsfs.yaml
+- Rename storage-bs.yaml into ex_storage-bs.yaml
+- Have an EFS ready:
+ - Create an EFS in AWS Console
  - In the EFS, create an Access Point:
 	- Name: castimaging-shared-datadir
 	- Root directory path: /castimaging-shared-datadir
