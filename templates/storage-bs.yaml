@@ -31,6 +31,8 @@ reclaimPolicy: Retain
 #   namespace: {{ .Release.Namespace }}
 #   annotations:
 #     helm.sh/resource-policy: keep  
+#   labels:
+#     console.service: console-analysis-node
 # spec:
 #   capacity:
 #     storage: 100Gi
@@ -53,6 +55,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  
+  labels:
+    console.service: console-analysis-node
 spec:
   accessModes:
     - ReadWriteOnce
@@ -135,6 +139,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  
+  labels:
+    console.service: extendproxy
 spec:
   accessModes:
     - ReadWriteOnce

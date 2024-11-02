@@ -31,6 +31,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  
+  labels:
+    console.service: console-analysis-node
 spec:
   capacity:
     storage: 100Gi
@@ -53,6 +55,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep  
+  labels:
+    console.service: console-analysis-node
 spec:
   accessModes:
     - ReadWriteMany
@@ -134,7 +138,9 @@ metadata:
   name: pvc-extendproxy-data
   namespace: {{ .Release.Namespace }}
   annotations:
-    helm.sh/resource-policy: keep  
+    helm.sh/resource-policy: keep 
+  labels:
+    console.service: extendproxy 
 spec:
   accessModes:
     - ReadWriteOnce
