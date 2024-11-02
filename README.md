@@ -62,8 +62,8 @@ You will have to:
 		- Go to _Behaviors_ tab
 			- In _Viewer protocol policy_: select _HTTPS only_
 	- Open the Distribution that has just been created and copy the _Distribution domain name_ value
-	- Update the _CloudFrontDomain_ variable in values.yaml
-		- CloudFrontDomain: xxxxxxxxxxx.cloudfront.net
+	- Update the _FrontEndHost_ variable in values.yaml
+		- FrontEndHost: xxxxxxxxxxx.cloudfront.net
  	- Apply helm chart changes:
     	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
 	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net

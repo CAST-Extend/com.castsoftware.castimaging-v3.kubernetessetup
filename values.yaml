@@ -27,7 +27,7 @@ anadir:
   extensions: /usr/share/CAST/Extensions
 
 # Network access
-CloudFrontDomain: d313reevm4vbam.cloudfront.net
+FrontEndHost: d313reevm4vbam.cloudfront.net
 
 #
 # Console  
