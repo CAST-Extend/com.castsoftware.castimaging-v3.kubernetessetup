@@ -117,7 +117,7 @@ To install the Kubernetes Dashboard, run the command below. For more information
 All pods will use EBS (block storage) by default.
 For the console-analysis-node StatefulSet, it is however possible to configure an EFS (file storage) in order to enable file sharing and thus, scale-up (ability to run more than one console-analysis-node pod, when needed).
 
-You will need to follow below steps, before running the initial helm-install.bat:
+Prior to running the initial helm-install, follow these steps:
 - Create an EFS:
 	- Open AWS Console and go to EFS:
 		- Press _Create file system_
@@ -132,9 +132,10 @@ You will need to follow below steps, before running the initial helm-install.bat
 				- Owner user ID: 10001
 				- Owner group ID: 10001
 				- Access point permissions: 0777
-				- Press _Create access point_
-- Copy the File System ID of the EFS as well as the Access point ID
+			- Press _Create access point_
+	- Copy the newly created _File System ID_ and _Access point ID_
 - Rename templates/ex_storage-bsfs.yaml into templates/storage-bsfs.yaml
 - Rename templates/storage-bs.yaml into templates/ex_storage-bs.yaml
 - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
 - Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
+- Proceed with the installation: _1. Run the installation_
