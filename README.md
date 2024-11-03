@@ -119,14 +119,14 @@ For the console-analysis-node StatefulSet, it is however possible to configure a
 
 You will need to follow below steps, before running the initial helm-install.bat:
 - Have an EFS ready:
- - Create an EFS in AWS Console
- - In the EFS, create an Access Point:
-	- Name: castimaging-shared-datadir
-	- Root directory path: /castimaging-shared-datadir
-	- Root directory creation permissions
-		- Owner user ID: 10001
-		- Owner group ID: 10001
-		- Access point permissions: 0777
+	- Create an EFS in AWS Console
+	- In the EFS, create an Access Point:
+		- Name: castimaging-shared-datadir
+		- Root directory path: /castimaging-shared-datadir
+		- Root directory creation permissions
+			- Owner user ID: 10001
+			- Owner group ID: 10001
+			- Access point permissions: 0777
 - Copy the File System ID of the EFS as well as the Access point ID
 - Rename templates/ex_storage-bsfs.yaml into templates/storage-bsfs.yaml
 - Rename templates/storage-bs.yaml into templates/ex_storage-bs.yaml
