@@ -18,24 +18,6 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
-## Optional: setup an EFS 
-All pods will use EBS (block storage) by default.
-For the console-analysis-node StatefulSet, it is however possible to configure an EFS (file storage) in order to enable its scalability, if needed.
-You will have to:
-- Rename ex_storage-bsfs.yaml into storage-bsfs.yaml
-- Rename storage-bs.yaml into ex_storage-bs.yaml
-- Have an EFS ready:
- - Create an EFS in AWS Console
- - In the EFS, create an Access Point:
-	- Name: castimaging-shared-datadir
-	- Root directory path: /castimaging-shared-datadir
-	- Root directory creation permissions
-		- Owner user ID: 10001
-		- Owner group ID: 10001
-		- Access point permissions: 0777
- - Copy the File System ID of the EFS as well as the Access point ID
- - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
- - Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
 
 **1. Run the installation**
 
@@ -106,7 +88,7 @@ For Viewer:
   	```
    	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
 	```
- 
+
 ## Install Kubernetes Dashboard (OPTIONAL)
 
 To install the Kubernetes Dashboard, run the command below. For more information, please refer to the Kubernetes Dashboard documentation at https://github.com/kubernetes/dashboard. Please note that internet access is required to retrieve the Helm repository from https://kubernetes.github.io/dashboard
@@ -129,3 +111,23 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
+
+## Setup an AWS EFS - Elastic File Storage (OPTIONAL)
+
+All pods will use EBS (block storage) by default.
+For the console-analysis-node StatefulSet, it is however possible to configure an EFS (file storage) in order to enable scale-up (ability to run more than one console-analysis-node pod instance, if needed).
+Before running the initial helm-install.bat, follow these steps:
+- Have an EFS ready:
+ - Create an EFS in AWS Console
+ - In the EFS, create an Access Point:
+	- Name: castimaging-shared-datadir
+	- Root directory path: /castimaging-shared-datadir
+	- Root directory creation permissions
+		- Owner user ID: 10001
+		- Owner group ID: 10001
+		- Access point permissions: 0777
+- Copy the File System ID of the EFS as well as the Access point ID
+- Rename templates/ex_storage-bsfs.yaml into templates/storage-bsfs.yaml
+- Rename templates/storage-bs.yaml into templates/ex_storage-bs.yaml
+- Update the EFSsystemID and EFSaccessPointID variables in values.yaml
+- Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
