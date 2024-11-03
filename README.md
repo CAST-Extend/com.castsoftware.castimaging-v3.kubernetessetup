@@ -19,7 +19,12 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
 
-**1. Network Setting**
+**1. Run the installation**
+
+ - helm-install.bat
+
+
+**2. Network Setting**
 
  - AWS CloudFront setup:
     - Get the console-gateway-service service EXTERNAL-IP:
@@ -42,13 +47,8 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 	- Update the _FrontEndHost_ variable in values.yaml
 		- FrontEndHost: xxxxxxxxxxx.cloudfront.net
  	- Apply helm chart changes:
-    	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
+    	- run helm-upgrade.bat
 	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net
-
-
-**2. Run the installation**
-
- - helm-install.bat
 
 
 **3. Install Extend Proxy (optional)**
