@@ -19,12 +19,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
 
-**1. Run the installation**
-
- - helm-install.bat
-
-
-**2. Network Setting**
+**1. Network Setting**
 
  - AWS CloudFront setup:
     - Get the console-gateway-service service EXTERNAL-IP:
@@ -51,6 +46,11 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net
 
 
+**2. Run the installation**
+
+ - helm-install.bat
+
+
 **3. Install Extend Proxy (optional)**
 
  - Rename template/ex_extendproxy-service.yaml into template/extendproxy-service.yaml
@@ -58,11 +58,10 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
  - Get the extendproxy service EXTERNAL-IP:
 	- run "kubectl get service -n castimaging-v3 extendproxy"
-	- For instance: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
  - Update the exthostname variable in values.yaml with this value, for instance:
 	```
 	ExtendProxy:
-          exthostname: a3330000000000452xxxxxxxxxxx-1907755555.us-east-2.elb.amazonaws.com
+          exthostname: w.x.y.z
 	```
  - Rename template/ex_extendproxy-deployment.yaml into template/extendproxy-deployment.yaml
  - Apply helm chart changes:
@@ -107,7 +106,6 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
-
 
 ## Setup an AWS EFS - Elastic File Storage (OPTIONAL)
 
