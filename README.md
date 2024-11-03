@@ -76,18 +76,6 @@ Use the admin URL shown in extendproxy pod log file to connect to the admin page
 You can open the log file from the Kubernetes Dashboard.
 Alternatively, get the extendproxy pod name by running "kubectl get pods -n castimaging-v3" then run "kubectl logs -n castimaging-v3 castextend-xxxxxxxx" to display the log
 
-**5. (OPTIONAL)Scale the Pods in the order**
-Scale the PODs in the order listed if you have to scale for any reason. 
-
-For Console: 
- 	```
-  	console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
-	```
-
-For Viewer: 
-  	```
-   	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
-	```
 
 ## Install Kubernetes Dashboard (OPTIONAL)
 
@@ -111,6 +99,7 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
+
 
 ## Setup an AWS EFS - Elastic File Storage (OPTIONAL)
 
@@ -139,3 +128,16 @@ Prior to running the initial helm-install, follow these steps:
 - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
 - Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
 - Proceed with the installation: _1. Run the installation_
+
+
+## Pods startup sequence ##
+
+For Console: 
+ 	```
+  	console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
+	```
+
+For Viewer: 
+  	```
+   	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
+	```
