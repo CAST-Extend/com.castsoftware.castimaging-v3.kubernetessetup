@@ -77,6 +77,14 @@ You can open the log file from the Kubernetes Dashboard.
 Alternatively, get the extendproxy pod name by running "kubectl get pods -n castimaging-v3" then run "kubectl logs -n castimaging-v3 castextend-xxxxxxxx" to display the log
 
 
+**5. Scale down / Scale up CAST Imaging**
+
+You can stop/start CAST Imaging using:
+
+- Util-ScaleDownAll.bat
+- Util-ScaleUpAll.bat
+
+
 ## Install Kubernetes Dashboard (OPTIONAL)
 
 To install the Kubernetes Dashboard, run the command below. For more information, please refer to the Kubernetes Dashboard documentation at https://github.com/kubernetes/dashboard. Please note that internet access is required to retrieve the Helm repository from https://kubernetes.github.io/dashboard
@@ -128,16 +136,3 @@ Prior to running the initial helm-install, follow these steps:
 - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
 - Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
 - Proceed with the installation: _1. Run the installation_
-
-
-## Pods startup sequence ##
-
-For Console: 
- 	```
-  	console-postgres -> console-ssoservice -> console-controlpanel -> console-gatewayservice -> console-authenticationservice -> console-consoleservice -> console-analysisnode
-	```
-
-For Viewer: 
-  	```
-   	viewer-neo4j -> viewer-server -> viewer-etl -> viewer-aimanager
-	```
