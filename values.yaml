@@ -13,22 +13,23 @@ storage:
   FSdriver: efs.csi.aws.com
   BSclassName: castimaging-bs
   FSclassName: castimaging-fs
-  EFSsystemID: fs-0fd447f93933b0c43
-  EFSaccessPointID: fsap-0c96e8254cfd3eeb2
-
-anadir:
-  datadirmount: /shared
-  deploy: /shared/deploy
-  delivery: /shared/delivery
-  common: /shared/common-data
-  castdirmount: /usr/share/CAST
-  logs: /usr/share/CAST/CAST/Logs
-  lisa: /usr/share/CAST/CASTMS/LISA
-  extensions: /usr/share/CAST/Extensions
+  # Below parameters are used to enable File Storage (instead of Block Storage) for the analysis-node (OPTIONAL)
+  AnalysisNodeFS:
+    enable: false
+    EFSsystemID: fs-0fd447f93933b0c43
+    EFSaccessPointID: fsap-0c96e8254cfd3eeb2
 
 # Network access
-FrontEndHost: d313reevm4vbam.cloudfront.net
+FrontEndHost: xyz.cloudfront.net
 
+#
+# ExtendProxy
+#
+ExtendProxyReplicaCount: 1
+ExtendProxy:
+  enable: false
+  exthostname: xxxxxx.us-east-2.elb.amazonaws.com
+  pubextendurl: "https://extend.castsoftware.com"
 #
 # Console  
 #
@@ -47,13 +48,6 @@ ViewerNeo4jReplicaCount: 1
 ViewerServerReplicaCount: 1
 ViewerEtlReplicaCount: 1
 ViewerAiManagerReplicaCount: 1
-#
-# ExtendProxy
-#
-ExtendProxyReplicaCount: 1
-ExtendProxy:
-  exthostname: a436145bf5d1e400f85bfb59038ff845-866138637.us-east-2.elb.amazonaws.com
-  pubextendurl: "https://extend.castsoftware.com"
 
 #
 # Console images
@@ -117,8 +111,7 @@ ExtendProxyImage:
   name: castbuild/extend-proxy
   tag: 1.0.0.1468
   pullPolicy: IfNotPresent 
-  
-  
+
 #
 # Console resources
 #
@@ -173,8 +166,7 @@ ViewerEtlResources:
 ViewerAiManagerResources:
   requests:
     cpu: 0.1
-    memory: 100M
-    
+    memory: 100M    
 #
 # ExtendProxy resources
 #
@@ -183,4 +175,15 @@ ExtendProxyResources:
     cpu: 0.1
     memory: 100M    
 
-
+#
+# Analysis folders (do not customize)
+#
+anadir:
+  datadirmount: /shared
+  deploy: /shared/deploy
+  delivery: /shared/delivery
+  common: /shared/common-data
+  castdirmount: /usr/share/CAST
+  logs: /usr/share/CAST/CAST/Logs
+  lisa: /usr/share/CAST/CASTMS/LISA
+  extensions: /usr/share/CAST/Extensions

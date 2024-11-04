@@ -11,6 +11,7 @@ parameters:
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 ---
+{{- if .Values.storage.AnalysisNodeFS.enable }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -23,7 +24,9 @@ parameters:
   directoryPerms: "0777"
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
+{{- end }}
 ---
+{{- if .Values.storage.AnalysisNodeFS.enable }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -43,10 +46,11 @@ spec:
   storageClassName: {{ .Values.storage.FSclassName }}
   csi:
     driver: {{ .Values.storage.FSdriver }}
-    volumeHandle: {{ .Values.storage.EFSsystemID }}::{{ .Values.storage.EFSaccessPointID }}
+    volumeHandle: {{ .Values.storage.AnalysisNodeFS.EFSsystemID }}::{{ .Values.storage.AnalysisNodeFS.EFSaccessPointID }}
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
+{{- end }}    
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -59,11 +63,16 @@ metadata:
     console.service: console-analysis-node
 spec:
   accessModes:
+{{- if .Values.storage.AnalysisNodeFS.enable }}
     - ReadWriteMany
+  storageClassName: {{ .Values.storage.FSclassName }}
+{{- else }}
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.BSclassName }}
+{{- end }}  
   resources:
     requests:
       storage: 100Gi
-  storageClassName: {{ .Values.storage.FSclassName }}
 ---
 # For storage postgres data
 apiVersion: v1
