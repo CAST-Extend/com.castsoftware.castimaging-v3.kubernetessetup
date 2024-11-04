@@ -19,9 +19,17 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
 provisioner: {{ .Values.storage.FSdriver }}
+  {{- if eq .Values.K8SProvider "EKS" }}
 parameters:
   provisioningMode: efs-ap 
   directoryPerms: "0777"
+  {{- else if eq .Values.K8SProvider "AKS" }}
+parameters:
+  skuName: Premium_LRS
+  kind: Managed
+mountOptions:
+  - dir_mode=0777 
+  {{- end }} 
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
 {{- end }}
@@ -44,9 +52,12 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ .Values.storage.FSclassName }}
+  {{- if eq .Values.K8SProvider "EKS" }}
   csi:
     driver: {{ .Values.storage.FSdriver }}
     volumeHandle: {{ .Values.storage.AnalysisNodeFS.EFSsystemID }}::{{ .Values.storage.AnalysisNodeFS.EFSaccessPointID }}
+  {{- else if eq .Values.K8SProvider "AKS" }}
+  {{- end }}
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir

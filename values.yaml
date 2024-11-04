@@ -7,20 +7,29 @@ version: 3.1.1
 # Define the namespace here
 namespace: castimaging-v3
 
+# Kubernetes Provider: 
+# - AKS (Azure)
+# - EKS (AWS)
+K8SProvider: EKS
+
 # Storage configuration
 storage:
   BSdriver: ebs.csi.aws.com
   FSdriver: efs.csi.aws.com
+  #BSdriver: disk.csi.azure.com
+  #FSdriver: file.csi.azure.com
   BSclassName: castimaging-bs
   FSclassName: castimaging-fs
   # Below parameters are used to enable File Storage (instead of Block Storage) for the analysis-node (OPTIONAL)
   AnalysisNodeFS:
-    enable: false
-    EFSsystemID: fs-0fd447f93933b0c43
-    EFSaccessPointID: fsap-0c96e8254cfd3eeb2
+    enable: true
+    # Applies to AWS EKS only:
+    EFSsystemID: fs-xxx
+    EFSaccessPointID: fsap-xxx
 
 # Network access
-FrontEndHost: xyz.cloudfront.net
+FrontEndHost: xxx.cloudfront.net
+
 
 #
 # ExtendProxy
@@ -28,7 +37,7 @@ FrontEndHost: xyz.cloudfront.net
 ExtendProxyReplicaCount: 1
 ExtendProxy:
   enable: false
-  exthostname: xxxxxx.us-east-2.elb.amazonaws.com
+  exthostname: xxxxxx.yyyyy.zzzzz.com
   pubextendurl: "https://extend.castsoftware.com"
 #
 # Console  
@@ -90,19 +99,19 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castbuild/neo4j
-  tag: 3.1.1-76
+  tag: 3.1.1-84
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castbuild/viewer
-  tag: 3.1.1-76
+  tag: 3.1.1-84
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castbuild/etl-service
-  tag: 3.1.1-76
+  tag: 3.1.1-84
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castbuild/ai-service
-  tag: 3.1.1-76
+  tag: 3.1.1-84
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
