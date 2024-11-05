@@ -13,7 +13,7 @@ namespace: castimaging-v3
 # - For AWS, use EKS
 K8SProvider: EKS
 #
-# Network access
+# External network access
 FrontEndHost: x.y.com
 #
 # OPTIONAL - ExtendProxy
