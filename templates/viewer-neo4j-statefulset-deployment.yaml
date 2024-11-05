@@ -91,7 +91,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storage.BSclassName }}"
+        storageClassName: "{{ .Values.DiskClassName }}"
         resources:
           requests:
             storage: "1Gi"
@@ -100,7 +100,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storage.BSclassName }}"
+        storageClassName: "{{ .Values.DiskClassName }}"
         resources:
           requests:
             storage: "10Gi"
@@ -109,7 +109,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: "{{ .Values.storage.BSclassName }}"
+        storageClassName: "{{ .Values.DiskClassName }}"
         resources:
           requests:
             storage: "10Gi"

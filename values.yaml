@@ -7,40 +7,43 @@ version: 3.1.1
 # Define the namespace here
 namespace: castimaging-v3
 
-#########################################################################################################
-# Select Kubernetes Provider: 
-# - For Azure: AKS
-# - For AWS: EKS
-K8SProvider: AKS
-
+####################################################################################
+# Kubernetes Provider: 
+# - For Azure, use AKS
+# - For AWS, use EKS
+K8SProvider: EKS
+#
 # Network access
-FrontEndHost: xxx.yyy.com
-
+FrontEndHost: x.y.com
+#
 # OPTIONAL - ExtendProxy
 ExtendProxy:
-  enable: false
-  exthostname: a.b.c.d
+  enable: true
+  exthostname: a.b.com
   pubextendurl: "https://extend.castsoftware.com"
+#
+# OPTIONAL - Enable sharable File Storage for analysis-node (will allow scale up)
+AnalysisNodeFS:
+  enable: false  
+  # AWS EKS specific parameters:
+  EFSsystemID: fs-xxxxxxxxxxx
+  EFSaccessPointID: fsap-yyyyyyyyyy
+  # Azure AKS specific parameters:
+  # ...
+#
+####################################################################################
 
-# Storage configuration
-storage:
-  BSclassName: castimaging-bs
-  FSclassName: castimaging-fs  
-  # EKS drivers:
-  EKS_BSdriver: ebs.csi.aws.com
-  EKS_FSdriver: efs.csi.aws.com
-  # For AKS drivers:
-  AKS_BSdriver: disk.csi.azure.com
-  AKS_FSdriver: file.csi.azure.com
-#########################################################################################################
+# Disk Storage (DS) and File Storage (FS) Drivers
+#   EKS drivers:
+EKS_DSdriver: ebs.csi.aws.com
+EKS_FSdriver: efs.csi.aws.com
+#   AKS drivers:
+AKS_DSdriver: disk.csi.azure.com
+AKS_FSdriver: file.csi.azure.com
 
-  # OPTIONAL - Use below parameters to enable sharable File Storage for analysis-node (will allow scale up)
-  AnalysisNodeFS:
-    enable: false  
-    # Only used in AWS EKS:
-    EFSsystemID: fs-abcabc
-    EFSaccessPointID: fsap-rfgrfg
-
+# CAST Storage Class names
+DiskClassName: castimaging-ds
+FileClassName: castimaging-fs 
 
 #
 # Console  

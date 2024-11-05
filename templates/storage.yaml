@@ -1,16 +1,16 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: {{ .Values.storage.BSclassName }}
+  name: {{ .Values.DiskClassName }}
   annotations:
     helm.sh/resource-policy: keep
 {{- if eq .Values.K8SProvider "EKS" }}    
-provisioner: {{ .Values.storage.EKS_BSdriver }}
+provisioner: {{ .Values.EKS_DSdriver }}
 parameters:
   type: gp3
   fsType: ext4
 {{- else if eq .Values.K8SProvider "AKS" }}  
-provisioner: {{ .Values.storage.AKS_BSdriver }}
+provisioner: {{ .Values.AKS_DSdriver }}
 parameters:
   skuName: Premium_LRS
   kind: Managed
@@ -18,20 +18,20 @@ parameters:
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 ---
-{{- if .Values.storage.AnalysisNodeFS.enable }}
+{{- if .Values.AnalysisNodeFS.enable }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: {{ .Values.storage.FSclassName }}
+  name: {{ .Values.FileClassName }}
   annotations:
     helm.sh/resource-policy: keep
   {{- if eq .Values.K8SProvider "EKS" }}
-provisioner: {{ .Values.storage.EKS_FSdriver }}
+provisioner: {{ .Values.EKS_FSdriver }}
 parameters:
   provisioningMode: efs-ap 
   directoryPerms: "0777"
   {{- else if eq .Values.K8SProvider "AKS" }}
-provisioner: {{ .Values.storage.AKS_FSdriver }}
+provisioner: {{ .Values.AKS_FSdriver }}
 parameters:
   skuName: Premium_LRS
   kind: Managed
@@ -42,7 +42,7 @@ volumeBindingMode: Immediate
 reclaimPolicy: Retain
 {{- end }}
 ---
-{{- if .Values.storage.AnalysisNodeFS.enable }}
+{{- if .Values.AnalysisNodeFS.enable }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -59,11 +59,11 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: {{ .Values.storage.FSclassName }}
+  storageClassName: {{ .Values.FileClassName }}
   {{- if eq .Values.K8SProvider "EKS" }}
   csi:
-    driver: {{ .Values.storage.EKS_FSdriver }}
-    volumeHandle: {{ .Values.storage.AnalysisNodeFS.EFSsystemID }}::{{ .Values.storage.AnalysisNodeFS.EFSaccessPointID }}
+    driver: {{ .Values.EKS_FSdriver }}
+    volumeHandle: {{ .Values.AnalysisNodeFS.EFSsystemID }}::{{ .Values.AnalysisNodeFS.EFSaccessPointID }}
   {{- else if eq .Values.K8SProvider "AKS" }}
   {{- end }}
   claimRef:
@@ -82,12 +82,12 @@ metadata:
     console.service: console-analysis-node
 spec:
   accessModes:
-{{- if .Values.storage.AnalysisNodeFS.enable }}
+{{- if .Values.AnalysisNodeFS.enable }}
     - ReadWriteMany
-  storageClassName: {{ .Values.storage.FSclassName }}
+  storageClassName: {{ .Values.FileClassName }}
 {{- else }}
     - ReadWriteOnce
-  storageClassName: {{ .Values.storage.BSclassName }}
+  storageClassName: {{ .Values.DiskClassName }}
 {{- end }}  
   resources:
     requests:
@@ -107,7 +107,7 @@ spec:
   resources:
     requests:
       storage: 128Gi  # Default for Postgres, change according to deployment and applications in portfolio
-  storageClassName: {{ .Values.storage.BSclassName }}
+  storageClassName: {{ .Values.DiskClassName }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -121,7 +121,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: {{ .Values.storage.BSclassName }}
+  storageClassName: {{ .Values.DiskClassName }}
   resources:
     requests:
       storage: 1Gi
@@ -138,7 +138,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: {{ .Values.storage.BSclassName }}
+  storageClassName: {{ .Values.DiskClassName }}
   resources:
     requests:
       storage: 1Gi
@@ -155,7 +155,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: {{ .Values.storage.BSclassName }}
+  storageClassName: {{ .Values.DiskClassName }}
   resources:
     requests:
       storage: 2Gi
@@ -175,4 +175,4 @@ spec:
   resources:
     requests:
       storage: 10Gi  # Specify the storage size required
-  storageClassName: {{ .Values.storage.BSclassName }}
+  storageClassName: {{ .Values.DiskClassName }}
