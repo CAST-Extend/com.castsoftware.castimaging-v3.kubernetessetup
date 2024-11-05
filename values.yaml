@@ -23,6 +23,8 @@ ExtendProxy:
   pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - Enable sharable File Storage for analysis-node (will allow scale up)
+# >>> Extra cluster configuration is required before you can enable this feature
+# >>> Please refer to the README files before modifying below parameters.
 AnalysisNodeFS:
   enable: false  
   # AWS EKS specific parameters:
