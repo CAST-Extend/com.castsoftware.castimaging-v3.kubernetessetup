@@ -4,10 +4,17 @@ metadata:
   name: {{ .Values.storage.BSclassName }}
   annotations:
     helm.sh/resource-policy: keep
-provisioner: {{ .Values.storage.BSdriver }}
+{{- if eq .Values.K8SProvider "EKS" }}    
+provisioner: {{ .Values.storage.EKS_BSdriver }}
 parameters:
   type: gp3
   fsType: ext4
+{{- else if eq .Values.K8SProvider "AKS" }}  
+provisioner: {{ .Values.storage.AKS_BSdriver }}
+parameters:
+  skuName: Premium_LRS
+  kind: Managed
+{{- end }}  
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 ---
@@ -18,12 +25,13 @@ metadata:
   name: {{ .Values.storage.FSclassName }}
   annotations:
     helm.sh/resource-policy: keep
-provisioner: {{ .Values.storage.FSdriver }}
   {{- if eq .Values.K8SProvider "EKS" }}
+provisioner: {{ .Values.storage.EKS_FSdriver }}
 parameters:
   provisioningMode: efs-ap 
   directoryPerms: "0777"
   {{- else if eq .Values.K8SProvider "AKS" }}
+provisioner: {{ .Values.storage.AKS_FSdriver }}
 parameters:
   skuName: Premium_LRS
   kind: Managed
@@ -54,14 +62,14 @@ spec:
   storageClassName: {{ .Values.storage.FSclassName }}
   {{- if eq .Values.K8SProvider "EKS" }}
   csi:
-    driver: {{ .Values.storage.FSdriver }}
+    driver: {{ .Values.storage.EKS_FSdriver }}
     volumeHandle: {{ .Values.storage.AnalysisNodeFS.EFSsystemID }}::{{ .Values.storage.AnalysisNodeFS.EFSaccessPointID }}
   {{- else if eq .Values.K8SProvider "AKS" }}
   {{- end }}
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
-{{- end }}    
+{{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
