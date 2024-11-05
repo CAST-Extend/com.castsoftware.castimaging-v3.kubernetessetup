@@ -18,7 +18,8 @@ FrontEndHost: x.y.com
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
-  enable: true
+  # Always set to 'false' when installing the helm chart for the first time
+  enable: false
   exthostname: a.b.com
   pubextendurl: "https://extend.castsoftware.com"
 #
