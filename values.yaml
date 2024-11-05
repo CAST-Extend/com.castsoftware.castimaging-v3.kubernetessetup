@@ -14,13 +14,12 @@ namespace: castimaging-v3
 K8SProvider: AKS
 
 # Network access
-FrontEndHost: infra-21047.cast.fr
-#FrontEndHost: d313reevm4vbam.cloudfront.net # Demo
+FrontEndHost: xxx.yyy.com
 
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: false
-  exthostname: 51.8.224.72
+  exthostname: a.b.c.d
   pubextendurl: "https://extend.castsoftware.com"
 
 # Storage configuration
@@ -33,14 +32,15 @@ storage:
   # For AKS drivers:
   AKS_BSdriver: disk.csi.azure.com
   AKS_FSdriver: file.csi.azure.com
-  #
+#########################################################################################################
+
   # OPTIONAL - Use below parameters to enable sharable File Storage for analysis-node (will allow scale up)
   AnalysisNodeFS:
     enable: false  
     # Only used in AWS EKS:
-    EFSsystemID: fs-0fd447f93933b0c43
-    EFSaccessPointID: fsap-0c96e8254cfd3eeb2
-#########################################################################################################
+    EFSsystemID: fs-abcabc
+    EFSaccessPointID: fsap-rfgrfg
+
 
 #
 # Console  
