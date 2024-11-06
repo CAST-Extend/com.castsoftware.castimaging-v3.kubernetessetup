@@ -37,6 +37,9 @@ AnalysisNodeFS:
   #  will be ignored if K8SProvider is set to 'EKS':
   # ...
 #
+# OPTIONAL - Use custom Trust Store
+UseCustomTrustStore: false  
+#
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -100,7 +103,7 @@ ConsoleControlPaneImage:
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castbuild/auth-service
-  tag: 3.1.1
+  tag: 3.1.1-tle
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castbuild/dashboards

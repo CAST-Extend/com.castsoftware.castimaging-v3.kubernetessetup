@@ -35,6 +35,14 @@ spec:
     spec:
       containers:
         - env:
+{{- if .Values.UseCustomTrustStore }}
+            - name: USE_CUSTOM_TRUSTSTORE
+              value: "true"
+            - name: TRUSTSTORE_PATH
+              value: /cast/truststore.jks
+            - name: TRUSTSTORE_PASSWORD
+              value: castapi
+{{- end }}                      
             - name: HOST_AUTH_SERVICE
               value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_AUTH_SERVICE
@@ -78,6 +86,16 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
+{{- if .Values.UseCustomTrustStore }}
+          volumeMounts:
+            - name: authcacrt
+              mountPath: /cast/certs/ca.crt
+              subPath: ca.crt 
+      volumes:
+        - name: authcacrt
+          configMap:
+            name: authcacrt
+{{- end }}
       restartPolicy: Always
       imagePullSecrets:
-        - name: castbuild-sec  
+        - name: castbuild-sec
