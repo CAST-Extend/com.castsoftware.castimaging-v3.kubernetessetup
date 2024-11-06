@@ -19,8 +19,9 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
 
-**1. Run the installation**
+**1. Prepare and Run the installation**	
 
+ - Open helm-install.bat
  - helm-install.bat
 
 
