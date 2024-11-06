@@ -11,27 +11,30 @@ namespace: castimaging-v3
 # Kubernetes Provider: 
 # - For Azure, use AKS
 # - For AWS, use EKS
-K8SProvider: EKS
+K8SProvider: AKS
 #
 # External network access
 FrontEndHost: x.y.com
 #
 # OPTIONAL - ExtendProxy
+# Should be disabled in any case when installing the helm chart for the first time
+#    Please refer to the README file in case you need to install ExtendProxy
 ExtendProxy:
-  # Always set to 'false' when installing the helm chart for the first time
-  enable: false
+  enable: false  # always 'false' on first install
   exthostname: a.b.com
   pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - Enable sharable File Storage for analysis-node (will allow scale up)
-# >>> Extra cluster configuration is required before you can enable this feature
-# >>> Please refer to the README files before modifying below parameters.
+# Important note: Extra cluster configuration is required before you can enable this feature
+#                 Please refer to the README files before modifying below parameters.
 AnalysisNodeFS:
   enable: false  
-  # AWS EKS specific parameters:
+  # AWS EKS specific parameters
+  #  will be ignored if K8SProvider is set to 'AKS':
   EFSsystemID: fs-xxxxxxxxxxx
   EFSaccessPointID: fsap-yyyyyyyyyy
-  # Azure AKS specific parameters:
+  # Azure AKS specific parameters
+  #  will be ignored if K8SProvider is set to 'EKS':
   # ...
 #
 ####################################################################################
