@@ -29,10 +29,12 @@ ExtendProxy:
 #                 Please refer to the README files before modifying below parameters.
 AnalysisNodeFS:
   enable: false  
-  # AWS EKS specific parameters:
+  # AWS EKS specific parameters
+  #  will be ignored if K8SProvider is set to 'AKS':
   EFSsystemID: fs-xxxxxxxxxxx
   EFSaccessPointID: fsap-yyyyyyyyyy
-  # Azure AKS specific parameters:
+  # Azure AKS specific parameters
+  #  will be ignored if K8SProvider is set to 'EKS':
   # ...
 #
 ####################################################################################
