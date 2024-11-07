@@ -19,9 +19,15 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 Before starting the installation, ensure that your Kubernetes cluster is running, all the CAST Imaging docker images are available from registry and that Helm and kubectl are installed on your system.
 
 
-**1. Run the installation**
+**1. Prepare and Run the installation**
 
- - helm-install.bat
+ - Review and adjust the parameter values at the top of the values.yaml file
+	- Define K8S provider:
+		- K8SProvider: AKS
+	- In case a self-signed certificate needs to be used:
+		- UseCustomTrustStore: true
+			- The CA cert will need to be copied in console-authenticationservice-configmap.yaml
+ - Run helm-install.bat
 
 
 **2. Network Setting**
@@ -37,19 +43,15 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 
 **3. Install Extend Proxy (optional)**
 
- - Rename template/ex_extendproxy-service.yaml into template/extendproxy-service.yaml
- - Apply helm chart changes:
-	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
- - Get the extendproxy service EXTERNAL-IP:
+ - Retrieve the extendproxy service EXTERNAL-IP:
 	- run "kubectl get service -n castimaging-v3 extendproxy"
- - Update the exthostname variable in values.yaml with this value, for instance:
+ - Update the exthostname variable in values.yaml with the value returned (IP or hostname):
 	```
 	ExtendProxy:
           exthostname: w.x.y.z
 	```
- - Rename template/ex_extendproxy-deployment.yaml into template/extendproxy-deployment.yaml
- - Apply helm chart changes:
-	- run "helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.1.1 ."
+ - In values.yaml, set ExtendProxy.enable to true
+ - run helm-upgrade.bat
  - Review the log of the extendproxy pod to see the administration URL and extend token
 
 
