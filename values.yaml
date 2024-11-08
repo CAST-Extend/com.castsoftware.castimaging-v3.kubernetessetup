@@ -115,26 +115,26 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castbuild/neo4j
-  tag: 3.1.1-84
+  tag: 3.1.1-91
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castbuild/viewer
-  tag: 3.1.1-84
+  tag: 3.1.1-91
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castbuild/etl-service
-  tag: 3.1.1-84
+  tag: 3.1.1-91
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castbuild/ai-service
-  tag: 3.1.1-84
+  tag: 3.1.1-91
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
   name: castbuild/extend-proxy
-  tag: 1.0.0.1468
+  tag: 1.0.0.3
   pullPolicy: IfNotPresent 
 
 #

@@ -1,3 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: extendproxy
+  name: extendproxy
+  namespace: {{ .Release.Namespace }}  
+spec:
+  ports:
+    - name: "8085"
+      port: 8085
+      targetPort: 8085
+  selector:
+    console.service: extendproxy
+  type: LoadBalancer
+---  
 {{- if .Values.ExtendProxy.enable }}
 apiVersion: apps/v1
 kind: Deployment
@@ -22,7 +40,7 @@ spec:
     spec:
       securityContext:
         runAsUser: 1001
-        fsGroup: 0
+        fsGroup: 1001
         fsGroupChangePolicy: "Always" 
       containers:
         - env:
