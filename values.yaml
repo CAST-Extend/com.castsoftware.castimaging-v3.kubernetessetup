@@ -100,11 +100,11 @@ ConsoleControlPaneImage:
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castbuild/auth-service
-  tag: 3.1.1-tle
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castbuild/dashboards
-  tag: 2.13.0-SNAPSHOT
+  tag: 2.13.0
   pullPolicy: IfNotPresent
   
 #
