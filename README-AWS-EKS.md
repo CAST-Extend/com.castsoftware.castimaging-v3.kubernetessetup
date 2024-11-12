@@ -62,8 +62,8 @@ Before starting the installation, ensure that your Kubernetes cluster is running
  - In values.yaml, update the exthostname variable with the extendproxy service EXTERNAL-IP value:
 	```
 	ExtendProxy:
-  		enable: true
-        exthostname: _EXTERNAL-IP_
+        enable: true
+        exthostname: EXTERNAL-IP
 	```
  - In values.yaml, also ensure that ExtendProxy.enable is set to true
  - run helm-upgrade.bat
