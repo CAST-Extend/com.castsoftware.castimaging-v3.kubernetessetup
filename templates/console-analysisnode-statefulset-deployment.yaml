@@ -84,8 +84,10 @@ spec:
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
       restartPolicy: Always 
+{{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
-        - name: castbuild-sec  
+        - name: imagepull-sec 
+{{- end }}         
       volumes:
         - name: shared-datadir
           persistentVolumeClaim:

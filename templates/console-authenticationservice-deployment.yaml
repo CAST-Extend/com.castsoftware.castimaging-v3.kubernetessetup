@@ -97,5 +97,7 @@ spec:
             name: authcacrt
 {{- end }}
       restartPolicy: Always
+{{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
-        - name: castbuild-sec
+        - name: imagepull-sec
+{{- end }}        

@@ -61,5 +61,7 @@ spec:
           resources:
             {{- toYaml .Values.ConsoleServiceResources | nindent 12 }} 
       restartPolicy: Always
+{{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
-        - name: castbuild-sec  
+        - name: imagepull-sec  
+{{- end }}        

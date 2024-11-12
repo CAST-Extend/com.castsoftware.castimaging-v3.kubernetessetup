@@ -70,8 +70,10 @@ spec:
             - name: serverappconfig
               mountPath: /opt/imaging/config/app.config
               subPath: app.config
+{{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
-        - name: castbuild-sec
+        - name: imagepull-sec
+{{- end }}        
       volumes:
         - name: log
           persistentVolumeClaim:

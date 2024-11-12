@@ -1,0 +1,10 @@
+{{- if .Values.UseImagePullSecrets }}
+apiVersion: v1
+data:
+  .dockerconfigjson: {{ .Values.Base64EncodedDockerconfigjson }}
+kind: Secret
+metadata:
+  name: imagepull-sec
+  namespace: castimaging-v3
+type: kubernetes.io/dockerconfigjson
+{{- end }}

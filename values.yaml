@@ -14,32 +14,29 @@ namespace: castimaging-v3
 K8SProvider: AKS
 #
 # External network access
-FrontEndHost: x.y.com
+FrontEndHost: x.y.com  # To be updated after deployment + run helm-upgrade.bat
 #
 # OPTIONAL - ExtendProxy
-# Should be disabled in any case when installing the helm chart for the first time
-#    Please refer to the README file in case you need to install ExtendProxy
 ExtendProxy:
-  enable: false  # always 'false' on first install
-  exthostname: a.b.com
+  enable: true
+  exthostname: a.b.com # To be updated after deployment + run helm-upgrade.bat
   pubextendurl: "https://extend.castsoftware.com"
-#
-# OPTIONAL - Enable sharable File Storage for analysis-node (will allow scale up)
-# Important note: Extra cluster configuration is required before you can enable this feature
-#                 Please refer to the README files before modifying below parameters.
-AnalysisNodeFS:
-  enable: false  
-  # AWS EKS specific parameters
-  #  will be ignored if K8SProvider is set to 'AKS':
-  EFSsystemID: fs-xxxxxxxxxxx
-  EFSaccessPointID: fsap-yyyyyyyyyy
-  # Azure AKS specific parameters
-  #  will be ignored if K8SProvider is set to 'EKS':
-  # ...
 #
 # OPTIONAL - Use custom Trust Store
 UseCustomTrustStore: false  
 #
+# OPTIONAL - Access Private Repo with Secret
+UseImagePullSecrets: false
+DockerRepoConfig: 
+#
+# OPTIONAL - Enable shared File Storage for analysis-node
+# Important note: Extra cluster configuration is required before you can enable this feature
+#                 Please refer to the README files before modifying below parameters.
+AnalysisNodeFS:
+  enable: false  # Do not change if castimaging is already deployed
+  # AWS EKS specific parameters (will be ignored if K8SProvider is set to 'AKS')
+  EFSsystemID: fs-xxxxxxxxxxx
+  EFSaccessPointID: fsap-yyyyyyyyyy
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -134,7 +131,7 @@ ViewerAiManagerImage:
 #
 ExtendProxyImage:
   name: castbuild/extend-proxy
-  tag: 1.0.0.3
+  tag: 1.0.0.4
   pullPolicy: IfNotPresent 
 
 #

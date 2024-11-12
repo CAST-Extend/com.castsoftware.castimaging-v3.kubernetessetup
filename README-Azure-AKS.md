@@ -43,16 +43,19 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 
 **3. Install Extend Proxy (optional)**
 
+ - Pre-requisite: castimaging is already deployed
  - Retrieve the extendproxy service EXTERNAL-IP:
 	- run "kubectl get service -n castimaging-v3 extendproxy"
- - Update the exthostname variable in values.yaml with the value returned (IP or hostname):
+ - In values.yaml, update the exthostname variable with the extendproxy service EXTERNAL-IP value:
 	```
 	ExtendProxy:
-          exthostname: w.x.y.z
+  		enable: true
+        exthostname: _EXTERNAL-IP_
 	```
- - In values.yaml, set ExtendProxy.enable to true
+ - In values.yaml, also ensure that ExtendProxy.enable is set to true
  - run helm-upgrade.bat
  - Review the log of the extendproxy pod to see the administration URL and extend token
+ - "CAST Extend URL" to be configured in Imaging Console: http://EXTERNAL-IP:8085
 
 
 **4. Configure Extend Proxy**

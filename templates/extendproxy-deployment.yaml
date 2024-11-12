@@ -62,8 +62,10 @@ spec:
             - mountPath: /opt/cast_extend_proxy
               name: extendproxy
       restartPolicy: Always
+  {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
-        - name: castbuild-sec        
+        - name: imagepull-sec   
+  {{- end }}             
       volumes:
         - name: extendproxy
           persistentVolumeClaim:

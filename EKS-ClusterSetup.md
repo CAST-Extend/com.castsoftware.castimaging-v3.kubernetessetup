@@ -146,11 +146,13 @@ https://github.com/helm/helm/releases
 ```eksctl create cluster -f ex_eks-mycluster.yaml```
 
 
-# Enable EBS CSI Driver
+# Enable EBS and EFS CSI Driver
 
 * Go to EKS > Clusters > eks-mycluster
 * Click _Get more add-ons_
-* Tick the _Amazon EBS CSI Driver_ checkbox and confirm
+* Tick the _Amazon EBS CSI Driver_ checkbox 
+* Tick the _Amazon EFS CSI Driver_ checkbox 
+* Confirm
 
 More information about storing Kubernetes volumes with Amazon EBS:
 https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html

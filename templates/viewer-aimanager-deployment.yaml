@@ -52,8 +52,10 @@ spec:
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
               subPath: app.config
+{{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
-        - name: castbuild-sec
+        - name: imagepull-sec
+{{- end }}        
       volumes:
         - name: logdir
           persistentVolumeClaim:
