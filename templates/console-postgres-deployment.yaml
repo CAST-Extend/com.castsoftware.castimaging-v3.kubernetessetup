@@ -33,11 +33,6 @@ spec:
         console.network/aip-network: "true"
         console.service: console-postgres
     spec:
-      securityContext:
-        runAsUser: 26
-        runAsGroup: 26
-        fsGroup: 26
-        fsGroupChangePolicy: "Always"  
       containers:
         - env:
             - name: POSTGRES_INITDB_ARGS
@@ -65,7 +60,7 @@ spec:
               name: db-data
               subPath: postgres
             - name: pgconf
-              mountPath: "/usr/pgsql-13/share/postgresql.conf.sample"              
+              mountPath: "/usr/share/postgresql/postgresql.conf.sample"
               subPath: postgresql.conf.sample
             - name: pginit
               mountPath: "/docker-entrypoint-initdb.d/init-db.sh"               

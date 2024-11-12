@@ -75,8 +75,8 @@ ViewerAiManagerReplicaCount: 1
 # Console images
 #
 ConsolePostgresImage:
-  name: quay.io/enterprisedb/postgresql
-  tag: 13.3
+  name: postgres
+  tag: 15
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castbuild/sso-service
