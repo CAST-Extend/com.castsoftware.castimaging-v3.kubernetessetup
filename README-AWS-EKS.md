@@ -24,6 +24,8 @@ Before starting the installation, ensure that your Kubernetes cluster is running
  - Review and adjust the parameter values at the top of the values.yaml file
 	- Define K8S provider:
 		- K8SProvider: EKS
+ - Create namespace:
+	- Run "kubectl create ns castimaging-v3"
  - Run helm-install.bat
 
 

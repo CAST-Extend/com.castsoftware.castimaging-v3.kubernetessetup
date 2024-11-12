@@ -27,6 +27,8 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 	- In case a self-signed certificate needs to be used:
 		- UseCustomTrustStore: true
 			- The CA cert will need to be copied in console-authenticationservice-configmap.yaml
+ - Create namespace:
+	- Run "kubectl create ns castimaging-v3"
  - Run helm-install.bat
 
 
