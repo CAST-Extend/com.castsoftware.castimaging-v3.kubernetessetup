@@ -131,7 +131,7 @@ ViewerAiManagerImage:
 #
 ExtendProxyImage:
   name: castbuild/extend-proxy
-  tag: 1.0.0.4
+  tag: 1.0.0.5
   pullPolicy: IfNotPresent 
 
 #
