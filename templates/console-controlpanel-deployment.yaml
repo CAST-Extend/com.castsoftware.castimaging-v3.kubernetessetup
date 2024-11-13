@@ -71,8 +71,8 @@ spec:
                 - -f
                 - http://localhost:8098/actuator/health
             failureThreshold: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
+            periodSeconds: 20
+            timeoutSeconds: 10
           name: console-control-panel
           ports:
             - containerPort: 2381
