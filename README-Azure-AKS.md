@@ -12,7 +12,16 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 ## System Requirement and Environment Setup
 
 - AKS environment
-- Refer to the CAST product documentation https://doc.castsoftware.com for any additional details
+	- Install Azure CLI
+	- Login to azure: "az login"
+	- Retrieve cluster credentials: "az aks get-credentials --resource-group my-resource-group --name my-cluster"
+- Install kubectl and helm
+	- For kubectl: 
+		- Follow instructions: https://kubernetes.io/docs/tasks/tools/
+	- For helm:
+		- Binary Download: https://github.com/helm/helm/releases
+		- Documentation: https://helm.sh/docs/intro/quickstart
+
 
 ## Installation Steps for CAST Imaging
 

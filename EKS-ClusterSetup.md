@@ -115,7 +115,7 @@ This utility will use the same _credentials_ file as we explored for the AWS cli
 # kubectl - the commandline K8s tool
 
 
-## install _kubectl
+## install kubectl
 
 Follow instructions from here: https://kubernetes.io/docs/tasks/tools/
 
