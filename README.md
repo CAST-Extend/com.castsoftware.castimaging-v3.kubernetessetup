@@ -325,7 +325,13 @@ To install the Kubernetes Dashboard, run the command below. For more information
  	```
    	kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
    	```
-5. Now access Dashboard at: https://localhost:8443
+4. Now access Dashboard at: https://localhost:8443
+
+5. Create admin-user and clusterrolebinding
+	```
+	kubectl create serviceaccount admin-user -n kubernetes-dashboard
+	kubectl create clusterrolebinding admin-user-binding --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:admin-user
+ 	```
    
 6. Run command to generate the access token required for admin login, login to dashboard and select castimaging-v3 namespace from the dropdown menu to manage Imaging deployment. 
 	```
