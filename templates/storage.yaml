@@ -1,36 +1,37 @@
+{{- if .Values.CreateStorageClass }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: {{ .Values.DiskClassName }}
   annotations:
     helm.sh/resource-policy: keep
-{{- if eq .Values.K8SProvider "EKS" }}    
+  {{- if eq .Values.K8SProvider "EKS" }}    
 provisioner: {{ .Values.EKS_DSdriver }}
 parameters:
   type: gp3
   fsType: ext4
-{{- else if eq .Values.K8SProvider "AKS" }}  
+  {{- else if eq .Values.K8SProvider "AKS" }}  
 provisioner: {{ .Values.AKS_DSdriver }}
 parameters:
   skuName: Premium_LRS
   kind: Managed
-{{- end }}  
+  {{- end }}  
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 ---
-{{- if .Values.AnalysisNodeFS.enable }}
+  {{- if .Values.AnalysisNodeFS.enable }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: {{ .Values.FileClassName }}
   annotations:
     helm.sh/resource-policy: keep
-  {{- if eq .Values.K8SProvider "EKS" }}
+    {{- if eq .Values.K8SProvider "EKS" }}
 provisioner: {{ .Values.EKS_FSdriver }}
 parameters:
   provisioningMode: efs-ap 
   directoryPerms: "0777"
-  {{- else if eq .Values.K8SProvider "AKS" }}
+    {{- else if eq .Values.K8SProvider "AKS" }}
 provisioner: {{ .Values.AKS_FSdriver }}
 allowVolumeExpansion: true
 mountOptions:
@@ -44,13 +45,13 @@ mountOptions:
  - nobrl  # disable sending byte range lock requests to the server and for applications which have challenges with posix locks
 parameters:
   skuName: Premium_LRS
-  {{- end }} 
+    {{- end }} 
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
-{{- end }}
+  {{- end }}
 ---
-{{- if .Values.AnalysisNodeFS.enable }}
-  {{- if eq .Values.K8SProvider "EKS" }}
+  {{- if .Values.AnalysisNodeFS.enable }}
+    {{- if eq .Values.K8SProvider "EKS" }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -74,6 +75,7 @@ spec:
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
+    {{- end }}
   {{- end }}
 {{- end }}
 ---

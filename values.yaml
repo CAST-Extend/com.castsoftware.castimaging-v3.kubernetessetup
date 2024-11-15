@@ -4,10 +4,11 @@
 
 version: 3.1.1
 
-# Define the namespace here
-namespace: castimaging-v3
-
 ####################################################################################
+#
+# Define the namespace here
+namespace: castimaging-ds
+#
 # Kubernetes Provider: 
 # - For Azure, use AKS
 # - For AWS, use EKS
@@ -37,6 +38,10 @@ AnalysisNodeFS:
   # AWS EKS specific parameters (will be ignored if K8SProvider is set to 'AKS')
   EFSsystemID: fs-xxxxxxxxxxx
   EFSaccessPointID: fsap-yyyyyyyyyy
+#
+# Misc options
+CreateStorageClass: true
+#
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
