@@ -84,31 +84,31 @@ ConsolePostgresImage:
   tag: 15
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: castbuild/sso-service
+  name: castimaging/sso-service
   tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: castbuild/console
+  name: castimaging/console
   tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: castbuild/gateway
+  name: castimaging/gateway
   tag: 3.1.1
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
-  name: castbuild/analysis-node
-  tag: 3.1.1.dev_core8.4.0.1497
+  name: castimaging/analysis-node
+  tag: 3.1.1_core8.4.0
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: castbuild/admin-center
+  name: castimaging/admin-center
   tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: castbuild/auth-service
+  name: castimaging/auth-service
   tag: 3.1.1
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: castbuild/dashboards
+  name: castimaging/dashboards
   tag: 2.13.0
   pullPolicy: IfNotPresent
   
@@ -116,26 +116,26 @@ ConsoleIntegratedDashboardsImage:
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: castbuild/neo4j
-  tag: 3.1.1-91
+  name: castimaging/neo4j
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: castbuild/viewer
-  tag: 3.1.1-91
+  name: castimaging/viewer
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: castbuild/etl-service
-  tag: 3.1.1-91
+  name: castimaging/etl-service
+  tag: 3.1.1
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
-  name: castbuild/ai-service
-  tag: 3.1.1-91
+  name: castimaging/ai-service
+  tag: 3.1.1
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
-  name: castbuild/extend-proxy
+  name: castimaging/extend-proxy
   tag: 1.0.0.5
   pullPolicy: IfNotPresent 
 
