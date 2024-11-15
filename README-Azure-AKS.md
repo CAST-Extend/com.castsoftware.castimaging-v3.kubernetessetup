@@ -43,11 +43,11 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 
 **2. Network Setting**
 
- - Prepare a CDN like Azure Front Door, Ingress Service or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com).
-   The DNS should also have an SSL certificate.
+ - Prepare a CDN like Azure Front Door, Ingress Service, Application Gateway or a web server (e.g., NGINX) as a reverse proxy to host the console-gatewayservice (with a DNS i.e castimagingv3.com). The DNS should also have an SSL certificate.
+ 	- If you plan to use an Azure Application Gateway, important instructions can be found in Azure-ApplicationGateway-for-CastImaging.pdf
  - Update the _FrontEndHost_ variable in values.yaml
  	- FrontEndHost: dev.imaginghost.com
-- Apply helm chart changes:
+ - Apply helm chart changes:
    	- run helm-upgrade.bat
  - Make configuration for redirecting from DNS to external IP.
 
