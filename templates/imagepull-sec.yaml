@@ -5,6 +5,6 @@ data:
 kind: Secret
 metadata:
   name: imagepull-sec
-  namespace: castimaging-v3
+  namespace: {{ .Release.Namespace }}
 type: kubernetes.io/dockerconfigjson
 {{- end }}
