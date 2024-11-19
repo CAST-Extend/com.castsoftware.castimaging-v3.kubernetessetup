@@ -5,7 +5,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 ## Prerequisites
 
 - CAST Imaging Docker images
-- Clone the Git repo branch 3.1.1-eks-cast using _git clone -b 3.1.1-eks-cast https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
+- Clone the Git repo branch 3.1.1-cloud using _git clone -b 3.1.1-cloud https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
 
