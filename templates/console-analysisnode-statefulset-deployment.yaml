@@ -37,14 +37,16 @@ spec:
     spec:
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
+          preferredDuringSchedulingIgnoredDuringExecution: 
+          - weight: 100  
+            podAffinityTerm:
+              labelSelector:
                 matchExpressions:
-                  - key: console.service
-                    operator: In
-                    values:
-                      - console-analysis-node
-              topologyKey: "kubernetes.io/hostname"    
+                - key: console.service 
+                  operator: In 
+                  values:
+                  - console-analysis-node
+              topologyKey: kubernetes.io/hostname     
       securityContext:
         runAsUser: 10001
         runAsGroup: 10001
