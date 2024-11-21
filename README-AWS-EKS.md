@@ -143,5 +143,5 @@ Prior to running the initial helm-install, follow these steps:
 - Rename templates/ex_storage-bsfs.yaml into templates/storage-bsfs.yaml
 - Rename templates/storage-bs.yaml into templates/ex_storage-bs.yaml
 - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
-- Update the Security Group of the EFS to allow access (inbound rule) from the NodeGroup Security Group of the EKS cluster, on port 2049 (NFS)
+- Update the Security Group of the EFS (check its Network section) to allow access (inbound rule on NFS port 2049) from the Security Group of the Node Instances/AutoScalingGroup
 - Proceed with the installation: _1. Run the installation_
