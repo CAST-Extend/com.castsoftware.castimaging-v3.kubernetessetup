@@ -33,6 +33,18 @@ spec:
         console.network/aip-network: "true"
         console.service: console-postgres
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution: 
+          - weight: 100  
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In 
+                  values:
+                  - console-analysis-node
+              topologyKey: kubernetes.io/hostname      
       containers:
         - env:
             - name: POSTGRES_INITDB_ARGS
