@@ -18,6 +18,8 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 	- For helm:
 		- Binary Download: https://github.com/helm/helm/releases
 		- Documentation: https://helm.sh/docs/intro/quickstart
+	- Retrieve cluster credentials:
+		- aws eks update-kubeconfig --region my-region --name my-cluster
 
 ## Installation Steps for CAST Imaging
 
