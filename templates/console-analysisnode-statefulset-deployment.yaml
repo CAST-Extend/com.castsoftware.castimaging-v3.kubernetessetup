@@ -35,6 +35,16 @@ spec:
         console.service: console-analysis-node
         component: core
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: console.service
+                    operator: In
+                    values:
+                      - console-analysis-node
+              topologyKey: "kubernetes.io/hostname"    
       securityContext:
         runAsUser: 10001
         runAsGroup: 10001
