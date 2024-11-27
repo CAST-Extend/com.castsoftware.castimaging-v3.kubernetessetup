@@ -12,15 +12,15 @@ namespace: castimaging-v3
 # Kubernetes Provider: 
 # - For Azure, use AKS
 # - For AWS, use EKS
-K8SProvider: EKS
+K8SProvider: AKS
 #
 # External network access
-FrontEndHost: d2mc9awk386pg8.cloudfront.net # EFS
+FrontEndHost: x.y.com
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: true
-  exthostname: ae18ab810af4749409fba5d0a5c16230-574288636.us-east-2.elb.amazonaws.com # Run helm-upgrade.bat after updating
+  exthostname: a.b.com # To be updated after deployment + run helm-upgrade.bat
   pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - Use custom Trust Store
@@ -34,10 +34,10 @@ Base64EncodedDockerconfigjson:
 # Important note: Extra cluster configuration is required before you can enable this feature
 #                 Please refer to the README files before modifying below parameters.
 AnalysisNodeFS:
-  enable: true  # Do not change if castimaging is already deployed
+  enable: false  # Do not change if castimaging is already deployed
   # AWS EKS specific parameters (will be ignored if K8SProvider is set to 'AKS')
-  EFSsystemID: fs-0fd447f93933b0c43
-  EFSaccessPointID: fsap-049651a0d46488ceb #fsap-0c96e8254cfd3eeb2
+  EFSsystemID: fs-xxxxxxxxxxx
+  EFSaccessPointID: fsap-yyyyyyyyyy
 #
 # Misc options
 CreateStorageClass: true
