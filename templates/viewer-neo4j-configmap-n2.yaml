@@ -1,15 +1,9 @@
 apiVersion: v1
-data:
-  apoc.conf: |
-    apoc.import.file.enabled=true
-    apoc.export.file.enabled=true
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: neo4japocconf
+  name: neo4jconf-n2
   namespace: {{.Release.Namespace}}
----
-apiVersion: v1
 data:
   neo4j.conf: |
     #*****************************************************************
@@ -18,6 +12,46 @@ data:
     # For more details and a complete list of settings, please see
     # https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/
     #*****************************************************************
+
+    #*****************************************************************
+    # Helm defaults
+    initial.dbms.default_primaries_count: 3
+    dbms.cluster.minimum_initial_system_primaries_count: 3
+
+    # Bolt keep alive
+    # this helps to ensure that LoadBalancers do not close bolt connections that are in use but appear idle
+    server.bolt.connection_keep_alive: 30s
+    server.bolt.connection_keep_alive_for_requests: ALL
+    server.bolt.connection_keep_alive_streaming_scheduling_interval: 30s
+
+    # If we set default advertised address it over-rides the bolt address used to populate the browser in a really annoying way
+    # dbms.default_advertised_address: $(bash -c 'echo ${SERVICE_DOMAIN}')
+    server.backup.listen_address: 0.0.0.0:6362
+
+    # Clustering
+    dbms.cluster.discovery.resolver_type: K8S
+    dbms.kubernetes.service_port_name: tcp-discovery
+    dbms.routing.default_router: SERVER
+    dbms.routing.client_side.enforce_for_domains: *.cluster.local
+    dbms.routing.enabled: true
+    dbms.kubernetes.label_selector: app=viewer-neo4j
+
+    # set the below configs in case of cluster or analytics
+    # Because "if we set default advertised address it over-rides the bolt address used to populate the browser in a really annoying way" we have to set the
+    # advertised address for each cluster service individually instead
+    server.bolt.advertised_address: viewer-neo4j-n2.{{.Release.Namespace}}.svc.cluster.local
+    server.discovery.advertised_address: viewer-neo4j-n2-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.cluster.raft.advertised_address: viewer-neo4j-n2-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.cluster.advertised_address: viewer-neo4j-n2-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.routing.advertised_address: viewer-neo4j-n2-internals.{{.Release.Namespace}}.svc.cluster.local
+
+    # Use more reliable defaults SSL / TLS settings for K8s
+    dbms.ssl.policy.bolt.client_auth: NONE
+    dbms.ssl.policy.https.client_auth: NONE
+
+    #*****************************************************************
+
+
 
     # The name of the database to mount
     #dbms.active_database=graph.db
@@ -346,8 +380,3 @@ data:
     dbms.security.auth_minimum_password_length=7
 
     #NEO4j threads configuration will be added at the runtime of setup
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: neo4jconf
-  namespace: {{.Release.Namespace}}

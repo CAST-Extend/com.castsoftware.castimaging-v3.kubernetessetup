@@ -43,11 +43,13 @@ spec:
       initContainers:
         - name: neo4jhealthcheck
           image: busybox:latest
-          command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done"]
+          #command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j-core-0.viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done"]
+          command: ['sh', '-c', "until wget --no-verbose --spider abcd67af42f27416ba52330f5d5e6860-1454475572.us-east-2.elb.amazonaws.com:7474; do echo waiting for neo4j; sleep 2; done"]
+          
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
-          command: ['sh', '-c', "sleep 60; /opt/imaging/config/init.sh"]
+          command: ['sh', '-c', "/opt/imaging/config/init.sh"]
           name: viewer-server
           env:
             - name: TIME_ZONE
