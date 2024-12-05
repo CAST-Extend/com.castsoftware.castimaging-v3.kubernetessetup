@@ -64,12 +64,15 @@ spec:
           resources:
             {{- toYaml .Values.ViewerNeo4jResources | nindent 12 }}
           volumeMounts:
-            - name: logdir
+            - name: neo4jdata
               mountPath: /logs
+              subPathExpr: logs
             - name: neo4jdata
               mountPath: /var/lib/neo4j/config/neo4j5_data
-            - name: neo4jconfigfolder
-              mountPath: /var/lib/neo4j/config/configuration              
+              subPathExpr: neo4jdata
+            - name: neo4jdata
+              mountPath: /var/lib/neo4j/config/configuration 
+              subPathExpr: neo4jconfigfolder             
             - name: neo4jconf
               mountPath: /var/lib/neo4j/config/configuration/neo4j.conf
               subPath: neo4j.conf
@@ -89,25 +92,7 @@ spec:
             name: neo4japocconf
   volumeClaimTemplates:
     - metadata:
-        name: logdir
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: "{{ .Values.DiskClassName }}"
-        resources:
-          requests:
-            storage: "1Gi"
-    - metadata:
         name: neo4jdata
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: "{{ .Values.DiskClassName }}"
-        resources:
-          requests:
-            storage: "10Gi"
-    - metadata:
-        name: neo4jconfigfolder
       spec:
         accessModes:
           - ReadWriteOnce
