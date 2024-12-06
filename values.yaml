@@ -158,7 +158,7 @@ GatewayServiceResources:
   requests:
     cpu: 0.1
     memory: 100M
-AnalysisNodeReplicaResources:
+AnalysisNodeResources:
   requests:
     cpu: 1
     memory: 4G
