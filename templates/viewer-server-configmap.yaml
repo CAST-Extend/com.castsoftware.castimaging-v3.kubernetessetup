@@ -58,8 +58,8 @@ data:
     {
      "PORT": "9000",
      "NEO4J_USERNAME": "neo4j",
-     "NEO4J_PASSWORD": "castimaging",
-     "NEO4J_BOLT_ENDPOINT": "viewer-neo4j-core-0.viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7687",
+     "NEO4J_PASSWORD": "imaging",
+     "NEO4J_BOLT_ENDPOINT": "neo4j://{{ .Values.Neo4jHostName }}.svc.cluster.local:7687",
      "ETL_ENDPOINT": "etl:9001",
      "TOKEN": "D5ED6A406775FC71B8D2A978883E8ED4",
      "NEO4J_IMPORT_PATH": "/opt/imaging/imaging-service/upload/",

@@ -15,20 +15,20 @@ namespace: castimaging-v3
 K8SProvider: EKS
 #
 # External network access
-FrontEndHost: d2mc9awk386pg8.cloudfront.net # EFS
+FrontEndHost: xxx.cloudfront.net # EFS
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: true
-  exthostname: ae18ab810af4749409fba5d0a5c16230-574288636.us-east-2.elb.amazonaws.com # Run helm-upgrade.bat after updating
+  exthostname: xxx # Run helm-upgrade.bat after updating
   pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - Use custom Trust Store
 UseCustomTrustStore: false  
 #
 # OPTIONAL - Access Private Repo with Secret
-UseImagePullSecrets: false
-Base64EncodedDockerconfigjson: 
+UseImagePullSecrets: true
+Base64EncodedDockerconfigjson: xxx
 #
 # OPTIONAL - Enable shared File Storage for analysis-node
 # Important note: Extra cluster configuration is required before you can enable this feature
@@ -36,12 +36,13 @@ Base64EncodedDockerconfigjson:
 AnalysisNodeFS:
   enable: true  # Do not change if castimaging is already deployed
   # AWS EKS specific parameters (will be ignored if K8SProvider is set to 'AKS')
-  EFSsystemID: fs-0fd447f93933b0c43
-  EFSaccessPointID: fsap-049651a0d46488ceb #fsap-0c96e8254cfd3eeb2
+  EFSsystemID: fs-xxx
+  EFSaccessPointID: fsap-xxx #fsap-0c96e8254cfd3eeb2
 #
 # Misc options
 CreateStorageClass: true
 #
+Neo4jHostName: xxx.us-east-2.elb.amazonaws.com
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -71,9 +72,9 @@ ExtendProxyReplicaCount: 1
 #
 # Viewer
 #
-ViewerNeo4jReplicaCount: 0
+ViewerNeo4jReplicaCount: 1
 ViewerServerReplicaCount: 1
-ViewerEtlReplicaCount: 0
+ViewerEtlReplicaCount: 1
 ViewerAiManagerReplicaCount: 1
 
 #
@@ -120,12 +121,12 @@ ViewerNeo4jImage:
   tag: 3.1.1
   pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: castimaging/viewer
-  tag: 3.1.1
+  name: castbuild/viewer
+  tag: 3.1.2-123
   pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: castimaging/etl-service
-  tag: 3.1.1
+  name: castbuild/etl-service
+  tag: 3.1.2-123
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
@@ -158,7 +159,7 @@ GatewayServiceResources:
   requests:
     cpu: 0.1
     memory: 100M
-AnalysisNodeReplicaResources:
+AnalysisNodeResources:
   requests:
     cpu: 1
     memory: 4G

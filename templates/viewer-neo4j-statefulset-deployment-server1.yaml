@@ -1,0 +1,372 @@
+# Source: neo4j/templates/delete-loadbalancer-hook.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "neo4j-server1-cleanup"
+  labels:
+    app: "viewer-neo4j-cluster"
+---
+# Source: neo4j/templates/neo4j-service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{.Release.Namespace}}
+  name: neo4j-server1
+  labels:
+    app: "viewer-neo4j-cluster"
+---
+# Source: neo4j/templates/neo4j-auth.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "viewer-neo4j-cluster-auth"
+  namespace: {{.Release.Namespace}}
+  labels:
+    app: "viewer-neo4j-cluster"    
+type: Opaque
+data:
+  NEO4J_AUTH: "bmVvNGovY2FzdGltYWdpbmc="
+---
+# Source: neo4j/templates/delete-loadbalancer-hook.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: "neo4j-server1-cleanup"
+  labels:
+    app: "viewer-neo4j-cluster"    
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "delete"]
+---
+# Source: neo4j/templates/neo4j-service-account.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{.Release.Namespace}}
+  name: "neo4j-server1-service-reader"
+  labels:
+    app: "viewer-neo4j-cluster"    
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["services", "endpoints"]
+    verbs: ["get", "watch", "list"]
+---
+# Source: neo4j/templates/delete-loadbalancer-hook.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: "neo4j-server1-cleanup"
+  labels:
+    app: "viewer-neo4j-cluster"    
+subjects:
+  - kind: ServiceAccount
+    name: "neo4j-server1-cleanup"
+roleRef:
+  kind: Role # this must be Role or ClusterRole
+  name: "neo4j-server1-cleanup" # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: neo4j/templates/neo4j-service-account.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{.Release.Namespace}}
+  name: "neo4j-server1-service-binding"
+  labels:
+    app: "viewer-neo4j-cluster"    
+subjects:
+  - kind: ServiceAccount
+    name: neo4j-server1
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role # this must be Role or ClusterRole
+  name: neo4j-server1-service-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: neo4j/templates/neo4j-loadbalancer.yaml
+# Service for applications that need access to neo4j
+apiVersion: v1
+kind: Service
+metadata:
+  name: "viewer-neo4j-cluster-lb-neo4j"
+  namespace: {{.Release.Namespace}}
+  labels:
+    helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/service: "neo4j"    
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  type: "LoadBalancer"
+  
+  externalTrafficPolicy: Local
+  sessionAffinity: None
+  ports:
+    - protocol: TCP
+      port: 7474
+      targetPort: 7474
+      name: http
+    - protocol: TCP
+      port: 7473
+      targetPort: 7473
+      name: https
+    - protocol: TCP
+      port: 7687
+      targetPort: 7687
+      name: tcp-bolt        
+  selector:
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/clustering: "true"
+    helm.neo4j.com/neo4j.loadbalancer: include
+---
+# Source: neo4j/templates/neo4j-svc.yaml
+# ClusterIP service for bolt / http connections
+apiVersion: v1
+kind: Service
+metadata:
+  name: "neo4j-server1"
+  namespace: {{.Release.Namespace}}
+  labels:
+    helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/instance: "neo4j-server1"
+    helm.neo4j.com/service: "default"    
+spec:
+  publishNotReadyAddresses: false
+  type: ClusterIP
+  selector:
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/instance: "neo4j-server1"
+  ports:
+    - protocol: TCP
+      port: 7687
+      targetPort: 7687
+      name: tcp-bolt
+    - protocol: TCP
+      port: 7474
+      targetPort: 7474
+      name: tcp-http
+---
+# Source: neo4j/templates/neo4j-svc.yaml
+# ClusterIP service for admin connections to Neo4j inside Kubernetes.
+apiVersion: v1
+kind: Service
+metadata:
+  name: "neo4j-server1-admin"
+  namespace: {{.Release.Namespace}}
+  labels:
+    helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/instance: "neo4j-server1"
+    helm.neo4j.com/service: "admin"    
+spec:
+  publishNotReadyAddresses: true
+  type: "ClusterIP"
+  selector:
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/instance: "neo4j-server1"
+  ports:
+    - protocol: TCP
+      port: 6362
+      targetPort: 6362
+      name: tcp-backup
+    - protocol: TCP
+      port: 7687
+      targetPort: 7687
+      name: tcp-bolt
+    - protocol: TCP
+      port: 7474
+      targetPort: 7474
+      name: tcp-http
+---
+# Source: neo4j/templates/neo4j-svc.yaml
+# Headless service for internal connections to an instance e.g. for neo4j clustering or monitoring.
+apiVersion: v1
+kind: Service
+metadata:
+  name: "neo4j-server1-internals"
+  namespace: {{.Release.Namespace}}
+  labels:
+    helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
+    helm.neo4j.com/instance: "neo4j-server1"
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/clustering: "true"
+    helm.neo4j.com/service: "internals"    
+spec:
+  publishNotReadyAddresses: true
+  type: "ClusterIP"
+  selector:
+    app: "viewer-neo4j-cluster"
+    helm.neo4j.com/instance: "neo4j-server1"
+  ports:
+    - protocol: TCP
+      port: 6362
+      targetPort: 6362
+      name: tcp-backup
+    - protocol: TCP
+      port: 7687
+      targetPort: 7687
+      name: tcp-bolt
+    - protocol: TCP
+      port: 7474
+      targetPort: 7474
+      name: tcp-http
+    #enable the ports for non Read Replicas
+    - protocol: TCP
+      port: 7688
+      targetPort: 7688
+      name: tcp-boltrouting
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      name: tcp-discovery
+    - protocol: TCP
+      port: 7000
+      targetPort: 7000
+      name: tcp-raft
+    - protocol: TCP
+      port: 6000
+      targetPort: 6000
+      name: tcp-tx
+---
+apiVersion: "apps/v1"
+kind: StatefulSet
+metadata:
+  name: neo4j-server1
+  namespace: {{.Release.Namespace}}  
+  labels:
+    app: "viewer-neo4j"  
+    helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
+    helm.neo4j.com/clustering: "true"
+    helm.neo4j.com/pod_category: "neo4j-instance" # used for anti affinity rules
+    helm.neo4j.com/neo4j.loadbalancer: "include"    
+    helm.neo4j.com/instance: "neo4j-server1"
+spec:
+  serviceName: viewer-neo4j
+  podManagementPolicy: "Parallel" # This setting means that the StatefulSet controller doesn't block applying changes until the existing Pod is READY.
+  replicas: {{.Values.ViewerNeo4jReplicaCount}}
+  selector:
+    matchLabels:
+      app: viewer-neo4j-cluster
+      helm.neo4j.com/instance: "neo4j-server1"
+  template:
+    metadata:
+      labels:
+        app: viewer-neo4j-cluster
+        component: core
+        helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
+        helm.neo4j.com/clustering: "true"
+        helm.neo4j.com/pod_category: "neo4j-instance" # used for anti affinity rules
+        helm.neo4j.com/neo4j.loadbalancer: "include"
+        helm.neo4j.com/instance: "neo4j-server1"         
+    spec:
+      affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    app: "viewer-neo4j-cluster"
+                    helm.neo4j.com/pod_category: "neo4j-instance"
+                topologyKey: kubernetes.io/hostname    
+      serviceAccountName: "neo4j-server1"
+      dnsPolicy: ClusterFirst
+      securityContext:
+        runAsUser: 7474
+        runAsGroup: 7474
+        fsGroup: 7474
+        fsGroupChangePolicy: "Always"      
+      #terminationGracePeriodSeconds: 3600
+      containers:
+        - name: viewer-neo4j
+          image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
+          imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
+          command: ['sh', '-c', "/var/lib/neo4j/config/init.sh"]
+          env:
+            - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
+              value: "yes"    
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NEO4J_EDITION
+              value: "ENTERPRISE_K8S"
+            - name: K8S_NEO4J_NAME
+              value: "viewer-neo4j-cluster"
+            - name: EXTENDED_CONF
+              value: "yes"
+
+            - name: NEO4J_dbms_memory_heap_maxSize
+              value: "8G"
+            - name: TIME_ZONE
+              value: "Europe/Paris"
+
+          ports:
+            - containerPort: 7474
+              name: browser
+            - containerPort: 7687
+              name: bolt
+            - containerPort: 6362
+              name: backup
+          resources:
+            {{- toYaml .Values.ViewerNeo4jResources | nindent 12 }}
+          securityContext: 
+              capabilities:
+                drop:
+                - ALL  
+              runAsGroup: 7474
+              runAsUser: 7474                
+          volumeMounts:
+            - name: neo4jdata
+              mountPath: /logs
+              subPathExpr: logs
+            - name: neo4jdata
+              mountPath: /var/lib/neo4j/config/neo4j5_data
+              subPathExpr: neo4jdata
+            - name: neo4jdata
+              mountPath: /var/lib/neo4j/config/configuration 
+              subPathExpr: neo4jconfigfolder             
+            - name: neo4jconf
+              mountPath: /var/lib/neo4j/config/configuration/neo4j.conf
+              subPath: neo4j.conf
+            - name: apocconf
+              mountPath: /var/lib/neo4j/config/configuration/apoc.conf
+              subPath: apoc.conf
+          readinessProbe:
+            tcpSocket:
+              port: 7687
+            failureThreshold: 20
+            timeoutSeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 7687
+            failureThreshold: 40
+            timeoutSeconds: 10
+            periodSeconds: 5
+          startupProbe:
+            tcpSocket:
+              port: 7687
+            failureThreshold: 1000
+            periodSeconds: 5              
+{{- if .Values.UseImagePullSecrets }}              
+      imagePullSecrets:
+        - name: imagepull-sec
+{{- end }}        
+      volumes:
+        - name: neo4jconf
+          configMap:
+            name: neo4jconf-server1
+        - name: apocconf
+          configMap:
+            name: neo4japocconf
+  volumeClaimTemplates:
+    - metadata:
+        name: neo4jdata
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: "{{ .Values.DiskClassName }}"
+        resources:
+          requests:
+            storage: "10Gi"

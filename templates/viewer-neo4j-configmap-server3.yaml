@@ -13,7 +13,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: neo4jconf-n1
+  name: neo4jconf-server3
   namespace: {{.Release.Namespace}}
 data:
   neo4j.conf: |
@@ -25,42 +25,33 @@ data:
     #*****************************************************************
 
     #*****************************************************************
-    # Helm defaults
-    initial.dbms.default_primaries_count: 3
-    dbms.cluster.minimum_initial_system_primaries_count: 3
+    # Cluster related:
+    #*****************************************************************
+    server.metrics.csv.rotation.compression: zip
+    server.panic.shutdown_on_panic: true
 
-    # Bolt keep alive
-    # this helps to ensure that LoadBalancers do not close bolt connections that are in use but appear idle
-    server.bolt.connection_keep_alive: 30s
-    server.bolt.connection_keep_alive_for_requests: ALL
-    server.bolt.connection_keep_alive_streaming_scheduling_interval: 30s
-
-    # If we set default advertised address it over-rides the bolt address used to populate the browser in a really annoying way
-    # dbms.default_advertised_address: $(bash -c 'echo ${SERVICE_DOMAIN}')
-    server.backup.listen_address: 0.0.0.0:6362
-
-    # Clustering
-    dbms.cluster.discovery.resolver_type: K8S
-    dbms.kubernetes.service_port_name: tcp-discovery
-    dbms.routing.default_router: SERVER
-    dbms.routing.client_side.enforce_for_domains: *.cluster.local
-    dbms.routing.enabled: true
-    dbms.kubernetes.label_selector: app=viewer-neo4j
-
-    # set the below configs in case of cluster or analytics
-    # Because "if we set default advertised address it over-rides the bolt address used to populate the browser in a really annoying way" we have to set the
-    # advertised address for each cluster service individually instead
-    server.bolt.advertised_address: viewer-neo4j-n1.{{.Release.Namespace}}.svc.cluster.local
-    server.discovery.advertised_address: viewer-neo4j-n1-internals.{{.Release.Namespace}}.svc.cluster.local
-    server.cluster.raft.advertised_address: viewer-neo4j-n1-internals.{{.Release.Namespace}}.svc.cluster.local
-    server.cluster.advertised_address: viewer-neo4j-n1-internals.{{.Release.Namespace}}.svc.cluster.local
-    server.routing.advertised_address: viewer-neo4j-n1-internals.{{.Release.Namespace}}.svc.cluster.local
-
-    # Use more reliable defaults SSL / TLS settings for K8s
-    dbms.ssl.policy.bolt.client_auth: NONE
-    dbms.ssl.policy.https.client_auth: NONE
-
-    #dbms.cluster.discovery.endpoints=192.168.1.100:5000,192.168.1.101:5000,192.168.1.102:5000
+    dbms.cluster.discovery.resolver_type=K8S
+    initial.dbms.default_primaries_count=3
+    dbms.cluster.minimum_initial_system_primaries_count=3
+    dbms.kubernetes.label_selector: app=viewer-neo4j-cluster,helm.neo4j.com/service=internals,helm.neo4j.com/clustering=true
+    dbms.kubernetes.service_port_name=tcp-discovery
+    dbms.routing.client_side.enforce_for_domains=*.cluster.local
+    dbms.routing.default_router=SERVER
+    dbms.routing.enabled=true
+    dbms.ssl.policy.bolt.client_auth=NONE
+    dbms.ssl.policy.https.client_auth=NONE
+    internal.dbms.ssl.system.ignore_dot_files=true
+    server.backup.listen_address=0.0.0.0:6362
+    server.bolt.connection_keep_alive=30s
+    server.bolt.connection_keep_alive_for_requests=ALL
+    server.bolt.connection_keep_alive_streaming_scheduling_interval=30s
+    server.config.strict_validation.enabled=false
+    server.default_listen_address=0.0.0.0
+    server.bolt.advertised_address=neo4j-server3.{{.Release.Namespace}}.svc.cluster.local
+    server.discovery.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.cluster.raft.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.cluster.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.routing.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
     #*****************************************************************
 
     # The name of the database to mount
@@ -362,6 +353,13 @@ data:
     server.jvm.additional=--add-opens=java.base/java.io=ALL-UNNAMED
     server.jvm.additional=--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
 
+    server.jvm.additional=-Djdk.nio.maxCachedBufferSize=1024
+    server.jvm.additional=-Dio.netty.tryReflectionSetAccessible=true
+    server.jvm.additional=-Djdk.tls.rejectClientInitiatedRenegotiation=true
+    server.jvm.additional=-XX:FlightRecorderOptions=stackdepth=256
+    server.jvm.additional=-XX:+UnlockDiagnosticVMOptions
+
+
     #********************************************************************
     # Wrapper Windows NT/2000/XP Service Properties
     #********************************************************************
@@ -376,7 +374,7 @@ data:
 
     server.metrics.enabled=false
 
-    server.default_listen_address=0.0.0.0
+    #server.default_listen_address=0.0.0.0
 
     #dbms.memory.pagecache.size=512M
 
