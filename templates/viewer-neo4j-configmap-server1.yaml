@@ -6,7 +6,7 @@ data:
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: neo4japocconf
+  name: neo4japocconf-server1
   namespace: {{.Release.Namespace}}
 ---
 apiVersion: v1
@@ -29,7 +29,7 @@ data:
     #*****************************************************************
     server.metrics.csv.rotation.compression: zip
     server.panic.shutdown_on_panic: true
-
+    
     dbms.cluster.discovery.resolver_type=K8S
     initial.dbms.default_primaries_count=3
     dbms.cluster.minimum_initial_system_primaries_count=3
@@ -46,7 +46,6 @@ data:
     server.bolt.connection_keep_alive_for_requests=ALL
     server.bolt.connection_keep_alive_streaming_scheduling_interval=30s
     server.config.strict_validation.enabled=false
-    server.default_listen_address=0.0.0.0
     server.bolt.advertised_address=neo4j-server1.{{.Release.Namespace}}.svc.cluster.local
     server.discovery.advertised_address=neo4j-server1-internals.{{.Release.Namespace}}.svc.cluster.local
     server.cluster.raft.advertised_address=neo4j-server1-internals.{{.Release.Namespace}}.svc.cluster.local
@@ -374,7 +373,7 @@ data:
 
     server.metrics.enabled=false
 
-    #server.default_listen_address=0.0.0.0
+    server.default_listen_address=0.0.0.0
 
     #dbms.memory.pagecache.size=512M
 

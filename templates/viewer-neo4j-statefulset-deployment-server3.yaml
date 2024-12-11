@@ -236,7 +236,7 @@ metadata:
   name: neo4j-server3
   namespace: {{.Release.Namespace}}  
   labels:
-    app: "viewer-neo4j"  
+    app: "viewer-neo4j-cluster"  
     helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
     helm.neo4j.com/clustering: "true"
     helm.neo4j.com/pod_category: "neo4j-instance" # used for anti affinity rules
@@ -248,13 +248,12 @@ spec:
   replicas: {{.Values.ViewerNeo4jReplicaCount}}
   selector:
     matchLabels:
-      app: viewer-neo4j-cluster
+      app: "viewer-neo4j-cluster"
       helm.neo4j.com/instance: "neo4j-server3"
   template:
     metadata:
       labels:
-        app: viewer-neo4j-cluster
-        component: core
+        app: "viewer-neo4j-cluster"
         helm.neo4j.com/neo4j.name: "viewer-neo4j-cluster"
         helm.neo4j.com/clustering: "true"
         helm.neo4j.com/pod_category: "neo4j-instance" # used for anti affinity rules
@@ -359,7 +358,7 @@ spec:
             name: neo4jconf-server3
         - name: apocconf
           configMap:
-            name: neo4japocconf
+            name: neo4japocconf-server3
   volumeClaimTemplates:
     - metadata:
         name: neo4jdata
