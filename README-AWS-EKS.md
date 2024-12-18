@@ -12,6 +12,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 ## System Requirement and Environment Setup
 
 - EKS environment: you may follow the instructions in EKS-ClusterSetup.md to create your EKS cluster
+- Retrieve cluster credentials: "aws eks update-kubeconfig --region xx-xxxx-x --name my-cluster"
 - Install kubectl and helm
 	- For kubectl: 
 		- Follow instructions: https://kubernetes.io/docs/tasks/tools/
