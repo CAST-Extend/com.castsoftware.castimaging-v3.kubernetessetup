@@ -112,5 +112,5 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: "100Gi"
+            storage: "{{ .Values.size_castdir }}"
         storageClassName: "{{ .Values.DiskClassName }}"            

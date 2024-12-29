@@ -99,4 +99,4 @@ spec:
         storageClassName: "{{ .Values.DiskClassName }}"
         resources:
           requests:
-            storage: "10Gi"
+            storage: "{{ .Values.size_neo4jdata }}"

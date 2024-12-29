@@ -55,10 +55,11 @@ Before starting the installation, ensure that your Kubernetes cluster is running
             - IPv6: _Off_
 			- Click _Create Distribution_ 
 		- Go to _Behaviors_ tab
+			- Select "Default (*)" and click _Edit_
 			- In _Viewer protocol policy_: select _HTTPS only_
 	- Open the Distribution that has just been created and copy the _Distribution domain name_ value
 	- Update the _FrontEndHost_ variable in values.yaml
-		- FrontEndHost: xxxxxxxxxxx.cloudfront.net
+		- FrontEndHost: https://xxxxxxxxxxx.cloudfront.net
  	- Apply helm chart changes:
     	- run helm-upgrade.bat
 	- CAST Imaging will be available at https://xxxxxxxxxxx.cloudfront.net
@@ -141,8 +142,6 @@ Prior to running the initial helm-install, follow these steps:
 				- Access point permissions: 0777
 			- Press _Create access point_
 	- Copy the newly created _File System ID_ and _Access point ID_
-- Rename templates/ex_storage-bsfs.yaml into templates/storage-bsfs.yaml
-- Rename templates/storage-bs.yaml into templates/ex_storage-bs.yaml
 - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
 - Update the Security Group of the EFS (check its Network section) to allow access (inbound rule on NFS port 2049) from the Security Group of the Node Instances/AutoScalingGroup
 - Proceed with the installation: _1. Run the installation_

@@ -10,16 +10,18 @@ version: 3.1.1
 namespace: castimaging-v3
 #
 # Kubernetes Provider: 
-# - For Azure, use AKS
-# - For AWS, use EKS
+# - For Azure:  AKS
+# - For AWS:    EKS
+# - Other:      Custom
 K8SProvider: AKS
 #
 # External network access
-FrontEndHost: x.y.com
+# Corresponding Cluster-Internal url: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090
+FrontEndHost: https://x.y.com
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
-  enable: true
+  enable: false
   exthostname: a.b.com # To be updated after deployment + run helm-upgrade.bat
   pubextendurl: "https://extend.castsoftware.com"
 #
@@ -40,8 +42,12 @@ AnalysisNodeFS:
   EFSaccessPointID: fsap-yyyyyyyyyy
 #
 # Misc options
-CreateStorageClass: true
+CreateConsoleGatewayHostPort: false   # Default: false
 #
+# CAST Storage Class names
+CreateStorageClass: true       # Default: true
+DiskClassName: castimaging-ds  # Default: castimaging-ds, ceph: rook-ceph-block
+FileClassName: castimaging-fs  # Default: castimaging-fs
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -52,9 +58,17 @@ EKS_FSdriver: efs.csi.aws.com
 AKS_DSdriver: disk.csi.azure.com
 AKS_FSdriver: file.csi.azure.com
 
-# CAST Storage Class names
-DiskClassName: castimaging-ds
-FileClassName: castimaging-fs 
+#
+# Size of volumes
+#
+size_castdir: 100Gi                       # Default: 100Gi
+size_shared_datadir: 100Gi                # Default: 100Gi
+size_db_data: 128Gi                       # Default: 128Gi
+size_imagingviewer_v3_server_log: 1Gi     # Default: 1Gi
+size_imagingviewer_v3_etl_logs: 1Gi       # Default: 1Gi
+size_imagingviewer_v3_aimanager_logs: 2Gi # Default: 2Gi
+size_extendproxy_data: 10Gi               # Default: 10Gi
+size_neo4jdata: 100Gi                     # Default: 100Gi
 
 #
 # Console  
@@ -68,6 +82,7 @@ ControlPaneReplicaCount: 1
 AuthenticationServiceReplicaCount: 1
 IntegratedDashboardsReplicaCount: 1
 ExtendProxyReplicaCount: 1
+
 #
 # Viewer
 #
