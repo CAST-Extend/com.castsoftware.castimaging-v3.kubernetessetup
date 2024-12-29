@@ -357,6 +357,8 @@ data:
     server.jvm.additional=-Djdk.tls.rejectClientInitiatedRenegotiation=true
     server.jvm.additional=-XX:FlightRecorderOptions=stackdepth=256
     server.jvm.additional=-XX:+UnlockDiagnosticVMOptions
+    
+    server.jvm.additional=-Daws.region=us-east-2
 
 
     #********************************************************************

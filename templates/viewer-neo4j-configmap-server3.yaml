@@ -358,6 +358,8 @@ data:
     server.jvm.additional=-XX:FlightRecorderOptions=stackdepth=256
     server.jvm.additional=-XX:+UnlockDiagnosticVMOptions
 
+    server.jvm.additional=-Daws.region=us-east-2
+    
 
     #********************************************************************
     # Wrapper Windows NT/2000/XP Service Properties

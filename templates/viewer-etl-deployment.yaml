@@ -38,13 +38,12 @@ spec:
       initContainers:     
         - name: neo4jhealthcheck
           image: busybox:latest
-          #command: ['sh', '-c', 'until wget --no-verbose --spider http://viewer-neo4j-core-0.viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done']
-          command: ['sh', '-c', 'until wget --no-verbose --spider http://{{ .Values.Neo4jHostName }}:7474; do echo waiting for neo4j; sleep 2; done']
+          command: ['sh', '-c', 'until wget --no-verbose --spider http://viewer-neo4j-cluster-lb-neo4j.{{ .Release.Namespace }}:7474; do echo waiting for neo4j; sleep 2; done']
           
       containers:
         - image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
-          command: ['sh', '-c', '/opt/imaging/imaging-etl/config/init.sh']
+          command: ['sh', '-c', 'sleep 3600; /opt/imaging/imaging-etl/config/init.sh']
           name: viewer-etl
           ports:
             - containerPort: 9001

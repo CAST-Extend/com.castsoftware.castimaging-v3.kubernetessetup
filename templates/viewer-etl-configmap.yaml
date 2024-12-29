@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   app.config: "{\n  \"PORT\": \"9001\",\n  \"WORKER_POOL_SIZE\": 4,\n  \"NEO4J_BOLT_ENDPOINT\":
-    \"neo4j://{{ .Values.Neo4jHostName }}:7687\",\n  \"NEO4J_USERNAME\":
+    \"neo4j://viewer-neo4j-cluster-lb-neo4j.{{ .Release.Namespace }}:7687\",\n  \"NEO4J_USERNAME\":
     \"neo4j\",\n  \"NEO4J_PASSWORD\": \"imaging\",\n  \"TOKEN\": \"D5ED6A406775FC71B8D2A978883E8ED4\",\n
     \ \"NEO4J_IMPORT_PATH\": \"/opt/imaging/imaging-etl/upload/\",\n  \"NEO4J_ARCHIVE_PATH\":
     \"/opt/imaging/imaging-etl/upload/archive/\",\n  \"NEO4J_IMPORT_BATCH_SIZE\":

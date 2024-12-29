@@ -19,6 +19,8 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
+  annotations:
+    helm.sh/resource-policy: keep
   name: "viewer-neo4j-cluster-auth"
   namespace: {{.Release.Namespace}}
   labels:
@@ -104,6 +106,7 @@ spec:
   sessionAffinity: None
   ports:
     - protocol: TCP
+      nodePort: 30074
       port: 7474
       targetPort: 7474
       name: http
@@ -112,9 +115,10 @@ spec:
       targetPort: 7473
       name: https
     - protocol: TCP
+      nodePort: 30087
       port: 7687
       targetPort: 7687
-      name: tcp-bolt        
+      name: tcp-bolt       
   selector:
     app: "viewer-neo4j-cluster"
     helm.neo4j.com/clustering: "true"
@@ -368,4 +372,4 @@ spec:
         storageClassName: "{{ .Values.DiskClassName }}"
         resources:
           requests:
-            storage: "10Gi"
+            storage: "{{ .Values.size_neo4jdata }}"

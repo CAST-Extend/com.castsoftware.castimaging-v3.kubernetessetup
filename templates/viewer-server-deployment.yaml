@@ -43,8 +43,7 @@ spec:
       initContainers:
         - name: neo4jhealthcheck
           image: busybox:latest
-          #command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j-core-0.viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do echo waiting for neo4j; sleep 2; done"]
-          command: ['sh', '-c', "until wget --no-verbose --spider http://{{ .Values.Neo4jHostName }}:7474; do echo waiting for neo4j; sleep 2; done"]
+          command: ['sh', '-c', "until wget --no-verbose --spider http://viewer-neo4j-cluster-lb-neo4j.{{ .Release.Namespace }}:7474; do echo waiting for neo4j; sleep 2; done"]
           
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"

@@ -17,7 +17,7 @@ parameters:
   kind: Managed
   {{- end }}  
 volumeBindingMode: WaitForFirstConsumer
-reclaimPolicy: Retain
+reclaimPolicy: Delete
 ---
   {{- if .Values.AnalysisNodeFS.enable }}
 kind: StorageClass
@@ -47,11 +47,12 @@ parameters:
   skuName: Premium_LRS
     {{- end }} 
 volumeBindingMode: Immediate
-reclaimPolicy: Retain
+reclaimPolicy: Delete
   {{- end }}
+{{- end }}  
 ---
-  {{- if .Values.AnalysisNodeFS.enable }}
-    {{- if eq .Values.K8SProvider "EKS" }}
+{{- if .Values.AnalysisNodeFS.enable }}
+  {{- if eq .Values.K8SProvider "EKS" }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -63,11 +64,11 @@ metadata:
     console.service: console-analysis-node
 spec:
   capacity:
-    storage: 100Gi
+    storage: {{ .Values.size_shared_datadir }}
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Delete
   storageClassName: {{ .Values.FileClassName }}
   csi:
     driver: {{ .Values.EKS_FSdriver }}
@@ -75,7 +76,6 @@ spec:
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
-    {{- end }}
   {{- end }}
 {{- end }}
 ---
@@ -99,7 +99,7 @@ spec:
 {{- end }}  
   resources:
     requests:
-      storage: 100Gi
+      storage: {{ .Values.size_shared_datadir }}
 ---
 # For storage postgres data
 apiVersion: v1
@@ -114,7 +114,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 128Gi  # Default for Postgres, change according to deployment and applications in portfolio
+      storage: {{ .Values.size_db_data }}  # Default for Postgres, change according to deployment and applications in portfolio
   storageClassName: {{ .Values.DiskClassName }}
 ---
 apiVersion: v1
@@ -132,7 +132,7 @@ spec:
   storageClassName: {{ .Values.DiskClassName }}
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.size_imagingviewer_v3_server_log }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -149,7 +149,7 @@ spec:
   storageClassName: {{ .Values.DiskClassName }}
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.size_imagingviewer_v3_etl_logs }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -166,7 +166,7 @@ spec:
   storageClassName: {{ .Values.DiskClassName }}
   resources:
     requests:
-      storage: 2Gi
+      storage: {{ .Values.size_imagingviewer_v3_aimanager_logs }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -182,5 +182,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi  # Specify the storage size required
+      storage: {{ .Values.size_extendproxy_data }}  # Specify the storage size required
   storageClassName: {{ .Values.DiskClassName }}
