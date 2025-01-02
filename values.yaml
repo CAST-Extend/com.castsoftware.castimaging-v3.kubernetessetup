@@ -46,7 +46,7 @@ CreateConsoleGatewayHostPort: true   # Default: false
 #
 # CAST Storage Class names
 CreateStorageClass: false      # Default: true
-DiskClassName: rook-ceph-block # Default: castimaging-ds
+DiskClassName: castimaging-ds # Default: castimaging-ds, rook-ceph-block
 FileClassName: castimaging-fs  # Default: castimaging-fs
 ####################################################################################
 

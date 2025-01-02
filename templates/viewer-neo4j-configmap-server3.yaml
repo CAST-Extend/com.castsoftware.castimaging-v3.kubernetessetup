@@ -51,6 +51,7 @@ data:
     server.cluster.raft.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
     server.cluster.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
     server.routing.advertised_address=neo4j-server3-internals.{{.Release.Namespace}}.svc.cluster.local
+    server.routing.listen_address=0.0.0.0
     #*****************************************************************
 
     # The name of the database to mount
