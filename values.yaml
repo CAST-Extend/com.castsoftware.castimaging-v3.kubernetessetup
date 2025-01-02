@@ -13,7 +13,7 @@ namespace: castimaging-v3
 # - For Azure:  AKS
 # - For AWS:    EKS
 # - Other:      Custom
-K8SProvider: Custom
+K8SProvider: EKS
 #
 # External network access
 # Corresponding Cluster-Internal url: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090
@@ -45,7 +45,7 @@ AnalysisNodeFS:
 CreateConsoleGatewayHostPort: true   # Default: false
 #
 # CAST Storage Class names
-CreateStorageClass: false      # Default: true
+CreateStorageClass: true      # Default: true
 DiskClassName: castimaging-ds # Default: castimaging-ds, rook-ceph-block
 FileClassName: castimaging-fs  # Default: castimaging-fs
 ####################################################################################
@@ -87,8 +87,8 @@ ExtendProxyReplicaCount: 1
 # Viewer
 #
 ViewerNeo4jReplicaCount: 1
-ViewerServerReplicaCount: 1
-ViewerEtlReplicaCount: 1
+ViewerServerReplicaCount: 0
+ViewerEtlReplicaCount: 0
 ViewerAiManagerReplicaCount: 0
 
 #
