@@ -1,0 +1,24 @@
+{{- if .Values.UseImagePullSecrets }}
+apiVersion: v1
+data:
+  .dockerconfigjson: {{ .Values.Base64EncodedDockerconfigjson }}
+kind: Secret
+metadata:
+  name: imagepull-sec
+  namespace: {{ .Release.Namespace }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}
+---
+# Source: neo4j/templates/neo4j-auth.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: "viewer-neo4j-cluster-auth"
+  namespace: {{.Release.Namespace}}
+  labels:
+    app: "viewer-neo4j-cluster"    
+type: Opaque
+data:
+  NEO4J_AUTH: "bmVvNGovY2FzdGltYWdpbmc="

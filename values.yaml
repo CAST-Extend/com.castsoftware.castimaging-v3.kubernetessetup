@@ -17,7 +17,7 @@ K8SProvider: EKS
 #
 # External network access
 # Corresponding Cluster-Internal url: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090
-FrontEndHost: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090  # Default: https://x.y.com
+FrontEndHost: https://x.y.com # Default: https://x.y.com
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
@@ -87,8 +87,8 @@ ExtendProxyReplicaCount: 1
 # Viewer
 #
 ViewerNeo4jReplicaCount: 1
-ViewerServerReplicaCount: 0
-ViewerEtlReplicaCount: 0
+ViewerServerReplicaCount: 1
+ViewerEtlReplicaCount: 1
 ViewerAiManagerReplicaCount: 0
 
 #
