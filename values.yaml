@@ -30,7 +30,7 @@ UseCustomTrustStore: false
 #
 # OPTIONAL - Access Private Repo with Secret
 UseImagePullSecrets: true
-Base64EncodedDockerconfigjson: ewoJImF1dGhzIjogewoJCSJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOiB7CgkJCSJhdXRoIjogIlkyRnpkR0oxYVd4a09qMXFaM2xvU0RSQVJ5az0iCgkJfQoJfQp9
+Base64EncodedDockerconfigjson: abcabcabcabcabcabcabc
 #
 # OPTIONAL - Enable shared File Storage for analysis-node
 # Important note: Extra cluster configuration is required before you can enable this feature
