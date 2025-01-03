@@ -89,7 +89,7 @@ ExtendProxyReplicaCount: 1
 ViewerNeo4jReplicaCount: 1
 ViewerServerReplicaCount: 1
 ViewerEtlReplicaCount: 1
-ViewerAiManagerReplicaCount: 0
+ViewerAiManagerReplicaCount: 1
 
 #
 # Console images
