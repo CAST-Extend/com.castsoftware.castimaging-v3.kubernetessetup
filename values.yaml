@@ -196,7 +196,7 @@ IntegratedDashboardsResources:
 ViewerNeo4jResources:
   requests:
     cpu: 1
-    memory: 12G
+    memory: 16G
 ViewerServerServiceResources:
   requests:
     cpu: 0.1

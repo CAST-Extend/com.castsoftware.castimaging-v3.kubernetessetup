@@ -248,7 +248,7 @@ spec:
               value: "yes"
 
             - name: NEO4J_dbms_memory_heap_maxSize
-              value: "8G"
+              value: "16G"
             - name: TIME_ZONE
               value: "Europe/Paris"
 
@@ -286,20 +286,20 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 7687
-            failureThreshold: 20
-            timeoutSeconds: 10
-            periodSeconds: 5
+            failureThreshold: 40
+            timeoutSeconds: 20
+            periodSeconds: 10
           livenessProbe:
             tcpSocket:
               port: 7687
-            failureThreshold: 40
-            timeoutSeconds: 10
-            periodSeconds: 5
+            failureThreshold: 80
+            timeoutSeconds: 20
+            periodSeconds: 10
           startupProbe:
             tcpSocket:
               port: 7687
             failureThreshold: 1000
-            periodSeconds: 5              
+            periodSeconds: 5
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:
         - name: imagepull-sec
