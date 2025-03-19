@@ -36,6 +36,14 @@ spec:
         console.network/aip-network: "true"
         console.service: console-control-panel
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!    
       containers:
         - env:
             - name: HOST_AUTH_SERVICE

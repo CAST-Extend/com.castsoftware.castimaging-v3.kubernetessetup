@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.1.1
+version: 3.2.2
 
 ####################################################################################
 #
@@ -17,7 +17,7 @@ K8SProvider: AKS
 #
 # External network access
 # Corresponding Cluster-Internal url: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090
-FrontEndHost: https://x.y.com
+FrontEndHost: https://infra-25387.cast.fr
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
@@ -94,37 +94,40 @@ ViewerAiManagerReplicaCount: 1
 #
 # Console images
 #
+InitUtilImage:
+  name: castimaging/init-util
+  tag: "1.0"
 ConsolePostgresImage:
   name: postgres
-  tag: 15
+  tag: "15"
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: 3.1.1_core8.4.0
+  tag: "3.1.1_core8.4.0"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards
-  tag: 2.13.0
+  tag: "2.13.0"
   pullPolicy: IfNotPresent
   
 #
@@ -132,78 +135,80 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: 3.1.1
+  tag: "3.1.1"
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: 1.0.0.5
+  tag: "1.0.0.5"
   pullPolicy: IfNotPresent 
 
 #
 # Console resources
 #
+postgres_shmsize: 4Gi
 ConsolePostgresResources:
   requests:
-    cpu: 1
-    memory: 12G
+    cpu: 0.5
+    memory: 8G
 SSOServiceResources:
   requests:
     cpu: 0.1
-    memory: 1G
+    memory: 800M
 ConsoleServiceResources:
   requests:
     cpu: 0.1
-    memory: 1G
+    memory: 500M
 GatewayServiceResources:
   requests:
     cpu: 0.1
-    memory: 100M
+    memory: 500M
+AnalysisNode_shmsize: 1Gi
 AnalysisNodeResources:
   requests:
-    cpu: 1
-    memory: 4G
+    cpu: 0.5
+    memory: 8G
 ControlPaneResources:
   requests:
     cpu: 0.1
-    memory: 200M
+    memory: 500M
 AuthenticationServiceResources:
   requests:
     cpu: 0.1
-    memory: 2G
+    memory: 500M
 IntegratedDashboardsResources:
   requests:
     cpu: 0.1
-    memory: 100M
+    memory: 500M
 
 #
 # Viewer resources
 #
 ViewerNeo4jResources:
   requests:
-    cpu: 1
+    cpu: 0.5
     memory: 16G
 ViewerServerServiceResources:
   requests:
-    cpu: 0.1
-    memory: 1G
+    cpu: 0.2
+    memory: 500M
 ViewerEtlResources:
   requests:
-    cpu: 0.1
+    cpu: 0.2
     memory: 1G
 ViewerAiManagerResources:
   requests:
@@ -214,8 +219,8 @@ ViewerAiManagerResources:
 #
 ExtendProxyResources:
   requests:
-    cpu: 0.1
-    memory: 100M    
+    cpu: 0.2
+    memory: 200M    
 
 #
 # Analysis folders (do not customize)
@@ -229,3 +234,13 @@ anadir:
   logs: /usr/share/CAST/CAST/Logs
   lisa: /usr/share/CAST/CASTMS/LISA
   extensions: /usr/share/CAST/Extensions
+
+# anadir:
+#   datadirmount: /opt/cast/shared
+#   deploy:       /opt/cast/shared/deploy
+#   delivery:     /opt/cast/shared/delivery
+#   common:       /opt/cast/shared/common-data
+#   castdirmount: /usr/share/CAST
+#   logs:         /usr/share/CAST/CAST/Logs
+#   lisa:         /usr/share/CAST/CASTMS/LISA
+#   extensions:   /usr/share/CAST/Extensions

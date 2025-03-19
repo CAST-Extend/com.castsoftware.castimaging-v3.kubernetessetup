@@ -77,7 +77,8 @@ spec:
             - name: pginit
               mountPath: "/docker-entrypoint-initdb.d/init-db.sh"               
               subPath: init-db.sh
-          
+            - name: dshm
+              mountPath: /dev/shm          
       restartPolicy: Always
       volumes:
         - name: db-data
@@ -89,3 +90,7 @@ spec:
         - name: pginit
           configMap:
             name: console-v3-init-db
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.postgres_shmsize }}            

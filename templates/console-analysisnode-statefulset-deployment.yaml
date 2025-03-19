@@ -35,43 +35,108 @@ spec:
         console.service: console-analysis-node
         component: core
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution: 
-          - weight: 100  
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: console.service 
-                  operator: In 
-                  values:
-                  - console-analysis-node
-              topologyKey: kubernetes.io/hostname     
       securityContext:
         runAsUser: 10001
         runAsGroup: 10001
         fsGroup: 10001
         fsGroupChangePolicy: "Always"
-      initContainers:
-        - name: init-shared-directories
-          image: busybox
+      initContainers:     
+        - name: init-folders-services-healthcheck
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           command:
-            - "sh"
-            - "-c"
-            - "mkdir -p {{ .Values.anadir.common }} {{ .Values.anadir.delivery }} {{ .Values.anadir.deploy }} {{ .Values.anadir.extensions }}; sleep 120"
+          - /bin/sh
+          - -c
+          - |
+            echo "Create folders."
+            mkdir -p {{ .Values.anadir.common }}
+            mkdir -p {{ .Values.anadir.delivery }}
+            mkdir -p {{ .Values.anadir.deploy }}
+            mkdir -p {{ .Values.anadir.extensions }}     
+            echo "Services healthcheck."
+            until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-control-panel to be healthy..."
+              sleep 2
+            done
+            echo "console-control-panel is healthy!"
+            until curl -s http://console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local:8092/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-authentication-service to be healthy..."
+              sleep 2
+            done            
+            echo "console-authentication-service is healthy!"
+            echo "Done."
           volumeMounts:
             - mountPath: {{ .Values.anadir.castdirmount }}
               name: castdir
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
+        - name: postgres-upgrade-folders
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          env:
+            - name: PGPASSWORD
+              value: CastAIP
+          command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Updating application paths in postgres admin_center.properties table..."
+            psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d postgres <<EOF
+            select * from admin_center.properties where prop_key like 'application.paths.%';
+            update admin_center.properties set value='{{ .Values.anadir.delivery }}' where prop_key='application.paths.delivery-folder';
+            update admin_center.properties set value='{{ .Values.anadir.deploy }}' where prop_key='application.paths.deploy-folder';
+            update admin_center.properties set value='{{ .Values.anadir.common }}' where prop_key='application.paths.shared-folder';
+            select * from admin_center.properties where prop_key like 'application.paths.%';
+            DO
+            \$\$
+            DECLARE
+                schema_name_var TEXT;
+                table_name_var TEXT := 'cms_pref_sources';
+                deploy_path TEXT := '{{ .Values.anadir.deploy }}';
+                delivery_path TEXT := '{{ .Values.anadir.delivery }}';
+            BEGIN
+                -- Loop through all schemas that match the pattern '%_mngt'
+                FOR schema_name_var IN
+                    SELECT schema_name
+                    FROM information_schema.schemata
+                    WHERE schema_name LIKE '%_mngt'
+                LOOP
+                    -- Check if the table exists in the schema
+                    IF EXISTS (SELECT 1
+                               FROM information_schema.tables
+                               WHERE table_schema = schema_name_var
+                               AND table_name = table_name_var) THEN
+                               
+                        -- Update the deploypath column
+                        EXECUTE format('UPDATE %I.%I SET deploypath = \$1', schema_name_var, table_name_var)
+                        USING deploy_path;
+            
+                        -- Update the serverpath column conditionally
+                        EXECUTE format('UPDATE %I.%I
+                                        SET serverpath = regexp_replace(serverpath, ''^/shared/delivery/'', \$1)
+                                        WHERE serverpath NOT LIKE \$2',
+                                        schema_name_var, table_name_var)
+                        USING delivery_path || '/', delivery_path || '/%';
+                    END IF;
+                END LOOP;
+            END
+            \$\$;              
       containers:
         - env:
-            - name: DEPLOY_VOLUME_MACHINE
+            - name: DELIVERY_FOLDER
+              value: {{ .Values.anadir.delivery }}
+            - name: DEPLOY_FOLDER
               value: {{ .Values.anadir.deploy }}
+            - name: SHARED_FOLDER
+              value: {{ .Values.anadir.common }}
+            - name: SHARED_CAST_FOLDER
+              value: {{ .Values.anadir.castdirmount }}
             - name: DELIVERY_VOLUME_MACHINE
               value: {{ .Values.anadir.delivery }}
+            - name: DEPLOY_VOLUME_MACHINE
+              value: {{ .Values.anadir.deploy }}
             - name: SHARED_VOLUME_MACHINE
               value: {{ .Values.anadir.common }}
+            - name: SHARED_CAST_VOLUME_MACHINE
+              value: {{ .Values.anadir.castdirmount }}     
             - name: LOGS_VOLUME_MACHINE
               value: {{ .Values.anadir.logs }}
             - name: ANDATA_VOLUME_MACHINE
@@ -95,6 +160,8 @@ spec:
               name: castdir
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
+            - name: dshm
+              mountPath: /dev/shm                
       restartPolicy: Always 
 {{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
@@ -104,6 +171,10 @@ spec:
         - name: shared-datadir
           persistentVolumeClaim:
             claimName: pvc-shared-datadir
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.AnalysisNode_shmsize }}            
   volumeClaimTemplates:
     - metadata:
         name: castdir

@@ -33,7 +33,29 @@ spec:
       labels:
         console.network/aip-network: "true"
         console.service: console-dashboards
-    spec:    
+    spec:
+      initContainers:             
+        - name: console-control-panel-and-authentication-service-healthcheck
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          command:
+          - /bin/sh
+          - -c
+          - |
+            until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-control-panel to be healthy..."
+              sleep 2
+            done
+            echo "console-control-panel is healthy!"
+            until curl -s http://console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local:8092/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-authentication-service to be healthy..."
+              sleep 2
+            done
+            echo "console-authentication-service is healthy!"
+            until curl -s http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:8090/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-gateway-service to be healthy..."
+              sleep 2
+            done                          
+            echo "console-gateway-service is healthy!"    
       containers:
         - env:
             - name: HOST_HOSTNAME
