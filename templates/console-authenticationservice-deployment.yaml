@@ -40,7 +40,11 @@ spec:
         - /bin/sh
         - -c
         - |
+{{- if .Values.CustomPostgres.enable }}
+          until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- else }}
           until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- end }}
       - name: console-control-panel-healthcheck
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
         command:
@@ -74,10 +78,17 @@ spec:
               value: console-sso-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_KEYCLOAK
               value: "8096"
+{{- if .Values.CustomPostgres.enable }}
+            - name: DB_HOST
+              value: {{ .Values.CustomPostgres.host }}
+            - name: DB_PORT
+              value: "{{ .Values.CustomPostgres.port }}"               
+{{- else }}
             - name: DB_HOST
               value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
             - name: DB_PORT
               value: "2285"
+{{- end }}
             - name: KC_USER
               value: "admin"
             - name: KC_PASSWORD

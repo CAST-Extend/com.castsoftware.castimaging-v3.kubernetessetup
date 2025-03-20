@@ -43,7 +43,11 @@ spec:
         - /bin/sh
         - -c
         - |
-          until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!    
+{{- if .Values.CustomPostgres.enable }}
+          until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- else }}
+          until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- end }}
       containers:
         - env:
             - name: HOST_AUTH_SERVICE
@@ -54,10 +58,17 @@ spec:
               value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_CONTROL_PANEL
               value: "8098"
+{{- if .Values.CustomPostgres.enable }}
+            - name: DB_HOST
+              value: {{ .Values.CustomPostgres.host }}
+            - name: DB_PORT
+              value: "{{ .Values.CustomPostgres.port }}"               
+{{- else }}
             - name: DB_HOST
               value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
             - name: DB_PORT
-              value: "2285"
+              value: "2285"              
+{{- end }}
             - name: DB_ENCRYPTED_PASSWORD
               value: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
             - name: HOST_CONSOLE

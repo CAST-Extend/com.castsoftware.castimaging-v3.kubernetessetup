@@ -48,6 +48,14 @@ CreateConsoleGatewayHostPort: false   # Default: false
 CreateStorageClass: true       # Default: true
 DiskClassName: castimaging-ds  # Default: castimaging-ds, ceph: rook-ceph-block
 FileClassName: castimaging-fs  # Default: castimaging-fs
+#
+# Postgres
+CustomPostgres:
+  enable: false
+  host: kubtest1
+  port: 2285
+  postgres_user_sso: postgres
+  postgres_password_sso: postgres
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers

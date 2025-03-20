@@ -79,7 +79,11 @@ spec:
           - -c
           - |
             echo "Updating application paths in postgres admin_center.properties table..."
+{{- if .Values.CustomPostgres.enable }}
+            psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres <<EOF
+{{- else }}
             psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d postgres <<EOF
+{{- end }}
             select * from admin_center.properties where prop_key like 'application.paths.%';
             update admin_center.properties set value='{{ .Values.anadir.delivery }}' where prop_key='application.paths.delivery-folder';
             update admin_center.properties set value='{{ .Values.anadir.deploy }}' where prop_key='application.paths.deploy-folder';

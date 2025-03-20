@@ -1,3 +1,4 @@
+{{- if not .Values.CustomPostgres.enable }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -94,3 +95,4 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: {{ .Values.postgres_shmsize }}            
+{{- end }} 

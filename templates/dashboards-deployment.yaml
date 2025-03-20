@@ -66,10 +66,17 @@ spec:
               value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_CONTROL_PANEL
               value: "8098"
+{{- if .Values.CustomPostgres.enable }}
+            - name: DB_HOST
+              value: {{ .Values.CustomPostgres.host }}
+            - name: DB_PORT
+              value: "{{ .Values.CustomPostgres.port }}"               
+{{- else }}
             - name: DB_HOST
               value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
             - name: DB_PORT
-              value: "2285"
+              value: "2285"              
+{{- end }}
             - name: HOST_GATEWAY
               value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_GATEWAY
