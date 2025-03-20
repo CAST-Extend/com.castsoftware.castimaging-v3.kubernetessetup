@@ -17,7 +17,7 @@ K8SProvider: AKS
 #
 # External network access
 # Corresponding Cluster-Internal url: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090
-FrontEndHost: https://infra-25387.cast.fr
+FrontEndHost: https://my-host.com
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
