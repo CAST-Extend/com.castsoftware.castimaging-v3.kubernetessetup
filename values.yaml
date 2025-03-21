@@ -12,17 +12,15 @@ namespace: castimaging-v3
 # Kubernetes Provider: 
 # - For Azure:  AKS
 # - For AWS:    EKS
-# - Other:      Custom
 K8SProvider: AKS
 #
 # External network access
-# Corresponding Cluster-Internal url: http://console-gateway-service.castimaging-v3.svc.cluster.local:8090
 FrontEndHost: https://my-host.com
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: false
-  exthostname: a.b.com # To be updated after deployment + run helm-upgrade.bat
+  exthostname: myextendhost.com # To be updated after deployment + run helm-upgrade.bat
   pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - Use custom Trust Store
@@ -46,16 +44,16 @@ CreateConsoleGatewayHostPort: false   # Default: false
 #
 # CAST Storage Class names
 CreateStorageClass: true       # Default: true
-DiskClassName: castimaging-ds  # Default: castimaging-ds, ceph: rook-ceph-block
+DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
 #
 # Postgres
+CastStorageService: 
+  enable: true
 CustomPostgres:
   enable: false
-  host: kubtest1
+  host: console-postgres.castimaging-v3.svc.cluster.local
   port: 2285
-  postgres_user_sso: postgres
-  postgres_password_sso: postgres
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -168,7 +166,7 @@ ExtendProxyImage:
 #
 # Console resources
 #
-postgres_shmsize: 4Gi
+postgres_shmsize: 4G
 ConsolePostgresResources:
   requests:
     cpu: 0.5
@@ -176,7 +174,7 @@ ConsolePostgresResources:
 SSOServiceResources:
   requests:
     cpu: 0.1
-    memory: 800M
+    memory: 1G
 ConsoleServiceResources:
   requests:
     cpu: 0.1
@@ -185,15 +183,15 @@ GatewayServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
-AnalysisNode_shmsize: 1Gi
+AnalysisNode_shmsize: 1G
 AnalysisNodeResources:
   requests:
     cpu: 0.5
     memory: 8G
-ControlPaneResources:
+ControlPanelResources:
   requests:
     cpu: 0.1
-    memory: 500M
+    memory: 800M
 AuthenticationServiceResources:
   requests:
     cpu: 0.1
@@ -201,7 +199,7 @@ AuthenticationServiceResources:
 IntegratedDashboardsResources:
   requests:
     cpu: 0.1
-    memory: 500M
+    memory: 600M
 
 #
 # Viewer resources
@@ -217,11 +215,11 @@ ViewerServerServiceResources:
 ViewerEtlResources:
   requests:
     cpu: 0.2
-    memory: 1G
+    memory: 500M
 ViewerAiManagerResources:
   requests:
     cpu: 0.1
-    memory: 100M    
+    memory: 400M    
 #
 # ExtendProxy resources
 #

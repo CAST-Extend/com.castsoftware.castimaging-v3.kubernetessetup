@@ -99,7 +99,7 @@ spec:
             - containerPort: 8098
               protocol: TCP
           resources:
-            {{- toYaml .Values.ControlPaneResources | nindent 12 }}
+            {{- toYaml .Values.ControlPanelResources | nindent 12 }}
       restartPolicy: Always
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:

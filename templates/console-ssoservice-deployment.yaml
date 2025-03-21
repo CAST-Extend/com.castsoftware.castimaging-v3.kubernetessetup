@@ -46,22 +46,18 @@ spec:
           until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
       containers:
-        - env:
+        - env:       
 {{- if .Values.CustomPostgres.enable }}
-            - name: KC_DB_USERNAME
-              value: {{ .Values.CustomPostgres.postgres_user_sso }}
-            - name: KC_DB_PASSWORD
-              value: {{ .Values.CustomPostgres.postgres_password_sso }}
             - name: KC_DB_URL
               value: jdbc:postgresql://{{ .Values.CustomPostgres.host }}:{{ .Values.CustomPostgres.port }}/keycloak
 {{- else }}
-            - name: KC_DB_USERNAME
-              value: postgres
-            - name: KC_DB_PASSWORD
-              value: postgres
             - name: KC_DB_URL
               value: jdbc:postgresql://console-postgres.{{ .Release.Namespace }}.svc.cluster.local:2285/keycloak
 {{- end }} 
+            - name: KC_DB_USERNAME
+              value: operator
+            - name: KC_DB_PASSWORD
+              value: CastAIP
             - name: KC_HTTP_RELATIVE_PATH
               value: /auth
             - name: KEYCLOAK_ADMIN

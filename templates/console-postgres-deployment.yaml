@@ -1,4 +1,4 @@
-{{- if not .Values.CustomPostgres.enable }}
+{{- if .Values.CastStorageService.enable }}
 apiVersion: v1
 kind: Service
 metadata:
