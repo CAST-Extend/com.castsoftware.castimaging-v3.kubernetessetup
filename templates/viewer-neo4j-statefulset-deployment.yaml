@@ -38,10 +38,7 @@ spec:
         component: core
     spec:
       securityContext:
-        runAsUser: 7474
-        runAsGroup: 7474
-        fsGroup: 7474
-        fsGroupChangePolicy: "Always"      
+        fsGroup: 7474   
       containers:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"

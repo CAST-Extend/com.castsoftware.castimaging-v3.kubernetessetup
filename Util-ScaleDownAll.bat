@@ -1,6 +1,6 @@
 @echo off
 
-set NAMESPACE=castimaging-v3
+set NAMESPACE=%1
 
 echo Scaling down... 
 

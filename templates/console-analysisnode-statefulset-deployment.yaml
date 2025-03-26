@@ -36,13 +36,11 @@ spec:
         component: core
     spec:
       securityContext:
-        runAsUser: 10001
-        runAsGroup: 10001
         fsGroup: 10001
-        fsGroupChangePolicy: "Always"
       initContainers:     
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
           command:
           - /bin/sh
           - -c
@@ -71,6 +69,7 @@ spec:
               name: shared-datadir
         - name: postgres-upgrade-folders
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
           env:
             - name: PGPASSWORD
               value: CastAIP

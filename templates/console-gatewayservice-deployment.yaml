@@ -39,6 +39,7 @@ spec:
       initContainers:
       - name: console-control-panel-healthcheck
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
         command:
         - /bin/sh
         - -c

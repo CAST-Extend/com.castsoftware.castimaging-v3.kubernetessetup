@@ -31,13 +31,11 @@ spec:
         app: viewer-etl
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
         fsGroup: 1000
-        fsGroupChangePolicy: "Always" 
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
           command:
           - /bin/sh
           - -c

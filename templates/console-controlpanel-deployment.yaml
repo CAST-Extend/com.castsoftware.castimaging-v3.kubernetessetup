@@ -39,6 +39,7 @@ spec:
       initContainers:
       - name: wait-for-postgres
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
         command:
         - /bin/sh
         - -c
