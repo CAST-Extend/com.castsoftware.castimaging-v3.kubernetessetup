@@ -79,49 +79,14 @@ spec:
           - |
             echo "Updating application paths in postgres admin_center.properties table..."
 {{- if .Values.CustomPostgres.enable }}
-            psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres <<EOF
+            psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
 {{- else }}
-            psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d postgres <<EOF
-{{- end }}
-            select * from admin_center.properties where prop_key like 'application.paths.%';
-            update admin_center.properties set value='{{ .Values.anadir.delivery }}' where prop_key='application.paths.delivery-folder';
-            update admin_center.properties set value='{{ .Values.anadir.deploy }}' where prop_key='application.paths.deploy-folder';
-            update admin_center.properties set value='{{ .Values.anadir.common }}' where prop_key='application.paths.shared-folder';
-            select * from admin_center.properties where prop_key like 'application.paths.%';
-            DO
-            \$\$
-            DECLARE
-                schema_name_var TEXT;
-                table_name_var TEXT := 'cms_pref_sources';
-                deploy_path TEXT := '{{ .Values.anadir.deploy }}';
-                delivery_path TEXT := '{{ .Values.anadir.delivery }}';
-            BEGIN
-                -- Loop through all schemas that match the pattern '%_mngt'
-                FOR schema_name_var IN
-                    SELECT schema_name
-                    FROM information_schema.schemata
-                    WHERE schema_name LIKE '%_mngt'
-                LOOP
-                    -- Check if the table exists in the schema
-                    IF EXISTS (SELECT 1
-                               FROM information_schema.tables
-                               WHERE table_schema = schema_name_var
-                               AND table_name = table_name_var) THEN
-                               
-                        -- Update the deploypath column
-                        EXECUTE format('UPDATE %I.%I SET deploypath = \$1', schema_name_var, table_name_var)
-                        USING deploy_path;
-            
-                        -- Update the serverpath column conditionally
-                        EXECUTE format('UPDATE %I.%I
-                                        SET serverpath = regexp_replace(serverpath, ''^/shared/delivery/'', \$1)
-                                        WHERE serverpath NOT LIKE \$2',
-                                        schema_name_var, table_name_var)
-                        USING delivery_path || '/', delivery_path || '/%';
-                    END IF;
-                END LOOP;
-            END
-            \$\$;              
+            psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
+{{- end }}  
+          volumeMounts:
+            - name: analysisnode-upgrade-script
+              mountPath: /home/imaging/sql/analysisnode-upgrade-script.sql
+              subPath: analysisnode-upgrade-script.sql       
       containers:
         - env:
             - name: DELIVERY_FOLDER
@@ -164,7 +129,7 @@ spec:
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
             - name: dshm
-              mountPath: /dev/shm                
+              mountPath: /dev/shm   
       restartPolicy: Always 
 {{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
@@ -177,7 +142,10 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: {{ .Values.AnalysisNode_shmsize }}            
+            sizeLimit: {{ .Values.AnalysisNode_shmsize }}
+        - name: analysisnode-upgrade-script
+          configMap:
+            name: analysisnode-upgrade-script                     
   volumeClaimTemplates:
     - metadata:
         name: castdir
