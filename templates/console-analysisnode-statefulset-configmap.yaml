@@ -5,11 +5,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   analysisnode-upgrade-script.sql: |
+    -- Updating paths in admin_center.properties table    
     select * from admin_center.properties where prop_key like 'application.paths.%';
     update admin_center.properties set value='{{ .Values.anadir.delivery }}' where prop_key='application.paths.delivery-folder';
     update admin_center.properties set value='{{ .Values.anadir.deploy }}' where prop_key='application.paths.deploy-folder';
     update admin_center.properties set value='{{ .Values.anadir.common }}' where prop_key='application.paths.shared-folder';
     select * from admin_center.properties where prop_key like 'application.paths.%';
+    -- Updating paths in existing triplets
     DO
     $$
     DECLARE

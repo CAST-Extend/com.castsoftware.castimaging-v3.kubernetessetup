@@ -42,7 +42,7 @@ mountOptions:
  - mfsymlinks
  - cache=strict
  - actimeo=30
- - nobrl  # disable sending byte range lock requests to the server and for applications which have challenges with posix locks
+ - nobrl
 parameters:
   skuName: Premium_LRS
     {{- end }} 
@@ -101,7 +101,6 @@ spec:
     requests:
       storage: {{ .Values.size_shared_datadir }}
 ---
-# For storage postgres data
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -114,7 +113,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.size_db_data }}  # Default for Postgres, change according to deployment and applications in portfolio
+      storage: {{ .Values.size_db_data }}
   storageClassName: {{ .Values.DiskClassName }}
 ---
 apiVersion: v1
@@ -182,5 +181,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.size_extendproxy_data }}  # Specify the storage size required
+      storage: {{ .Values.size_extendproxy_data }}
   storageClassName: {{ .Values.DiskClassName }}

@@ -45,10 +45,10 @@ DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
 #
 # Postgres
-CastStorageService: 
+CastStorageService: # If enabled, postgres will be deployed in this helm chart
   enable: true
-CustomPostgres:
-  enable: false
+CustomPostgres:     # If enabled, external postgres server will be used 
+  enable: false     # IMPORTANT NOTE: init-db.sh script defined in console-postgres-configmap.yaml will need to be executed manually before deployment
   host: console-postgres.castimaging-v3.svc.cluster.local
   port: 2285
 ####################################################################################
@@ -107,31 +107,31 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.1.1_core8.4.0"
+  tag: "3.2.2_core8.4.2"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards
-  tag: "2.13.0"
+  tag: "2.13.2"
   pullPolicy: IfNotPresent
   
 #
@@ -139,19 +139,19 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: "3.1.1"
+  tag: "3.2.2"
   pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
@@ -227,24 +227,14 @@ ExtendProxyResources:
     memory: 200M    
 
 #
-# Analysis folders (do not customize)
+# Analysis folders (do not modify)
 #
 anadir:
-  datadirmount: /shared
-  deploy: /shared/deploy
-  delivery: /shared/delivery
-  common: /shared/common-data
+  datadirmount: /opt/cast/shared
+  deploy:       /opt/cast/shared/deploy
+  delivery:     /opt/cast/shared/delivery
+  common:       /opt/cast/shared/common-data
   castdirmount: /usr/share/CAST
-  logs: /usr/share/CAST/CAST/Logs
-  lisa: /usr/share/CAST/CASTMS/LISA
-  extensions: /usr/share/CAST/Extensions
-
-# anadir:
-#   datadirmount: /opt/cast/shared
-#   deploy:       /opt/cast/shared/deploy
-#   delivery:     /opt/cast/shared/delivery
-#   common:       /opt/cast/shared/common-data
-#   castdirmount: /usr/share/CAST
-#   logs:         /usr/share/CAST/CAST/Logs
-#   lisa:         /usr/share/CAST/CASTMS/LISA
-#   extensions:   /usr/share/CAST/Extensions
+  logs:         /usr/share/CAST/CAST/Logs
+  lisa:         /usr/share/CAST/CASTMS/LISA
+  extensions:   /usr/share/CAST/Extensions
