@@ -5,10 +5,10 @@ This repository contains the helm chart and documentation for deploying CAST Ima
 ## Infrastructure Setup Guides
 
 ### [EKS Cluster Setup](EKS-ClusterSetup.md)
-Instructions to setup an EKS cluster
+Instructions to setup an AWS EKS cluster.
 
 ### [AKS Cluster Setup]
-Not currently available.
+We are currently not providing instructions for creating an Azure AKS cluster. Please refer to the Azure documentation.
 
 ### [AWS EKS Configuration](README-AWS-EKS.md)
 Guide to configure Imaging on EKS
