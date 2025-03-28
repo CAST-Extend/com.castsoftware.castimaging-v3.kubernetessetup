@@ -1,6 +1,6 @@
 # Project Documentation Overview
 
-This repository contains detailed documentation for various aspects of our project infrastructure and setup.
+This repository contains the helm chart and documentation for deploying CAST Imaging on Azure AKS or Amazon EKS.
 
 ## Infrastructure Setup Guides
 
