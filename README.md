@@ -4,6 +4,12 @@ This repository contains the helm chart and documentation for deploying CAST Ima
 
 ## Infrastructure Setup Guides
 
+### [EKS Cluster Setup](EKS-ClusterSetup.md)
+Instructions to setup an EKS cluster
+
+### [AKS Cluster Setup]
+Not currently available.
+
 ### [AWS EKS Configuration](README-AWS-EKS.md)
 Guide to configure Imaging on EKS
 
@@ -14,11 +20,6 @@ Guide to configure Imaging on AKS
 
 ### [Version 3.2.2 Upgrade Guide](README-3.2.2-Upgrade.md)
 Guide to upgrade your Imaging Kubernetes deployment from 3.1.1 to 3.2.2
-
-## Misc
-
-### [EKS Cluster Setup](EKS-ClusterSetup.md)
-Guide to setup an EKS cluster
 
 ## Getting Started
 
