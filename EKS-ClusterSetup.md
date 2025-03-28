@@ -139,20 +139,8 @@ https://github.com/helm/helm/releases
 
 # Create cluster
 
-* Update fields in ex_eks-mycluster.yaml to match values from your environment, including VPC id, subnets, EC2 key.
+* Update variables in eksctl-create-cluster.bat to match values from your environment (AWS_DEFAULT_REGION, AWS_ACCOUNT_ID)
 
-* Apply it: 
-
-```eksctl create cluster -f ex_eks-mycluster.yaml```
-
-
-# Enable EBS and EFS CSI Driver
-
-* Go to EKS > Clusters > eks-mycluster
-* Click _Get more add-ons_
-* Tick the _Amazon EBS CSI Driver_ checkbox 
-* Tick the _Amazon EFS CSI Driver_ checkbox 
-* Confirm
-
-More information about storing Kubernetes volumes with Amazon EBS:
-https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+* Execute eksctl-create-cluster.bat
+ 
+ 

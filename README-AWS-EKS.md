@@ -5,7 +5,7 @@ This guide outlines the process for setting up **CAST Imaging** in a **Amazon Ku
 ## Prerequisites
 
 - CAST Imaging Docker images
-- Clone the Git repo branch 3.1.1-cloud using _git clone -b 3.1.1-cloud https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
+- Clone the Git repo branch 3.2.2-cloud using _git clone -b 3.2.2-cloud https://github.com/CAST-Extend/com.castsoftware.castimaging-v3.kubernetessetup_
 - A valid CAST Imaging License
 - OPTIONAL: Deploy Kubernetes Dashboard (https://github.com/kubernetes/dashboard) to troubleshoot containers, and manage the cluster resources
 
@@ -32,8 +32,6 @@ Before starting the installation, ensure that your Kubernetes cluster is running
  - Review and adjust the parameter values at the top of the values.yaml file
 	- Define K8S provider:
 		- K8SProvider: EKS
- - Create namespace:
-	- Run "kubectl create ns castimaging-v3"
  - Run helm-install.bat
 
 
