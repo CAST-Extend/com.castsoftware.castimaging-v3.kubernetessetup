@@ -89,7 +89,7 @@ Alternatively, get the extendproxy pod name by running "kubectl get pods -n cast
 
 **5. Scale down / Scale up CAST Imaging**
 
-You can stop/start CAST Imaging using:
+You can stop/start CAST Imaging services using:
 
 - Util-ScaleDownAll.bat
 - Util-ScaleUpAll.bat
@@ -118,10 +118,11 @@ To install the Kubernetes Dashboard, run the command below. For more information
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
 
-## Setup an AWS EFS - Elastic File Storage (OPTIONAL)
+
+## Setup Elastic File Storage for the analysis-node(s) (OPTIONAL)
 
 All pods will use EBS (block storage) by default.
-For the console-analysis-node StatefulSet, it is however possible to configure an EFS (file storage) in order to enable file sharing and thus, scale-up (ability to run more than one console-analysis-node pod, when needed).
+For the console-analysis-node StatefulSet, it is however possible to configure an EFS (Elastic File Storage based on efs.csi.aws.com driver) to enable file sharing between analysis nodes, when multiple analysis node are needed.
 
 Prior to running the initial helm-install, follow these steps:
 - Create an EFS:
@@ -142,4 +143,33 @@ Prior to running the initial helm-install, follow these steps:
 	- Copy the newly created _File System ID_ and _Access point ID_
 - Update the EFSsystemID and EFSaccessPointID variables in values.yaml
 - Update the Security Group of the EFS (check its Network section) to allow access (inbound rule on NFS port 2049) from the Security Group of the Node Instances/AutoScalingGroup
+- Set AnalysisNodeFS.enable to true (values.yaml)
 - Proceed with the installation: _1. Run the installation_
+
+
+## Use an external postgres server (OPTIONAL)
+
+If you do not want use the CAST postgres server preconfigured in this helm chart, you can disable it and configure an Amazon RDS for PostgreSQL database instead:
+- Setup your Amazon RDS for PostgreSQL database (postgres 15 - 8GB RAM minimum recommended like db.m5d.large) 
+	- RDS must have been configured with "Self managed" credentials
+	- master username = postgres 
+	- Define a password for postgres user
+	- Create a custom-pg15 Parameter Group in order to customize this parameter:
+		rds.force_ssl = 0
+	- Once the RDS instance is created, apply the custom-pg15 Parameter Group to it and reboot it.
+	- Connect to RDS with "postgres" superuser and execute this script:
+        ```
+        CREATE USER operator WITH PASSWORD 'CastAIP';
+        GRANT rds_superuser TO operator;
+        CREATE USER guest WITH PASSWORD 'WelcomeToAIP';
+        GRANT ALL PRIVILEGES ON DATABASE postgres TO operator;
+        CREATE USER keycloak WITH PASSWORD 'keycloak';
+        CREATE DATABASE keycloak;
+        GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
+        ```
+- Disable the Postgres server preconfigured in the helm chart
+	- Set CastStorageService.enable to false
+- Enable the CustomPostgres option
+	- Set CustomPostgres.enable to true	
+	- Set the CustomPostgres.host and CustomPostgres.port to match your custom instance host name and port number
+- Proceed with the installation: _1. Run the installation_	

@@ -76,7 +76,7 @@ Alternatively, get the extendproxy pod name by running "kubectl get pods -n cast
 
 **5. Scale down / Scale up CAST Imaging**
 
-You can stop/start CAST Imaging using:
+You can stop/start CAST Imaging services using:
 
 - Util-ScaleDownAll.bat
 - Util-ScaleUpAll.bat
@@ -109,3 +109,36 @@ To install the Kubernetes Dashboard, run the command below. For more information
 	```
  	kubectl -n kubernetes-dashboard create token admin-user
  	```
+
+
+## Setup Azure Files for the analysis-node(s) (OPTIONAL)
+
+All pods will use Azure Disks (block storage) by default.
+For the console-analysis-node StatefulSet, it is however possible to configure Azure Files (based on file.csi.azure.com driver) to enable file sharing between analysis nodes, when multiple analysis node are needed.
+
+Prior to running the initial helm-install, follow these steps:
+- Set AnalysisNodeFS.enable to true (values.yaml)
+- Proceed with the installation: _1. Run the installation_
+
+
+## Use an external postgres server (OPTIONAL)
+
+If you do not want use the CAST postgres server preconfigured in this helm chart, you can disable it and configure an Azure Database for PostgreSQL instead:
+- Setup your Azure Database for PostgreSQL database (postgres 15 - 8GB RAM minimum recommended like B2ms)
+- Connect to the database as a superuser and execute this script:
+  	```
+	CREATE USER operator WITH SUPERUSER PASSWORD 'CastAIP';
+	GRANT azure_pg_admin TO operator;
+	CREATE USER guest WITH PASSWORD 'WelcomeToAIP';
+	GRANT ALL PRIVILEGES ON DATABASE postgres TO operator;
+	CREATE USER keycloak WITH PASSWORD 'keycloak';
+	CREATE DATABASE keycloak;
+	GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
+    EOSQL
+  	```
+- Disable the Postgres server preconfigured in the helm chart
+	- Set CastStorageService.enable to false
+- Enable the CustomPostgres option
+	- Set CustomPostgres.enable to true	
+	- Set the CustomPostgres.host and CustomPostgres.port to match your custom instance host name and port number
+- Proceed with the installation: _1. Run the installation_	
