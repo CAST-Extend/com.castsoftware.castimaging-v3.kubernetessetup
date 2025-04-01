@@ -2,7 +2,7 @@
 
 ## Steps
 
-- Scale down all Imaging pods (Util-ScaleDownAll.bat)
+- Scale down all Imaging pods (Util-ScaleDownAll.bat|sh)
 - Update variables defined in values.yaml to match your current Imaging deployment
 - Run Helm Upgrade:
  	```

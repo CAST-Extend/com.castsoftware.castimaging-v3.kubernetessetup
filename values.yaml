@@ -20,7 +20,7 @@ FrontEndHost: https://my-host.com
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: false
-  exthostname: myextendhost.com # To be updated after deployment + run helm-upgrade.bat
+  exthostname: myextendhost.com # To be updated after deployment + run helm-upgrade.bat|sh
   pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - Use custom Trust Store

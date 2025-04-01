@@ -36,7 +36,7 @@ Before starting the installation, ensure that your Kubernetes cluster is running
 	- In case a self-signed certificate needs to be used:
 		- UseCustomTrustStore: true
 			- The CA cert will need to be copied in console-authenticationservice-configmap.yaml
- - Run helm-install.bat
+ - Run helm-install.bat|sh
 
 
 **2. Network Setting**
@@ -46,7 +46,7 @@ Before starting the installation, ensure that your Kubernetes cluster is running
  - Update the _FrontEndHost_ variable in values.yaml
  	- FrontEndHost: https://dev.imaginghost.com
  - Apply helm chart changes:
-   	- run helm-upgrade.bat
+   	- run helm-upgrade.bat|sh
  - Make configuration for redirecting from DNS to external IP.
 
 
@@ -62,7 +62,7 @@ Before starting the installation, ensure that your Kubernetes cluster is running
         exthostname: EXTERNAL-IP
 	```
  - In values.yaml, also ensure that ExtendProxy.enable is set to true
- - run helm-upgrade.bat
+ - run helm-upgrade.bat|sh
  - Review the log of the extendproxy pod to see the administration URL and extend token
  - "CAST Extend URL" to be configured in Imaging Console: http://EXTERNAL-IP:8085
 
@@ -78,8 +78,8 @@ Alternatively, get the extendproxy pod name by running "kubectl get pods -n cast
 
 You can stop/start CAST Imaging services using:
 
-- Util-ScaleDownAll.bat
-- Util-ScaleUpAll.bat
+- Util-ScaleDownAll.bat|sh
+- Util-ScaleUpAll.bat|sh
 
  
 ## Install Kubernetes Dashboard (OPTIONAL)

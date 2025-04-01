@@ -139,8 +139,8 @@ https://github.com/helm/helm/releases
 
 # Create cluster
 
-* Update variables in eksctl-create-cluster.bat to match values from your environment (AWS_DEFAULT_REGION, AWS_ACCOUNT_ID)
+* Update variables in eksctl-create-cluster.bat|sh to match values from your environment (AWS_DEFAULT_REGION, AWS_ACCOUNT_ID)
 
-* Execute eksctl-create-cluster.bat
+* Execute eksctl-create-cluster.bat|sh
  
  
