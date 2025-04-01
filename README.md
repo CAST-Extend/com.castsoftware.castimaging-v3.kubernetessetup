@@ -6,7 +6,7 @@ This repository contains the helm chart and the documentation for deploying CAST
 
 ### Kubernetes cluster minimum requirements:
 - Number of worker nodes: 2
-- Worker node specs: 32GB RAM - 8 vCPUs - 50GB Disk (system)
+- Node specs: 32GB RAM - 8 vCPUs - 50GB Disk (system)
 
 ### [EKS Cluster Setup](EKS-ClusterSetup.md)
 Instructions to setup a sample AWS EKS cluster with minimum requirements.
