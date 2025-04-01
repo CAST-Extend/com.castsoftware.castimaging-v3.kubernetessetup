@@ -12,7 +12,7 @@ This repository contains the helm chart and the documentation for deploying CAST
 Instructions to setup a sample AWS EKS cluster with minimum requirements.
 
 ### AKS Cluster Setup
-We are not providing instructions for creating an Azure AKS cluster. Please refer to Azure on-line documentation.
+We are not providing instructions for creating an Azure AKS cluster. Please refer to the Azure on-line documentation.
 
 ## Imaging Deployment Guides
 
