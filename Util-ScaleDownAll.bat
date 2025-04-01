@@ -1,6 +1,6 @@
 @echo off
 
-set NAMESPACE=%1
+set NAMESPACE=castimaging-v3
 
 echo Scaling down... 
 
@@ -17,5 +17,3 @@ kubectl scale deployment  viewer-etl                     --replicas=0 -n %NAMESP
 kubectl scale deployment  viewer-server                  --replicas=0 -n %NAMESPACE%
 kubectl scale statefulset viewer-neo4j-core              --replicas=0 -n %NAMESPACE%
 REM kubectl scale deployment  extendproxy                    --replicas=0 -n %NAMESPACE%
-
-timeout /t 30 /nobreak >nul
