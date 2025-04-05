@@ -50,8 +50,11 @@ spec:
               sleep 2
             done
             echo "viewer-neo4j is up!"
-            echo "Allowing some time for viewer-server to initialize..."
-            sleep 120
+            until curl -s http://viewer-server.{{ .Release.Namespace }}.svc.cluster.local:9000/healthcheck | grep -q "I am alive"; do
+              echo "Waiting for viewer-server..."
+              sleep 2
+            done
+            echo "viewer-server is up!"
             echo "Done."
       containers:
         - image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag}}"
