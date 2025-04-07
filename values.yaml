@@ -130,8 +130,8 @@ ConsoleAuthenticationServiceImage:
   tag: "3.2.3"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: castimaging/dashboards
-  tag: "2.13.2"
+  name: castimaging/dashboards-v3
+  tag: "3.2.3"
   pullPolicy: IfNotPresent
   
 #
