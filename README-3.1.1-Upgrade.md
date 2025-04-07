@@ -1,4 +1,4 @@
-# CAST Imaging Version Upgrade from 3.1.1 to 3.2.2
+# CAST Imaging Version Upgrade from 3.1.1
 
 ## Steps
 
