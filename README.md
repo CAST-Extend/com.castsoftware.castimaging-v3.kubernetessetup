@@ -24,8 +24,8 @@ Guide to deploy Imaging on AKS
 
 ## Upgrade Documentation
 
-### [Version 3.2.2 Upgrade Guide](README-3.2.2-Upgrade.md)
-Guide to upgrade your Imaging Kubernetes deployment from 3.1.1 to 3.2.2
+### [Version Upgrade from 3.1.1 Guide](README-3.1.1-Upgrade.md)
+Guide to upgrade your Imaging Kubernetes deployment from 3.1.1
 
 ## Getting Started
 
