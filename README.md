@@ -1,6 +1,6 @@
 # Documentation
 
-## Installation
+## Install
 https://doc.castsoftware.com/install/global/cloud/
 
 ## Upgrade
