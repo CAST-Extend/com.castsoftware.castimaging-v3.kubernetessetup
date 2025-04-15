@@ -15,7 +15,11 @@ provisioner: {{ .Values.AKS_DSdriver }}
 parameters:
   skuName: Premium_LRS
   kind: Managed
-  {{- end }}  
+  {{- else if eq .Values.K8SProvider "GKE" }}  
+provisioner: {{ .Values.GKE_DSdriver }}
+parameters:
+  type: pd-standard   # pd-ssd (premium) or pd-standard  
+  {{- end }}
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 ---
@@ -45,6 +49,11 @@ mountOptions:
  - nobrl
 parameters:
   skuName: Premium_LRS
+    {{- else if eq .Values.K8SProvider "GKE" }}
+allowVolumeExpansion: true    
+provisioner: {{ .Values.GKE_FSdriver }}
+parameters:
+  tier: standard  # premium or standard
     {{- end }} 
 volumeBindingMode: Immediate
 reclaimPolicy: Delete
