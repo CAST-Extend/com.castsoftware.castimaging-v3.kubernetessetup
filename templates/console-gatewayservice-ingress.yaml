@@ -1,0 +1,57 @@
+# ********************************************************************
+# Network configuration for GKE:
+# ********************************************************************
+# - Create a Global static external IP in GCP
+# - Create a domain name e.g. mydomain.com with DNS record pointing at this static IP
+# - Create an SSL certificate for mydomain.com
+# - Store the certificate in GCP "Certificate Manager"
+# - Update console-gatewayservice-ingress.yaml with the "Managed Certificate name" (my-certificate) 
+#   and "Static IP name" (my-frontend-ip)
+# - Update values.yaml :
+# 	K8SProvider: GKE
+# 	FrontEndHost: https://mydomain.com
+# 	...
+# - Install the HelmChart
+# 	This will create the k8s Ingress as well as a Load Balancer + a Health Check... in GCP
+# - Update the Health Check:
+# 	Locate the Health Check created for console-gateway-service: 
+# 	Health check name will look like this: k8s1-abc123456-castimaging-v-console-gateway-servic-809-abc123abc
+# 		> Set "Request path" to: /actuator/health
+# 		> Save
+# - Wait until network components are fully deployed (may take 20+min)
+# ********************************************************************
+{{- if eq .Values.K8SProvider "GKE" }} 
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: my-certificate
+  namespace: {{ .Release.Namespace }}
+spec:
+  domains:
+    - mydomain.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: console-gateway-ingress
+  namespace: {{ .Release.Namespace }}  
+  annotations:
+    spec.ingressClassName: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "my-frontend-ip"
+    networking.gke.io/managed-certificates: "my-certificate"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: console-gateway-service
+                port:
+                  number: 8090
+{{- end }}
