@@ -91,10 +91,18 @@ spec:
             - name: DB_PORT
               value: "2285"
 {{- end }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: operator-db-password
             - name: KC_USER
               value: "admin"
             - name: KC_PASSWORD
-              value: "admin"
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: keycloak-admin-password
             - name: HOST_GATEWAY
               value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_GATEWAY
@@ -127,6 +135,9 @@ spec:
         - name: authcacrt
           configMap:
             name: authcacrt
+        - name: db-creds
+          secret:
+            secretName: imaging-pwd-sec            
 {{- end }}
       restartPolicy: Always
 {{- if .Values.UseImagePullSecrets }}      

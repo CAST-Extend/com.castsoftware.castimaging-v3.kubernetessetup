@@ -1,0 +1,24 @@
+{{- if .Values.UseImagePullSecrets }}
+apiVersion: v1
+data:
+  .dockerconfigjson: {{ .Values.Base64EncodedDockerconfigjson }}
+kind: Secret
+metadata:
+  name: imagepull-sec
+  namespace: {{ .Release.Namespace }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: imaging-pwd-sec
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+# encryption command (Linux): echo -n "mypassword" | base64
+  postgres-db-password: cG9zdGdyZXM=
+  operator-db-password: Q2FzdEFJUA==
+  guest-db-password: V2VsY29tZVRvQUlQ
+  keycloak-db-password: a2V5Y2xvYWs=
+  keycloak-admin-password: YWRtaW4=

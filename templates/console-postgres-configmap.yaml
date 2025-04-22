@@ -835,12 +835,19 @@ data:
  
     set -e
 
+    OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
+    GUEST_PASSWORD=$(cat /opt/secrets/guest-db-password)
+    KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
+    PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
+
+    psql -c "ALTER USER postgres WITH PASSWORD '$PGPASSWORD';"
+
     psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB <<-EOSQL
-        CREATE USER operator WITH SUPERUSER PASSWORD 'CastAIP';
-        CREATE USER guest WITH PASSWORD 'WelcomeToAIP';
+        CREATE USER operator WITH SUPERUSER PASSWORD '$OPERATOR_PASSWORD';
+        CREATE USER guest WITH PASSWORD '$GUEST_PASSWORD';
         GRANT ALL PRIVILEGES ON DATABASE postgres TO operator;
 
-        CREATE USER keycloak WITH PASSWORD 'keycloak';
+        CREATE USER keycloak WITH PASSWORD '$KEYCLOAK_PASSWORD';
         CREATE DATABASE keycloak;
         GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
     EOSQL

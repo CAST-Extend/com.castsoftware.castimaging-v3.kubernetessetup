@@ -49,7 +49,20 @@ spec:
               echo "Waiting for neo4j..."
               sleep 2
             done
-            echo "viewer-neo4j is up!"        
+            echo "viewer-neo4j is up!"
+            OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
+            ESCAPED_OPERATOR_PASSWORD=$(printf '%s\n' "$OPERATOR_PASSWORD" | sed -e 's/[\/&]/\\&/g')
+            cat /opt/imaging/open_ai-manager/config/app.config | sed "s/dbpassword-placeholder/$ESCAPED_OPERATOR_PASSWORD/g" > /updated-config/app.config
+            echo "app.config updated."
+          volumeMounts:
+            - name: openaiappconfig
+              mountPath: /opt/imaging/open_ai-manager/config/app.config
+              subPath: app.config
+            - name: updated-config-volume
+              mountPath: /updated-config              
+            - name: db-creds
+              mountPath: /opt/secrets
+              readOnly: true                              
       containers:
         - image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
@@ -64,9 +77,9 @@ spec:
             - name: logdir
               mountPath: /opt/imaging/open_ai-manager/logs
               readOnly: false
-            - name: openaiappconfig
+            - name: updated-config-volume
               mountPath: /opt/imaging/open_ai-manager/config/app.config
-              subPath: app.config
+              subPath: app.config            
 {{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
         - name: imagepull-sec
@@ -75,6 +88,11 @@ spec:
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-aimanager-logs
+        - name: updated-config-volume
+          emptyDir: {}            
         - name: openaiappconfig
           configMap:
             name: openaiappconfig
+        - name: db-creds
+          secret:
+            secretName: imaging-pwd-sec            

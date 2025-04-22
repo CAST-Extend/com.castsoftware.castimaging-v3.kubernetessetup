@@ -9,7 +9,7 @@ data:
     DB_HOST="console-postgres.{{ .Release.Namespace }}.svc.cluster.local"
     DB_PORT=2285              
 {{- end }}
-    DB_PASSWORD="CastAIP"
+    DB_PASSWORD="dbpassword-placeholder"
     DB_USER="operator"
     DB_SCHEMA="postgres"
     NEO4J_URI="bolt://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7687"

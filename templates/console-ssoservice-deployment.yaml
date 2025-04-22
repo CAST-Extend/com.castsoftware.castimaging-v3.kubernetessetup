@@ -58,13 +58,19 @@ spec:
             - name: KC_DB_USERNAME
               value: operator
             - name: KC_DB_PASSWORD
-              value: CastAIP
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: operator-db-password
             - name: KC_HTTP_RELATIVE_PATH
               value: /auth
             - name: KEYCLOAK_ADMIN
               value: admin
             - name: KEYCLOAK_ADMIN_PASSWORD
-              value: admin
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: keycloak-admin-password
             - name: KC_PROXY 
               value: "edge"
             - name: KEYCLOAK_FRONTEND_URL

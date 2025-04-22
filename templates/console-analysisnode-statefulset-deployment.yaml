@@ -72,7 +72,10 @@ spec:
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
           env:
             - name: PGPASSWORD
-              value: CastAIP
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: operator-db-password
           command:
           - /bin/sh
           - -c
