@@ -109,6 +109,8 @@ spec:
               value: "8090"
             - name: NGINX_HOST
               value: {{ .Values.FrontEndHost }}
+            - name: MULTI_TENANCY_ENABLED
+              value: "{{ .Values.MultiTenancyEnabled }}"
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"
           livenessProbe:

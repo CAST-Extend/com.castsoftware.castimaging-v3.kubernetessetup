@@ -52,6 +52,12 @@ CustomPostgres:     # If enabled, external postgres server will be used
   enable: false     # IMPORTANT NOTE: init-db.sh script defined in console-postgres-configmap.yaml will need to be executed manually before deployment
   host: console-postgres.castimaging-v3.svc.cluster.local
   port: 2285
+#
+# Multi Tenancy
+MultiTenancyEnabled: false
+#
+# CAST Operator password has to be encrypted using CAST aip-encryption-tool (crypted2):
+OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers

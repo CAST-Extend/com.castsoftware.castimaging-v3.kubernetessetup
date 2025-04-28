@@ -78,6 +78,12 @@ spec:
             - name: DB_PORT
               value: "2285"              
 {{- end }}
+            - name: DB_NAME
+              value: postgres
+            - name: DB_USER
+              value: operator
+            - name: DB_PASS
+              value: "{{ .Values.OperatorDbPasswordCrypted2 }}"
             - name: HOST_GATEWAY
               value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_GATEWAY

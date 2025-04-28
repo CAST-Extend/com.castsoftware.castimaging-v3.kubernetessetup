@@ -71,7 +71,7 @@ spec:
               value: "2285"              
 {{- end }}
             - name: DB_ENCRYPTED_PASSWORD
-              value: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
+              value: "{{ .Values.OperatorDbPasswordCrypted2 }}"
             - name: HOST_CONSOLE
               value: console-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_CONSOLE
