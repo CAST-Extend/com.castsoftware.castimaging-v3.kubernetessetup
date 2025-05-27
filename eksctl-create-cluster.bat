@@ -1,12 +1,13 @@
 set AWS_DEFAULT_REGION=us-east-2
 set AWS_ACCOUNT_ID=123123123123
 set CLUSTER_NAME=castimaging
+set NODE_TYPE=t2.2xlarge
 
 REM If you don't have SSH keys, you can generate one using the following command in PowerShell:
 REM mkdir C:\Users\USERNAME\.ssh
 REM ssh-keygen -t rsa -b 2048 -f C:\Users\USERNAME\.ssh\id_rsa
 
-eksctl create cluster --name %CLUSTER_NAME% --region %AWS_DEFAULT_REGION% --nodegroup-name %CLUSTER_NAME%-ng --nodes-min 2 --nodes-max 4 --node-type t2.2xlarge --nodes 2 --node-volume-size 50 --ssh-access  --with-oidc
+eksctl create cluster --name %CLUSTER_NAME% --region %AWS_DEFAULT_REGION% --nodegroup-name %CLUSTER_NAME%-ng --nodes-min 2 --nodes-max 4 --node-type %NODE_TYPE% --nodes 2 --node-volume-size 100 --ssh-access  --with-oidc
 eksctl utils associate-iam-oidc-provider --cluster %CLUSTER_NAME% --approve
 eksctl update addon --name vpc-cni --cluster %CLUSTER_NAME% 
 
