@@ -5,44 +5,4 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   analysisnode-upgrade-script.sql: |
-    -- Updating paths in admin_center.properties table    
-    select * from admin_center.properties where prop_key like 'application.paths.%';
-    update admin_center.properties set value='{{ .Values.anadir.delivery }}' where prop_key='application.paths.delivery-folder';
-    update admin_center.properties set value='{{ .Values.anadir.deploy }}' where prop_key='application.paths.deploy-folder';
-    update admin_center.properties set value='{{ .Values.anadir.common }}' where prop_key='application.paths.shared-folder';
-    select * from admin_center.properties where prop_key like 'application.paths.%';
-    -- Updating paths in existing triplets
-    DO
-    $$
-    DECLARE
-        schema_name_var TEXT;
-        table_name_var TEXT := 'cms_pref_sources';
-        deploy_path TEXT := '{{ .Values.anadir.deploy }}';
-        delivery_path TEXT := '{{ .Values.anadir.delivery }}';
-    BEGIN
-        -- Loop through all schemas that match the pattern '%_mngt'
-        FOR schema_name_var IN
-            SELECT schema_name
-            FROM information_schema.schemata
-            WHERE schema_name LIKE '%_mngt'
-        LOOP
-            -- Check if the table exists in the schema
-            IF EXISTS (SELECT 1
-                       FROM information_schema.tables
-                       WHERE table_schema = schema_name_var
-                       AND table_name = table_name_var) THEN
-                       
-                -- Update the deploypath column
-                EXECUTE format('UPDATE %I.%I SET deploypath = $1', schema_name_var, table_name_var)
-                USING deploy_path;
-    
-                -- Update the serverpath column conditionally
-                EXECUTE format('UPDATE %I.%I
-                                SET serverpath = regexp_replace(serverpath, ''^/shared/delivery/'', $1)
-                                WHERE serverpath NOT LIKE $2',
-                                schema_name_var, table_name_var)
-                USING delivery_path || '/', delivery_path || '/%';
-            END IF;
-        END LOOP;
-    END
-    $$;
+    select 'Nothing to do.';
