@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.3.0
+version: 3.3.1
 
 ####################################################################################
 #
@@ -129,7 +129,7 @@ ConsoleGatewayServiceImage:
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.3.0_core8.4.3"
+  tag: "3.3.0_core8.4.4"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
