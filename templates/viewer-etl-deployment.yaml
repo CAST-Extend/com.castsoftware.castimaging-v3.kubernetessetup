@@ -45,7 +45,7 @@ spec:
               sleep 2
             done
             echo "console-control-panel is healthy!"  
-            until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do 
+            until wget --no-verbose --spider http://viewer-neo4j-cluster-lb-neo4j.{{ .Release.Namespace }}:7474; do 
               echo "Waiting for neo4j..."
               sleep 2
             done

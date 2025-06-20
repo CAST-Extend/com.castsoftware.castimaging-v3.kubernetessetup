@@ -22,3 +22,17 @@ data:
   guest-db-password: V2VsY29tZVRvQUlQ
   keycloak-db-password: a2V5Y2xvYWs=
   keycloak-admin-password: YWRtaW4=
+---
+# Source: neo4j/templates/neo4j-auth.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: "viewer-neo4j-cluster-auth"
+  namespace: {{.Release.Namespace}}
+  labels:
+    app: "viewer-neo4j-cluster"    
+type: Opaque
+data:
+  NEO4J_AUTH: "bmVvNGovY2FzdGltYWdpbmc="
