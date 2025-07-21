@@ -232,7 +232,11 @@ ViewerEtlResources:
 ViewerAiManagerResources:
   requests:
     cpu: 0.1
-    memory: 400M    
+    memory: 400M
+ViewerApiResources:
+  requests:
+    cpu: 0.1
+    memory: 200M
 #
 # ExtendProxy resources
 #
