@@ -28,4 +28,6 @@ kubectl scale deployment viewer-etl --replicas=1 -n $NAMESPACE
 sleep 10
 kubectl scale deployment viewer-aimanager --replicas=1 -n $NAMESPACE
 sleep 10
+kubectl scale deployment viewer-api --replicas=1 -n $NAMESPACE
+sleep 10
 # kubectl scale deployment extendproxy --replicas=1 -n $NAMESPACE

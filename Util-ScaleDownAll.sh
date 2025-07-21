@@ -13,6 +13,7 @@ kubectl scale deployment console-control-panel --replicas=0 -n $NAMESPACE
 kubectl scale deployment console-sso-service --replicas=0 -n $NAMESPACE
 kubectl scale deployment console-postgres --replicas=0 -n $NAMESPACE
 kubectl scale deployment viewer-aimanager --replicas=0 -n $NAMESPACE
+kubectl scale deployment viewer-api --replicas=0 -n $NAMESPACE
 kubectl scale deployment viewer-etl --replicas=0 -n $NAMESPACE
 kubectl scale deployment viewer-server --replicas=0 -n $NAMESPACE
 kubectl scale statefulset viewer-neo4j-core --replicas=0 -n $NAMESPACE

@@ -179,6 +179,23 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: pvc-imagingviewer-v3-api-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    console.service: viewer-api
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_imagingviewer_v3_api_logs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: pvc-extendproxy-data
   namespace: {{ .Release.Namespace }}
   annotations:

@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  app.config: "{\r\n  \"PORT\": \"8070\",\r\n  \"NEO4J_BOLT_ENDPOINT\": \"viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7687\",\r\n
+    \ \"NEO4J_USERNAME\": \"neo4j\",\r\n  \"NEO4J_PASSWORD\": \"imaging\",\r\n  \"API_KEY\":
+    \"\",\r\n  \"LOG_PATH\": \"/opt/imaging/imaging-api/logs/\",\r\n  \"LOG_LEVEL\":
+    \"debug\",\r\n  \"SOURCE_CODE_SERVICE_TOKEN\": \"\",\r\n  \"SOURCE_CODE_SERVICE_ENDPOINT\":
+    \"\",\r\n  \"TRUSTED_PROXIES\": \"\",\r\n  \"ACCESS_CONTROL_ALLOW_ORIGIN\": \"\",\r\n
+    \ \"ACCESS_CONTROL_ALLOW_METHODS\": \"\",\r\n  \"ACCESS_CONTROL_ALLOW_HEADERS\":
+    \"\",\r\n  \"EUREKA_HOST\": \"console-control-panel.{{ .Release.Namespace }}.svc.cluster.local\",\r\n  \"EUREKA_PORT\": \"8098\",\r\n  \"SERVICE_HOST\":
+    \"viewer-api.{{ .Release.Namespace }}.svc.cluster.local\",\r\n  \"SERVICE_NAME\": \"ImagingAPIs\"\r\n}"
+kind: ConfigMap
+metadata:
+  name: apiappconfig
+  namespace: {{.Release.Namespace}}

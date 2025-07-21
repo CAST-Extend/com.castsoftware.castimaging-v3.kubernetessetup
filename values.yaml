@@ -80,6 +80,7 @@ size_db_data: 128Gi                       # Default: 128Gi
 size_imagingviewer_v3_server_log: 1Gi     # Default: 1Gi
 size_imagingviewer_v3_etl_logs: 10Gi      # Default: 10Gi
 size_imagingviewer_v3_aimanager_logs: 2Gi # Default: 2Gi
+size_imagingviewer_v3_api_logs: 2Gi       # Default: 2Gi
 size_extendproxy_data: 10Gi               # Default: 10Gi
 size_neo4jdata: 100Gi                     # Default: 100Gi
 
@@ -163,6 +164,10 @@ ViewerAiManagerImage:
   name: castimaging/ai-service
   tag: "3.4.0"
   pullPolicy: IfNotPresent
+ViewerApiImage:
+  name: castimaging/imaging-apis
+  tag: "3.4.0"
+  pullPolicy: Always 
 #
 # ExtendProxy Image
 #
