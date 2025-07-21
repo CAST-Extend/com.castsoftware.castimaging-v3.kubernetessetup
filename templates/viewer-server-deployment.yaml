@@ -76,6 +76,12 @@ spec:
             cat /home/imaging/logs/3.3.0-Neo4jdatamigrate.log
             echo "*************************************************"
 {{- end }}
+{{- if eq .Values.version "3.4.0" }}
+            /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --silent --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
+            echo "******************** L O G **********************"
+            cat /home/imaging/logs/3.4.0-Neo4jdatamigrate.log
+            echo "*************************************************"
+{{- end }}
             echo "Done".
           volumeMounts:
             - name: log
