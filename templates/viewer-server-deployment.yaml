@@ -64,7 +64,6 @@ spec:
           - -c
           - |
             echo "Running neo4j migration..."
-            mkdir /home/imaging/logs
 {{- if or (eq .Values.version "3.2.2") (eq .Values.version "3.2.3") }}
             /home/imaging/3.2.3/Neo4jdatamigrate --log /home/imaging/logs/3.2.3-Neo4jdatamigrate.log --database neo4j --all --migrate --silent --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
             echo "******************** L O G **********************"
