@@ -64,7 +64,8 @@ spec:
           - -c
           - |
             echo "Running neo4j migration..."
-{{- if eq .Values.version "3.2.3" }}
+            mkdir /home/imaging/logs
+{{- if or (eq .Values.version "3.2.2") (eq .Values.version "3.2.3") }}
             /home/imaging/3.2.3/Neo4jdatamigrate --log /home/imaging/logs/3.2.3-Neo4jdatamigrate.log --database neo4j --all --migrate --silent --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
             echo "******************** L O G **********************"
             cat /home/imaging/logs/3.2.3-Neo4jdatamigrate.log
@@ -74,6 +75,12 @@ spec:
             /home/imaging/3.3.0/Neo4jdatamigrate --log /home/imaging/logs/3.3.0-Neo4jdatamigrate.log --database neo4j --all --migrate --silent --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
             echo "******************** L O G **********************"
             cat /home/imaging/logs/3.3.0-Neo4jdatamigrate.log
+            echo "*************************************************"
+{{- end }}
+{{- if eq .Values.version "3.4.0" }}
+            /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --silent --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
+            echo "******************** L O G **********************"
+            cat /home/imaging/logs/3.4.0-Neo4jdatamigrate.log
             echo "*************************************************"
 {{- end }}
             echo "Done".

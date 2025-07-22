@@ -109,8 +109,8 @@ ViewerAiManagerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.1"
-  pullPolicy: Always  
+  tag: "1.2.0"
+  pullPolicy: Always 
 ConsolePostgresImage:
   name: postgres
   tag: "15"
