@@ -39,13 +39,16 @@ data:
     = '') {\n                return 404;\n            }    \n            auth_request
     \      /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;\n
     \           proxy_pass         http://localhost:8084/sourcecode/api/;\n        }\n\n
-    \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager.{{ .Release.Namespace }}.svc.cluster.local:8082/;\n
-    \       }\n        \n        # location ^~ /imaging/api/ {\n        #     proxy_pass
-    \        http://localhost:8084/api/;\n        # }\n\n        # location ^~ /imaging/etl/api/
-    {\n        #     proxy_pass         http://localhost:8084/etl/api/;\n        #
-    }\n\n        # location ^~ /imaging/neo4j/api/ {\n        #     proxy_pass         http://localhost:8084/neo4j/api/;\n
-    \       # }\n        \n        error_log /opt/imaging/imaging-service/logs/error.log
-    warn;\n        access_log /opt/imaging/imaging-service/logs/access.log;\n    }\n}\n"
+    \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager.{{
+    .Release.Namespace }}.svc.cluster.local:8082/;\n        }\n\n        location
+    ^~ /imaging/apis/ {\n            proxy_pass         http://viewer-api.{{ .Release.Namespace
+    }}.svc.cluster.local:8070/;\n        }\n        \n        # location ^~ /imaging/api/
+    {\n        #     proxy_pass         http://localhost:8084/api/;\n        # }\n\n
+    \       # location ^~ /imaging/etl/api/ {\n        #     proxy_pass         http://localhost:8084/etl/api/;\n
+    \       # }\n\n        # location ^~ /imaging/neo4j/api/ {\n        #     proxy_pass
+    \        http://localhost:8084/neo4j/api/;\n        # }\n        \n        error_log
+    /opt/imaging/imaging-service/logs/error.log warn;\n        access_log /opt/imaging/imaging-service/logs/access.log;\n
+    \   }\n}\n"
 kind: ConfigMap
 metadata:
   creationTimestamp: null
