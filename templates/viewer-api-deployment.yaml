@@ -11,7 +11,6 @@ spec:
     targetPort: 8070
   selector:
     app: viewer-api
-  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
