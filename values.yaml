@@ -133,7 +133,7 @@ ConsoleAnalysisNodeImage:
   tag: "3.4.0_core8.4.4"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: castimaging/control-panel
+  name: castimaging/admin-center
   tag: "3.4.0"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
