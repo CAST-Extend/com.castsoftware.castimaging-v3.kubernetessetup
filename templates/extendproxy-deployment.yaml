@@ -48,6 +48,8 @@ spec:
               value: "{{ .Values.ExtendProxy.exthostname }}"
             - name: ext_public_url
               value: "{{ .Values.ExtendProxy.pubextendurl }}"
+            - name: public_url
+              value: "http://{{ .Values.ExtendProxy.exthostname }}:8085"
           image: "{{ .Values.ExtendProxyImage.name }}:{{ .Values.ExtendProxyImage.tag}}"
           imagePullPolicy: "{{ .Values.ExtendProxyImage.pullPolicy }}"
           name: extendproxy

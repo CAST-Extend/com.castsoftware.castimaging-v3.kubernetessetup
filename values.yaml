@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.4.1
+version: 3.4.2
 
 ####################################################################################
 #
@@ -118,31 +118,31 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.4.1_core8.4.5"
+  tag: "3.4.2_core8.4.5"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
   
 #
@@ -150,30 +150,30 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: IfNotPresent
 ViewerApiImage:
   name: castimaging/imaging-apis
-  tag: "3.4.1"
+  tag: "3.4.2"
   pullPolicy: Always 
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "1.0.0.5"
+  tag: "2.2.4.2093"
   pullPolicy: IfNotPresent 
 
 #
