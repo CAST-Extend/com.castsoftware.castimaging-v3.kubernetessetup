@@ -7,16 +7,19 @@ metadata:
     helm.sh/resource-policy: keep
   {{- if eq .Values.K8SProvider "EKS" }}    
 provisioner: {{ .Values.EKS_DSdriver }}
+allowVolumeExpansion: true
 parameters:
   type: gp3
   fsType: ext4
   {{- else if eq .Values.K8SProvider "AKS" }}  
 provisioner: {{ .Values.AKS_DSdriver }}
+allowVolumeExpansion: true
 parameters:
   skuName: Premium_LRS
   kind: Managed
   {{- else if eq .Values.K8SProvider "GKE" }}  
 provisioner: {{ .Values.GKE_DSdriver }}
+allowVolumeExpansion: true
 parameters:
   type: pd-standard   # pd-ssd (premium) or pd-standard  
   {{- end }}
