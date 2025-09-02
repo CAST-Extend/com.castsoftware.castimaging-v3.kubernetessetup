@@ -42,6 +42,7 @@ AnalysisNodeFS:
 #
 # CAST Storage Class names
 CreateStorageClass: true       # Default: true
+allowVolumeExpansion: true     # Enable expansion on Disk Storage Class created in this helmchart
 DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
 #
