@@ -35,6 +35,7 @@ metadata:
     helm.sh/resource-policy: keep
     {{- if eq .Values.K8SProvider "EKS" }}
 provisioner: {{ .Values.EKS_FSdriver }}
+allowVolumeExpansion: true
 parameters:
   provisioningMode: efs-ap 
   directoryPerms: "0777"
