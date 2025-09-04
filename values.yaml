@@ -22,6 +22,12 @@ FrontEndHost: https://my-host.com  # hostname only: E.g. https://my-host.com
 ContextUrl:
   enable: false
   appcontext: /mycontext   # Should start with "/"  Eg. "/cast"
+# Important notes: 
+#  . If you install the helm chart for the first time with ContextUrl.enable=true
+#     => Restart all Imaging services once after the initial startup (scale down / scale up all deployments/statefulsets)
+#  . If you want to update ContextUrl.enable or ContextUrl.appcontext variables while Imaging is already deployed
+#     1) Update values.yaml and run helm upgrade
+#     2) Restart all imaging services once (scale down / scale up all deployments/statefulsets)
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:
