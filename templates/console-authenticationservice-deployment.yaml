@@ -107,10 +107,17 @@ spec:
               value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_GATEWAY
               value: "8090"
-            - name: NGINX_HOST
-              value: {{ .Values.FrontEndHost }}
             - name: MULTI_TENANCY_ENABLED
               value: "{{ .Values.MultiTenancyEnabled }}"
+{{- if .Values.ContextUrl.enable }}
+            - name: NGINX_HOST
+              value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- else }}
+            - name: NGINX_HOST
+              value: {{ .Values.FrontEndHost }}
+{{- end }}
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"
           livenessProbe:

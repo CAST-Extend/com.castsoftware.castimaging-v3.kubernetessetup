@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contexturl-controlpanel-update-script
+  namespace: {{ .Release.Namespace }}
+data:
+  contexturl-controlpanel-update-script.sql: |
+{{- if .Values.ContextUrl.enable }}
+    update control_panel.properties p set value = '{{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}' where p.prop_key='keycloak.uri';
+{{- else }}
+    update control_panel.properties p set value = '{{ .Values.FrontEndHost }}' where p.prop_key='keycloak.uri';
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contexturl-keycloak-update-script
+  namespace: {{ .Release.Namespace }}
+data:
+  contexturl-keycloak-update-script.sql: |
+{{- if .Values.ContextUrl.enable }}
+    delete from realm_attribute ra where ra.realm_id in (select r.id from realm r where r.name in ('aip-realm', 'master')) and ra.name = 'frontendUrl';
+    insert into realm_attribute values ('frontendUrl', (select r.id from realm r where r.name='aip-realm'), '{{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/auth/');
+    insert into realm_attribute values ('frontendUrl', (select r.id from realm r where r.name='master'),'{{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/auth/');
+{{- else }}
+    delete from realm_attribute ra where ra.realm_id in (select r.id from realm r where r.name in ('aip-realm', 'master')) and ra.name = 'frontendUrl';
+{{- end }}

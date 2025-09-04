@@ -16,7 +16,12 @@ namespace: castimaging-v3
 K8SProvider: AKS
 #
 # External network access
-FrontEndHost: https://my-host.com
+FrontEndHost: https://my-host.com  # hostname only: E.g. https://my-host.com 
+#                                    No context path, no trailing "/"
+# Context URL
+ContextUrl:
+  enable: false
+  appcontext: /mycontext   # Should start with "/"  Eg. "/cast"
 #
 # OPTIONAL - ExtendProxy
 ExtendProxy:

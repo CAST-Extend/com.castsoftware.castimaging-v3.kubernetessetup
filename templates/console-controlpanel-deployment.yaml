@@ -49,6 +49,35 @@ spec:
 {{- else }}
           until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
+      - name: postgres-scripts
+        image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+        env:
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: imaging-pwd-sec
+                key: operator-db-password
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Running context URL updates..."
+{{- if .Values.CustomPostgres.enable }}
+          psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
+          psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
+{{- else }}
+          psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
+          psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
+{{- end }}
+          echo "Done."
+        volumeMounts:
+          - name: contexturl-controlpanel-update-script
+            mountPath: /home/imaging/sql/contexturl-controlpanel-update-script.sql
+            subPath: contexturl-controlpanel-update-script.sql
+          - name: contexturl-keycloak-update-script
+            mountPath: /home/imaging/sql/contexturl-keycloak-update-script.sql
+            subPath: contexturl-keycloak-update-script.sql 
       containers:
         - env:
             - name: HOST_AUTH_SERVICE
@@ -82,6 +111,10 @@ spec:
               value: {{ .Values.anadir.deploy }}
             - name: SHARED_FOLDER
               value: {{ .Values.anadir.common }}
+{{- if .Values.ContextUrl.enable }}
+            - name: PUBLIC_URL
+              value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/   # Should end with "/"
+{{- end }} 
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           livenessProbe:
@@ -102,6 +135,13 @@ spec:
           resources:
             {{- toYaml .Values.ControlPanelResources | nindent 12 }}
       restartPolicy: Always
+      volumes:
+        - name: contexturl-controlpanel-update-script
+          configMap:
+            name: contexturl-controlpanel-update-script
+        - name: contexturl-keycloak-update-script
+          configMap:
+            name: contexturl-keycloak-update-script
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  

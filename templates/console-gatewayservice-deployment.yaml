@@ -62,7 +62,11 @@ spec:
             - name: HOST_KEYCLOAK
               value: console-sso-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_KEYCLOAK
-              value: "8096"             
+              value: "8096"
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
           image: "{{ .Values.ConsoleGatewayServiceImage.name }}:{{ .Values.ConsoleGatewayServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleGatewayServiceImage.pullPolicy }}"
           livenessProbe:
