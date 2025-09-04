@@ -63,6 +63,7 @@ spec:
         - -c
         - |
           echo "Running context URL updates..."
+          sleep 30
 {{- if .Values.CustomPostgres.enable }}
           psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
           psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
