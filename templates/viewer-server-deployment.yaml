@@ -85,6 +85,10 @@ spec:
           env:
             - name: TIME_ZONE
               value: "Europe/Paris"
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
           ports:
             - containerPort: 8080
               protocol: TCP

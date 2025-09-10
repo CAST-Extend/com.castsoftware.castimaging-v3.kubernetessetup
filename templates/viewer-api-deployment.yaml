@@ -51,7 +51,12 @@ spec:
             done
             echo "viewer-neo4j is up!"
       containers:
-        - image: "{{ .Values.ViewerApiImage.name }}:{{ .Values.ViewerApiImage.tag }}"
+        - env:
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
+          image: "{{ .Values.ViewerApiImage.name }}:{{ .Values.ViewerApiImage.tag }}"
           imagePullPolicy: "{{ .Values.ViewerApiImage.pullPolicy }}"
           command: ['sh', '-c', "./imaging-api -CONFIG ./config/app.config"]
           name: viewer-api

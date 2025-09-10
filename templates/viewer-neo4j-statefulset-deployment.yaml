@@ -51,6 +51,10 @@ spec:
               value: "8G"
             - name: TZ
               value: "UTC"
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
           ports:
             - containerPort: 7474
               name: browser

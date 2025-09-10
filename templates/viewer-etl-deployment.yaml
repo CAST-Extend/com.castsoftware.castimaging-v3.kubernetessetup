@@ -57,7 +57,12 @@ spec:
             echo "viewer-server is up!"
             echo "Done."
       containers:
-        - image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag}}"
+        - env:
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
+          image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
           command: ['sh', '-c', '/opt/imaging/imaging-etl/config/init.sh']
           name: viewer-etl

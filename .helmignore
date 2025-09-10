@@ -8,3 +8,4 @@ scripts/
 ex_*
 kub-*
 .git
+*-priv.*

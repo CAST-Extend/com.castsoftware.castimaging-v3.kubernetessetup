@@ -64,7 +64,12 @@ spec:
               mountPath: /opt/secrets
               readOnly: true                              
       containers:
-        - image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
+        - env:
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
+          image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
           command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
           name: viewer-aimanager
