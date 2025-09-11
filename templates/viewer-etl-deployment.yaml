@@ -40,6 +40,11 @@ spec:
           - /bin/sh
           - -c
           - |
+{{- if .Values.EnablePostgresSSL }}
+            echo "Copy postgres SSL files."
+            cp /tmp/certs/* /etc/ssl/certs-postgres
+            ls -l /etc/ssl/certs-postgres
+{{- end }}
             until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
@@ -56,8 +61,20 @@ spec:
             done
             echo "viewer-server is up!"
             echo "Done."
+{{- if .Values.EnablePostgresSSL }}
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /tmp/certs
+              readOnly: true
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+{{- end }}
       containers:
         - env:
+{{- if .Values.EnablePostgresSSL }}
+            - name: CASTCONNECTIONEXTRAPARAMETERS
+              value: /etc/ssl/certs-postgres/sslconfig.ini
+{{- end }}
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}
@@ -78,6 +95,11 @@ spec:
             - name: etlappconfig
               mountPath: /opt/imaging/imaging-etl/config/app.config
               subPath: app.config
+{{- if .Values.EnablePostgresSSL }}
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+              readOnly: true
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:
         - name: imagepull-sec
@@ -89,3 +111,11 @@ spec:
         - name: etlappconfig
           configMap:
             name: etlappconfig
+{{- if .Values.EnablePostgresSSL }}
+        - name: ssl-certs
+          secret:
+            secretName: ssl-certs
+            defaultMode: 0640
+        - name: postgres-ssl-files
+          emptyDir: {}
+{{- end }}

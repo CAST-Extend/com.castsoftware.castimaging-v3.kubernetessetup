@@ -42,6 +42,12 @@ spec:
           - /bin/sh
           - -c
           - |
+{{- if .Values.EnablePostgresSSL }}
+            echo "Copy postgres SSL files."
+            cp /tmp/certs/* /etc/ssl/certs-postgres
+            chmod 0600 /etc/ssl/certs-postgres/client-key.pem
+            ls -l /etc/ssl/certs-postgres
+{{- end }}
             until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
@@ -57,6 +63,14 @@ spec:
               sleep 2
             done                          
             echo "console-gateway-service is healthy!"    
+{{- if .Values.EnablePostgresSSL }}
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /tmp/certs
+              readOnly: true
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+{{- end }}
       containers:
         - env:
             - name: HOST_HOSTNAME
@@ -92,6 +106,10 @@ spec:
               value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_AUTH_SERVICE
               value: "8092"
+{{- if .Values.EnablePostgresSSL }}
+            - name: CASTCONNECTIONEXTRAPARAMETERS
+              value: /etc/ssl/certs-postgres/sslconfig.ini
+{{- end }}
           image: "{{ .Values.ConsoleIntegratedDashboardsImage.name }}:{{ .Values.ConsoleIntegratedDashboardsImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleIntegratedDashboardsImage.pullPolicy }}"
           name: dashboards
@@ -100,8 +118,23 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.DashboardsResources | nindent 12 }}
+{{- if .Values.EnablePostgresSSL }}
+          volumeMounts:
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+              readOnly: true
+{{- end }}
       restartPolicy: Always
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  
-{{- end }}        
+{{- end }}
+{{- if .Values.EnablePostgresSSL }}
+      volumes:
+        - name: ssl-certs
+          secret:
+            secretName: ssl-certs
+            defaultMode: 0644
+        - name: postgres-ssl-files
+          emptyDir: {}
+{{- end }}

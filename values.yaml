@@ -61,8 +61,10 @@ CastStorageService: # If enabled, postgres will be deployed in this helm chart
   enable: true
 CustomPostgres:     # If enabled, external postgres server will be used 
   enable: false     # IMPORTANT NOTE: init-db.sh script defined in console-postgres-configmap.yaml will need to be executed manually before deployment
-  host: console-postgres.castimaging-v3.svc.cluster.local
+  host: mypostgreshostname
   port: 2285
+# Before enabling Postgres SSL communications, check the on-line documentation for prerequites
+EnablePostgresSSL: false
 #
 # Multi Tenancy
 MultiTenancyEnabled: false

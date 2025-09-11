@@ -45,6 +45,12 @@ spec:
           - /bin/sh
           - -c
           - |
+{{- if .Values.EnablePostgresSSL }}
+            echo "Copy postgres SSL files."
+            cp /tmp/certs/* /etc/ssl/certs-postgres
+            chmod 0600 /etc/ssl/certs-postgres/client-key.pem
+            ls -l /etc/ssl/certs-postgres
+{{- end }}
             echo "Create folders."
             mkdir -p {{ .Values.anadir.common }}
             mkdir -p {{ .Values.anadir.delivery }}
@@ -67,6 +73,13 @@ spec:
               name: castdir
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
+{{- if .Values.EnablePostgresSSL }}
+            - name: ssl-certs
+              mountPath: /tmp/certs
+              readOnly: true
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+{{- end }}
         - name: postgres-upgrade
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -118,6 +131,10 @@ spec:
               value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
             - name: PORT_AUTH_SERVICE
               value: "8092"
+{{- if .Values.EnablePostgresSSL }}
+            - name: CASTCONNECTIONEXTRAPARAMETERS
+              value: /etc/ssl/certs-postgres/sslconfig.ini
+{{- end }}
           image: "{{ .Values.ConsoleAnalysisNodeImage.name }}:{{ .Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleAnalysisNodeImage.pullPolicy }}"
           name: console-analysis-node
@@ -132,7 +149,12 @@ spec:
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
             - name: dshm
-              mountPath: /dev/shm   
+              mountPath: /dev/shm
+{{- if .Values.EnablePostgresSSL }}
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+              readOnly: true
+{{- end }}
       restartPolicy: Always 
 {{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
@@ -148,7 +170,15 @@ spec:
             sizeLimit: {{ .Values.AnalysisNode_shmsize }}
         - name: analysisnode-upgrade-script
           configMap:
-            name: analysisnode-upgrade-script                     
+            name: analysisnode-upgrade-script
+{{- if .Values.EnablePostgresSSL }}
+        - name: ssl-certs
+          secret:
+            secretName: ssl-certs
+            defaultMode: 0640
+        - name: postgres-ssl-files
+          emptyDir: {}
+{{- end }}
   volumeClaimTemplates:
     - metadata:
         name: castdir

@@ -62,6 +62,12 @@ spec:
         - /bin/sh
         - -c
         - |
+{{- if .Values.EnablePostgresSSL }}
+          echo "Copy postgres SSL files."
+          cp /tmp/certs/* /etc/ssl/certs-postgres
+          chmod 0600 /etc/ssl/certs-postgres/client-key.pem
+          ls -l /etc/ssl/certs-postgres
+{{- end }}
           echo "Running context URL updates..."
 {{- if .Values.CustomPostgres.enable }}
           psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
@@ -77,7 +83,14 @@ spec:
             subPath: contexturl-controlpanel-update-script.sql
           - name: contexturl-keycloak-update-script
             mountPath: /home/imaging/sql/contexturl-keycloak-update-script.sql
-            subPath: contexturl-keycloak-update-script.sql 
+            subPath: contexturl-keycloak-update-script.sql
+{{- if .Values.EnablePostgresSSL }}
+          - name: ssl-certs
+            mountPath: /tmp/certs
+            readOnly: true
+          - name: postgres-ssl-files
+            mountPath: /etc/ssl/certs-postgres
+{{- end }}
       containers:
         - env:
             - name: HOST_AUTH_SERVICE
@@ -114,7 +127,11 @@ spec:
 {{- if .Values.ContextUrl.enable }}
             - name: PUBLIC_URL
               value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/   # Should end with "/"
-{{- end }} 
+{{- end }}
+{{- if .Values.EnablePostgresSSL }}
+            - name: CASTCONNECTIONEXTRAPARAMETERS
+              value: /etc/ssl/certs-postgres/sslconfig.ini
+{{- end }}
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           livenessProbe:
@@ -134,6 +151,12 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.ControlPanelResources | nindent 12 }}
+{{- if .Values.EnablePostgresSSL }}
+          volumeMounts:
+            - name: postgres-ssl-files
+              mountPath: /etc/ssl/certs-postgres
+              readOnly: true
+{{- end }}
       restartPolicy: Always
       volumes:
         - name: contexturl-controlpanel-update-script
@@ -142,6 +165,14 @@ spec:
         - name: contexturl-keycloak-update-script
           configMap:
             name: contexturl-keycloak-update-script
+{{- if .Values.EnablePostgresSSL }}
+        - name: ssl-certs
+          secret:
+            secretName: ssl-certs
+            defaultMode: 0644
+        - name: postgres-ssl-files
+          emptyDir: {}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  
