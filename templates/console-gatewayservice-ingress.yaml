@@ -1,3 +1,67 @@
+{{- if eq .Values.K8SProvider "EKS" }} 
+  {{- if .Values.ContextUrl.enable }}
+###########################################
+# Deploy EKS ingress for ContextUrl feature
+###########################################
+# Pre-requisites: 
+# - Install the Nginx Ingress Controller on the cluster:
+#     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#     helm repo update
+#     helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+# - Set UseCustomTrustStore: true
+# - Update ContextUrl:
+#           enable: true
+#           appcontext: /mycontext
+# - Create tls-secret-cast with external host certificate files:
+#     kubectl create secret tls tls-secret-cast --cert=your.crt --key=your.private.key --namespace=castimaging-v3
+# - Update console-authenticationservice-configmap.yaml with the certificate (first part)
+#
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: castimaging-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).host }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ (urlParse .Values.FrontEndHost).host }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ (urlParse .Values.FrontEndHost).host }}
+    http:
+      paths:
+      - path: /cast(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: console-gateway-service
+            port:
+              number: 8090
+---
+# ConfigMap for custom headers
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-headers
+  namespace: {{ .Release.Namespace }}
+data:
+  X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).host }} 
+
+  {{- end }}
+{{- end }}
+
+
+{{- if eq .Values.K8SProvider "GKE" }} 
 # ********************************************************************
 # Network configuration for GKE:
 # ********************************************************************
@@ -20,7 +84,6 @@
 # 		> Save
 # - Wait until network components are fully deployed (may take 20+min)
 # ********************************************************************
-{{- if eq .Values.K8SProvider "GKE" }} 
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
