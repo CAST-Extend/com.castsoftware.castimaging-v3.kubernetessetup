@@ -1,21 +1,22 @@
 {{- if eq .Values.K8SProvider "EKS" }} 
   {{- if .Values.ContextUrl.enable }}
-###########################################
+# ********************************************************************
 # Deploy EKS ingress for ContextUrl feature
-###########################################
+# ********************************************************************
 # Pre-requisites: 
 # - Install the Nginx Ingress Controller on the cluster:
 #     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 #     helm repo update
 #     helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
-# - Set UseCustomTrustStore: true
-# - Update ContextUrl:
+# - In values.yaml:
+#     Set: UseCustomTrustStore: true
+#     Set: ContextUrl:
 #           enable: true
 #           appcontext: /mycontext
 # - Create tls-secret-cast with external host certificate files:
 #     kubectl create secret tls tls-secret-cast --cert=your.crt --key=your.private.key --namespace=castimaging-v3
-# - Update console-authenticationservice-configmap.yaml with the certificate (first part)
-#
+# - Update console-authenticationservice-configmap.yaml with the certificate (use first section)
+# ********************************************************************
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
