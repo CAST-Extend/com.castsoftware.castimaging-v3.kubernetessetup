@@ -82,7 +82,7 @@ spec:
   - host: {{ (urlParse .Values.FrontEndHost).host }}
     http:
       paths:
-      - path: /extendproxy:[0-9]+(/|$)(.*)
+      - path: /extendproxy(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
