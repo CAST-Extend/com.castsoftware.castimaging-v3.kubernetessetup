@@ -30,8 +30,6 @@ spec:
       labels:
         app: viewer-api
     spec:
-      securityContext:
-        fsGroup: 1000
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -40,6 +38,7 @@ spec:
           - /bin/sh
           - -c
           - |
+            check_volume_folder 1000 1000 /opt/imaging/imaging-api/logs
             until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
@@ -50,6 +49,10 @@ spec:
               sleep 2
             done
             echo "viewer-neo4j is up!"
+          volumeMounts:
+            - name: logdir
+              mountPath: /opt/imaging/imaging-api/logs
+              readOnly: false
       containers:
         - env:
 {{- if .Values.ContextUrl.enable }}

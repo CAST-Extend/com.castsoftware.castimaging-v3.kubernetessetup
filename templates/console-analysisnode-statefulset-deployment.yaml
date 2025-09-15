@@ -35,8 +35,6 @@ spec:
         console.service: console-analysis-node
         component: core
     spec:
-      securityContext:
-        fsGroup: 10001
       initContainers:     
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -45,17 +43,22 @@ spec:
           - /bin/sh
           - -c
           - |
+            check_volume_folder 10001 10001 /opt
+            check_volume_folder 10001 10001 /usr/share
+            mkdir -p {{ .Values.anadir.datadirmount }}
+            mkdir -p {{ .Values.anadir.castdirmount }}
+            check_volume_folder 10001 10001 {{ .Values.anadir.datadirmount }}
+            check_volume_folder 10001 10001 {{ .Values.anadir.castdirmount }}
+            mkdir -p {{ .Values.anadir.common }}
+            mkdir -p {{ .Values.anadir.delivery }}
+            mkdir -p {{ .Values.anadir.deploy }}
+            mkdir -p {{ .Values.anadir.extensions }}  
 {{- if .Values.EnablePostgresSSL }}
             echo "Copy postgres SSL files."
             cp /tmp/certs/* /etc/ssl/certs-postgres
             chmod 0600 /etc/ssl/certs-postgres/client-key.pem
             ls -l /etc/ssl/certs-postgres
-{{- end }}
-            echo "Create folders."
-            mkdir -p {{ .Values.anadir.common }}
-            mkdir -p {{ .Values.anadir.delivery }}
-            mkdir -p {{ .Values.anadir.deploy }}
-            mkdir -p {{ .Values.anadir.extensions }}     
+{{- end }}    
             echo "Services healthcheck."
             until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."

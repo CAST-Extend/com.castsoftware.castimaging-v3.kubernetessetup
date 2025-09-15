@@ -57,10 +57,40 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).host }} 
-
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: extendproxy-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).host }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ (urlParse .Values.FrontEndHost).host }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ (urlParse .Values.FrontEndHost).host }}
+    http:
+      paths:
+      - path: /extendproxy:[0-9]+(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: extendproxy
+            port:
+              number: 8085
   {{- end }}
 {{- end }}
-
 
 {{- if eq .Values.K8SProvider "GKE" }} 
 # ********************************************************************

@@ -38,8 +38,18 @@ spec:
         console.network/aip-network: "true"
         console.service: extendproxy
     spec:
-      securityContext:
-        fsGroup: 1001
+      initContainers:      
+        - name: init-folders
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |         
+            check_volume_folder 1001 1001 /opt/cast_extend_proxy
+          volumeMounts:
+            - mountPath: /opt/cast_extend_proxy
+              name: extendproxy
       containers:
         - env:
             - name: host_port

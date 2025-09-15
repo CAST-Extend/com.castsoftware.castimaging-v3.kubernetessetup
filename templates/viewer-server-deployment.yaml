@@ -36,8 +36,6 @@ spec:
       labels:
         app: viewer-server
     spec:
-      securityContext:
-        fsGroup: 1000
       initContainers:      
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -63,6 +61,7 @@ spec:
           - /bin/sh
           - -c
           - |
+            check_volume_folder 10001 10001 /home/imaging/logs 
             echo "Running neo4j migration..."
 {{- if or (eq .Values.version "3.2.2") (eq .Values.version "3.2.3") }}
             /home/imaging/3.2.3/Neo4jdatamigrate --log /home/imaging/logs/3.2.3-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
@@ -73,6 +72,10 @@ spec:
 {{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") }}
             /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
 {{- end }}
+{{- if eq .Values.version "3.4.3" }}
+            /home/imaging/3.4.3/Neo4jdatamigrate --log /home/imaging/logs/3.4.3-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
+{{- end }}
+            check_volume_folder 1000 1000 /home/imaging/logs
             echo "Done".
           volumeMounts:
             - name: log
