@@ -82,3 +82,7 @@ spec:
         - name: apiappconfig
           configMap:
             name: apiappconfig
+{{- if .Values.UseImagePullSecrets }}              
+      imagePullSecrets:
+        - name: imagepull-sec
+{{- end }}  
