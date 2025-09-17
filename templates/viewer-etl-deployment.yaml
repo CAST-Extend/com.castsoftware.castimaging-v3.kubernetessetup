@@ -117,7 +117,7 @@ spec:
         - name: ssl-certs
           secret:
             secretName: ssl-certs
-            defaultMode: 0640
+            defaultMode: 0644
         - name: postgres-ssl-files
           emptyDir: {}
 {{- end }}
