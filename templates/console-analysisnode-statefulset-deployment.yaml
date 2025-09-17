@@ -35,6 +35,7 @@ spec:
         console.service: console-analysis-node
         component: core
     spec:
+      securityContext:
       initContainers:     
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
