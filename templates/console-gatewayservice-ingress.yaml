@@ -41,7 +41,7 @@ spec:
   - host: {{ (urlParse .Values.FrontEndHost).host }}
     http:
       paths:
-      - path: /cast(/|$)(.*)
+      - path: {{ .Values.ContextUrl.appcontext }}(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
