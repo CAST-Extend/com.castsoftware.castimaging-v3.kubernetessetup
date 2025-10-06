@@ -59,7 +59,15 @@ spec:
             - name: ext_public_url
               value: "{{ .Values.ExtendProxy.pubextendurl }}"
             - name: public_url
+  {{- if not .Values.NoIngress }}
+    {{- if eq .Values.K8SProvider "GKE" }} 
+              value: "https://{{ .Values.ExtendProxy.exthostname }}"   # No context URL in GKE
+    {{- else }}
+              value: "https://{{ .Values.ExtendProxy.exthostname }}/extendproxy"
+    {{- end }}
+  {{- else }}
               value: "http://{{ .Values.ExtendProxy.exthostname }}:8085"
+  {{- end }}
             - name: platform
               value: "linux_x64"
           image: "{{ .Values.ExtendProxyImage.name }}:{{ .Values.ExtendProxyImage.tag}}"
@@ -77,7 +85,7 @@ spec:
   {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec   
-  {{- end }}             
+  {{- end }}
       volumes:
         - name: extendproxy
           persistentVolumeClaim:

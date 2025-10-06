@@ -1,28 +1,34 @@
-{{- if eq .Values.K8SProvider "EKS" }} 
-  {{- if .Values.ContextUrl.enable }}
+{{- if not .Values.NoIngress }}
+  {{- if eq .Values.K8SProvider "EKS" }} 
 # ********************************************************************
 # Deploy EKS ingress for ContextUrl feature
 # ********************************************************************
-# Pre-requisites: 
-# - Install the Nginx Ingress Controller on the cluster:
+# - Pre-requisites: 
+#    Install the Nginx Ingress Controller on the cluster:
 #     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 #     helm repo update
 #     helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
-# - In values.yaml:
-#     Set: UseCustomTrustStore: true
-#     Set: ContextUrl:
-#           enable: true
-#           appcontext: /mycontext
-# - Create tls-secret-cast with external host certificate files:
-#     kubectl create secret tls tls-secret-cast --cert=your.crt --key=your.private.key --namespace=castimaging-v3
-# - Update console-authenticationservice-configmap.yaml with the certificate (use first section)
+# - Apply helm to create the Ingress
+# - Create a DNS NAME record pointing at the external IP of the Ingress
+# - Create an SSL certificate for the host name
+# - Create a TLS Secret from the SSL certificate files, for instance:
+#     kubectl create secret tls tls-secret-cast --cert=path/to/tls.crt --key=path/to/tls.key -n castimaging-v3
+#     or
+#     kubectl create secret tls tls-secret-cast --cert=fullchain.pem --key=privkey.pem -n castimaging-v3
+#     (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
+# - Optional: Update console-authenticationservice-configmap.yaml with the certificate (use first part of fullchain.pem) 
+#             and Set: UseCustomTrustStore: true in values .yaml
+# - Upgrade helm chart
 # ********************************************************************
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  annotations:
+    helm.sh/resource-policy: keep
   name: castimaging-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+    {{- if .Values.ContextUrl.enable }}
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
@@ -31,6 +37,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
+    {{- end }}
 spec:
   ingressClassName: nginx
   tls:
@@ -41,13 +48,234 @@ spec:
   - host: {{ (urlParse .Values.FrontEndHost).host }}
     http:
       paths:
+    {{- if .Values.ContextUrl.enable }}
       - path: {{ .Values.ContextUrl.appcontext }}(/|$)(.*)
         pathType: ImplementationSpecific
+    {{- else }}
+      - path: /
+        pathType: Prefix
+    {{- end }}
         backend:
           service:
             name: console-gateway-service
             port:
               number: 8090
+---
+    {{- if .Values.ExtendProxy.enable }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: extendproxy-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers-extend"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ .Values.ExtendProxy.exthostname }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ .Values.ExtendProxy.exthostname }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ .Values.ExtendProxy.exthostname }}
+    http:
+      paths:
+      - path: /extendproxy(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: extendproxy
+            port:
+              number: 8085
+    {{- end }}
+  {{- end }}
+---
+  {{- if eq .Values.K8SProvider "GKE" }} 
+# ********************************************************************
+# Network configuration for GKE:
+# ********************************************************************
+# - Pre-requisite: 
+#    GKE cluster should have been created with "--addons HttpLoadBalancing" option
+# - Apply helm to create the Ingress
+# - Update the Health Check(s):
+# 	In GCP, locate the Health Check created for console-gateway-service and optionally for extendproxy: 
+# 	Health check name will look like this: k8s1-abc123456-castimaging-v-console-gateway-servic-809-abc123abc
+# 		Set "Request path" to /actuator/health (for console-gateway-service) or to /api/info/health (for extendproxy) and save.
+# - Create a DNS NAME record pointing at the external IP of the Ingress
+# - Create an SSL certificate for the host name
+# - Create a TLS Secret from the SSL certificate files, for instance:
+#     kubectl create secret tls tls-secret-cast --cert=path/to/tls.crt --key=path/to/tls.key -n castimaging-v3
+#     or
+#     kubectl create secret tls tls-secret-cast --cert=fullchain.pem --key=privkey.pem -n castimaging-v3
+#     (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
+# - Optional: Update console-authenticationservice-configmap.yaml with the certificate (use first part of fullchain.pem) 
+#             and Set: UseCustomTrustStore: true in values .yaml
+# - Upgrade helm chart
+# ********************************************************************
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: castimaging-ingress
+  namespace: {{ .Release.Namespace }} 
+  annotations:
+    spec.ingressClassName: "gce"
+spec:
+  tls:
+  - hosts:
+    - {{ (urlParse .Values.FrontEndHost).host }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ (urlParse .Values.FrontEndHost).host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: console-gateway-service
+            port:
+              number: 8090
+---
+    {{- if .Values.ExtendProxy.enable }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: extendproxy-ingress
+  namespace: {{ .Release.Namespace }} 
+  annotations:
+    spec.ingressClassName: "gce"
+spec:
+  tls:
+  - hosts:
+    - {{ .Values.ExtendProxy.exthostname }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ .Values.ExtendProxy.exthostname }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: extendproxy
+            port:
+              number: 8085
+    {{- end }}
+  {{- end }}
+---
+  {{- if eq .Values.K8SProvider "AKS" }} 
+# ********************************************************************
+# Network configuration for GKE:
+# ********************************************************************
+# - Pre-requisites: 
+#   Install the Nginx Ingress Controller on the cluster:
+#    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#    helm repo update
+#    helm install ingress-nginx ingress-nginx/ingress-nginx \
+#      --namespace ingress-nginx \
+#      --create-namespace \
+#      --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+# - Apply helm to create the Ingress
+# - Create a DNS NAME record pointing at the external IP of the Ingress
+# - Create an SSL certificate for the host name
+# - Create a TLS Secret from the SSL certificate files, for instance:
+#     kubectl create secret tls tls-secret-cast --cert=path/to/tls.crt --key=path/to/tls.key -n castimaging-v3
+#     or
+#     kubectl create secret tls tls-secret-cast --cert=fullchain.pem --key=privkey.pem -n castimaging-v3
+#     (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
+# - Optional: Update console-authenticationservice-configmap.yaml with the certificate (use first part of fullchain.pem) 
+#             and Set: UseCustomTrustStore: true in values .yaml
+# - Upgrade helm chart
+# ********************************************************************
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: castimaging-ingress
+  namespace: {{ .Release.Namespace }} 
+  annotations:
+    {{- if .Values.ContextUrl.enable }}
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).host }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    {{- end }}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ (urlParse .Values.FrontEndHost).host }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ (urlParse .Values.FrontEndHost).host }}
+    http:
+      paths:
+    {{- if .Values.ContextUrl.enable }}
+      - path: {{ .Values.ContextUrl.appcontext }}(/|$)(.*)
+        pathType: ImplementationSpecific
+    {{- else }}
+      - path: /
+        pathType: Prefix
+    {{- end }}
+        backend:
+          service:
+            name: console-gateway-service
+            port:
+              number: 8090
+---
+    {{- if .Values.ExtendProxy.enable }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: extendproxy-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers-extend"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ .Values.ExtendProxy.exthostname }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ .Values.ExtendProxy.exthostname }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ .Values.ExtendProxy.exthostname }}
+    http:
+      paths:
+      - path: /extendproxy(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: extendproxy
+            port:
+              number: 8085
+    {{- end }} 
+  {{- end }}
 ---
 # ConfigMap for custom headers
 apiVersion: v1
@@ -58,94 +286,11 @@ metadata:
 data:
   X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).host }} 
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: extendproxy-ingress
+  name: custom-headers-extend
   namespace: {{ .Release.Namespace }}
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
-    nginx.ingress.kubernetes.io/proxy-buffering: "off"
-    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
-    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
-    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).host }}
-    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/use-regex: "true"
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - {{ (urlParse .Values.FrontEndHost).host }}
-    secretName: tls-secret-cast
-  rules:
-  - host: {{ (urlParse .Values.FrontEndHost).host }}
-    http:
-      paths:
-      - path: /extendproxy(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: extendproxy
-            port:
-              number: 8085
-  {{- end }}
-{{- end }}
-
-{{- if eq .Values.K8SProvider "GKE" }} 
-# ********************************************************************
-# Network configuration for GKE:
-# ********************************************************************
-# - Create a Global static external IP in GCP
-# - Create a domain name e.g. mydomain.com with DNS record pointing at this static IP
-# - Create an SSL certificate for mydomain.com
-# - Store the certificate in GCP "Certificate Manager"
-# - Update console-gatewayservice-ingress.yaml with the "Managed Certificate name" (my-certificate) 
-#   and "Static IP name" (my-frontend-ip)
-# - Update values.yaml :
-# 	K8SProvider: GKE
-# 	FrontEndHost: https://mydomain.com
-# 	...
-# - Install the HelmChart
-# 	This will create the k8s Ingress as well as a Load Balancer + a Health Check... in GCP
-# - Update the Health Check:
-# 	Locate the Health Check created for console-gateway-service: 
-# 	Health check name will look like this: k8s1-abc123456-castimaging-v-console-gateway-servic-809-abc123abc
-# 		> Set "Request path" to: /actuator/health
-# 		> Save
-# - Wait until network components are fully deployed (may take 20+min)
-# ********************************************************************
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  annotations:
-    helm.sh/resource-policy: keep
-  name: my-certificate
-  namespace: {{ .Release.Namespace }}
-spec:
-  domains:
-    - mydomain.com
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    helm.sh/resource-policy: keep
-  name: console-gateway-ingress
-  namespace: {{ .Release.Namespace }}  
-  annotations:
-    spec.ingressClassName: "gce"
-    kubernetes.io/ingress.global-static-ip-name: "my-frontend-ip"
-    networking.gke.io/managed-certificates: "my-certificate"
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: console-gateway-service
-                port:
-                  number: 8090
+data:
+  X-Forwarded-For: {{ .Values.ExtendProxy.exthostname }}
 {{- end }}

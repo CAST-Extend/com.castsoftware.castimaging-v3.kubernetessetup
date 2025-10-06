@@ -18,6 +18,10 @@ K8SProvider: AKS
 # External network access
 FrontEndHost: https://my-host.com  # hostname only: E.g. https://my-host.com 
 #                                    No context path, no trailing "/"
+#
+# Disable Ingress deployment
+NoIngress: false
+#
 # Context URL
 ContextUrl:
   enable: false
