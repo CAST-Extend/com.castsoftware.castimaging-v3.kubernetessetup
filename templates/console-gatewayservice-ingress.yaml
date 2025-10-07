@@ -31,15 +31,18 @@
 # ********************************************************************
 # Next installation steps (all providers):
 # ********************************************************************
-# - Apply CAST helm to create the Ingress
-# - Create a DNS NAME record pointing at the external IP of the Ingress
-# - Create an SSL certificate for the host name
-# - Create a TLS Secret from the SSL certificate files, for instance:
+# - Update values.yaml to set FrontEndHost (and optionally ExtendProxy.exthostname) and apply helm to create the Ingress(es)
+# - Create DNS NAME record(s) pointing at the external IP of the Ingress(es)
+# - Create SSL certificate(s) for the host name(s)
+# - Create TLS Secret(s) 
+#       > "tls-secret-cast"
+#       > and optionally "tls-secret-cast-extend" (if you plan to use extend-proxy service)
+#   Using the SSL certificate files, for instance:
 #     kubectl create secret tls tls-secret-cast --cert=path/to/tls.crt --key=path/to/tls.key -n castimaging-v3
 #     or
 #     kubectl create secret tls tls-secret-cast --cert=fullchain.pem --key=privkey.pem -n castimaging-v3
 #     (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
-# - Optional: Update console-authenticationservice-configmap.yaml with the certificate (use first part of fullchain.pem) 
+# - Optional: Update console-authenticationservice-configmap.yaml with the certificate (first part of fullchain.pem) 
 #             and Set: UseCustomTrustStore: true in values .yaml
 # - Upgrade helm chart
 # ********************************************************************
@@ -106,7 +109,7 @@ spec:
   tls:
   - hosts:
     - {{ .Values.ExtendProxy.exthostname }}
-    secretName: tls-secret-cast
+    secretName: tls-secret-cast-extend
   rules:
   - host: {{ .Values.ExtendProxy.exthostname }}
     http:
