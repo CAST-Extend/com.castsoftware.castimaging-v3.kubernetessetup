@@ -1,7 +1,7 @@
 {{- if not .Values.NoIngress }}
   {{- if eq .Values.K8SProvider "EKS" }} 
 # ********************************************************************
-# Deploy EKS ingress for ContextUrl feature
+# Ingress configuration for Amazon EKS:
 # ********************************************************************
 # - Pre-requisites: 
 #    Install the Nginx Ingress Controller on the cluster:
@@ -100,7 +100,7 @@ spec:
 ---
   {{- if eq .Values.K8SProvider "GKE" }} 
 # ********************************************************************
-# Network configuration for GKE:
+# Ingress configuration for Google GKE:
 # ********************************************************************
 # - Pre-requisite: 
 #    GKE cluster should have been created with "--addons HttpLoadBalancing" option
@@ -177,7 +177,7 @@ spec:
 ---
   {{- if eq .Values.K8SProvider "AKS" }} 
 # ********************************************************************
-# Network configuration for GKE:
+# Ingress configuration for Azure AKS:
 # ********************************************************************
 # - Pre-requisites: 
 #   Install the Nginx Ingress Controller on the cluster:
