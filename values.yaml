@@ -16,11 +16,11 @@ namespace: castimaging-v3
 K8SProvider: AKS
 #
 # External network access
-FrontEndHost: https://my-host.com  # hostname only: E.g. https://my-host.com 
-#                                    No context path, no trailing "/"
-#
+FrontEndHost: https://my-host.com  # hostname with no context path 
+#                                    and no trailing "/" 
+#                                    E.g. https://my-host.com 
 # Disable Ingress deployment
-NoIngress: false
+NoIngress: true
 #
 # Context URL
 ContextUrl:
@@ -36,8 +36,13 @@ ContextUrl:
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: false
-  exthostname: myextendhost.com # To be updated after deployment + run helm-upgrade.bat|sh
+  exthostname: myextendhost.com
   pubextendurl: "https://extend.castsoftware.com"
+#
+# OPTIONAL - MCP Server
+McpServer:
+  enable: false
+  exthostname: mymcpserverhost.com
 #
 # OPTIONAL - Use custom Trust Store
 UseCustomTrustStore: false  
@@ -98,6 +103,7 @@ size_imagingviewer_v3_aimanager_logs: 2Gi # Default: 2Gi
 size_imagingviewer_v3_api_logs: 2Gi       # Default: 2Gi
 size_extendproxy_data: 10Gi               # Default: 10Gi
 size_neo4jdata: 100Gi                     # Default: 100Gi
+size_mcpserver_logs: 2Gi                  # Default: 2Gi
 
 #
 # Console  
@@ -119,6 +125,7 @@ ViewerNeo4jReplicaCount: 1
 ViewerServerReplicaCount: 1
 ViewerEtlReplicaCount: 1
 ViewerAiManagerReplicaCount: 1
+McpServerReplicaCount: 1
 
 #
 # Console images
@@ -182,7 +189,11 @@ ViewerAiManagerImage:
 ViewerApiImage:
   name: castimaging/imaging-apis
   tag: "3.4.3"
-  pullPolicy: Always 
+  pullPolicy: IfNotPresent
+McpServerImage:
+  name: castimaging/imaging-mcp-server
+  tag: "3.4.4"
+  pullPolicy: IfNotPresent 
 #
 # ExtendProxy Image
 #
@@ -252,6 +263,10 @@ ViewerApiResources:
   requests:
     cpu: 0.1
     memory: 200M
+McpServerResources:
+  requests:
+    cpu: 0.2
+    memory: 400M
 #
 # ExtendProxy resources
 #

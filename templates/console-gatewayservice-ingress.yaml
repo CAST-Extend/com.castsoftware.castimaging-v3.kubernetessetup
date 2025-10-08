@@ -123,6 +123,34 @@ spec:
               number: 8085
   {{- end }}
 ---
+  {{- if .Values.McpServer.enable }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: mcpserver-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ .Values.McpServer.exthostname }}
+    secretName: tls-secret-cast-mcp
+  rules:
+  - host: {{ .Values.McpServer.exthostname }}
+    http:
+      paths:
+      - path: /mcp
+        pathType: Prefix
+        backend:
+          service:
+            name: mcp-server
+            port:
+              number: 8282
+  {{- end }}
+---
 # ConfigMap for custom headers
 apiVersion: v1
 kind: ConfigMap

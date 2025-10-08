@@ -1,0 +1,81 @@
+{{- if .Values.McpServer.enable }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: mcp-server
+  labels:
+    app: mcp-server
+spec:
+  ports:
+  - name: http
+    port: 8282
+    targetPort: 8282
+  selector:
+    app: mcp-server
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mcp-server
+    version: {{ .Values.McpServerImage.tag | default .Values.version }}
+  name: mcp-server
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.McpServerReplicaCount }}
+  selector:
+    matchLabels:
+      app: mcp-server     
+  template:
+    metadata:
+      labels:
+        app: mcp-server
+    spec:
+      initContainers:
+        - name: init-folders
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            check_volume_folder 1000 1000 /app/logs
+          volumeMounts:
+            - name: logdir
+              mountPath: /app/logs
+              readOnly: false                          
+      containers:
+        - env:
+  {{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+  {{- end }}
+          image: "{{ .Values.McpServerImage.name }}:{{ .Values.McpServerImage.tag}}"
+          imagePullPolicy: "{{ .Values.McpServerImage.pullPolicy }}"
+          command: ['sh', '-c', "/app/init.sh"]
+          name: mcp-server
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.McpServerResources | nindent 12 }}
+          volumeMounts:
+            - name: logdir
+              mountPath: /app/logs
+              readOnly: false
+            - name: mcpserverappconfig
+              mountPath: /app/server/config/app.config
+              subPath: app.config
+  {{- if .Values.UseImagePullSecrets }}               
+      imagePullSecrets:
+        - name: imagepull-sec
+  {{- end }}        
+      volumes:
+        - name: logdir
+          persistentVolumeClaim:
+            claimName: pvc-mcpserver-logs          
+        - name: mcpserverappconfig
+          configMap:
+            name: mcpserverappconfig
+{{- end }}
