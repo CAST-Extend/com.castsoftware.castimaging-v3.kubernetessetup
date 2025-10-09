@@ -45,8 +45,8 @@ spec:
           - /bin/sh
           - -c
           - |
-            check_volume_folder 7474 7474 /logs          
-            check_volume_folder 7474 7474 /var/lib/neo4j/config/neo4j5_data
+            check_volume_tree 7474 7474 /logs          
+            check_volume_tree 7474 7474 /var/lib/neo4j/config/neo4j5_data
           volumeMounts:
             - name: neo4jdata
               mountPath: /logs
