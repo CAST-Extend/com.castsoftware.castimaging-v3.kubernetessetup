@@ -1,3 +1,4 @@
+{{- if .Values.ExtendProxy.enable }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,9 +15,10 @@ spec:
       targetPort: 8085
   selector:
     console.service: extendproxy
+  {{- if .Values.CreateLoadBalancer }}
   type: LoadBalancer
+  {{- end }}
 ---  
-{{- if .Values.ExtendProxy.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -59,7 +61,7 @@ spec:
             - name: ext_public_url
               value: "{{ .Values.ExtendProxy.pubextendurl }}"
             - name: public_url
-  {{- if not .Values.NoIngress }}
+  {{- if .Values.CreateIngress }}
               value: "https://{{ .Values.ExtendProxy.exthostname }}/extendproxy"
   {{- else }}
               value: "http://{{ .Values.ExtendProxy.exthostname }}:8085"

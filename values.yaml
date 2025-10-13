@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.4.3
+version: 3.4.4
 
 ####################################################################################
 #
@@ -19,8 +19,10 @@ K8SProvider: AKS
 FrontEndHost: https://my-host.com  # hostname with no context path 
 #                                    and no trailing "/" 
 #                                    E.g. https://my-host.com 
-# Disable Ingress deployment
-NoIngress: true
+#
+# Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
+CreateIngress: true
+CreateLoadBalancer: true
 #
 # Context URL
 ContextUrl:
@@ -140,31 +142,31 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.4.3_core8.4.6"
+  tag: "3.4.4_core8.4.6"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
   
 #
@@ -172,23 +174,23 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 ViewerApiImage:
   name: castimaging/imaging-apis
-  tag: "3.4.3"
+  tag: "3.4.4"
   pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server

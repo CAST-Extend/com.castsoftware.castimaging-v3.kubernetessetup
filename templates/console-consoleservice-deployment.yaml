@@ -58,16 +58,27 @@ spec:
               value: "8098"
           image: "{{ .Values.ConsoleServiceImage.name }}:{{ .Values.ConsoleServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleServiceImage.pullPolicy }}"
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - -f
-                - http://localhost:8091/actuator/health
-            failureThreshold: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
           name: console-service
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8091
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8091
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 8091
               protocol: TCP

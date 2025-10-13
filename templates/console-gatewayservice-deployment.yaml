@@ -14,7 +14,9 @@ spec:
       targetPort: 8090
   selector:
     console.service: console-gateway-service
+{{- if .Values.CreateLoadBalancer }}
   type: LoadBalancer
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -69,16 +71,27 @@ spec:
 {{- end }}
           image: "{{ .Values.ConsoleGatewayServiceImage.name }}:{{ .Values.ConsoleGatewayServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleGatewayServiceImage.pullPolicy }}"
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - -f
-                - http://localhost:8090/actuator/health
-            failureThreshold: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
           name: console-gateway-service
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 8090
               protocol: TCP

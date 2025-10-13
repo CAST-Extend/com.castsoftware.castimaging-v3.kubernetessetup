@@ -12,7 +12,9 @@ spec:
     targetPort: 8282
   selector:
     app: mcp-server
+{{- if .Values.CreateLoadBalancer }}
   type: LoadBalancer
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,10 +53,32 @@ spec:
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}
   {{- end }}
+            - name: RELIES_ON_FRONTENDHOST # mcp-server should restart if value changes
+              value: {{ .Values.FrontEndHost }}
           image: "{{ .Values.McpServerImage.name }}:{{ .Values.McpServerImage.tag}}"
           imagePullPolicy: "{{ .Values.McpServerImage.pullPolicy }}"
           command: ['sh', '-c', "/app/init.sh"]
           name: mcp-server
+          livenessProbe:
+            httpGet:
+              path: /mcp/healthcheck
+              port: 8283
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /mcp/healthcheck
+              port: 8283
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 8082
               protocol: TCP

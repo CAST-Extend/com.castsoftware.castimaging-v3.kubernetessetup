@@ -69,7 +69,7 @@ spec:
 {{- if or (eq .Values.version "3.3.0") (eq .Values.version "3.3.1") }}
             /home/imaging/3.3.0/Neo4jdatamigrate --log /home/imaging/logs/3.3.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
 {{- end }}
-{{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") (eq .Values.version "3.4.3") }}
+{{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") (eq .Values.version "3.4.3") (eq .Values.version "3.4.4") }}
             /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
 {{- end }}
             check_volume_folder 1000 1000 /home/imaging/logs

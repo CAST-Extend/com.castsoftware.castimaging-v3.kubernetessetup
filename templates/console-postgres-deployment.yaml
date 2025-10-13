@@ -47,13 +47,23 @@ spec:
               value: postgres
           image: "{{ .Values.ConsolePostgresImage.name }}:{{ .Values.ConsolePostgresImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsolePostgresImage.pullPolicy }}"
+          name: console-postgres
           livenessProbe:
             exec:
               command: ["pg_isready", "-U", "postgres"]
-            failureThreshold: 5
+            initialDelaySeconds: 60
             periodSeconds: 10
-            timeoutSeconds: 5
-          name: console-postgres
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 5432
               protocol: TCP

@@ -8,9 +8,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
-    - name: "8099"
-      port: 8099
-      targetPort: 8099
+    - name: "8089"
+      port: 8089
+      targetPort: 8089
   selector:
     console.service: console-analysis-node  
     component: core
@@ -142,8 +142,28 @@ spec:
           image: "{{ .Values.ConsoleAnalysisNodeImage.name }}:{{ .Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleAnalysisNodeImage.pullPolicy }}"
           name: console-analysis-node
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
-            - containerPort: 8099
+            - containerPort: 8089
               protocol: TCP
           resources:
             {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}

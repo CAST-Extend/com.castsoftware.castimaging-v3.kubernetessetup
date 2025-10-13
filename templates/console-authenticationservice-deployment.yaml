@@ -120,16 +120,27 @@ spec:
 {{- end }}
           image: "{{ .Values.ConsoleAuthenticationServiceImage.name }}:{{ .Values.ConsoleAuthenticationServiceImage.tag }}"
           imagePullPolicy: "{{ .Values.ConsoleAuthenticationServiceImage.pullPolicy }}"
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - -f
-                - http://localhost:8092/actuator/health
-            failureThreshold: 15
-            periodSeconds: 5
-            timeoutSeconds: 2
           name: console-authentication-service
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8092
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8092
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 8092
               protocol: TCP

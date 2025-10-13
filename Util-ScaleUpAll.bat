@@ -30,4 +30,5 @@ kubectl scale deployment  viewer-aimanager                --replicas=1 -n %NAMES
 timeout /t 10 /nobreak >nul
 kubectl scale deployment  viewer-api                      --replicas=1 -n %NAMESPACE%
 timeout /t 10 /nobreak >nul
-REM kubectl scale deployment  extendproxy                    --replicas=1 -n %NAMESPACE%
+kubectl scale deployment  extendproxy                    --replicas=1 -n %NAMESPACE%
+kubectl scale deployment  mcp-server                     --replicas=1 -n %NAMESPACE%

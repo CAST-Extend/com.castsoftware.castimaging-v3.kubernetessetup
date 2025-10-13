@@ -127,6 +127,11 @@ spec:
 {{- if .Values.ContextUrl.enable }}
             - name: PUBLIC_URL
               value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/   # Should end with "/"
+            - name: KEYCLOAK_URI
+              value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}
+{{- else }}
+            - name: KEYCLOAK_URI
+              value: {{ .Values.FrontEndHost }}
 {{- end }}
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
@@ -134,16 +139,27 @@ spec:
 {{- end }}
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - -f
-                - http://localhost:8098/actuator/health
-            failureThreshold: 15
-            periodSeconds: 20
-            timeoutSeconds: 10
           name: console-control-panel
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8098
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8098
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 2381
               protocol: TCP

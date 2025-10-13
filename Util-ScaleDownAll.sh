@@ -17,4 +17,5 @@ kubectl scale deployment viewer-api --replicas=0 -n $NAMESPACE
 kubectl scale deployment viewer-etl --replicas=0 -n $NAMESPACE
 kubectl scale deployment viewer-server --replicas=0 -n $NAMESPACE
 kubectl scale statefulset viewer-neo4j-core --replicas=0 -n $NAMESPACE
-# kubectl scale deployment extendproxy --replicas=0 -n $NAMESPACE
+kubectl scale deployment extendproxy --replicas=0 -n $NAMESPACE
+kubectl scale deployment mcp-server --replicas=0 -n $NAMESPACE
