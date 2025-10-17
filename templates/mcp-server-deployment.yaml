@@ -2,9 +2,12 @@
 kind: Service
 apiVersion: v1
 metadata:
+  annotations:
+    helm.sh/resource-policy: keep
   name: mcp-server
   labels:
     app: mcp-server
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http

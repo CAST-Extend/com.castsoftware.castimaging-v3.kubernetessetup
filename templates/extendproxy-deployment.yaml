@@ -59,7 +59,7 @@ spec:
             - name: host_name
               value: "{{ .Values.ExtendProxy.exthostname }}"
             - name: ext_public_url
-              value: "{{ .Values.ExtendProxy.pubextendurl }}"
+              value: "https://extend.castsoftware.com"
             - name: public_url
   {{- if .Values.CreateIngress }}
               value: "https://{{ .Values.ExtendProxy.exthostname }}/extendproxy"

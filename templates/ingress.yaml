@@ -1,59 +1,36 @@
 {{- if .Values.CreateIngress }}
 # ********************************************************************
-# Ingress prerequisite for Amazon EKS:
+# Prerequisite #1 - Install Ingress driver on the cluster
 # ********************************************************************
-#    Install the Nginx Ingress Controller on the cluster:
-#     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-#     helm repo update
-#     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace \
-#        --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+# helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+# helm repo update
+# >>> EKS:
+#     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+# >>> AKS:
+#     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+# >>> GKE:
+#     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.ingressClassResource.controllerValue="k8s.io/ingress-nginx" 
 # ********************************************************************
-# Ingress prerequisite for Google GKE:
+# Prerequisite #2 - Create DNS record & TLS secrets
 # ********************************************************************
-#    Install the Nginx Ingress Controller on the cluster:
-#     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-#     helm repo update
-#     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace \
-#        --set controller.service.type=LoadBalancer \
-#        --set controller.service.externalTrafficPolicy=Local \
-#        --set controller.ingressClassResource.name=nginx \
-#        --set controller.ingressClassResource.controllerValue="k8s.io/ingress-nginx" \
-#        --set controller.ingressClassResource.enabled=true \
-#        --set controller.ingressClassByName=true
-# ********************************************************************
-# Ingress prerequisite for Azure AKS:
-# ********************************************************************
-#    Install the Nginx Ingress Controller on the cluster:
-#     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-#     helm repo update
-#     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace \
-#        --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
-# ********************************************************************
-# Next installation steps (all providers):
-# ********************************************************************
-# - Update values.yaml to set FrontEndHost (and optionally ExtendProxy.exthostname) and apply helm to create the Ingress(es)
-# - Create DNS NAME record(s) pointing at the external IP of the Ingress(es)
-# - Create SSL certificate(s) for the host name(s)
-# - Create TLS Secret(s) 
-#       > "tls-secret-cast"
-#       > and optionally "tls-secret-cast-extend" (if you plan to use extend-proxy service)
-#   Using the SSL certificate files, for instance:
-#     kubectl create secret tls tls-secret-cast --cert=path/to/tls.crt --key=path/to/tls.key -n castimaging-v3
-#     or
-#     kubectl create secret tls tls-secret-cast --cert=fullchain.pem --key=privkey.pem -n castimaging-v3
-#     (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
-# - Optional: Update console-authenticationservice-configmap.yaml with the certificate (first part of fullchain.pem) 
-#             and Set: UseCustomTrustStore: true in values .yaml
-# - Upgrade helm chart
+# - Create DNS record pointing at Ingress external IP / name
+# - Create TLS Secret(s) using certificate files
+#     kubectl create secret tls tls-secret-cast        --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
+# - Create additional ones for mcp-server and extendproxy if applicable:
+#     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
+#     kubectl create secret tls tls-secret-cast-mcp    --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
+#   (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
+# - Optional - when using a self-signed certificate, store it in CAST auth-service:
+#                > update console-authenticationservice-configmap.yaml with the first part of the fullchain certificate
+#                > set: UseCustomTrustStore: true in values .yaml
 # ********************************************************************
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   name: castimaging-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+    helm.sh/resource-policy: keep  
   {{- if .Values.ContextUrl.enable }}
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
@@ -91,11 +68,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   name: extendproxy-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+    helm.sh/resource-policy: keep
     nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
@@ -127,11 +103,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   name: mcpserver-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+    helm.sh/resource-policy: keep
 spec:
   ingressClassName: nginx
   tls:

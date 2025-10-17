@@ -39,7 +39,6 @@ ContextUrl:
 ExtendProxy:
   enable: false
   exthostname: myextendhost.com
-  pubextendurl: "https://extend.castsoftware.com"
 #
 # OPTIONAL - MCP Server
 McpServer:
