@@ -47,7 +47,7 @@ spec:
 {{- if .Values.CustomPostgres.enable }}
           until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- else }}
-          until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+          until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
       - name: postgres-scripts
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -73,8 +73,8 @@ spec:
           psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
           psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
 {{- else }}
-          psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
-          psql -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285 -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
+          psql -h console-postgres -p 2285 -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
+          psql -h console-postgres -p 2285 -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
 {{- end }}
           echo "Done."
         volumeMounts:
@@ -94,11 +94,11 @@ spec:
       containers:
         - env:
             - name: HOST_AUTH_SERVICE
-              value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
             - name: HOST_CONTROL_PANEL
-              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
 {{- if .Values.CustomPostgres.enable }}
@@ -108,14 +108,14 @@ spec:
               value: "{{ .Values.CustomPostgres.port }}"               
 {{- else }}
             - name: DB_HOST
-              value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-postgres
             - name: DB_PORT
               value: "2285"              
 {{- end }}
             - name: DB_ENCRYPTED_PASSWORD
               value: "{{ .Values.OperatorDbPasswordCrypted2 }}"
             - name: HOST_CONSOLE
-              value: console-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-service
             - name: PORT_CONSOLE
               value: "8091" 
             - name: DELIVERY_FOLDER

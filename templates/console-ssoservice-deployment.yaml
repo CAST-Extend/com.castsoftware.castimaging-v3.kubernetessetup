@@ -44,7 +44,7 @@ spec:
 {{- if .Values.CustomPostgres.enable }}
           until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- else }}
-          until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+          until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
       containers:
         - env:       
@@ -53,7 +53,7 @@ spec:
               value: jdbc:postgresql://{{ .Values.CustomPostgres.host }}:{{ .Values.CustomPostgres.port }}/keycloak
 {{- else }}
             - name: KC_DB_URL
-              value: jdbc:postgresql://console-postgres.{{ .Release.Namespace }}.svc.cluster.local:2285/keycloak
+              value: jdbc:postgresql://console-postgres:2285/keycloak
 {{- end }} 
             - name: KC_DB_USERNAME
               value: operator

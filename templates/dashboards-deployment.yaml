@@ -48,17 +48,17 @@ spec:
             chmod 0600 /etc/ssl/certs-postgres/client-key.pem
             ls -l /etc/ssl/certs-postgres
 {{- end }}
-            until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
             done
             echo "console-control-panel is healthy!"
-            until curl -s http://console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local:8092/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s http://console-authentication-service:8092/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-authentication-service to be healthy..."
               sleep 2
             done
             echo "console-authentication-service is healthy!"
-            until curl -s http://console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:8090/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s http://console-gateway-service:8090/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-gateway-service to be healthy..."
               sleep 2
             done                          
@@ -74,11 +74,11 @@ spec:
       containers:
         - env:
             - name: HOST_HOSTNAME
-              value: console-dashboards.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-dashboards
             - name: PORT_DASHBOARDS
               value: "8087"
             - name: HOST_CONTROL_PANEL
-              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
 {{- if .Values.CustomPostgres.enable }}
@@ -88,7 +88,7 @@ spec:
               value: "{{ .Values.CustomPostgres.port }}"               
 {{- else }}
             - name: DB_HOST
-              value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-postgres
             - name: DB_PORT
               value: "2285"              
 {{- end }}
@@ -99,11 +99,11 @@ spec:
             - name: DB_PASS
               value: "{{ .Values.OperatorDbPasswordCrypted2 }}"
             - name: HOST_GATEWAY
-              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-gateway-service
             - name: PORT_GATEWAY
               value: "8090"
             - name: HOST_AUTH_SERVICE
-              value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
 {{- if .Values.EnablePostgresSSL }}

@@ -46,7 +46,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+          until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
             echo "Waiting for console-control-panel to be healthy..."
             sleep 2
           done
@@ -54,15 +54,15 @@ spec:
       containers:
         - env:
             - name: HOST_GATEWAY
-              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-gateway-service
             - name: PORT_GATEWAY
               value: "8090"
             - name: HOST_CONTROL_PANEL
-              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
             - name: HOST_KEYCLOAK
-              value: console-sso-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-sso-service
             - name: PORT_KEYCLOAK
               value: "8096"
 {{- if .Values.ContextUrl.enable }}

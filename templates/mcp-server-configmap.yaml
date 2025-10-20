@@ -2,7 +2,7 @@
 apiVersion: v1
 data:
   app.config: |-
-    HOST_CONTROL_PANEL="console-control-panel.{{ .Release.Namespace }}.svc.cluster.local"
+    HOST_CONTROL_PANEL="console-control-panel"
     PORT_CONTROL_PANEL=8098
     IMAGING_PAGE_SIZE=1000
     IMAGING_DISPLAY_PAGE_SIZE=20

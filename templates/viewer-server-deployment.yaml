@@ -44,12 +44,12 @@ spec:
           - /bin/sh
           - -c
           - |
-            until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
             done
             echo "console-control-panel is healthy!"  
-            until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do 
+            until wget --no-verbose --spider http://viewer-neo4j:7474; do 
               echo "Waiting for neo4j..."
               sleep 2
             done
@@ -64,13 +64,13 @@ spec:
             check_volume_folder 10001 10001 /home/imaging/logs 
             echo "Running neo4j migration..."
 {{- if or (eq .Values.version "3.2.2") (eq .Values.version "3.2.3") }}
-            /home/imaging/3.2.3/Neo4jdatamigrate --log /home/imaging/logs/3.2.3-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
+            /home/imaging/3.2.3/Neo4jdatamigrate --log /home/imaging/logs/3.2.3-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
 {{- end }}
 {{- if or (eq .Values.version "3.3.0") (eq .Values.version "3.3.1") }}
-            /home/imaging/3.3.0/Neo4jdatamigrate --log /home/imaging/logs/3.3.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
+            /home/imaging/3.3.0/Neo4jdatamigrate --log /home/imaging/logs/3.3.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
 {{- end }}
 {{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") (eq .Values.version "3.4.3") (eq .Values.version "3.4.4") }}
-            /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local
+            /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
 {{- end }}
             check_volume_folder 1000 1000 /home/imaging/logs
             echo "Done".

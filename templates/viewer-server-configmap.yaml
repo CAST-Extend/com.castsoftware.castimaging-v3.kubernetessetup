@@ -21,7 +21,7 @@ data:
     \       location ~ ^/imaging(.*) {\n            index index.html;\n            try_files
     $1 $1/ /index.html;\n        }\n\n        location ^~ /imaging/api/ {\n            proxy_pass
     \        http://localhost:9000/;\n        }\n\n        location ^~ /imaging/etl/api/
-    {\n            proxy_pass         http://viewer-etl.{{ .Release.Namespace }}.svc.cluster.local:9001/;\n
+    {\n            proxy_pass         http://viewer-etl:9001/;\n
     \       }\n\n        location ^~ /imaging/neo4j/api/ {\n            proxy_pass
     \        http://localhost:8084/neo4j/api/;\n        }\n        \n        # Proxying
     the connections\n        location ^~ /imaging/login/api/ {\n            limit_req
@@ -62,7 +62,7 @@ data:
      "PORT": "9000",
      "NEO4J_USERNAME": "neo4j",
      "NEO4J_PASSWORD": "imaging",
-     "NEO4J_BOLT_ENDPOINT": "viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7687",
+     "NEO4J_BOLT_ENDPOINT": "viewer-neo4j:7687",
      "ETL_ENDPOINT": "etl:9001",
      "TOKEN": "D5ED6A406775FC71B8D2A978883E8ED4",
      "NEO4J_IMPORT_PATH": "/opt/imaging/imaging-service/upload/",
@@ -70,9 +70,9 @@ data:
      "LOG_LEVEL": "debug",
      "APP_CONFIG": "app-config.json",
      "LOGGER_TIMEOUT": 60,
-     "EUREKA_HOST": "console-control-panel.{{ .Release.Namespace }}.svc.cluster.local",
+     "EUREKA_HOST": "console-control-panel",
      "EUREKA_PORT": "8098",
-     "SERVICE_HOST": "viewer-server.{{ .Release.Namespace }}.svc.cluster.local",
+     "SERVICE_HOST": "viewer-server",
      "SERVICE_NAME": "Imaging",
      "FE_PORT":8083
     }

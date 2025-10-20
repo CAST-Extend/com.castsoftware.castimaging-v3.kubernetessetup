@@ -39,12 +39,12 @@ spec:
           - -c
           - |
             check_volume_folder 1000 1000 /opt/imaging/imaging-api/logs
-            until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
             done
             echo "console-control-panel is healthy!"  
-            until wget --no-verbose --spider http://viewer-neo4j.{{ .Release.Namespace }}.svc.cluster.local:7474; do 
+            until wget --no-verbose --spider http://viewer-neo4j:7474; do 
               echo "Waiting for neo4j..."
               sleep 2
             done

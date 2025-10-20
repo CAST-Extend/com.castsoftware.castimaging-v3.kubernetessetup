@@ -44,7 +44,7 @@ spec:
 {{- if .Values.CustomPostgres.enable }}
           until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- else }}
-          until pg_isready -h console-postgres.{{ .Release.Namespace }}.svc.cluster.local -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+          until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
       - name: console-control-panel-healthcheck
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -53,7 +53,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          until curl -s http://console-control-panel.{{ .Release.Namespace }}.svc.cluster.local:8098/actuator/health | grep -q '"status":"UP"'; do
+          until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
             echo "Waiting for console-control-panel to be healthy..."
             sleep 10
           done
@@ -69,15 +69,15 @@ spec:
               value: castapi
 {{- end }}                      
             - name: HOST_AUTH_SERVICE
-              value: console-authentication-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
             - name: HOST_CONTROL_PANEL
-              value: console-control-panel.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
             - name: HOST_KEYCLOAK
-              value: console-sso-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-sso-service
             - name: PORT_KEYCLOAK
               value: "8096"
 {{- if .Values.CustomPostgres.enable }}
@@ -87,7 +87,7 @@ spec:
               value: "{{ .Values.CustomPostgres.port }}"               
 {{- else }}
             - name: DB_HOST
-              value: console-postgres.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-postgres
             - name: DB_PORT
               value: "2285"
 {{- end }}
@@ -104,7 +104,7 @@ spec:
                   name: imaging-pwd-sec
                   key: keycloak-admin-password
             - name: HOST_GATEWAY
-              value: console-gateway-service.{{ .Release.Namespace }}.svc.cluster.local
+              value: console-gateway-service
             - name: PORT_GATEWAY
               value: "8090"
             - name: MULTI_TENANCY_ENABLED
