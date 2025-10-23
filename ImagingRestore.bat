@@ -10,8 +10,8 @@ REM =========================================================================
 setlocal enabledelayedexpansion
 
 REM Configuration
-set NAMESPACE=castimaging
-set BACKUP_DIR=.\SICAS
+set NAMESPACE=castimaging-v3
+set BACKUP_DIR=.\mybackupfolder
 set USE_OC=false
 set CLUSTER_CMD=kubectl
 

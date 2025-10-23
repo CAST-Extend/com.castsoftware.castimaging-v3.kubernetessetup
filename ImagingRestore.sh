@@ -8,8 +8,8 @@
 # =========================================================================
 
 # Configuration
-NAMESPACE="imaging2nodes"
-BACKUP_DIR="./SYM-JAVA"
+NAMESPACE="castimaging-v3"
+BACKUP_DIR="./mybackupfolder"
 USE_OC=false
 CLUSTER_CMD="kubectl"
 

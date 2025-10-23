@@ -9,7 +9,7 @@ REM =========================================================================
 setlocal enabledelayedexpansion
 
 REM Configuration
-set NAMESPACE=castimaging
+set NAMESPACE=castimaging-v3
 set BACKUP_DIR=.\imaging_backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set BACKUP_DIR=%BACKUP_DIR: =0%
 set CLUSTER_CMD=kubectl
