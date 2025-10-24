@@ -64,7 +64,7 @@ spec:
   {{- if .Values.CreateIngress }}
               value: "https://{{ .Values.ExtendProxy.exthostname }}/extendproxy"
   {{- else }}
-              value: "http://{{ .Values.ExtendProxy.exthostname }}:8085"
+              value: "http://{{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}:8085"
   {{- end }}
             - name: platform
               value: "linux_x64"

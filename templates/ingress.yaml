@@ -38,7 +38,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
     nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
-    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).host }}
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).hostname }}
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -47,10 +47,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - {{ (urlParse .Values.FrontEndHost).host }}
+    - {{ (urlParse .Values.FrontEndHost).hostname }}
     secretName: tls-secret-cast
   rules:
-  - host: {{ (urlParse .Values.FrontEndHost).host }}
+  - host: {{ (urlParse .Values.FrontEndHost).hostname }}
     http:
       paths:
   {{- if .Values.ContextUrl.enable }}
@@ -78,7 +78,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
     nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers-extend"
-    nginx.ingress.kubernetes.io/upstream-vhost: {{ .Values.ExtendProxy.exthostname }}
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -86,10 +86,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - {{ .Values.ExtendProxy.exthostname }}
+    - {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
     secretName: tls-secret-cast-extend
   rules:
-  - host: {{ .Values.ExtendProxy.exthostname }}
+  - host: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
     http:
       paths:
       - path: /extendproxy(/|$)(.*)
@@ -135,7 +135,7 @@ metadata:
   name: custom-headers
   namespace: {{ .Release.Namespace }}
 data:
-  X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).host }} 
+  X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }} 
 ---
 apiVersion: v1
 kind: ConfigMap
