@@ -45,8 +45,15 @@ McpServer:
   enable: false
   exthostname: mymcpserverhost.com
 #
-# OPTIONAL - Use custom Trust Store
-UseCustomTrustStore: false  
+# OPTIONAL - Use custom Trust Store in console-authentication-service to store certificate
+UseCustomTrustStore: false
+auth:
+  caCertificate: |
+    -----BEGIN CERTIFICATE-----
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    -----END CERTIFICATE-----
 #
 # OPTIONAL - Access Private Repo with Secret
 UseImagePullSecrets: false
