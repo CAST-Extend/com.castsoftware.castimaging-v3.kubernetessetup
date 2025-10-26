@@ -6,15 +6,12 @@ REM This script restores an Imaging 3.4.x instance from backup files
 REM Ensure kubectl is installed and configured before running this script
 REM A freshly installed, empty Imaging instance must be running at target
 REM =========================================================================
-
 setlocal enabledelayedexpansion
-
 REM Configuration
 set NAMESPACE=castimaging-v3
 set BACKUP_DIR=.\mybackupfolder
 set USE_OC=false
 set CLUSTER_CMD=kubectl
-
 echo =========================================================================
 echo Imaging 3.4.x Kubernetes Restore Procedure
 echo =========================================================================
@@ -33,7 +30,6 @@ if /i not "%CONTINUE%"=="YES" (
     exit /b 0
 )
 echo.
-
 REM Check if running on OpenShift
 set /p OPENSHIFT_CHECK="Are you running on OpenShift? (y/n): "
 if /i "%OPENSHIFT_CHECK%"=="y" (
@@ -46,28 +42,21 @@ if /i "%OPENSHIFT_CHECK%"=="y" (
 	set PG_DATA_PATH=/var/lib/postgresql/data
 )
 echo.
-
-
 echo =========================================================================
 echo Step 1: Restoring Analysis Node files...
 echo =========================================================================
-
 echo Discovering console-analysis-node-core pods...
 set POD_COUNT=0
-
 REM First, count how many pods exist
 for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| findstr /b "pod/console-analysis-node-core-"') do (
     set /a POD_COUNT+=1
 )
-
 if %POD_COUNT%==0 (
     echo ERROR: No console-analysis-node-core pods found
     exit /b 1
 )
-
 echo Found %POD_COUNT% console-analysis-node-core pod(s)
 echo.
-
 REM Loop through each pod
 for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| findstr /b "pod/console-analysis-node-core-"') do (
     REM Extract pod name from "pod/console-analysis-node-core-X"
@@ -133,15 +122,11 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         exit /b 1
     )
 )
-
 echo All Analysis Node files restored successfully.
 echo.
-
-
 echo =========================================================================
 echo Step 2: Restoring CSS Postgres instance...
 echo =========================================================================
-
 echo Stopping all services except postgres and neo4j...
 %CLUSTER_CMD% scale deployment  console-dashboards             --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale statefulset console-analysis-node-core     --replicas=0 -n %NAMESPACE%
@@ -156,58 +141,50 @@ echo Stopping all services except postgres and neo4j...
 %CLUSTER_CMD% scale deployment  viewer-server                  --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  extendproxy                    --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  mcp-server                     --replicas=0 -n %NAMESPACE%
-
 echo Waiting for services to scale down...
 timeout /t 10 /nobreak >nul
 echo.
-
 echo Finding postgres pod name...
 for /f "tokens=1" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% ^| findstr console-postgres') do set POSTGRES_POD=%%i
-
 if not "%POSTGRES_POD%"=="" (
     echo Found postgres pod: %POSTGRES_POD%
     echo.
-
     if "%OPENSHIFT%"=="true" (
         set PG_DATA_PATH=/var/lib/pgsql/data
     ) else (
         set PG_DATA_PATH=/var/lib/postgresql/data
     )
-
     echo Uploading all_databases.backup to postgres pod...
     %CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\all_databases.backup" %POSTGRES_POD%:%PG_DATA_PATH%/
     if errorlevel 1 (
         echo ERROR: Failed to upload all_databases.backup
         exit /b 1
     )
-
     echo Dropping existing databases in postgres...
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U postgres -c 'drop database keycloak;'"
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U postgres -c 'drop schema control_panel cascade;'"
-
     echo Restoring postgres databases from backup...
-    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U postgres -f %PG_DATA_PATH%/all_databases.backup"
+    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U postgres -f %PG_DATA_PATH%/all_databases.backup > %PG_DATA_PATH%/postgres_restore.log 2>&1"
+    if errorlevel 1 (
+        echo WARNING: Postgres restore may have encountered issues. Check log file.
+    )
     echo.
-
     echo Running ANALYZE commands...
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U operator -p 5432 -c 'ANALYZE;' -d keycloak"
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U operator -p 5432 -c 'ANALYZE;' -d postgres"
-
+    echo Downloading postgres restore log...
+    %CLUSTER_CMD% cp %NAMESPACE%/%POSTGRES_POD%:%PG_DATA_PATH%/postgres_restore.log "%BACKUP_DIR%\postgres_restore.log"
     echo Cleaning up backup files from postgres pod...
-    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "rm -f %PG_DATA_PATH%/all_databases.backup"
-
+    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "rm -f %PG_DATA_PATH%/all_databases.backup %PG_DATA_PATH%/postgres_restore.log"
     echo Postgres restore done.
     echo.
 ) else (
     echo WARNING: Could not find postgres pod, skipping postgres restore
 )
-
-
 echo =========================================================================
 echo Step 3: Restoring Neo4j databases...
 echo =========================================================================
 :neo4j
-
 echo Creating temporary cypher scripts...
 (
 echo drop database neo4j if exists;
@@ -220,7 +197,6 @@ echo stop database neo4j;
 echo stop database imaging;
 echo stop database packagereference;
 ) > %BACKUP_DIR%\backup\neo4j_drop_create.cypher
-
 echo Starting restored databases...
 (
 echo start database neo4j;
@@ -228,54 +204,45 @@ echo start database imaging;
 echo start database packagereference;
 echo show databases;
 ) > %BACKUP_DIR%\backup\neo4j_start.cypher
-
 echo Uploading Neo4j backup files...
 %CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\backup" viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data
 if errorlevel 1 (
     echo ERROR: Failed to upload Neo4j backup files
     exit /b 1
 )
-
 echo Dropping and recreating Neo4j databases...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_drop_create.cypher"
 del %BACKUP_DIR%\backup\neo4j_drop_create.cypher
-
 echo Restoring neo4j database...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j > /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if errorlevel 1 (
-    echo ERROR: Failed to restore neo4j database
-    exit /b 1
+    echo WARNING: Neo4j database restore may have encountered issues. Check log file.
 )
-
 echo Restoring imaging database...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if errorlevel 1 (
-    echo ERROR: Failed to restore imaging database
-    exit /b 1
+    echo WARNING: Imaging database restore may have encountered issues. Check log file.
 )
-
 echo Restoring packagereference database...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if errorlevel 1 (
-    echo ERROR: Failed to restore packagereference database
-    exit /b 1
+    echo WARNING: Packagereference database restore may have encountered issues. Check log file.
 )
-
-echo Starting databasese database...
+echo Starting databases...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_start.cypher"
 del %BACKUP_DIR%\backup\neo4j_start.cypher
-
 echo Executing permission scripts...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"neo4j\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/neo4j/restore_metadata.cypher"
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"imaging\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/imaging/restore_metadata.cypher"
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"packagereference\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/packagereference/restore_metadata.cypher"
-
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"neo4j\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/neo4j/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"imaging\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/imaging/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"packagereference\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/packagereference/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+echo Downloading Neo4j restore log...
+%CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "%BACKUP_DIR%\neo4j_restore.log"
 echo Cleaning up archive files...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm /var/lib/neo4j/config/neo4j5_data/backup/*"
-
+echo Cleaning up Neo4j restore log from pod...
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -f /var/lib/neo4j/logs/neo4j_restore.log"
 echo Restarting Neo4j pod...
 %CLUSTER_CMD% scale statefulset viewer-neo4j-core --replicas=0 -n %NAMESPACE%
-
 echo Waiting for Neo4j to stop...
 :wait_neo4j_stop
 %CLUSTER_CMD% get statefulset viewer-neo4j-core -n %NAMESPACE% | findstr "0/0" >nul
@@ -283,13 +250,8 @@ if errorlevel 1 (
     timeout /t 5 /nobreak >nul
     goto wait_neo4j_stop
 )
-
 echo Neo4j has been stopped successfully.
 echo.
-
-REM =========================================================================
-REM Final Step: Start All Services
-REM =========================================================================
 echo =========================================================================
 echo Final Step: Starting all Imaging services...
 echo =========================================================================
@@ -297,10 +259,15 @@ echo.
 echo IMPORTANT: You must now start all Imaging services by either:
 echo   1. Running Util-ScaleUpAll.bat script from the Imaging helm chart folder
 echo   2. Running: helm upgrade %NAMESPACE% --namespace %NAMESPACE% .
-
 echo =========================================================================
 echo RESTORE COMPLETED
 echo =========================================================================
+echo.
+echo Log files have been saved to: %BACKUP_DIR%
+echo   - postgres_restore.log (Postgres restore log)
+echo   - neo4j_restore.log (Neo4j restore and permissions log)
+echo.
+echo Please review these log files for any errors or warnings.
 echo.
 echo Next steps:
 echo   1. Start all remaining services using helm upgrade or Util-ScaleUpAll script
@@ -308,6 +275,5 @@ echo   2. Verify the Imaging instance is functioning correctly
 echo   3. Check the Console for any issues
 echo.
 echo =========================================================================
-
 endlocal
 pause

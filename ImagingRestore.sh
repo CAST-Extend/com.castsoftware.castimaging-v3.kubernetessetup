@@ -6,13 +6,11 @@
 # Ensure kubectl is installed and configured before running this script
 # A freshly installed, empty Imaging instance must be running at target
 # =========================================================================
-
 # Configuration
 NAMESPACE="castimaging-v3"
 BACKUP_DIR="./mybackupfolder"
 USE_OC=false
 CLUSTER_CMD="kubectl"
-
 echo "========================================================================="
 echo "Imaging 3.4.x Kubernetes Restore Procedure"
 echo "========================================================================="
@@ -31,7 +29,6 @@ if [[ "$CONTINUE" != "YES" ]]; then
     exit 0
 fi
 echo ""
-
 # Check if running on OpenShift
 read -p "Are you running on OpenShift? (y/n): " OPENSHIFT_CHECK
 if [[ "$OPENSHIFT_CHECK" == "y" || "$OPENSHIFT_CHECK" == "Y" ]]; then
@@ -44,31 +41,23 @@ else
     PG_DATA_PATH="/var/lib/postgresql/data"
 fi
 echo ""
-
-
 echo "========================================================================="
 echo "Step 1: Restoring Analysis Node files..."
 echo "========================================================================="
-
 echo "Discovering console-analysis-node-core pods..."
 POD_COUNT=0
-
 # Get list of pods matching the pattern
 PODS=$($CLUSTER_CMD get pods -n $NAMESPACE -o name | grep "^pod/console-analysis-node-core-")
-
 # Count the pods
 for pod in $PODS; do
     ((POD_COUNT++))
 done
-
 if [ $POD_COUNT -eq 0 ]; then
     echo "ERROR: No console-analysis-node-core pods found"
     exit 1
 fi
-
 echo "Found $POD_COUNT console-analysis-node-core pod(s)"
 echo ""
-
 # Loop through each pod
 for POD_FULL in $PODS; do
     # Extract pod name from "pod/console-analysis-node-core-X"
@@ -133,15 +122,11 @@ for POD_FULL in $PODS; do
         exit 1
     fi
 done
-
 echo "All Analysis Node files restored successfully."
 echo ""
-
-
 echo "========================================================================="
 echo "Step 2: Restoring CSS Postgres instance..."
 echo "========================================================================="
-
 echo "Stopping all services except postgres and neo4j..."
 $CLUSTER_CMD scale deployment  console-dashboards             --replicas=0 -n $NAMESPACE
 $CLUSTER_CMD scale statefulset console-analysis-node-core     --replicas=0 -n $NAMESPACE
@@ -156,49 +141,42 @@ $CLUSTER_CMD scale deployment  viewer-etl                     --replicas=0 -n $N
 $CLUSTER_CMD scale deployment  viewer-server                  --replicas=0 -n $NAMESPACE
 $CLUSTER_CMD scale deployment  extendproxy                    --replicas=0 -n $NAMESPACE
 $CLUSTER_CMD scale deployment  mcp-server                     --replicas=0 -n $NAMESPACE
-
 echo "Waiting for services to scale down..."
 sleep 10
 echo ""
-
 echo "Finding postgres pod name..."
 POSTGRES_POD=$($CLUSTER_CMD get pods -n $NAMESPACE | grep console-postgres | awk '{print $1}')
-
 if [ -n "$POSTGRES_POD" ]; then
     echo "Found postgres pod: $POSTGRES_POD"
     echo ""
-
     echo "Uploading all_databases.backup to postgres pod..."
     $CLUSTER_CMD cp -n $NAMESPACE "$BACKUP_DIR/all_databases.backup" $POSTGRES_POD:$PG_DATA_PATH/
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to upload all_databases.backup"
         exit 1
     fi
-
     echo "Dropping existing databases in postgres..."
     $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U postgres -c 'drop schema control_panel cascade;'"
-
     echo "Restoring postgres databases from backup..."
-    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U postgres -f $PG_DATA_PATH/all_databases.backup"
+    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U postgres -f $PG_DATA_PATH/all_databases.backup > $PG_DATA_PATH/postgres_restore.log 2>&1"
+    if [ $? -ne 0 ]; then
+        echo "WARNING: Postgres restore may have encountered issues. Check log file."
+    fi
     echo ""
-
     echo "Running ANALYZE commands..."
     $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U operator -p 5432 -c 'ANALYZE;' -d keycloak"
     $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U operator -p 5432 -c 'ANALYZE;' -d postgres"
-
+    echo "Downloading postgres restore log..."
+    $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/postgres_restore.log "$BACKUP_DIR/postgres_restore.log"
     echo "Cleaning up backup files from postgres pod..."
-    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "rm -f $PG_DATA_PATH/all_databases.backup"
-
+    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "rm -f $PG_DATA_PATH/all_databases.backup $PG_DATA_PATH/postgres_restore.log"
     echo "Postgres restore done."
 else
     echo "WARNING: Could not find postgres pod, skipping postgres restore"
 fi
-
-
 echo "========================================================================="
 echo "Step 3: Restoring Neo4j databases..."
 echo "========================================================================="
-
 echo "Creating temporary cypher scripts..."
 cat > "$BACKUP_DIR/backup/neo4j_drop_create.cypher" <<'EOF'
 drop database neo4j if exists;
@@ -211,7 +189,6 @@ stop database neo4j;
 stop database imaging;
 stop database packagereference;
 EOF
-
 echo "Starting restored databases..."
 cat > "$BACKUP_DIR/backup/neo4j_start.cypher" <<'EOF'
 start database neo4j;
@@ -219,54 +196,45 @@ start database imaging;
 start database packagereference;
 show databases;
 EOF
-
 echo "Uploading Neo4j backup files..."
 $CLUSTER_CMD cp -n $NAMESPACE "$BACKUP_DIR/backup" viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data
 if [ $? -ne 0 ]; then
     echo "ERROR: Failed to upload Neo4j backup files"
     exit 1
 fi
-
 echo "Dropping and recreating Neo4j databases..."
 $CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_drop_create.cypher"
 rm "$BACKUP_DIR/backup/neo4j_drop_create.cypher"
-
 echo "Restoring neo4j database..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j"
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j > /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to restore neo4j database"
-    exit 1
+    echo "WARNING: Neo4j database restore may have encountered issues. Check log file."
 fi
-
 echo "Restoring imaging database..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging"
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to restore imaging database"
-    exit 1
+    echo "WARNING: Imaging database restore may have encountered issues. Check log file."
 fi
-
 echo "Restoring packagereference database..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference"
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to restore packagereference database"
-    exit 1
+    echo "WARNING: Packagereference database restore may have encountered issues. Check log file."
 fi
-
 echo "Starting databases..."
 $CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_start.cypher"
 rm "$BACKUP_DIR/backup/neo4j_start.cypher"
-
 echo "Executing permission scripts..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"neo4j\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/neo4j/restore_metadata.cypher"
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"imaging\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/imaging/restore_metadata.cypher"
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"packagereference\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/packagereference/restore_metadata.cypher"
-
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"neo4j\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/neo4j/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"imaging\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/imaging/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"packagereference\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/packagereference/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+echo "Downloading Neo4j restore log..."
+$CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log"
 echo "Cleaning up archive files..."
 $CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm /var/lib/neo4j/config/neo4j5_data/backup/*"
-
+echo "Cleaning up Neo4j restore log from pod..."
+$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -f /var/lib/neo4j/logs/neo4j_restore.log"
 echo "Restarting Neo4j pod..."
 $CLUSTER_CMD scale statefulset viewer-neo4j-core --replicas=0 -n $NAMESPACE
-
 echo "Waiting for Neo4j to stop..."
 while true; do
     if $CLUSTER_CMD get statefulset viewer-neo4j-core -n $NAMESPACE | grep -q "0/0"; then
@@ -274,11 +242,8 @@ while true; do
     fi
     sleep 5
 done
-
 echo "Neo4j has been stopped successfully."
 echo ""
-
-
 echo "========================================================================="
 echo "Final Step: Starting all Imaging services..."
 echo "========================================================================="
@@ -286,10 +251,15 @@ echo ""
 echo "IMPORTANT: You must now start all Imaging services by either:"
 echo "  1. Running Util-ScaleUpAll.sh script from the Imaging helm chart folder"
 echo "  2. Running: helm upgrade $NAMESPACE --namespace $NAMESPACE ."
-
 echo "========================================================================="
 echo "RESTORE COMPLETED"
 echo "========================================================================="
+echo ""
+echo "Log files have been saved to: $BACKUP_DIR"
+echo "  - postgres_restore.log (Postgres restore log)"
+echo "  - neo4j_restore.log (Neo4j restore and permissions log)"
+echo ""
+echo "Please review these log files for any errors or warnings."
 echo ""
 echo "Next steps:"
 echo "  1. Start all remaining services using helm upgrade or Util-ScaleUpAll script"
@@ -297,5 +267,4 @@ echo "  2. Verify the Imaging instance is functioning correctly"
 echo "  3. Check the Console for any issues"
 echo ""
 echo "========================================================================="
-
 read -p "Press Enter to continue..."

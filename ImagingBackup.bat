@@ -137,10 +137,9 @@ if not "%POSTGRES_POD%"=="" (
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "mkdir -p %PG_DATA_PATH%/backup"
 
     echo Running pg_dumpall...
-    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "pg_dumpall -U operator -p 5432 -f %PG_DATA_PATH%/backup/all_databases.backup"
+    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "pg_dumpall -U operator -p 5432 -f %PG_DATA_PATH%/backup/all_databases.backup > %PG_DATA_PATH%/backup/postgres_backup.log 2>&1"
     if errorlevel 1 (
-        echo ERROR: pg_dumpall failed
-        exit /b 1
+        echo WARNING: pg_dumpall may have encountered issues. Check log file.
     )
 
     echo Downloading all_databases.backup...
@@ -149,6 +148,9 @@ if not "%POSTGRES_POD%"=="" (
         echo ERROR: Failed to download all_databases.backup
         exit /b 1
     )
+
+    echo Downloading postgres backup log...
+    %CLUSTER_CMD% cp %NAMESPACE%/%POSTGRES_POD%:%PG_DATA_PATH%/backup/postgres_backup.log "%BACKUP_DIR%\postgres_backup.log"
 
     echo Cleaning up backup files from postgres pod...
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "rm -rf %PG_DATA_PATH%/backup"
@@ -203,10 +205,11 @@ echo Backup contents:
 echo   - shared-dir.tar.gz (Analysis Node shared files)
 echo   - xxx-cast-dir.tar.gz (Analysis Node CAST files)
 echo   - all_databases.backup (Postgres databases)
+echo   - postgres_backup.log (Postgres backup log)
 echo   - backup\ (Neo4j database backups)
 echo   - backup_ImagingDatabases.log (Neo4j backup log)
 echo.
-echo Please review the backup_ImagingDatabases.log file for any errors.
+echo Please review the postgres_backup.log and backup_ImagingDatabases.log files for any errors.
 echo.
 echo =========================================================================
 
