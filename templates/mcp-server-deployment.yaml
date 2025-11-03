@@ -37,19 +37,8 @@ spec:
       labels:
         app: mcp-server
     spec:
-      initContainers:
-        - name: init-folders
-          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
-          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
-          command:
-          - /bin/sh
-          - -c
-          - |
-            check_volume_folder 1000 1000 /app/logs
-          volumeMounts:
-            - name: logdir
-              mountPath: /app/logs
-              readOnly: false                          
+      securityContext:
+        fsGroup: 1000                       
       containers:
         - env:
   {{- if .Values.ContextUrl.enable }}

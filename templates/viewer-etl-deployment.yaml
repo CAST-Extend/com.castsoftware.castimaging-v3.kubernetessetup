@@ -30,6 +30,8 @@ spec:
       labels:
         app: viewer-etl
     spec:
+      securityContext:
+        fsGroup: 1000
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -38,7 +40,6 @@ spec:
           - /bin/sh
           - -c
           - |
-            check_volume_folder 1000 1000 /opt/imaging/imaging-etl/logs
 {{- if .Values.EnablePostgresSSL }}
             echo "Copy postgres SSL files."
             cp /tmp/certs/* /etc/ssl/certs-postgres
@@ -61,9 +62,6 @@ spec:
             echo "viewer-server is up!"
             echo "Done."
           volumeMounts:
-            - name: logdir
-              mountPath: /opt/imaging/imaging-etl/logs
-              readOnly: false
 {{- if .Values.EnablePostgresSSL }}
             - name: ssl-certs
               mountPath: /tmp/certs

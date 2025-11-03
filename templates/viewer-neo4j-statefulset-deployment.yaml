@@ -36,24 +36,9 @@ spec:
       labels:
         app: viewer-neo4j
         component: core
-    spec:  
-      initContainers:      
-        - name: init-folders
-          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
-          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
-          command:
-          - /bin/sh
-          - -c
-          - |
-            check_volume_tree 7474 7474 /logs          
-            check_volume_tree 7474 7474 /var/lib/neo4j/config/neo4j5_data
-          volumeMounts:
-            - name: neo4jdata
-              mountPath: /logs
-              subPathExpr: logs
-            - name: neo4jdata
-              mountPath: /var/lib/neo4j/config/neo4j5_data
-              subPathExpr: neo4jdata
+    spec:
+      securityContext:
+        fsGroup: 7474
       containers:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"

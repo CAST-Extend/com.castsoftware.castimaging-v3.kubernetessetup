@@ -36,6 +36,7 @@ spec:
         component: core
     spec:
       securityContext:
+        fsGroup: 10001
       initContainers:     
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -44,12 +45,6 @@ spec:
           - /bin/sh
           - -c
           - |
-            check_volume_folder 10001 10001 /opt
-            check_volume_folder 10001 10001 /usr/share
-            mkdir -p {{ .Values.anadir.datadirmount }}
-            mkdir -p {{ .Values.anadir.castdirmount }}
-            check_volume_folder 10001 10001 {{ .Values.anadir.datadirmount }}
-            check_volume_folder 10001 10001 {{ .Values.anadir.castdirmount }}
             mkdir -p {{ .Values.anadir.common }}
             mkdir -p {{ .Values.anadir.delivery }}
             mkdir -p {{ .Values.anadir.deploy }}

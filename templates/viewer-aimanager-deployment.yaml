@@ -30,6 +30,8 @@ spec:
       labels:
         app: viewer-aimanager
     spec:
+      securityContext:
+        fsGroup: 1000
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -38,7 +40,6 @@ spec:
           - /bin/sh
           - -c
           - |
-            check_volume_folder 1000 1000 /opt/imaging/open_ai-manager/logs
             until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
@@ -54,9 +55,6 @@ spec:
             cat /opt/imaging/open_ai-manager/config/app.config | sed "s/dbpassword-placeholder/$ESCAPED_OPERATOR_PASSWORD/g" > /updated-config/app.config
             echo "app.config updated."
           volumeMounts:
-            - name: logdir
-              mountPath: /opt/imaging/open_ai-manager/logs
-              readOnly: false
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
               subPath: app.config
