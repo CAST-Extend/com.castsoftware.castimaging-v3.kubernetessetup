@@ -140,8 +140,8 @@ McpServerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.2.5"
-  pullPolicy: Always  
+  tag: "1.2.6"
+  pullPolicy: IfNotPresent  
 ConsolePostgresImage:
   name: postgres
   tag: "15"
