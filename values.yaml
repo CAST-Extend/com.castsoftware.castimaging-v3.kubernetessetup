@@ -23,6 +23,7 @@ FrontEndHost: https://my-host.com  # hostname with no context path
 # Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
 CreateIngress: true
 CreateLoadBalancer: true
+UseInternalLoadBalancer: false
 #
 # Context URL
 ContextUrl:

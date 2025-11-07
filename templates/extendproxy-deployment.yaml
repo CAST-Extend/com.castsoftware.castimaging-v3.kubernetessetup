@@ -4,6 +4,15 @@ kind: Service
 metadata:
   annotations:
     helm.sh/resource-policy: keep
+  {{- if and .Values.CreateLoadBalancer .Values.UseInternalLoadBalancer }}
+    {{- if eq .Values.K8SProvider "AKS" }}
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    {{- else if eq .Values.K8SProvider "AKS" }}
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+    {{- else if eq .Values.K8SProvider "GKE" }}
+    networking.gke.io/load-balancer-type: "Internal"
+    {{- end }}
+  {{- end }}
   labels:
     console.service: extendproxy
   name: extendproxy
