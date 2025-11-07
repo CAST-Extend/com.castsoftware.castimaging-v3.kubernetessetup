@@ -14,6 +14,8 @@ data:
     #   "true"  - Enable HTTPS with nginx SSL proxy (requires certificates)  
     #   "false" - Use direct HTTP access to mcp-server (no encryption)
     HTTPS_ENABLED=false
+    #
+
 kind: ConfigMap
 metadata:
   creationTimestamp: null
