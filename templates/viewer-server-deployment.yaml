@@ -70,7 +70,7 @@ spec:
 {{- if or (eq .Values.version "3.3.0") (eq .Values.version "3.3.1") }}
             /home/imaging/3.3.0/Neo4jdatamigrate --log /home/imaging/logs/3.3.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
 {{- end }}
-{{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") (eq .Values.version "3.4.3") (eq .Values.version "3.4.4") }}
+{{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") (eq .Values.version "3.4.3") (eq .Values.version "3.4.4") (eq .Values.version "3.4.5") }}
             /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
 {{- end }}
             echo "Done".
