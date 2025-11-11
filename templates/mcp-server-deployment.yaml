@@ -63,7 +63,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /mcp/healthcheck
-              port: 8283
+              port: 8282
               scheme: HTTP
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -73,7 +73,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /mcp/healthcheck
-              port: 8283
+              port: 8282
               scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 10

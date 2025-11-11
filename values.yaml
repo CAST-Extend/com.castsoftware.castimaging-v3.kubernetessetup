@@ -201,7 +201,7 @@ ViewerApiImage:
   pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server
-  tag: "3.4.4"
+  tag: "3.4.5"
   pullPolicy: IfNotPresent 
 #
 # ExtendProxy Image
