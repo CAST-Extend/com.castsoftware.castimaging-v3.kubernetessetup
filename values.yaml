@@ -141,7 +141,7 @@ McpServerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.2.6"
+  tag: "1.2.7"
   pullPolicy: IfNotPresent  
 ConsolePostgresImage:
   name: postgres
@@ -157,7 +157,7 @@ ConsoleServiceImage:
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.4.5"
+  tag: "3.4.5.01"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
@@ -169,7 +169,7 @@ ConsoleControlPaneImage:
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.4.5"
+  tag: "3.4.5.01"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
