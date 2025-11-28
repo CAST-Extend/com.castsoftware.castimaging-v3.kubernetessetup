@@ -16,11 +16,12 @@
 # - Create DNS record pointing at Ingress external IP / name
 # - Create TLS Secret(s) using certificate files
 #     kubectl create secret tls tls-secret-cast        --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
-# - Create additional ones for mcp-server and extendproxy if applicable:
-#     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
-#     kubectl create secret tls tls-secret-cast-mcp    --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
-#   (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
-# - Optional - for certificates that cannot be verified (e.g., self-signed certificate or internal CA), it will need to be stored in CAST auth-service:
+#     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv\myextendhostname.com\fullchain.pem --key=cert-priv\myextendhostname.com\privkey.pem -n castimaging-v3
+#     kubectl create secret tls tls-secret-cast-mcp    --cert=cert-priv\mymcphostname.com\fullchain.pem --key=cert-priv\mymcphostname.com\privkey.pem -n castimaging-v3
+#    (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
+#    If you want to use the same hostname for the 3 services, just create the 3 secrets using the same certificate files
+# - Optional - for certificates that cannot be verified (e.g., self-signed certificate or internal CA), 
+#   the tls-secret-cast certificate will need to be stored in CAST auth-service:
 #                > set: UseCustomTrustStore: true in values .yaml
 #                > Insert the encoded certificate in the auth.caCertificate variable in values .yaml
 #                  or 

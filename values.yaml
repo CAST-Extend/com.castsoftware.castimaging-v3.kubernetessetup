@@ -16,12 +16,13 @@ namespace: castimaging-v3
 K8SProvider: AKS
 #
 # External network access
-FrontEndHost: https://my-host.com  # hostname with no context path 
+FrontEndHost: https://myhostname.com  # hostname with no context path 
 #                                    and no trailing "/" 
-#                                    E.g. https://my-host.com 
+#                                    E.g. https://myhostname.com 
 #
 # Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
-CreateIngress: true
+CreateIngress: false
+CreateIstioGateway: false
 CreateLoadBalancer: true
 UseInternalLoadBalancer: false
 #
@@ -39,12 +40,12 @@ ContextUrl:
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: false
-  exthostname: myextendhost.com
+  exthostname: myhostname.com
 #
 # OPTIONAL - MCP Server
 McpServer:
   enable: false
-  exthostname: mymcpserverhost.com
+  exthostname: myhostname.com
 #
 # OPTIONAL - Use custom Trust Store in console-authentication-service to store certificate
 UseCustomTrustStore: false
@@ -141,7 +142,7 @@ McpServerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.2.7"
+  tag: "1.2.8"
   pullPolicy: IfNotPresent  
 ConsolePostgresImage:
   name: postgres

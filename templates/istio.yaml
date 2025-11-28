@@ -1,0 +1,253 @@
+{{- if .Values.CreateIstioGateway }}
+# ********************************************************************
+# Prerequisite #1 - Install Istio on the cluster
+# ********************************************************************
+# Linux/Mac:
+# curl -L https://istio.io/downloadIstio | sh -
+# cd istio-*
+# export PATH=$PWD/bin:$PATH
+# istioctl install --set profile=default -y
+#
+# Windows (PowerShell):
+# # Option 1: Using Chocolatey (recommended)
+# choco install istioctl
+# istioctl install --set profile=default -y
+#
+# Important note: istio-injection should **not** be enabled on CAST Imaging namespace
+#
+#
+# # Option 2: Manual download and install
+# $ISTIO_VERSION="1.28.0"  # Check https://github.com/istio/istio/releases for latest
+# Invoke-WebRequest -Uri "https://github.com/istio/istio/releases/download/$ISTIO_VERSION/istio-$ISTIO_VERSION-win.zip" -OutFile "istio.zip"
+# Expand-Archive -Path "istio.zip" -DestinationPath "." -Force
+# cd "istio-$ISTIO_VERSION"
+# $env:PATH = "$PWD\bin;$env:PATH"
+# istioctl install --set profile=default -y
+#
+# # Troubleshooting: if you get the "component does not exist" error, try:
+# istioctl install --set profile=default -y --manifests=./manifests
+# # Or download a fresh copy with correct manifests included
+#
+# With Calico's eBPF dataplane mode, bpfConnectTimeLoadBalancing needs to be Disabled 
+# run kubectl edit felixconfiguration default
+# or  kubectl get felixconfiguration default -o yaml > felix-config.yaml
+# and add:
+# spec:
+#   bpfConnectTimeLoadBalancing: Disabled
+# Apply the updated yaml.
+#
+# ********************************************************************
+# Prerequisite #2 - Create DNS record & TLS secrets
+# ********************************************************************
+# - Create DNS record(s) pointing at Istio Ingress external IP
+#     kubectl get service istio-ingressgateway -n istio-system
+# - Create TLS Secret using certificate files in istio-system namespace:
+#     kubectl create secret tls tls-secret-cast        --cert=cert-priv/myhostname.com/fullchain.pem --key=cert-priv/myhostname.com/privkey.pem -n istio-system
+#     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv/myextendhostname.com/fullchain.pem --key=cert-priv/myextendhostname.com/privkey.pem -n istio-system
+#     kubectl create secret tls tls-secret-cast-mcp    --cert=cert-priv/mymcphostname.com/fullchain.pem --key=cert-priv/mymcphostname.com/privkey.pem -n istio-system
+#    (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
+#   If you want to use the same hostname for the 3 services, just create the 3 secrets using the same certificate files
+#
+#   OPTION A - Same hostname is used for all services (path-based routing):
+#     Set in values.yaml:
+#       FrontEndHost: https://myhostname.com (main Imaging URL)
+#       ExtendProxy.exthostname: myhostname.com
+#       McpServer.exthostname: myhostname.com
+#     URLs will be:
+#       - https://myhostname.com (or /mycontext if ContextUrl enabled)
+#       - https://myhostname.com/mcp
+#       - https://myhostname.com/extendproxy
+#
+#   OPTION B - Different hostname is used for each service:
+#     Set in values.yaml:
+#       FrontEndHost: https://myhostname.com (main Imaging URL)
+#       ExtendProxy.exthostname: myextendhostname.com
+#       McpServer.exthostname: mymcphostname.com
+#     URLs will be:
+#       - https://myhostname.com (or /mycontext if ContextUrl enabled)
+#       - https://mymcphostname.com/mcp
+#       - https://myextendhostname.com/extendproxy
+#
+# - Optional - for certificates that cannot be verified (e.g., self-signed certificate or internal CA), 
+#   the tls-secret-cast certificate will need to be stored in CAST auth-service:
+#                > set: UseCustomTrustStore: true in values.yaml
+#                > Insert the encoded certificate in the auth.caCertificate variable in values.yaml
+# ********************************************************************
+---
+# Gateway supporting multiple hostnames
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: castimaging-gateway
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  # Main application hostname
+  - port:
+      number: 443
+      name: https-main
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: tls-secret-cast
+    hosts:
+    - {{ (urlParse .Values.FrontEndHost).hostname }}
+  {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+  # ExtendProxy dedicated hostname (if different from main)
+  - port:
+      number: 443
+      name: https-extend
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: tls-secret-cast-extend
+    hosts:
+    - {{ .Values.ExtendProxy.exthostname }}
+  {{- end }}
+  {{- if and .Values.McpServer.enable (ne .Values.McpServer.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+  # MCP Server dedicated hostname (if different from main)
+  - port:
+      number: 443
+      name: https-mcp
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: tls-secret-cast-mcp
+    hosts:
+    - {{ .Values.McpServer.exthostname }}
+  {{- end }}
+
+---
+# VirtualService for main application
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: castimaging-virtualservice
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  hosts:
+  - {{ (urlParse .Values.FrontEndHost).hostname }}
+  gateways:
+  - castimaging-gateway
+  http:
+  {{- if and .Values.McpServer.enable (eq .Values.McpServer.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+  # MCP Server on shared hostname (path-based routing)
+  - match:
+    - uri:
+        prefix: /mcp
+    route:
+    - destination:
+        host: mcp-server.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: 8282
+    timeout: 300s
+  {{- end }}
+  {{- if and .Values.ExtendProxy.enable (eq .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+  # ExtendProxy on shared hostname (path-based routing)
+  - match:
+    - uri:
+        prefix: /extendproxy/
+    rewrite:
+      uri: /
+    headers:
+      request:
+        set:
+          X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
+    route:
+    - destination:
+        host: extendproxy.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: 8085
+    timeout: 3600s
+  {{- end }}
+  # Main application (always on main hostname)
+  - match:
+    {{- if .Values.ContextUrl.enable }}
+    - uri:
+        prefix: {{ .Values.ContextUrl.appcontext }}/
+    - uri:
+        exact: {{ .Values.ContextUrl.appcontext }}
+    rewrite:
+      uri: /
+    {{- else }}
+    - uri:
+        prefix: /
+    {{- end }}
+    headers:
+      request:
+        set:
+          X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
+    route:
+    - destination:
+        host: console-gateway-service
+        port:
+          number: 8090
+    timeout: 300s
+
+---
+  {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+# VirtualService for ExtendProxy on dedicated hostname
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: extendproxy-virtualservice
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  hosts:
+  - {{ .Values.ExtendProxy.exthostname }}
+  gateways:
+  - castimaging-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /extendproxy/
+    rewrite:
+      uri: /
+    headers:
+      request:
+        set:
+          X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
+    route:
+    - destination:
+        host: extendproxy
+        port:
+          number: 8085
+    timeout: 3600s
+  {{- end }}
+
+---
+  {{- if and .Values.McpServer.enable (ne .Values.McpServer.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+# VirtualService for MCP Server on dedicated hostname
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mcpserver-virtualservice
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  hosts:
+  - {{ .Values.McpServer.exthostname }}
+  gateways:
+  - castimaging-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /mcp
+    route:
+    - destination:
+        host: mcp-server
+        port:
+          number: 8282
+    timeout: 300s
+  {{- end }}
+
+{{- end }}
