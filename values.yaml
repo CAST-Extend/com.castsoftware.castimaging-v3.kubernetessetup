@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.4.5
+version: 3.5.0
 
 ####################################################################################
 #
@@ -40,12 +40,12 @@ ContextUrl:
 # OPTIONAL - ExtendProxy
 ExtendProxy:
   enable: false
-  exthostname: myhostname.com
+  exthostname: myextendhost.com
 #
 # OPTIONAL - MCP Server
 McpServer:
   enable: false
-  exthostname: myhostname.com
+  exthostname: mymcpserverhost.com
 #
 # OPTIONAL - Use custom Trust Store in console-authentication-service to store certificate
 UseCustomTrustStore: false
@@ -88,6 +88,10 @@ MultiTenancyEnabled: false
 #
 # CAST Operator password has to be encrypted using CAST aip-encryption-tool (crypted2):
 OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
+#
+# Neo4j memory configuration:
+NEO4J_HEAP_SIZE: 12G
+NEO4J_TRANSACTION_MEMORY: 10G
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -104,16 +108,17 @@ GKE_FSdriver: filestore.csi.storage.gke.io
 #
 # Size of volumes
 #
-size_castdir: 100Gi                       # Default: 100Gi
-size_shared_datadir: 100Gi                # Default: 100Gi
-size_db_data: 128Gi                       # Default: 128Gi
-size_imagingviewer_v3_server_log: 1Gi     # Default: 1Gi
-size_imagingviewer_v3_etl_logs: 10Gi      # Default: 10Gi
-size_imagingviewer_v3_aimanager_logs: 2Gi # Default: 2Gi
-size_imagingviewer_v3_api_logs: 2Gi       # Default: 2Gi
-size_extendproxy_data: 10Gi               # Default: 10Gi
-size_neo4jdata: 100Gi                     # Default: 100Gi
-size_mcpserver_logs: 2Gi                  # Default: 2Gi
+size_castdir: 100Gi                         # Default: 100Gi
+size_shared_datadir: 100Gi                  # Default: 100Gi
+size_db_data: 128Gi                         # Default: 128Gi
+size_imagingviewer_v3_server_log: 1Gi       # Default: 1Gi
+size_imagingviewer_v3_etl_logs: 10Gi        # Default: 10Gi
+size_imagingviewer_v3_etl_csvarchive: 10Gi  # Default: 10Gi
+size_imagingviewer_v3_aimanager_logs: 2Gi   # Default: 2Gi
+size_imagingviewer_v3_api_logs: 2Gi         # Default: 2Gi
+size_extendproxy_data: 10Gi                 # Default: 10Gi
+size_neo4jdata: 100Gi                       # Default: 100Gi
+size_mcpserver_logs: 2Gi                    # Default: 2Gi
 
 #
 # Console  
@@ -150,31 +155,31 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.4.5.01"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.4.5_core8.4.7"
+  tag: "3.5.0_core8.4.7"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.4.5.01"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
   
 #
@@ -182,23 +187,23 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 ViewerApiImage:
   name: castimaging/imaging-apis
-  tag: "3.4.5"
+  tag: "3.5.0"
   pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server

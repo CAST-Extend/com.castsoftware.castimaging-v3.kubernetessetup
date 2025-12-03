@@ -58,8 +58,41 @@ spec:
 {{- end }}
           image: "{{ .Values.ViewerApiImage.name }}:{{ .Values.ViewerApiImage.tag }}"
           imagePullPolicy: "{{ .Values.ViewerApiImage.pullPolicy }}"
-          command: ['sh', '-c', "./imaging-api -CONFIG ./config/app.config"]
+          command: ['sh', '-c', "/opt/imaging/imaging-api/config/init.sh"]
           name: viewer-api
+          env:
+            - name: TZ
+              value: "UTC"
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: EUREKA_HOST
+              value: "console-control-panel"
+            - name: EUREKA_PORT
+              value: "8098"
+            - name: SERVICE_HOST
+              value: "viewer-api"
+            - name: IMAGING_APIS_PORT
+              value: "8070"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "viewer-neo4j:7687"
+            - name: API_KEY
+              value: 
+            - name: SOURCE_CODE_SERVICE_TOKEN
+              value: 
+            - name: SOURCE_CODE_SERVICE_ENDPOINT
+              value: 
+            - name: TRUSTED_PROXIES
+              value: 
+            - name: ACCESS_CONTROL_ALLOW_ORIGIN
+              value: 
+            - name: ACCESS_CONTROL_ALLOW_METHODS
+              value: 
+            - name: ACCESS_CONTROL_ALLOW_HEADERS
+              value: 
+            - name: QUERY_TIMEOUT
+              value: "60"
+            - name: NEO4J_PASSWORD
+              value: "imaging"
           ports:
             - containerPort: 8070
               protocol: TCP
@@ -68,17 +101,11 @@ spec:
           volumeMounts:
             - name: logdir
               mountPath: /opt/imaging/imaging-api/logs
-              readOnly: false
-            - name: apiappconfig
-              mountPath: /opt/imaging/imaging-api/config/app.config
-              subPath: app.config               
+              readOnly: false          
       volumes:
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-api-logs
-        - name: apiappconfig
-          configMap:
-            name: apiappconfig
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:
         - name: imagepull-sec

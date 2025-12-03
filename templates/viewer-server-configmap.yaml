@@ -39,10 +39,10 @@ data:
     = '') {\n                return 404;\n            }    \n            auth_request
     \      /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;\n
     \           proxy_pass         http://localhost:8084/sourcecode/api/;\n        }\n\n
-    \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager.{{
-    .Release.Namespace }}.svc.cluster.local:8082/;\n        }\n\n        location
-    ^~ /imaging/apis/ {\n            proxy_pass         http://viewer-api.{{ .Release.Namespace
-    }}.svc.cluster.local:8070/;\n        }\n        \n        # location ^~ /imaging/api/
+    \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager:8082/;
+    \n        }\n\n        location
+    ^~ /imaging/apis/ {\n            proxy_pass         http://viewer-api:8070/;
+    \n        }\n        \n        # location ^~ /imaging/api/
     {\n        #     proxy_pass         http://localhost:8084/api/;\n        # }\n\n
     \       # location ^~ /imaging/etl/api/ {\n        #     proxy_pass         http://localhost:8084/etl/api/;\n
     \       # }\n\n        # location ^~ /imaging/neo4j/api/ {\n        #     proxy_pass
@@ -54,30 +54,3 @@ metadata:
   creationTimestamp: null
   name: servernginxconf
   namespace: {{ .Release.Namespace }}
----
-apiVersion: v1
-data:
-  app.config: |-
-    {
-     "PORT": "9000",
-     "NEO4J_USERNAME": "neo4j",
-     "NEO4J_PASSWORD": "imaging",
-     "NEO4J_BOLT_ENDPOINT": "viewer-neo4j:7687",
-     "ETL_ENDPOINT": "etl:9001",
-     "TOKEN": "D5ED6A406775FC71B8D2A978883E8ED4",
-     "NEO4J_IMPORT_PATH": "/opt/imaging/imaging-service/upload/",
-     "LOG_PATH": "/opt/imaging/imaging-service/logs/",
-     "LOG_LEVEL": "debug",
-     "APP_CONFIG": "app-config.json",
-     "LOGGER_TIMEOUT": 60,
-     "EUREKA_HOST": "console-control-panel",
-     "EUREKA_PORT": "8098",
-     "SERVICE_HOST": "viewer-server",
-     "SERVICE_NAME": "Imaging",
-     "FE_PORT":8083
-    }
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: serverappconfig
-  namespace: {{.Release.Namespace}}

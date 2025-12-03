@@ -9,9 +9,6 @@ spec:
     - name: http
       port: 8083
       targetPort: 8080
-    - name: https
-      port: 443
-      targetPort: 443
     - name: login
       port: 9000
       targetPort: 9000
@@ -55,44 +52,39 @@ spec:
               echo "Waiting for neo4j..."
               sleep 2
             done
-            echo "viewer-neo4j is up!"
-        - name: neo4j-migration
-          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
-          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
-          command:
-          - /bin/sh
-          - -c
-          - |
-            echo "Running neo4j migration..."
-{{- if or (eq .Values.version "3.2.2") (eq .Values.version "3.2.3") }}
-            /home/imaging/3.2.3/Neo4jdatamigrate --log /home/imaging/logs/3.2.3-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
-{{- end }}
-{{- if or (eq .Values.version "3.3.0") (eq .Values.version "3.3.1") }}
-            /home/imaging/3.3.0/Neo4jdatamigrate --log /home/imaging/logs/3.3.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
-{{- end }}
-{{- if or (eq .Values.version "3.4.0") (eq .Values.version "3.4.1") (eq .Values.version "3.4.2") (eq .Values.version "3.4.3") (eq .Values.version "3.4.4") (eq .Values.version "3.4.5") }}
-            /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
-{{- end }}
-            echo "Done".
-          volumeMounts:
-            - name: log
-              mountPath: /home/imaging/logs            
+            echo "viewer-neo4j is up!"         
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
-          command: ['sh', '-c', "sleep 60; /opt/imaging/config/init.sh"]
+          command: ['sh', '-c', "/opt/imaging/config/init.sh"]
           name: viewer-server
           env:
-            - name: TIME_ZONE
-              value: "Europe/Paris"
+            - name: TZ
+              value: "UTC"
+            - name: EUREKA_HOST
+              value: "console-control-panel"
+            - name: EUREKA_PORT
+              value: "8098"
+            - name: SERVICE_HOST
+              value: "viewer-server"
+            - name: SERVER_PORT
+              value: "9000"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "viewer-neo4j:7687"
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: FE_PORT
+              value: "8083"
+            - name: QUERY_TIMEOUT
+              value: "60"
+            - name: NEO4J_PASSWORD
+              value: "imaging"
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}
 {{- end }}
           ports:
             - containerPort: 8080
-              protocol: TCP
-            - containerPort: 443
               protocol: TCP
             - containerPort: 9000
               protocol: TCP
@@ -104,9 +96,6 @@ spec:
             - name: servernginxconf
               mountPath: /opt/imaging/config/nginx/conf/nginx.conf
               subPath: nginx.conf
-            - name: serverappconfig
-              mountPath: /opt/imaging/config/app.config
-              subPath: app.config
 {{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
         - name: imagepull-sec
@@ -118,6 +107,3 @@ spec:
         - name: servernginxconf
           configMap:
             name: servernginxconf
-        - name: serverappconfig
-          configMap:
-            name: serverappconfig

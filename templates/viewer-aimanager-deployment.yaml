@@ -49,20 +49,7 @@ spec:
               echo "Waiting for neo4j..."
               sleep 2
             done
-            echo "viewer-neo4j is up!"
-            OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
-            ESCAPED_OPERATOR_PASSWORD=$(printf '%s\n' "$OPERATOR_PASSWORD" | sed -e 's/[\/&]/\\&/g')
-            cat /opt/imaging/open_ai-manager/config/app.config | sed "s/dbpassword-placeholder/$ESCAPED_OPERATOR_PASSWORD/g" > /updated-config/app.config
-            echo "app.config updated."
-          volumeMounts:
-            - name: openaiappconfig
-              mountPath: /opt/imaging/open_ai-manager/config/app.config
-              subPath: app.config
-            - name: updated-config-volume
-              mountPath: /updated-config              
-            - name: db-creds
-              mountPath: /opt/secrets
-              readOnly: true                              
+            echo "viewer-neo4j is up!"                           
       containers:
         - env:
 {{- if .Values.ContextUrl.enable }}
@@ -73,6 +60,25 @@ spec:
           imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
           command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
           name: viewer-aimanager
+          env:
+            - name: TZ
+              value: "UTC"
+            - name: EUREKA_HOST
+              value: "console-control-panel"
+            - name: EUREKA_PORT
+              value: "8098"
+            - name: SERVICE_HOST
+              value: "viewer-aimanager"
+            - name: AIMANAGER_PORT
+              value: "8082"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "viewer-neo4j:7687"
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: ETL_PORT
+              value: "9001"
+            - name: NEO4J_PASSWORD
+              value: "imaging"
           ports:
             - containerPort: 8082
               protocol: TCP
@@ -81,10 +87,7 @@ spec:
           volumeMounts:
             - name: logdir
               mountPath: /opt/imaging/open_ai-manager/logs
-              readOnly: false
-            - name: updated-config-volume
-              mountPath: /opt/imaging/open_ai-manager/config/app.config
-              subPath: app.config            
+              readOnly: false         
 {{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
         - name: imagepull-sec
@@ -95,9 +98,6 @@ spec:
             claimName: pvc-imagingviewer-v3-aimanager-logs
         - name: updated-config-volume
           emptyDir: {}            
-        - name: openaiappconfig
-          configMap:
-            name: openaiappconfig
         - name: db-creds
           secret:
             secretName: imaging-pwd-sec            

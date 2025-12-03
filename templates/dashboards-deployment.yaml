@@ -7,9 +7,9 @@ metadata:
   namespace: {{ .Release.Namespace }}  
 spec:
   ports:
-    - name: "8087"
-      port: 8087
-      targetPort: 8087
+    - name: "8097"
+      port: 8097
+      targetPort: 8097
   selector:
     console.service: console-dashboards  
 ---  
@@ -76,36 +76,21 @@ spec:
             - name: HOST_HOSTNAME
               value: console-dashboards
             - name: PORT_DASHBOARDS
-              value: "8087"
+              value: "8097"
             - name: HOST_CONTROL_PANEL
               value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
-{{- if .Values.CustomPostgres.enable }}
-            - name: DB_HOST
-              value: {{ .Values.CustomPostgres.host }}
-            - name: DB_PORT
-              value: "{{ .Values.CustomPostgres.port }}"               
-{{- else }}
-            - name: DB_HOST
-              value: console-postgres
-            - name: DB_PORT
-              value: "2285"              
-{{- end }}
-            - name: DB_NAME
-              value: postgres
-            - name: DB_USER
-              value: operator
-            - name: DB_PASS
-              value: "{{ .Values.OperatorDbPasswordCrypted2 }}"
-            - name: HOST_GATEWAY
-              value: console-gateway-service
-            - name: PORT_GATEWAY
-              value: "8090"
             - name: HOST_AUTH_SERVICE
               value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
+            - name: HOST_CONSOLE
+              value: console-service
+            - name: PORT_CONSOLE
+              value: "8091"
+            - name: eureka.instance.instanceId
+              value: console-dashboards:8097
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
@@ -114,7 +99,7 @@ spec:
           imagePullPolicy: "{{ .Values.ConsoleIntegratedDashboardsImage.pullPolicy }}"
           name: dashboards
           ports:
-            - containerPort: 8087
+            - containerPort: 8097
               protocol: TCP
           resources:
             {{- toYaml .Values.DashboardsResources | nindent 12 }}

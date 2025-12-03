@@ -83,6 +83,27 @@ spec:
           imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
           command: ['sh', '-c', '/opt/imaging/imaging-etl/config/init.sh']
           name: viewer-etl
+          env:
+            - name: TZ
+              value: "UTC"
+            - name: EUREKA_HOST
+              value: "console-control-panel"
+            - name: EUREKA_PORT
+              value: "8098"
+            - name: SERVICE_HOST
+              value: "viewer-etl"
+            - name: ETL_PORT
+              value: "9001"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "viewer-neo4j:7687"
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: WORKER_POOL_SIZE
+              value: "4"
+            - name: NEO4J_IMPORT_BATCH_SIZE
+              value: "1000"
+            - name: NEO4J_PASSWORD
+              value: "imaging"
           ports:
             - containerPort: 9001
               protocol: TCP
@@ -92,9 +113,8 @@ spec:
             - name: logdir
               mountPath: /opt/imaging/imaging-etl/logs
               readOnly: false
-            - name: etlappconfig
-              mountPath: /opt/imaging/imaging-etl/config/app.config
-              subPath: app.config
+            - name: csvarchive
+              mountPath: /opt/imaging/imaging-etl/upload/archive
 {{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
@@ -108,9 +128,9 @@ spec:
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-etl-logs
-        - name: etlappconfig
-          configMap:
-            name: etlappconfig
+        - name: csvarchive
+          persistentVolumeClaim:
+            claimName: pvc-imagingviewer-v3-etl-csvarchive
 {{- if .Values.EnablePostgresSSL }}
         - name: ssl-certs
           secret:

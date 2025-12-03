@@ -137,6 +137,10 @@ spec:
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
 {{- end }}
+            - name: DASHBOARD_STANDALONE_ENABLED
+              value: "false"
+            - name: IMAGING_DOMAIN_SYNCHRO_ENABLED
+              value: "false"
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           name: console-control-panel

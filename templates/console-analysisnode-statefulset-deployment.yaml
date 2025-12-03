@@ -104,26 +104,12 @@ spec:
               subPath: analysisnode-upgrade-script.sql       
       containers:
         - env:
-            - name: DELIVERY_FOLDER
-              value: {{ .Values.anadir.delivery }}
-            - name: DEPLOY_FOLDER
-              value: {{ .Values.anadir.deploy }}
-            - name: SHARED_FOLDER
-              value: {{ .Values.anadir.common }}
-            - name: SHARED_CAST_FOLDER
+            - name: CONTROL_PANEL_HOSTNAME
+              value: console-control-panel
+            - name: PORT_CONTROL_PANEL
+              value: "8098"
+            - name: CORE_FOLDER
               value: {{ .Values.anadir.castdirmount }}
-            - name: DELIVERY_VOLUME_MACHINE
-              value: {{ .Values.anadir.delivery }}
-            - name: DEPLOY_VOLUME_MACHINE
-              value: {{ .Values.anadir.deploy }}
-            - name: SHARED_VOLUME_MACHINE
-              value: {{ .Values.anadir.common }}
-            - name: SHARED_CAST_VOLUME_MACHINE
-              value: {{ .Values.anadir.castdirmount }}     
-            - name: LOGS_VOLUME_MACHINE
-              value: {{ .Values.anadir.logs }}
-            - name: ANDATA_VOLUME_MACHINE
-              value: {{ .Values.anadir.lisa }}
             - name: CONSOLE_REGISTRY_URL
               value: http://console-control-panel:8098
             - name: HOST_AUTH_SERVICE

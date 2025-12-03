@@ -166,6 +166,23 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: pvc-imagingviewer-v3-etl-csvarchive
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: viewer-etl
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_imagingviewer_v3_etl_csvarchive }} 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: pvc-imagingviewer-v3-aimanager-logs
   namespace: {{ .Release.Namespace }}
   annotations:
