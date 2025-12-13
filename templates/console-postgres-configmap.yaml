@@ -96,7 +96,7 @@ data:
     # - Authentication -
     
     #authentication_timeout = 1min		# 1s-600s
-    #password_encryption = md5	# scram-sha-256 or md5
+    password_encryption = scram-sha-256  # scram-sha-256 or md5
     #db_user_namespace = off
     
     # GSSAPI using Kerberos
@@ -840,9 +840,18 @@ data:
     KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
     PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
 
+    psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB <<-EOSQL
+        -- Force SCRAM
+        SET password_encryption = 'scram-sha-256';
+        ALTER SYSTEM SET password_encryption = 'scram-sha-256';
+        SELECT pg_reload_conf();
+    EOSQL
+
     psql -c "ALTER USER postgres WITH PASSWORD '$PGPASSWORD';"
 
     psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB <<-EOSQL
+        SET password_encryption = 'scram-sha-256';
+
         CREATE USER operator WITH SUPERUSER PASSWORD '$OPERATOR_PASSWORD';
         CREATE USER guest WITH PASSWORD '$GUEST_PASSWORD';
         GRANT ALL PRIVILEGES ON DATABASE postgres TO operator;
@@ -850,6 +859,18 @@ data:
         CREATE USER keycloak WITH PASSWORD '$KEYCLOAK_PASSWORD';
         CREATE DATABASE keycloak;
         GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
+    EOSQL
+
+    echo "Checking password type:"
+    psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB <<-EOSQL
+        SELECT rolname, 
+               CASE 
+                   WHEN rolpassword LIKE 'SCRAM-SHA-256$%' THEN 'SCRAM-SHA-256 ✓'
+                   WHEN rolpassword LIKE 'md5%' THEN 'MD5 ✗'
+                   ELSE 'UNKNOWN'
+               END as password_type
+        FROM pg_authid 
+        WHERE rolname IN ('postgres', 'operator', 'guest', 'keycloak');
     EOSQL
 
 kind: ConfigMap

@@ -87,17 +87,31 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: imaging-pwd-sec
+                  key: postgres-db-password  
+            - name: OPERATOR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
                   key: operator-db-password
           command:
           - /bin/sh
           - -c
           - |
-            echo "Running postgres upgrade..."
+            # Define connection variables
 {{- if .Values.CustomPostgres.enable }}
-            psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
+            PG_HOST="{{ .Values.CustomPostgres.host }}"
+            PG_PORT="{{ .Values.CustomPostgres.port }}"
 {{- else }}
-            psql -h console-postgres -p 2285 -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
-{{- end }}  
+            PG_HOST="console-postgres"
+            PG_PORT="2285"
+{{- end }}
+            echo "Updating operator password..."
+            psql -h "$PG_HOST" -p "$PG_PORT" -U postgres -d postgres -c "SET password_encryption = 'scram-sha-256'; ALTER ROLE operator WITH PASSWORD '$OPERATOR_PASSWORD';"
+            echo "Checking password type..."
+            psql -h "$PG_HOST" -p "$PG_PORT" -U postgres -d postgres -c "SELECT rolname, CASE WHEN rolpassword LIKE 'SCRAM-SHA-256\$%' THEN 'SCRAM-SHA-256 ✓' WHEN rolpassword LIKE 'md5%' THEN 'MD5 ✗' ELSE 'UNKNOWN' END as password_type FROM pg_authid WHERE rolname IN ('postgres', 'operator', 'guest', 'keycloak');"
+            echo "Running postgres upgrade..."
+            PGPASSWORD="$OPERATOR_PASSWORD"
+            psql -h "$PG_HOST" -p "$PG_PORT" -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
           volumeMounts:
             - name: analysisnode-upgrade-script
               mountPath: /home/imaging/sql/analysisnode-upgrade-script.sql
