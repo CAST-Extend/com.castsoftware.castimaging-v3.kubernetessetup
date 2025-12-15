@@ -105,6 +105,11 @@ spec:
             PG_HOST="console-postgres"
             PG_PORT="2285"
 {{- end }}
+            echo "Resetting password_encryption..."
+            psql -h "$PG_HOST" -p "$PG_PORT" -U postgres -d postgres <<EOF
+            ALTER SYSTEM SET password_encryption = 'scram-sha-256';
+            SELECT pg_reload_conf();
+            EOF
             echo "Updating operator password..."
             psql -h "$PG_HOST" -p "$PG_PORT" -U postgres -d postgres -c "SET password_encryption = 'scram-sha-256'; ALTER ROLE operator WITH PASSWORD '$OPERATOR_PASSWORD';"
             echo "Checking password type..."
