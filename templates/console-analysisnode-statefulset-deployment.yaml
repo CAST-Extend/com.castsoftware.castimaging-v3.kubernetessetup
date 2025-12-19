@@ -24,6 +24,7 @@ metadata:
   name: console-analysis-node-core
   namespace: {{ .Release.Namespace }}   
 spec:
+  serviceName: console-analysis-node
   replicas: {{ .Values.AnalysisNodeReplicaCount }}
   selector:
     matchLabels:
