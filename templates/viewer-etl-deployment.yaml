@@ -4,6 +4,7 @@ metadata:
   name: viewer-etl
   labels:
     app: viewer-etl
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http

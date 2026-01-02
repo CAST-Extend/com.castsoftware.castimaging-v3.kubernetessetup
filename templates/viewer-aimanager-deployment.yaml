@@ -4,6 +4,7 @@ metadata:
   name: viewer-aimanager
   labels:
     app: viewer-aimanager
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http

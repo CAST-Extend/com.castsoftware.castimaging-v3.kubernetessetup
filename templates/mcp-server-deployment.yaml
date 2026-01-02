@@ -2,17 +2,6 @@
 kind: Service
 apiVersion: v1
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
-  {{- if and .Values.CreateLoadBalancer .Values.UseInternalLoadBalancer }}
-    {{- if eq .Values.K8SProvider "AKS" }}
-    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-    {{- else if eq .Values.K8SProvider "EKS" }}
-    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
-    {{- else if eq .Values.K8SProvider "GKE" }}
-    networking.gke.io/load-balancer-type: "Internal"
-    {{- end }}
-  {{- end }}
   name: mcp-server
   labels:
     app: mcp-server
@@ -24,9 +13,6 @@ spec:
     targetPort: 8282
   selector:
     app: mcp-server
-{{- if .Values.CreateLoadBalancer }}
-  type: LoadBalancer
-{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -50,6 +36,8 @@ spec:
         fsGroup: 1000                       
       containers:
         - env:
+            - name: MCP_SERVER_PORT
+              value: "8282"
   {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}

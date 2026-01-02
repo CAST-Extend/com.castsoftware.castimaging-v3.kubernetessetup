@@ -17,7 +17,6 @@
 # - Create TLS Secret(s) using certificate files
 #     kubectl create secret tls tls-secret-cast        --cert=cert-priv\myhostname.com\fullchain.pem --key=cert-priv\myhostname.com\privkey.pem -n castimaging-v3
 #     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv\myextendhostname.com\fullchain.pem --key=cert-priv\myextendhostname.com\privkey.pem -n castimaging-v3
-#     kubectl create secret tls tls-secret-cast-mcp    --cert=cert-priv\mymcphostname.com\fullchain.pem --key=cert-priv\mymcphostname.com\privkey.pem -n castimaging-v3
 #    (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
 #    If you want to use the same hostname for the 3 services, just create the 3 secrets using the same certificate files
 # - Optional - for certificates that cannot be verified (e.g., self-signed certificate or internal CA), 
@@ -100,33 +99,6 @@ spec:
             name: extendproxy
             port:
               number: 8085
-  {{- end }}
----
-  {{- if .Values.McpServer.enable }}
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: mcpserver-ingress
-  namespace: {{ .Release.Namespace }}
-  annotations:
-    helm.sh/resource-policy: keep
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - {{ .Values.McpServer.exthostname }}
-    secretName: tls-secret-cast-mcp
-  rules:
-  - host: {{ .Values.McpServer.exthostname }}
-    http:
-      paths:
-      - path: /mcp
-        pathType: Prefix
-        backend:
-          service:
-            name: mcp-server
-            port:
-              number: 8282
   {{- end }}
 ---
 # ConfigMap for custom headers

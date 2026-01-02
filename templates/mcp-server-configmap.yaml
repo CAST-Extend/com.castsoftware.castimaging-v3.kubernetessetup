@@ -8,12 +8,9 @@ data:
     IMAGING_DISPLAY_PAGE_SIZE=20
     IMAGING_CODE=False
     DEBUG_MODE=false
-    MCP_SERVER_PORT=8282
-    # HTTPS Configuration Control
-    # Accepted values:
-    #   "true"  - Enable HTTPS with nginx SSL proxy (requires certificates)  
-    #   "false" - Use direct HTTP access to mcp-server (no encryption)
-    HTTPS_ENABLED=false
+    IMAGING_DOMAIN="default"
+    CONTROL_PANEL_SSL_ENABLED=false
+    SERVICE_HOST="mcp-server"
     #
 kind: ConfigMap
 metadata:

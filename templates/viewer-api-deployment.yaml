@@ -4,6 +4,7 @@ metadata:
   name: viewer-api
   labels:
     app: viewer-api
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http

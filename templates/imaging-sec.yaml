@@ -16,9 +16,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
 type: Opaque
 data:
-# encryption command (Linux): echo -n "mypassword" | base64
+# Encoding command (Linux): echo -n "mypassword" | base64
   postgres-db-password: cG9zdGdyZXM=
   operator-db-password: Q2FzdEFJUA==
   guest-db-password: V2VsY29tZVRvQUlQ
   keycloak-db-password: a2V5Y2xvYWs=
-  keycloak-admin-password: YWRtaW4=
+  keycloak-admin-password: {{ .Values.KeycloakPassword | default "YWRtaW4=" }}

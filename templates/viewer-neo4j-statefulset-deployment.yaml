@@ -5,6 +5,7 @@ metadata:
   labels:
     app: viewer-neo4j
     component: core
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
     - port: 7474
