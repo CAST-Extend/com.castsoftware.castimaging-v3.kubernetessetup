@@ -88,6 +88,10 @@ MultiTenancyEnabled: false
 #
 # CAST Operator password has to be encrypted using CAST aip-encryption-tool (crypted2):
 OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
+#
+# If restricted security is enforced in your environment, set RestrictedSecurityMode to true
+# IMPORTANT: this setting cannot be changed after Imaging is deployed
+RestrictedSecurityMode: false
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers

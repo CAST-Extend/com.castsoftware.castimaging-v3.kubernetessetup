@@ -38,6 +38,11 @@ spec:
     spec:
       securityContext:
         fsGroup: 10001
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:     
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -68,6 +73,13 @@ spec:
             done            
             echo "console-authentication-service is healthy!"
             echo "Done."
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           volumeMounts:
             - mountPath: {{ .Values.anadir.castdirmount }}
               name: castdir
@@ -118,6 +130,13 @@ spec:
             echo "Running postgres upgrade..."
             PGPASSWORD="$OPERATOR_PASSWORD"
             psql -h "$PG_HOST" -p "$PG_PORT" -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           volumeMounts:
             - name: analysisnode-upgrade-script
               mountPath: /home/imaging/sql/analysisnode-upgrade-script.sql
@@ -180,6 +199,14 @@ spec:
           ports:
             - containerPort: 8089
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}
           volumeMounts:

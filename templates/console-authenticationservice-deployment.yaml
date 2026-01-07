@@ -33,6 +33,12 @@ spec:
         console.network/aip-network: "true"
         console.service: console-authentication-service
     spec:
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
       - name: wait-for-postgres
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -46,6 +52,13 @@ spec:
 {{- else }}
           until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+{{- end }}
       - name: console-control-panel-healthcheck
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
         imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -58,6 +71,13 @@ spec:
             sleep 10
           done
           echo "console-control-panel is healthy!"       
+{{- if .Values.RestrictedSecurityMode }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+{{- end }}
       containers:
         - env:
 {{- if .Values.UseCustomTrustStore }}
@@ -144,6 +164,14 @@ spec:
           ports:
             - containerPort: 8092
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
 {{- if .Values.UseCustomTrustStore }}

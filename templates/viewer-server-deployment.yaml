@@ -4,6 +4,7 @@ metadata:
   name: viewer-server
   labels:
     app: viewer-server
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
     - name: http
@@ -38,6 +39,11 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:      
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -56,6 +62,13 @@ spec:
               sleep 2
             done
             echo "viewer-neo4j is up!"
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
         - name: neo4j-migration
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -74,6 +87,13 @@ spec:
             /home/imaging/3.4.0/Neo4jdatamigrate --log /home/imaging/logs/3.4.0-Neo4jdatamigrate.log --database neo4j --all --migrate --host viewer-neo4j
 {{- end }}
             echo "Done".
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           volumeMounts:
             - name: log
               mountPath: /home/imaging/logs            
@@ -96,6 +116,14 @@ spec:
               protocol: TCP
             - containerPort: 9000
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerServerServiceResources | nindent 12 }}
           volumeMounts:

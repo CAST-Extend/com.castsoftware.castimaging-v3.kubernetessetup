@@ -4,6 +4,7 @@ metadata:
   name: viewer-aimanager
   labels:
     app: viewer-aimanager
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http
@@ -32,6 +33,11 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -54,6 +60,13 @@ spec:
             ESCAPED_OPERATOR_PASSWORD=$(printf '%s\n' "$OPERATOR_PASSWORD" | sed -e 's/[\/&]/\\&/g')
             cat /opt/imaging/open_ai-manager/config/app.config | sed "s/dbpassword-placeholder/$ESCAPED_OPERATOR_PASSWORD/g" > /updated-config/app.config
             echo "app.config updated."
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           volumeMounts:
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
@@ -76,6 +89,14 @@ spec:
           ports:
             - containerPort: 8082
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerAiManagerResources | nindent 12 }}
           volumeMounts:

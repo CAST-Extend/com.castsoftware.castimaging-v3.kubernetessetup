@@ -4,6 +4,7 @@ metadata:
   name: viewer-etl
   labels:
     app: viewer-etl
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http
@@ -32,6 +33,11 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -61,6 +67,13 @@ spec:
             done
             echo "viewer-server is up!"
             echo "Done."
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           volumeMounts:
 {{- if .Values.EnablePostgresSSL }}
             - name: ssl-certs
@@ -86,6 +99,14 @@ spec:
           ports:
             - containerPort: 9001
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerEtlResources | nindent 12 }}
           volumeMounts:

@@ -51,6 +51,11 @@ spec:
     spec:
       securityContext:
         fsGroup: 1001
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+  {{- end }}
       containers:
         - env:
             - name: host_port
@@ -73,6 +78,14 @@ spec:
           ports:
             - containerPort: 8085
               protocol: TCP 
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+  {{- end }}
           resources:
             {{- toYaml .Values.ExtendProxyResources | nindent 12 }}
           volumeMounts:

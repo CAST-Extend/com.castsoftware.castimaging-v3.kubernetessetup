@@ -4,6 +4,7 @@ metadata:
   name: viewer-api
   labels:
     app: viewer-api
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: http
@@ -32,6 +33,11 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -50,6 +56,13 @@ spec:
               sleep 2
             done
             echo "viewer-neo4j is up!"
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
       containers:
         - env:
 {{- if .Values.ContextUrl.enable }}
@@ -63,6 +76,14 @@ spec:
           ports:
             - containerPort: 8070
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerApiResources | nindent 12 }}
           volumeMounts:

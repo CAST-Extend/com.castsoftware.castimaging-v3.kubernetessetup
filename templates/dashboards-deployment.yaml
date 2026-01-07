@@ -34,6 +34,12 @@ spec:
         console.network/aip-network: "true"
         console.service: console-dashboards
     spec:
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:             
         - name: console-control-panel-and-authentication-service-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -63,6 +69,13 @@ spec:
               sleep 2
             done                          
             echo "console-gateway-service is healthy!"    
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
 {{- if .Values.EnablePostgresSSL }}
           volumeMounts:
             - name: ssl-certs
@@ -116,6 +129,14 @@ spec:
           ports:
             - containerPort: 8087
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 33
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.DashboardsResources | nindent 12 }}
 {{- if .Values.EnablePostgresSSL }}

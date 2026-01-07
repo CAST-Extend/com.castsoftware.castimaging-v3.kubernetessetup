@@ -34,8 +34,19 @@ spec:
         console.network/aip-network: "true"
         console.service: console-postgres
     spec: 
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        fsGroup: 999
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       containers:
         - env:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+{{- end }}
             - name: POSTGRES_INITDB_ARGS
               value: -E 'UTF-8' --lc-collate=C --lc-ctype=C
             - name: POSTGRES_PASSWORD
@@ -67,6 +78,14 @@ spec:
           ports:
             - containerPort: 5432
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 999
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ConsolePostgresResources | nindent 12 }}
           volumeMounts:

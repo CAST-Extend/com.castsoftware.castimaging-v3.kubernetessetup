@@ -47,7 +47,14 @@ spec:
         app: mcp-server
     spec:
       securityContext:
-        fsGroup: 1000                       
+{{- if .Values.RestrictedSecurityMode }}
+        fsGroup: 33
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- else }}
+        fsGroup: 1000
+{{- end }}
       containers:
         - env:
   {{- if .Values.ContextUrl.enable }}
@@ -83,6 +90,14 @@ spec:
           ports:
             - containerPort: 8082
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 33
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.McpServerResources | nindent 12 }}
           volumeMounts:

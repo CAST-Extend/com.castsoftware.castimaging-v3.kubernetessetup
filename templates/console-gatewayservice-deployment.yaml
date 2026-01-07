@@ -47,6 +47,12 @@ spec:
         console.network/aip-network: "true"
         console.service: console-gateway-service
     spec:
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
       - name: console-control-panel-healthcheck
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -60,6 +66,13 @@ spec:
             sleep 2
           done
           echo "console-control-panel is healthy!"    
+{{- if .Values.RestrictedSecurityMode }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+{{- end }}
       containers:
         - env:
             - name: HOST_GATEWAY
@@ -104,6 +117,14 @@ spec:
           ports:
             - containerPort: 8090
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.GatewayServiceResources | nindent 12 }}
       restartPolicy: Always
