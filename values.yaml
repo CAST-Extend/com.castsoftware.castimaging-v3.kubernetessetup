@@ -224,36 +224,59 @@ ConsolePostgresResources:
   requests:
     cpu: 0.5
     memory: 8G
+  limits:
+    cpu: 2
+    memory: 16G
 SSOServiceResources:
   requests:
     cpu: 0.1
     memory: 1G
+  limits:
+    cpu: 1
+    memory: 2G   
 ConsoleServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 2G
 GatewayServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 2G
 AnalysisNode_shmsize: 1G
 AnalysisNodeResources:
   requests:
     cpu: 0.5
     memory: 8G
+  limits:
+    cpu: 2
+    memory: 32G
 ControlPanelResources:
   requests:
     cpu: 0.1
     memory: 800M
+  limits:
+    cpu: 1
+    memory: 2G
 AuthenticationServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 1G
 IntegratedDashboardsResources:
   requests:
     cpu: 0.1
     memory: 600M
-
+  limits:
+    cpu: 1
+    memory: 4G
 #
 # Viewer resources
 #
@@ -261,33 +284,64 @@ ViewerNeo4jResources:
   requests:
     cpu: 0.5
     memory: 16G
+  limits:
+    cpu: 4
+    memory: 32G
 ViewerServerServiceResources:
   requests:
     cpu: 0.2
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 8G
 ViewerEtlResources:
   requests:
     cpu: 0.2
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 8G
 ViewerAiManagerResources:
   requests:
     cpu: 0.1
     memory: 400M
+  limits:
+    cpu: 1
+    memory: 2G
 ViewerApiResources:
   requests:
     cpu: 0.1
     memory: 200M
+  limits:
+    cpu: 1
+    memory: 2G
 McpServerResources:
   requests:
     cpu: 0.2
     memory: 400M
+  limits:
+    cpu: 1
+    memory: 2G
 #
 # ExtendProxy resources
 #
 ExtendProxyResources:
   requests:
     cpu: 0.2
-    memory: 200M    
+    memory: 200M
+  limits:
+    cpu: 1
+    memory: 2G
+#
+# InitContainer resources
+#
+InitContainerResources:
+  requests:
+    cpu: 0.1
+    memory: 100M
+  limits:
+    cpu: 1
+    memory: 1G
 
 #
 # Analysis folders (do not modify)

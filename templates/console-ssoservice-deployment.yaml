@@ -18,7 +18,7 @@ kind: Deployment
 metadata:
   labels:
     console.service: console-sso-service
-    version: {{ .Values.ConsoleSSOServiceImage.tag| default .Values.version }}
+    version: {{ .Values.ConsoleSSOServiceImage.tag | default .Values.version }}
   name: console-sso-service
   namespace: {{ .Release.Namespace }}
 spec:
@@ -26,7 +26,6 @@ spec:
   selector:
     matchLabels:
       console.service: console-sso-service
-  strategy: {}
   template:
     metadata:
       labels:
@@ -40,24 +39,50 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-      - name: wait-for-postgres
-        image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
-        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
-        command:
-        - /bin/sh
-        - -c
-        - |
+{{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{.Values.ConsoleSSOServiceImage.name}}:{{.Values.ConsoleSSOServiceImage.tag}}"
+          imagePullPolicy: "{{.Values.ConsoleSSOServiceImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /keycloak-volume/*
+            cp -r /opt/keycloak/* /keycloak-volume/ || true
+          volumeMounts:    
+            - name: keycloak-dir
+              mountPath: /keycloak-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}
+        - name: wait-for-postgres
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |
 {{- if .Values.CustomPostgres.enable }}
-          until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+            until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- else }}
-          until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+            until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
       containers:
         - env:       
@@ -108,8 +133,7 @@ spec:
               value: {{ .Values.FrontEndHost }}/auth
             - name: KEYCLOAK_FRONTEND_URL
               value: {{ .Values.FrontEndHost }}/auth
-{{- end }}  
-
+{{- end }}
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service
@@ -118,6 +142,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
             capabilities:
@@ -126,8 +151,26 @@ spec:
 {{- end }}
           resources:
             {{- toYaml .Values.SSOServiceResources | nindent 12 }}
+          volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: keycloak-dir
+              mountPath: /opt/keycloak
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}    
       restartPolicy: Always
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  
-{{- end }}        
+{{- end }}
+      volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: keycloak-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}

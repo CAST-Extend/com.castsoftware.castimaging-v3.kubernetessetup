@@ -40,7 +40,30 @@ spec:
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
-      initContainers:             
+      initContainers:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{.Values.ConsoleIntegratedDashboardsImage.name}}:{{.Values.ConsoleIntegratedDashboardsImage.tag}}"
+          imagePullPolicy: "{{.Values.ConsoleIntegratedDashboardsImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /app-volume/*
+            cp -r /app/resources/* /app-volume/ || true
+          volumeMounts:    
+            - name: app-dir
+              mountPath: /app-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 33
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}             
         - name: console-control-panel-and-authentication-service-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -71,10 +94,13 @@ spec:
             echo "console-gateway-service is healthy!"    
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
 {{- if .Values.EnablePostgresSSL }}
           volumeMounts:
@@ -131,6 +157,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 33
             allowPrivilegeEscalation: false
             capabilities:
@@ -138,9 +165,17 @@ spec:
                 - ALL
 {{- end }}
           resources:
-            {{- toYaml .Values.DashboardsResources | nindent 12 }}
-{{- if .Values.EnablePostgresSSL }}
+            {{- toYaml .Values.IntegratedDashboardsResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: app-dir
+              mountPath: /app/resources
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }} 
+{{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
               readOnly: true
@@ -150,8 +185,16 @@ spec:
       imagePullSecrets:
         - name: imagepull-sec  
 {{- end }}
-{{- if .Values.EnablePostgresSSL }}
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: app-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
+{{- if .Values.EnablePostgresSSL }}
         - name: ssl-certs
           secret:
             secretName: ssl-certs

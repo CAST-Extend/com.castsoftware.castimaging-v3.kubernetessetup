@@ -44,6 +44,29 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:     
+{{- if .Values.RestrictedSecurityMode }}    
+        - name: init-folders
+          image: "{{.Values.ConsoleAnalysisNodeImage.name}}:{{.Values.ConsoleAnalysisNodeImage.tag}}"
+          imagePullPolicy: "{{.Values.ConsoleAnalysisNodeImage.pullPolicy}}"
+          command:
+          - /bin/bash
+          - -c
+          - |
+            rm -rf /carl-volume/*
+            cp -r /home/carl/* /carl-volume/ || true
+          volumeMounts:
+            - name: carl-dir
+              mountPath: /carl-volume
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}      
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -75,10 +98,13 @@ spec:
             echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
           volumeMounts:
             - mountPath: {{ .Values.anadir.castdirmount }}
@@ -132,10 +158,13 @@ spec:
             psql -h "$PG_HOST" -p "$PG_PORT" -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
           volumeMounts:
             - name: analysisnode-upgrade-script
@@ -143,6 +172,8 @@ spec:
               subPath: analysisnode-upgrade-script.sql       
       containers:
         - env:
+            - name: TMPDIR
+              value: /tmp
             - name: DELIVERY_FOLDER
               value: {{ .Values.anadir.delivery }}
             - name: DEPLOY_FOLDER
@@ -201,6 +232,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 10001
             allowPrivilegeEscalation: false
             capabilities:
@@ -210,6 +242,14 @@ spec:
           resources:
             {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: carl-dir
+              mountPath: /home/carl
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
             - mountPath: {{ .Values.anadir.castdirmount }}
               name: castdir
             - mountPath: {{ .Values.anadir.datadirmount }}
@@ -227,6 +267,14 @@ spec:
         - name: imagepull-sec 
 {{- end }}         
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: carl-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
         - name: shared-datadir
           persistentVolumeClaim:
             claimName: pvc-shared-datadir

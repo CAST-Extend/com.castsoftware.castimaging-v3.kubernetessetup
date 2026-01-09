@@ -92,6 +92,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 33
             allowPrivilegeEscalation: false
             capabilities:
@@ -101,6 +102,12 @@ spec:
           resources:
             {{- toYaml .Values.McpServerResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
             - name: logdir
               mountPath: /app/logs
               readOnly: false
@@ -112,6 +119,12 @@ spec:
         - name: imagepull-sec
   {{- end }}        
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-mcpserver-logs          

@@ -34,19 +34,19 @@ spec:
         console.network/aip-network: "true"
         console.service: console-postgres
     spec: 
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         fsGroup: 999
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-{{- end }}
+  {{- end }}
       containers:
         - env:
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-{{- end }}
+  {{- end }}
             - name: POSTGRES_INITDB_ARGS
               value: -E 'UTF-8' --lc-collate=C --lc-ctype=C
             - name: POSTGRES_PASSWORD
@@ -78,14 +78,15 @@ spec:
           ports:
             - containerPort: 5432
               protocol: TCP
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 999
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
-{{- end }}
+  {{- end }}
           resources:
             {{- toYaml .Values.ConsolePostgresResources | nindent 12 }}
           volumeMounts:
@@ -103,6 +104,12 @@ spec:
             - name: db-creds
               mountPath: /opt/secrets
               readOnly: true               
+  {{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+  {{- end }}
       restartPolicy: Always
       volumes:
         - name: db-data
@@ -121,4 +128,10 @@ spec:
         - name: db-creds
           secret:
             secretName: imaging-pwd-sec
+  {{- if .Values.RestrictedSecurityMode }}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+  {{- end }}
 {{- end }} 

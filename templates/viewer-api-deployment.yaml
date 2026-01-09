@@ -58,10 +58,13 @@ spec:
             echo "viewer-neo4j is up!"
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
       containers:
         - env:
@@ -78,6 +81,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
             capabilities:
@@ -87,6 +91,12 @@ spec:
           resources:
             {{- toYaml .Values.ViewerApiResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
             - name: logdir
               mountPath: /opt/imaging/imaging-api/logs
               readOnly: false
@@ -94,6 +104,12 @@ spec:
               mountPath: /opt/imaging/imaging-api/config/app.config
               subPath: app.config               
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-api-logs

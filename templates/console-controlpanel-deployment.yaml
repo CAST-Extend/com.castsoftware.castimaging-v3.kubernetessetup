@@ -57,10 +57,13 @@ spec:
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - ALL
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
       - name: postgres-scripts
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -92,10 +95,13 @@ spec:
           echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - ALL
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
         volumeMounts:
           - name: contexturl-controlpanel-update-script
@@ -187,6 +193,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 100
             allowPrivilegeEscalation: false
             capabilities:
@@ -195,11 +202,17 @@ spec:
 {{- end }}
           resources:
             {{- toYaml .Values.ControlPanelResources | nindent 12 }}
-{{- if .Values.EnablePostgresSSL }}
           volumeMounts:
+{{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
               readOnly: true
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
 {{- end }}
       restartPolicy: Always
       volumes:
@@ -215,6 +228,12 @@ spec:
             secretName: ssl-certs
             defaultMode: 0644
         - name: postgres-ssl-files
+          emptyDir: {}
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+        - name: tmp
+          emptyDir: {}
+        - name: run
           emptyDir: {}
 {{- end }}
 {{- if .Values.UseImagePullSecrets }}       

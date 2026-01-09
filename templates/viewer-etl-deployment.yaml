@@ -39,6 +39,29 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag }}"
+          imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /etl-volume/*
+            cp -r /opt/imaging/imaging-etl/* /etl-volume/ || true
+          volumeMounts:    
+            - name: etl-dir
+              mountPath: /etl-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -69,10 +92,13 @@ spec:
             echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
           volumeMounts:
 {{- if .Values.EnablePostgresSSL }}
@@ -101,6 +127,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
             capabilities:
@@ -110,6 +137,14 @@ spec:
           resources:
             {{- toYaml .Values.ViewerEtlResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: etl-dir
+              mountPath: /opt/imaging/imaging-etl
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
             - name: logdir
               mountPath: /opt/imaging/imaging-etl/logs
               readOnly: false
@@ -126,6 +161,14 @@ spec:
         - name: imagepull-sec
 {{- end }}        
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: etl-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}  
+{{- end }}
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-etl-logs

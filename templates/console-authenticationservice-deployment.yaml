@@ -54,10 +54,13 @@ spec:
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - ALL
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
       - name: console-control-panel-healthcheck
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -73,10 +76,13 @@ spec:
           echo "console-control-panel is healthy!"       
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - ALL
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
       containers:
         - env:
@@ -166,6 +172,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 100
             allowPrivilegeEscalation: false
             capabilities:
@@ -174,12 +181,26 @@ spec:
 {{- end }}
           resources:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
-{{- if .Values.UseCustomTrustStore }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
+{{- if .Values.UseCustomTrustStore }}
             - name: authcacrt
               mountPath: /cast/certs/ca.crt
-              subPath: ca.crt 
+              subPath: ca.crt
+{{- end }}
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
+{{- if .Values.UseCustomTrustStore }}
         - name: authcacrt
           configMap:
             name: authcacrt

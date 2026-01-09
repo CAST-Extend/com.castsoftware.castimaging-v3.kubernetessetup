@@ -39,6 +39,29 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{.Values.ViewerAiManagerImage.name}}:{{.Values.ViewerAiManagerImage.tag}}"
+          imagePullPolicy: "{{.Values.ViewerAiManagerImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /open-ai-volume/*
+            cp -r /opt/imaging/open_ai-manager/* /open-ai-volume/ || true
+          volumeMounts:    
+            - name: open-ai-dir
+              mountPath: /open-ai-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -62,12 +85,19 @@ spec:
             echo "app.config updated."
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: open-ai-dir
+              mountPath: /opt/imaging/open_ai-manager
+{{- end }}
             - name: openaiappconfig
               mountPath: /opt/imaging/open_ai-manager/config/app.config
               subPath: app.config
@@ -91,6 +121,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 1000
             allowPrivilegeEscalation: false
             capabilities:
@@ -100,6 +131,14 @@ spec:
           resources:
             {{- toYaml .Values.ViewerAiManagerResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: open-ai-dir
+              mountPath: /opt/imaging/open_ai-manager
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}              
             - name: logdir
               mountPath: /opt/imaging/open_ai-manager/logs
               readOnly: false
@@ -114,6 +153,14 @@ spec:
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-aimanager-logs
+{{- if .Values.RestrictedSecurityMode }}
+        - name: open-ai-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
         - name: updated-config-volume
           emptyDir: {}            
         - name: openaiappconfig

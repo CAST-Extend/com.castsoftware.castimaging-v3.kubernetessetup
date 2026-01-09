@@ -51,10 +51,34 @@ spec:
     spec:
       securityContext:
         fsGroup: 1001
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+  {{- end }}
+      initContainers:
+  {{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{.Values.ExtendProxyImage.name}}:{{.Values.ExtendProxyImage.tag}}"
+          imagePullPolicy: "{{.Values.ExtendProxyImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /opt-volume/*
+            cp -r /opt/* /opt-volume/ 
+          volumeMounts:    
+            - name: opt-dir
+              mountPath: /opt-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
   {{- end }}
       containers:
         - env:
@@ -78,8 +102,9 @@ spec:
           ports:
             - containerPort: 8085
               protocol: TCP 
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            readOnlyRootFilesystem: true
             runAsUser: 1001
             allowPrivilegeEscalation: false
             capabilities:
@@ -89,6 +114,14 @@ spec:
           resources:
             {{- toYaml .Values.ExtendProxyResources | nindent 12 }}
           volumeMounts:
+  {{- if .Values.RestrictedSecurityMode }}
+            - name: opt-dir
+              mountPath: /opt
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+  {{- end }} 
             - mountPath: /opt/cast_extend_proxy
               name: extendproxy
       restartPolicy: Always
@@ -97,6 +130,14 @@ spec:
         - name: imagepull-sec   
   {{- end }}
       volumes:
+  {{- if .Values.RestrictedSecurityMode }}
+        - name: opt-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}  
+  {{- end }}
         - name: extendproxy
           persistentVolumeClaim:
             claimName: pvc-extendproxy-data
