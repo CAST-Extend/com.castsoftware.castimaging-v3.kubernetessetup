@@ -28,6 +28,8 @@ spec:
       app: viewer-etl
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: viewer-etl
     spec:

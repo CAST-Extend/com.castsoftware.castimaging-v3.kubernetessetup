@@ -43,6 +43,8 @@ spec:
       app: mcp-server     
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: mcp-server
     spec:

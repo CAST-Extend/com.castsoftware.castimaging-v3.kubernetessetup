@@ -28,6 +28,8 @@ spec:
       app: viewer-aimanager     
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: viewer-aimanager
     spec:
