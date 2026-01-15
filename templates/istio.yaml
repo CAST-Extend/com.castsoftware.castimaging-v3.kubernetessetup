@@ -1,4 +1,4 @@
-{{- if .Values.CreateIstioGateway }}
+{{- if .Values.UseIstioGateway }}
 # ********************************************************************
 # Prerequisite #1 - Install Istio on the cluster
 # ********************************************************************
@@ -74,6 +74,7 @@
 #                > Insert the encoded certificate in the auth.caCertificate variable in values.yaml
 # ********************************************************************
 ---
+  {{- if not .Values.ExistingIstioGatewayName }}
 # Gateway supporting multiple hostnames
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
@@ -96,7 +97,7 @@ spec:
       credentialName: tls-secret-cast
     hosts:
     - {{ (urlParse .Values.FrontEndHost).hostname }}
-  {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+    {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
   # ExtendProxy dedicated hostname (if different from main)
   - port:
       number: 443
@@ -107,8 +108,8 @@ spec:
       credentialName: tls-secret-cast-extend
     hosts:
     - {{ .Values.ExtendProxy.exthostname }}
-  {{- end }}
-  {{- if and .Values.McpServer.enable (ne .Values.McpServer.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+    {{- end }}
+    {{- if and .Values.McpServer.enable (ne .Values.McpServer.exthostname (urlParse .Values.FrontEndHost).hostname) }}
   # MCP Server dedicated hostname (if different from main)
   - port:
       number: 443
@@ -119,8 +120,8 @@ spec:
       credentialName: tls-secret-cast-mcp
     hosts:
     - {{ .Values.McpServer.exthostname }}
+    {{- end }}
   {{- end }}
-
 ---
 # VirtualService for main application
 apiVersion: networking.istio.io/v1beta1
@@ -134,7 +135,7 @@ spec:
   hosts:
   - {{ (urlParse .Values.FrontEndHost).hostname }}
   gateways:
-  - castimaging-gateway
+  - {{ .Values.ExistingIstioGatewayName | default "castimaging-gateway" }}
   http:
   {{- if and .Values.McpServer.enable (eq .Values.McpServer.exthostname (urlParse .Values.FrontEndHost).hostname) }}
   # MCP Server on shared hostname (path-based routing)
@@ -204,7 +205,7 @@ spec:
   hosts:
   - {{ .Values.ExtendProxy.exthostname }}
   gateways:
-  - castimaging-gateway
+  - {{ .Values.ExistingIstioGatewayName | default "castimaging-gateway" }}
   http:
   - match:
     - uri:
@@ -237,7 +238,7 @@ spec:
   hosts:
   - {{ .Values.McpServer.exthostname }}
   gateways:
-  - castimaging-gateway
+  - {{ .Values.ExistingIstioGatewayName | default "castimaging-gateway" }}
   http:
   - match:
     - uri:

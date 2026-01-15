@@ -22,9 +22,11 @@ FrontEndHost: https://myhostname.com  # hostname with no context path
 #
 # Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
 CreateIngress: false
-CreateIstioGateway: false
 CreateLoadBalancer: true
 UseInternalLoadBalancer: false
+UseIstioGateway: false
+ExistingIstioGatewayName: ""  # Provide a value only if you want to use an already created istio Gateway 
+                              # > Example: ExistingIstioGatewayName: "aks-istio-ingress/gateway-wildcard"
 #
 # Context URL
 ContextUrl:
