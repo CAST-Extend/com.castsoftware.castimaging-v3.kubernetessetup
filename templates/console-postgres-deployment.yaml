@@ -21,8 +21,6 @@ metadata:
     console.service: console-postgres
   name: console-postgres
   namespace: {{ .Release.Namespace }}
-  annotations:
-    sidecar.istio.io/inject: "false" 
 spec:
   replicas: {{ .Values.ConsolePostgresReplicaCount }}
   selector:
