@@ -20,9 +20,7 @@ metadata:
     console.service: console-sso-service
     version: {{ .Values.ConsoleSSOServiceImage.tag | default .Values.version }}
   name: console-sso-service
-  namespace: {{ .Release.Namespace }}
-  annotations:
-    sidecar.istio.io/inject: "false" 
+  namespace: {{ .Release.Namespace }} 
 spec:
   replicas: {{ .Values.SSOServiceReplicaCount }}
   selector:
