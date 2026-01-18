@@ -31,12 +31,50 @@ spec:
       app: viewer-server
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: viewer-server
     spec:
       securityContext:
         fsGroup: 1000
-      initContainers:      
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
+      initContainers:
+{{- if .Values.RestrictedSecurityMode }}    
+        - name: init-folders
+          image: "{{.Values.ViewerServiceImage.name}}:{{.Values.ViewerServiceImage.tag}}"
+          imagePullPolicy: "{{.Values.ViewerServiceImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /server-volume/*
+            rm -rf /server-config-volume/*
+            rm -rf /nginx-volume/*
+            cp -r /opt/imaging/imaging-service/* /server-volume/ || true
+            cp -r /opt/imaging/config/* /server-config-volume/ || true
+            cp -r /etc/nginx/* /nginx-volume/ || true
+          volumeMounts:
+            - name: server-data
+              mountPath: /server-volume 
+            - name: server-config
+              mountPath: /server-config-volume     
+            - name: nginx
+              mountPath: /nginx-volume  
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}  
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -53,7 +91,17 @@ spec:
               echo "Waiting for neo4j..."
               sleep 2
             done
-            echo "viewer-neo4j is up!"         
+            echo "viewer-neo4j is up!" 
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
@@ -89,9 +137,34 @@ spec:
               protocol: TCP
             - containerPort: 9000
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerServerServiceResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: var-tmp
+              mountPath: /var/tmp
+            - name: server-data
+              mountPath: /opt/imaging/imaging-service
+            - name: server-config
+              mountPath: /opt/imaging/config
+            - name: nginx
+              mountPath: /etc/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+{{- end }}
             - name: log
               mountPath: /opt/imaging/imaging-service/logs
             - name: servernginxconf
@@ -108,3 +181,19 @@ spec:
         - name: servernginxconf
           configMap:
             name: servernginxconf
+{{- if .Values.RestrictedSecurityMode }}
+        - name: server-data
+          emptyDir: {}
+        - name: server-config
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: var-tmp
+          emptyDir: {}
+        - name: nginx
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+{{- end }}

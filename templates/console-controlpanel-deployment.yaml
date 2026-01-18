@@ -32,10 +32,18 @@ spec:
   strategy: {}
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
         console.service: console-control-panel
     spec:
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
       - name: wait-for-postgres
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
@@ -49,6 +57,16 @@ spec:
 {{- else }}
           until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
 {{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+{{- end }}
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
       - name: postgres-scripts
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
         imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -77,6 +95,16 @@ spec:
           psql -h console-postgres -p 2285 -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
 {{- end }}
           echo "Done."
+{{- if .Values.RestrictedSecurityMode }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+{{- end }}
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
         volumeMounts:
           - name: contexturl-controlpanel-update-script
             mountPath: /home/imaging/sql/contexturl-controlpanel-update-script.sql
@@ -169,13 +197,28 @@ spec:
               protocol: TCP
             - containerPort: 8098
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ControlPanelResources | nindent 12 }}
-{{- if .Values.EnablePostgresSSL }}
           volumeMounts:
+{{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
               readOnly: true
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
 {{- end }}
       restartPolicy: Always
       volumes:
@@ -191,6 +234,12 @@ spec:
             secretName: ssl-certs
             defaultMode: 0644
         - name: postgres-ssl-files
+          emptyDir: {}
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+        - name: tmp
+          emptyDir: {}
+        - name: run
           emptyDir: {}
 {{- end }}
 {{- if .Values.UseImagePullSecrets }}       

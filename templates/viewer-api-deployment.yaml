@@ -28,12 +28,42 @@ spec:
       app: viewer-api     
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: viewer-api
     spec:
       securityContext:
         fsGroup: 1000
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       initContainers:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{.Values.ViewerApiImage.name}}:{{.Values.ViewerApiImage.tag}}"
+          imagePullPolicy: "{{.Values.ViewerApiImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /config-volume/*
+            cp -r /opt/imaging/imaging-api/config/* /config-volume/ || true
+          volumeMounts:    
+            - name: config-dir
+              mountPath: /config-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }} 
         - name: neo4j-and-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -51,6 +81,16 @@ spec:
               sleep 2
             done
             echo "viewer-neo4j is up!"
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
 {{- if .Values.ContextUrl.enable }}
@@ -97,13 +137,38 @@ spec:
           ports:
             - containerPort: 8070
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerApiResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: config-dir
+              mountPath: /opt/imaging/imaging-api/config
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
             - name: logdir
               mountPath: /opt/imaging/imaging-api/logs
               readOnly: false          
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: config-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-imagingviewer-v3-api-logs

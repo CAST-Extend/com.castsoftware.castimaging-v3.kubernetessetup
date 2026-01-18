@@ -34,12 +34,43 @@ spec:
       app: viewer-neo4j
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: viewer-neo4j
         component: core
     spec:
       securityContext:
         fsGroup: 7474
+{{- if .Values.RestrictedSecurityMode }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+      initContainers:      
+        - name: init-folders
+          image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
+          imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
+          command:
+          - /bin/bash
+          - -c
+          - |
+            rm -rf /neo4j-var-volume/*
+            cp -r /var/* /neo4j-var-volume/ || true
+          volumeMounts:
+            - name: neo4j-var-dir
+              mountPath: /neo4j-var-volume
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 7474
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}
       containers:
         - name: viewer-neo4j
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
@@ -93,9 +124,24 @@ spec:
               name: bolt
             - containerPort: 7473
               name: https
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 7474
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.ViewerNeo4jResources | nindent 12 }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: neo4j-var-dir
+              mountPath: /var
+            - name: tmp
+              mountPath: /tmp
+{{- end }}
             - name: neo4jdata
               mountPath: /logs
               subPathExpr: logs
@@ -109,6 +155,13 @@ spec:
       imagePullSecrets:
         - name: imagepull-sec
 {{- end }}        
+      volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: neo4j-var-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+{{- end }}
   volumeClaimTemplates:
     - metadata:
         name: neo4jdata

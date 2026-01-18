@@ -29,35 +29,86 @@ spec:
   strategy: {}
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
         console.service: console-authentication-service
     spec:
-      initContainers:
-      - name: wait-for-postgres
-        image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
-        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
-        command:
-        - /bin/sh
-        - -c
-        - |
-{{- if .Values.CustomPostgres.enable }}
-          until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
-{{- else }}
-          until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 {{- end }}
-      - name: console-control-panel-healthcheck
-        image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
-        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
-        command:
-        - /bin/sh
-        - -c
-        - |
-          until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
-            echo "Waiting for console-control-panel to be healthy..."
-            sleep 10
-          done
-          echo "console-control-panel is healthy!"       
+      initContainers:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: init-folders
+          image: "{{.Values.ConsoleAuthenticationServiceImage.name}}:{{.Values.ConsoleAuthenticationServiceImage.tag}}"
+          imagePullPolicy: "{{.Values.ConsoleAuthenticationServiceImage.pullPolicy}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            rm -rf /cast-volume/*
+            cp -r /cast/* /cast-volume/ || true
+          volumeMounts:    
+            - name: cast-dir
+              mountPath: /cast-volume 
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}
+        - name: wait-for-postgres
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+{{- if .Values.CustomPostgres.enable }}
+            until pg_isready -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }}; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- else }}
+            until pg_isready -h console-postgres -p 2285; do echo waiting for postgres...; sleep 2; done; echo postgres is ready!
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+        - name: console-control-panel-healthcheck
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-control-panel to be healthy..."
+              sleep 10
+            done
+            echo "console-control-panel is healthy!"       
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
 {{- if .Values.UseCustomTrustStore }}
@@ -144,14 +195,41 @@ spec:
           ports:
             - containerPort: 8092
               protocol: TCP
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 100
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
           resources:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
-{{- if .Values.UseCustomTrustStore }}
           volumeMounts:
+{{- if .Values.RestrictedSecurityMode }}
+            - name: cast-dir
+              mountPath: /cast
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run
+{{- end }}
+{{- if .Values.UseCustomTrustStore }}
             - name: authcacrt
               mountPath: /cast/certs/ca.crt
-              subPath: ca.crt 
+              subPath: ca.crt
+{{- end }}
       volumes:
+{{- if .Values.RestrictedSecurityMode }}
+        - name: cast-dir
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+{{- end }}
+{{- if .Values.UseCustomTrustStore }}
         - name: authcacrt
           configMap:
             name: authcacrt

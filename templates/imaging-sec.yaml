@@ -17,8 +17,8 @@ metadata:
 type: Opaque
 data:
 # Encoding command (Linux): echo -n "mypassword" | base64
-  postgres-db-password: cG9zdGdyZXM=
-  operator-db-password: Q2FzdEFJUA==
-  guest-db-password: V2VsY29tZVRvQUlQ
-  keycloak-db-password: a2V5Y2xvYWs=
-  keycloak-admin-password: {{ .Values.KeycloakPassword | default "YWRtaW4=" }}
+  postgres-db-password: {{ .Values.PostgresDbPassword | default "cG9zdGdyZXM=" }}
+  operator-db-password: {{ .Values.OperatorDbPassword | default "Q2FzdEFJUA==" }}
+  guest-db-password: {{ .Values.GuestDbPassword | default "V2VsY29tZVRvQUlQ" }}
+  keycloak-db-password: {{ .Values.KeycloakDbPassword | default "a2V5Y2xvYWs=" }}
+  keycloak-admin-password: {{ .Values.KeycloakAdminPassword | default "YWRtaW4=" }}

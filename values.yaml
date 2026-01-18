@@ -22,9 +22,11 @@ FrontEndHost: https://myhostname.com  # hostname with no context path
 #
 # Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
 CreateIngress: false
-CreateIstioGateway: false
 CreateLoadBalancer: true
 UseInternalLoadBalancer: false
+UseIstioGateway: false
+ExistingIstioGatewayName: ""  # Provide a value only if you want to use an already created istio Gateway 
+                              # > Example: ExistingIstioGatewayName: "aks-istio-ingress/gateway-wildcard"
 #
 # Context URL
 ContextUrl:
@@ -85,16 +87,37 @@ CustomPostgres:     # If enabled, external postgres server will be used
 # Multi Tenancy
 MultiTenancyEnabled: false
 #
-# CAST Operator password has to be encrypted using CAST aip-encryption-tool (crypted2):
-OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
-#
 # Neo4j memory configuration:
 NEO4J_HEAP_SIZE: 12G
 NEO4J_TRANSACTION_MEMORY: 10G
 #
-# Keycloak admin password - must be aligned with admin password set in Keycloak
-# Encoding command on Linux: echo -n "mypassword" | base64
-KeycloakPassword: YWRtaW4=
+# Database passwords: 
+#   Updating any password after deployment requires:
+#      1) Ensuring Imaging is up and running
+#      2) manually updating the password in postgres first (eg. ALTER USER operator WITH PASSWORD 'newpassword' )
+#      3) for the "operator" user only: updating the password in Console "Global configuration" / "CSS and Measurement settings" section
+#      4) updating the password here in values.yaml with encoding
+#      5) running helm upgrade
+#   Encoding command on Linux: echo -n "mypassword" | base64
+PostgresDbPassword: cG9zdGdyZXM=
+KeycloakDbPassword: a2V5Y2xvYWs=
+OperatorDbPassword: Q2FzdEFJUA==
+# CAST Operator password also has to be encrypted using cast-imaging-encryption-tool.jar GUI tool
+#   available in Linux installer https://extend.castsoftware.com/timeline#/extension?id=com.castsoftware.imaging.all.docker&version=3.5.3-funcrel
+OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
+#
+# Keycloak admin password
+#   Updating keycloak password after deployment requires:
+#      1) Ensuring Imaging is up and running
+#      2) manually updating the password in Keycloak admin GUI
+#      3) updating the password here in values.yaml with encoding
+#      4) running helm upgrade
+#   Encoding command on Linux: echo -n "mypassword" | base64
+KeycloakAdminPassword: YWRtaW4=
+#
+# If restricted security is enforced in your environment, set RestrictedSecurityMode to true
+# IMPORTANT: this setting cannot be changed after Imaging is deployed
+RestrictedSecurityMode: false
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -228,35 +251,59 @@ ConsolePostgresResources:
   requests:
     cpu: 0.5
     memory: 8G
+  limits:
+    cpu: 2
+    memory: 16G
 SSOServiceResources:
   requests:
     cpu: 0.1
     memory: 1G
+  limits:
+    cpu: 1
+    memory: 2G 
 ConsoleServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 2G
 GatewayServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 2G
 AnalysisNode_shmsize: 1G
 AnalysisNodeResources:
   requests:
     cpu: 0.5
     memory: 8G
+  limits:
+    cpu: 2
+    memory: 32G
 ControlPanelResources:
   requests:
     cpu: 0.1
     memory: 800M
+  limits:
+    cpu: 1
+    memory: 2G
 AuthenticationServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 1G
 IntegratedDashboardsResources:
   requests:
     cpu: 0.1
     memory: 600M
+  limits:
+    cpu: 1
+    memory: 4G
 
 #
 # Viewer resources
@@ -265,33 +312,64 @@ ViewerNeo4jResources:
   requests:
     cpu: 0.5
     memory: 16G
+  limits:
+    cpu: 4
+    memory: 32G
 ViewerServerServiceResources:
   requests:
     cpu: 0.2
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 8G
 ViewerEtlResources:
   requests:
     cpu: 0.2
     memory: 500M
+  limits:
+    cpu: 1
+    memory: 8G
 ViewerAiManagerResources:
   requests:
     cpu: 0.1
     memory: 400M
+  limits:
+    cpu: 1
+    memory: 2G
 ViewerApiResources:
   requests:
     cpu: 0.1
     memory: 200M
+  limits:
+    cpu: 1
+    memory: 2G
 McpServerResources:
   requests:
     cpu: 0.2
     memory: 400M
+  limits:
+    cpu: 1
+    memory: 2G
 #
 # ExtendProxy resources
 #
 ExtendProxyResources:
   requests:
     cpu: 0.2
-    memory: 200M    
+    memory: 200M
+  limits:
+    cpu: 1
+    memory: 2G
+#
+# InitContainer resources
+#
+InitContainerResources:
+  requests:
+    cpu: 0.1
+    memory: 100M
+  limits:
+    cpu: 1
+    memory: 1G
 
 #
 # Analysis folders (do not modify)

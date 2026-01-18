@@ -1,4 +1,4 @@
-{{- if .Values.CreateIstioGateway }}
+{{- if .Values.UseIstioGateway }}
 # ********************************************************************
 # Prerequisite #1 - Install Istio on the cluster
 # ********************************************************************
@@ -69,6 +69,7 @@
 #                > Insert the encoded certificate in the auth.caCertificate variable in values.yaml
 # ********************************************************************
 ---
+  {{- if not .Values.ExistingIstioGatewayName }}
 # Gateway supporting multiple hostnames
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
@@ -91,7 +92,7 @@ spec:
       credentialName: tls-secret-cast
     hosts:
     - {{ (urlParse .Values.FrontEndHost).hostname }}
-  {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
+    {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
   # ExtendProxy dedicated hostname (if different from main)
   - port:
       number: 443
@@ -102,8 +103,8 @@ spec:
       credentialName: tls-secret-cast-extend
     hosts:
     - {{ .Values.ExtendProxy.exthostname }}
+    {{- end }}
   {{- end }}
-
 ---
 # VirtualService for main application
 apiVersion: networking.istio.io/v1beta1
@@ -117,7 +118,7 @@ spec:
   hosts:
   - {{ (urlParse .Values.FrontEndHost).hostname }}
   gateways:
-  - castimaging-gateway
+  - {{ .Values.ExistingIstioGatewayName | default "castimaging-gateway" }}
   http:
   {{- if and .Values.ExtendProxy.enable (eq .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
   # ExtendProxy on shared hostname (path-based routing)
@@ -132,7 +133,7 @@ spec:
           X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
     route:
     - destination:
-        host: extendproxy.{{ .Release.Namespace }}.svc.cluster.local
+        host: extendproxy
         port:
           number: 8085
     timeout: 3600s
@@ -175,7 +176,7 @@ spec:
   hosts:
   - {{ .Values.ExtendProxy.exthostname }}
   gateways:
-  - castimaging-gateway
+  - {{ .Values.ExistingIstioGatewayName | default "castimaging-gateway" }}
   http:
   - match:
     - uri:
