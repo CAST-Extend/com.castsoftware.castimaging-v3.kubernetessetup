@@ -1,8 +1,8 @@
 #!/bin/bash
 # =========================================================================
-# Imaging 3.4.x Kubernetes Restore Script
+# Imaging Kubernetes Restore Script
 # =========================================================================
-# This script restores an Imaging 3.4.x instance from backup files
+# This script restores an Imaging instance from backup files
 # Ensure kubectl is installed and configured before running this script
 # A freshly installed, empty Imaging instance must be running at target
 # =========================================================================
@@ -12,7 +12,7 @@ BACKUP_DIR="./mybackupfolder"
 USE_OC=false
 CLUSTER_CMD="kubectl"
 echo "========================================================================="
-echo "Imaging 3.4.x Kubernetes Restore Procedure"
+echo "Imaging Kubernetes Restore Procedure"
 echo "========================================================================="
 echo "Namespace: $NAMESPACE"
 echo "Backup Directory: $BACKUP_DIR"

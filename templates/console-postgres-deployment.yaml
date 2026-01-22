@@ -147,6 +147,7 @@ metadata:
   name: custom-postgres-init-job
   namespace: {{ .Release.Namespace }}
 spec:
+  backoffLimit: 0
   template:
     metadata:
       annotations:

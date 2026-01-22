@@ -115,7 +115,7 @@ spec:
             - name: KC_PROXY 
               value: "edge"
             - name: PROXY_ADDRESS_FORWARDING
-              value: "true" 
+              value: "true"             
 {{- if .Values.ContextUrl.enable }}
             - name: KC_HOSTNAME_ADMIN_URL
               value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/auth
@@ -176,4 +176,4 @@ spec:
           emptyDir: {}
         - name: run
           emptyDir: {}
-{{- end }}
+{{- end }}      

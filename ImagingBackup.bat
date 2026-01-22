@@ -1,8 +1,8 @@
 @echo off
 REM =========================================================================
-REM Imaging 3.4.x Kubernetes Backup Script
+REM Imaging Kubernetes Backup Script
 REM =========================================================================
-REM This script performs a full backup of an Imaging 3.4.x instance on K8s
+REM This script performs a full backup of an Imaging instance on K8s
 REM Ensure kubectl/oc is installed and configured before running this script
 REM =========================================================================
 
@@ -15,7 +15,7 @@ set BACKUP_DIR=%BACKUP_DIR: =0%
 set CLUSTER_CMD=kubectl
 
 echo =========================================================================
-echo Imaging 3.4.x Kubernetes Backup Procedure
+echo Imaging Kubernetes Backup Procedure
 echo =========================================================================
 echo Namespace: %NAMESPACE%
 echo Backup Directory: %BACKUP_DIR%

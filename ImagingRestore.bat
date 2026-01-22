@@ -1,8 +1,8 @@
 @echo off
 REM =========================================================================
-REM Imaging 3.4.x Kubernetes Restore Script
+REM Imaging Kubernetes Restore Script
 REM =========================================================================
-REM This script restores an Imaging 3.4.x instance from backup files
+REM This script restores an Imaging instance from backup files
 REM Ensure kubectl is installed and configured before running this script
 REM A freshly installed, empty Imaging instance must be running at target
 REM =========================================================================
@@ -13,7 +13,7 @@ set BACKUP_DIR=.\mybackupfolder
 set USE_OC=false
 set CLUSTER_CMD=kubectl
 echo =========================================================================
-echo Imaging 3.4.x Kubernetes Restore Procedure
+echo Imaging Kubernetes Restore Procedure
 echo =========================================================================
 echo Namespace: %NAMESPACE%
 echo Backup Directory: %BACKUP_DIR%

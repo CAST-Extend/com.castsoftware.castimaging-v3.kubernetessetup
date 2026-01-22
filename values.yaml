@@ -240,7 +240,7 @@ McpServerImage:
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.2.4.2093"
+  tag: "2.2.6"
   pullPolicy: IfNotPresent 
 
 #

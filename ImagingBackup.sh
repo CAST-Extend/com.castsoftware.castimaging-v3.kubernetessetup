@@ -1,8 +1,8 @@
 #!/bin/bash
 # =========================================================================
-# Imaging 3.4.x Kubernetes Backup Script
+# Imaging Kubernetes Backup Script
 # =========================================================================
-# This script performs a full backup of an Imaging 3.4.x instance on K8s
+# This script performs a full backup of an Imaging instance on K8s
 # Ensure kubectl/oc is installed and configured before running this script
 # =========================================================================
 
@@ -12,7 +12,7 @@ BACKUP_DIR="./imaging_backup_$(date +%Y%m%d_%H%M%S)"
 CLUSTER_CMD="kubectl"
 
 echo "========================================================================="
-echo "Imaging 3.4.x Kubernetes Backup Procedure"
+echo "Imaging Kubernetes Backup Procedure"
 echo "========================================================================="
 echo "Namespace: $NAMESPACE"
 echo "Backup Directory: $BACKUP_DIR"
