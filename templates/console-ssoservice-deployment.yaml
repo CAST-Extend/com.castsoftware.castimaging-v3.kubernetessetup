@@ -2,7 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    console.service: console-sso-service
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-sso-service
   name: console-sso-service
   namespace: {{ .Release.Namespace }}  
 spec:
@@ -11,13 +13,16 @@ spec:
       port: 8096
       targetPort: 8080
   selector:
-    console.service: console-sso-service
+    app: castimaging
+    imaging.service: console-sso-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    console.service: console-sso-service
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-sso-service
     version: {{ .Values.ConsoleSSOServiceImage.tag | default .Values.version }}
   name: console-sso-service
   namespace: {{ .Release.Namespace }} 
@@ -25,15 +30,28 @@ spec:
   replicas: {{ .Values.SSOServiceReplicaCount }}
   selector:
     matchLabels:
-      console.service: console-sso-service
+      app: castimaging
+      imaging.service: console-sso-service
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
-        console.service: console-sso-service
+        app: castimaging
+        imaging.group: console
+        imaging.service: console-sso-service
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
+        {{- toYaml .Values.affinityExcludePostgresAnalysisNode | nindent 8 }}
+        {{- toYaml .Values.affinityExcludeGroupViewerPreferConsole | nindent 8 }}
+    {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true

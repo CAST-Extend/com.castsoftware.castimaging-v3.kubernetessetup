@@ -3,7 +3,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    console.service: console-postgres
+    app: castimaging
+    imaging.service: console-postgres
   name: console-postgres
   namespace: {{ .Release.Namespace }}
 spec:
@@ -12,20 +13,23 @@ spec:
       port: 2285
       targetPort: 5432
   selector:
-    console.service: console-postgres
+    app: castimaging
+    imaging.service: console-postgres
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    console.service: console-postgres
+    app: castimaging
+    imaging.service: console-postgres
   name: console-postgres
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ConsolePostgresReplicaCount }}
   selector:
     matchLabels:
-      console.service: console-postgres
+      app: castimaging
+      imaging.service: console-postgres
   strategy:
     type: Recreate
   template:
@@ -34,8 +38,18 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
-        console.service: console-postgres
+        app: castimaging
+        imaging.service: console-postgres
     spec: 
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
+        {{- toYaml .Values.affinityExcludeAnyImaging | nindent 8 }}
+    {{- end }}
   {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         fsGroup: 999

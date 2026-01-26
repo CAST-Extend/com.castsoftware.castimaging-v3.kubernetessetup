@@ -3,7 +3,9 @@ kind: Service
 metadata:
   name: viewer-neo4j
   labels:
-    app: viewer-neo4j
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-neo4j
     component: core
   namespace: {{ .Release.Namespace }}
 spec:
@@ -18,7 +20,8 @@ spec:
       targetPort: 6362
       name: backup
   selector:
-    app: viewer-neo4j
+    app: castimaging
+    imaging.service: viewer-neo4j
     component: core
 ---
 apiVersion: "apps/v1"
@@ -31,15 +34,29 @@ spec:
   replicas: {{.Values.ViewerNeo4jReplicaCount}}
   selector:
     matchLabels:
-      app: viewer-neo4j
+      app: castimaging
+      imaging.group: viewer
+      imaging.service: viewer-neo4j
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-neo4j
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-neo4j
         component: core
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
+        {{- toYaml .Values.affinityExcludePostgresAnalysisNode | nindent 8 }}
+        {{- toYaml .Values.affinityExcludeGroupConsolePreferViewer | nindent 8 }}
+    {{- end }}
       securityContext:
         fsGroup: 7474
 {{- if .Values.RestrictedSecurityMode }}
@@ -80,7 +97,7 @@ spec:
             - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
               value: "yes"
             - name: NEO4J_dbms_memory_heap_maxSize
-              value: "8G"
+              value: "12G"
             - name: TZ
               value: "UTC"
 {{- if .Values.ContextUrl.enable }}

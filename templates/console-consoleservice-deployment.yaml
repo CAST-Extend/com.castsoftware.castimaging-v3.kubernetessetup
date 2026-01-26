@@ -2,7 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    console.service: console-service
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-service
   name: console-service
   namespace: {{ .Release.Namespace }}  
 spec:
@@ -11,13 +13,16 @@ spec:
       port: 8091
       targetPort: 8091
   selector:
-    console.service: console-service
+    app: castimaging
+    imaging.service: console-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    console.service: console-service
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-service
     version: {{ .Values.ConsoleServiceImage.tag| default .Values.version }}
   name: console-service
   namespace: {{ .Release.Namespace }}
@@ -25,7 +30,8 @@ spec:
   replicas: {{ .Values.ConsoleServiceReplicaCount }}
   selector:
     matchLabels:
-      console.service: console-service
+      app: castimaging
+      imaging.service: console-service
   strategy: {}
   template:
     metadata:
@@ -33,8 +39,20 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
-        console.service: console-service
+        app: castimaging
+        imaging.group: console
+        imaging.service: console-service
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
+        {{- toYaml .Values.affinitySsoService | nindent 8 }}
+        {{- toYaml .Values.affinityExcludeGroupViewerPreferConsole | nindent 8 }}
+    {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true

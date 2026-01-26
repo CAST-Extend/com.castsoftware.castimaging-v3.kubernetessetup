@@ -2,7 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    console.service: console-dashboards
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-dashboards
   name: console-dashboards
   namespace: {{ .Release.Namespace }}  
 spec:
@@ -11,13 +13,16 @@ spec:
       port: 8087
       targetPort: 8087
   selector:
-    console.service: console-dashboards  
+    app: castimaging
+    imaging.service: console-dashboards   
 ---  
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    console.service: console-dashboards
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-dashboards
     version: {{ .Values.ConsoleIntegratedDashboardsImage.tag| default .Values.version }}
   name: console-dashboards
   namespace: {{ .Release.Namespace }}  
@@ -25,7 +30,8 @@ spec:
   replicas: {{ .Values.DashboardReplicaCount }}
   selector:
     matchLabels:
-      console.service: console-dashboards
+      app: castimaging
+      imaging.service: console-dashboards
   strategy:
     type: Recreate
   template:
@@ -34,8 +40,20 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
-        console.service: console-dashboards
+        app: castimaging
+        imaging.group: console
+        imaging.service: console-dashboards
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
+        {{- toYaml .Values.affinitySsoService | nindent 8 }}
+        {{- toYaml .Values.affinityExcludeGroupViewerPreferConsole | nindent 8 }}
+    {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true

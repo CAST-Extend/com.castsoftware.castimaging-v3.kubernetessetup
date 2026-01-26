@@ -131,7 +131,7 @@ GatewayServiceReplicaCount: 1
 AnalysisNodeReplicaCount: 1
 ControlPaneReplicaCount: 1
 AuthenticationServiceReplicaCount: 1
-IntegratedDashboardsReplicaCount: 1
+DashboardReplicaCount: 1
 ExtendProxyReplicaCount: 1
 
 #
@@ -141,6 +141,7 @@ ViewerNeo4jReplicaCount: 1
 ViewerServerReplicaCount: 1
 ViewerEtlReplicaCount: 1
 ViewerAiManagerReplicaCount: 1
+ViewerApiReplicaCount: 1
 McpServerReplicaCount: 1
 
 #
@@ -357,3 +358,130 @@ anadir:
   logs:         /usr/share/CAST/CAST/Logs
   lisa:         /usr/share/CAST/CASTMS/LISA
   extensions:   /usr/share/CAST/Extensions
+
+
+##########################################################################################
+# Node selection - DEDICATED castimaging kubernetes nodes for XL scenario
+# 4 nodes minimum required:
+#    node 1: postgres
+#    node 2: console services
+#    node 3: viewer services
+#    node 4: analysis-node
+#    node x: optional additional kubernetes nodes for as many additional analysis nodes
+# All dedicated castimaging kubernetes nodes / nodepool should have:
+#                       -> taint: workload=castimaging:NoSchedule 
+#                       -> label: app: castimaging
+##########################################################################################
+
+# Set to true to enforce dedicated kubernetes node scenario
+EnforceNodeAffinity: false
+
+nodeSelector:
+  app: castimaging
+
+# Tolerations - allow scheduling on tainted CAST nodes
+tolerations:
+  - key: workload
+    operator: Equal
+    value: castimaging
+    effect: NoSchedule
+
+# Affinity - REQUIRE castimaging nodes, prevent scheduling elsewhere
+affinityImagingNodes:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - castimaging
+
+affinityViewerNeo4j:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: imaging.service
+          operator: In
+          values:
+          - viewer-neo4j
+      topologyKey: kubernetes.io/hostname
+
+affinityExcludeAnyImaging:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - castimaging
+      topologyKey: kubernetes.io/hostname
+
+affinitySsoService:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: imaging.service
+          operator: In
+          values:
+          - console-sso-service
+      topologyKey: kubernetes.io/hostname
+
+affinityExcludePostgresAnalysisNode:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: imaging.service
+          operator: In
+          values:
+          - console-postgres
+          - console-analysis-node
+      topologyKey: kubernetes.io/hostname
+
+affinityExcludeGroupViewerPreferConsole:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: imaging.group
+          operator: In
+          values:
+          - viewer
+      topologyKey: kubernetes.io/hostname
+  podAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: imaging.group
+            operator: In
+            values:
+            - console
+        topologyKey: kubernetes.io/hostname
+
+affinityExcludeGroupConsolePreferViewer:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: imaging.group
+          operator: In
+          values:
+          - console
+      topologyKey: kubernetes.io/hostname
+  podAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: imaging.group
+            operator: In
+            values:
+            - viewer
+        topologyKey: kubernetes.io/hostname

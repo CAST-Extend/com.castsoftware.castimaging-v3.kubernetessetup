@@ -3,7 +3,9 @@ apiVersion: v1
 metadata:
   name: viewer-etl
   labels:
-    app: viewer-etl
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-etl
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -11,13 +13,16 @@ spec:
     port: 9001
     targetPort: 9001
   selector:
-    app: viewer-etl
+    app: castimaging
+    imaging.service: viewer-etl
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: viewer-etl
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-etl
     version: {{.Values.ViewerEtlImage.tag| default .Values.version}}
   name: viewer-etl
   namespace: {{ .Release.Namespace }}
@@ -25,14 +30,27 @@ spec:
   replicas: {{ .Values.ViewerEtlReplicaCount }}
   selector:
     matchLabels:
-      app: viewer-etl
+      app: castimaging
+      imaging.service: viewer-etl
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-etl
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-etl
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
+        {{- toYaml .Values.affinityViewerNeo4j | nindent 8 }}
+        {{- toYaml .Values.affinityExcludeGroupConsolePreferViewer | nindent 8 }}
+    {{- end }}
       securityContext:
         fsGroup: 1000
 {{- if .Values.RestrictedSecurityMode }}
