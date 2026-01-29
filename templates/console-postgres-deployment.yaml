@@ -47,8 +47,12 @@ spec:
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
       affinity:
-        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
-        {{- toYaml .Values.affinityExcludeAnyImaging | nindent 8 }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorAppcastimaging | nindent 12 }}
     {{- end }}
   {{- if .Values.RestrictedSecurityMode }}
       securityContext:

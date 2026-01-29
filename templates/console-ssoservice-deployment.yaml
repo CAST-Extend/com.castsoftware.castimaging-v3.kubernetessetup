@@ -48,9 +48,16 @@ spec:
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
       affinity:
-        {{- toYaml .Values.affinityImagingNodes | nindent 8 }}
-        {{- toYaml .Values.affinityExcludePostgresAnalysisNode | nindent 8 }}
-        {{- toYaml .Values.affinityExcludeGroupViewerPreferConsole | nindent 8 }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServicePostgresAnalysisNode | nindent 12 }}
+            {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
     {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:

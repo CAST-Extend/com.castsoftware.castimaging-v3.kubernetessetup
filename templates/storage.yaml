@@ -35,10 +35,12 @@ metadata:
     helm.sh/resource-policy: keep
     {{- if eq .Values.K8SProvider "EKS" }}
 provisioner: {{ .Values.EKS_FSdriver }}
-allowVolumeExpansion: true
 parameters:
-  provisioningMode: efs-ap 
-  directoryPerms: "0777"
+  provisioningMode: efs-ap  # Creates EFS Access Point
+  fileSystemId: {{ .Values.AnalysisNodeFS.EFSsystemID }}  # Your EFS filesystem ID
+  directoryPerms: "770"
+  uid: "10001"
+  gid: "10001"
     {{- else if eq .Values.K8SProvider "AKS" }}
 provisioner: {{ .Values.AKS_FSdriver }}
 allowVolumeExpansion: true
@@ -54,18 +56,17 @@ parameters:
   skuName: Premium_LRS
   protocol: smb
     {{- else if eq .Values.K8SProvider "GKE" }}
-allowVolumeExpansion: true    
 provisioner: {{ .Values.GKE_FSdriver }}
+allowVolumeExpansion: true
 parameters:
   tier: standard  # premium or standard
     {{- end }} 
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
   {{- end }}
 {{- end }}  
 ---
-{{- if .Values.AnalysisNodeFS.enable }}
-  {{- if eq .Values.K8SProvider "EKS" }}
+{{- if and .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "EKS-disabled") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -90,7 +91,6 @@ spec:
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
-  {{- end }}
 {{- end }}
 ---
 apiVersion: v1
