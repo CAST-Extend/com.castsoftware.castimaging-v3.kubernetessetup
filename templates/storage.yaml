@@ -35,37 +35,38 @@ metadata:
     helm.sh/resource-policy: keep
     {{- if eq .Values.K8SProvider "EKS" }}
 provisioner: {{ .Values.EKS_FSdriver }}
-allowVolumeExpansion: true
 parameters:
-  provisioningMode: efs-ap 
-  directoryPerms: "0777"
+  provisioningMode: efs-ap  # Creates EFS Access Point
+  fileSystemId: {{ .Values.AnalysisNodeFS.EFSsystemID }}  # Your EFS filesystem ID
+  directoryPerms: "770"
+  uid: "10001"
+  gid: "10001"
     {{- else if eq .Values.K8SProvider "AKS" }}
 provisioner: {{ .Values.AKS_FSdriver }}
 allowVolumeExpansion: true
 mountOptions:
- - dir_mode=0777
- - file_mode=0777
+ - dir_mode=0770
+ - file_mode=0660
  - uid=10001
  - gid=10001
  - mfsymlinks
  - cache=strict
- - actimeo=30
  - nobrl
 parameters:
   skuName: Premium_LRS
+  protocol: smb
     {{- else if eq .Values.K8SProvider "GKE" }}
-allowVolumeExpansion: true    
 provisioner: {{ .Values.GKE_FSdriver }}
+allowVolumeExpansion: true
 parameters:
   tier: standard  # premium or standard
     {{- end }} 
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
   {{- end }}
 {{- end }}  
 ---
-{{- if .Values.AnalysisNodeFS.enable }}
-  {{- if eq .Values.K8SProvider "EKS" }}
+{{- if and .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "EKS-disabled") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -74,7 +75,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep  
   labels:
-    console.service: console-analysis-node
+    app: castimaging
+    imaging.service: console-analysis-node
 spec:
   capacity:
     storage: {{ .Values.size_shared_datadir }}
@@ -89,7 +91,6 @@ spec:
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
-  {{- end }}
 {{- end }}
 ---
 apiVersion: v1
@@ -100,7 +101,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep  
   labels:
-    console.service: console-analysis-node
+    app: castimaging
+    imaging.service: console-analysis-node
 spec:
   accessModes:
 {{- if .Values.AnalysisNodeFS.enable }}
@@ -114,6 +116,7 @@ spec:
     requests:
       storage: {{ .Values.size_shared_datadir }}
 ---
+{{- if .Values.CastStorageService.enable }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -121,6 +124,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-postgres
 spec:
   accessModes:
     - ReadWriteOnce
@@ -128,6 +134,7 @@ spec:
     requests:
       storage: {{ .Values.size_db_data }}
   storageClassName: {{ .Values.DiskClassName }}
+{{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -137,7 +144,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep  
   labels:
-    console.service: viewer-server
+    app: castimaging
+    imaging.service: viewer-server
 spec:
   accessModes:
     - ReadWriteOnce
@@ -154,7 +162,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    console.service: viewer-etl
+    app: castimaging
+    imaging.service: viewer-etl
 spec:
   accessModes:
     - ReadWriteOnce
@@ -171,7 +180,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    app: viewer-etl
+    app: castimaging
+    imaging.service: viewer-etl
 spec:
   accessModes:
     - ReadWriteOnce
@@ -188,7 +198,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    console.service: viewer-aimanager
+    app: castimaging
+    imaging.service: viewer-aimanager
 spec:
   accessModes:
     - ReadWriteOnce
@@ -197,6 +208,7 @@ spec:
     requests:
       storage: {{ .Values.size_imagingviewer_v3_aimanager_logs }}
 ---
+{{- if .Values.McpServer.enable }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -205,7 +217,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    console.service: mcp-server
+    app: castimaging
+    imaging.service: mcp-server
 spec:
   accessModes:
     - ReadWriteOnce
@@ -213,6 +226,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.size_mcpserver_logs }}
+{{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -222,7 +236,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    console.service: viewer-api
+    app: castimaging
+    imaging.service: viewer-api
 spec:
   accessModes:
     - ReadWriteOnce
@@ -231,6 +246,7 @@ spec:
     requests:
       storage: {{ .Values.size_imagingviewer_v3_api_logs }}
 ---
+{{- if .Values.ExtendProxy.enable }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -239,7 +255,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep 
   labels:
-    console.service: extendproxy 
+    app: castimaging
+    imaging.service: extendproxy 
 spec:
   accessModes:
     - ReadWriteOnce
@@ -247,3 +264,4 @@ spec:
     requests:
       storage: {{ .Values.size_extendproxy_data }}
   storageClassName: {{ .Values.DiskClassName }}
+{{- end }}

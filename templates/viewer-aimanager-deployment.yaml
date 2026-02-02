@@ -3,7 +3,9 @@ apiVersion: v1
 metadata:
   name: viewer-aimanager
   labels:
-    app: viewer-aimanager
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-aimanager
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -11,13 +13,15 @@ spec:
     port: 8082
     targetPort: 8082
   selector:
-    app: viewer-aimanager
+    imaging.service: viewer-aimanager
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: viewer-aimanager
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-aimanager
     version: {{.Values.ViewerAiManagerImage.tag| default .Values.version}}
   name: viewer-aimanager
   namespace: {{ .Release.Namespace }}
@@ -25,14 +29,34 @@ spec:
   replicas: {{ .Values.ViewerAiManagerReplicaCount }}
   selector:
     matchLabels:
-      app: viewer-aimanager     
+      imaging.service: viewer-aimanager
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-aimanager
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-aimanager
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceNeo4j | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
+    {{- end }}
       securityContext:
         fsGroup: 1000
 {{- if .Values.RestrictedSecurityMode }}
@@ -98,17 +122,12 @@ spec:
 {{- end }}
       containers:
         - env:
-{{- if .Values.ContextUrl.enable }}
-            - name: APP_CONTEXT
-              value: {{ .Values.ContextUrl.appcontext }}
-{{- end }}
-          image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
-          imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
-          command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
-          name: viewer-aimanager
-          env:
             - name: TZ
               value: "UTC"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "bolt://viewer-neo4j:7687"
+            - name: LOG_LEVEL
+              value: "debug"
             - name: EUREKA_HOST
               value: "console-control-panel"
             - name: EUREKA_PORT
@@ -117,14 +136,21 @@ spec:
               value: "viewer-aimanager"
             - name: AIMANAGER_PORT
               value: "8082"
-            - name: NEO4J_BOLT_ENDPOINT
-              value: "viewer-neo4j:7687"
-            - name: LOG_LEVEL
-              value: "debug"
             - name: ETL_PORT
               value: "9001"
             - name: NEO4J_PASSWORD
-              value: "imaging"
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: neo4j-password
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
+          image: "{{ .Values.ViewerAiManagerImage.name }}:{{ .Values.ViewerAiManagerImage.tag}}"
+          imagePullPolicy: "{{ .Values.ViewerAiManagerImage.pullPolicy }}"
+          command: ['sh', '-c', "/opt/imaging/open_ai-manager/config/init.sh"]
+          name: viewer-aimanager
           ports:
             - containerPort: 8082
               protocol: TCP

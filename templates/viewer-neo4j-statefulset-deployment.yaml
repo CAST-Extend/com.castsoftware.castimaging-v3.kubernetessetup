@@ -3,7 +3,9 @@ kind: Service
 metadata:
   name: viewer-neo4j
   labels:
-    app: viewer-neo4j
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-neo4j
     component: core
   namespace: {{ .Release.Namespace }}
 spec:
@@ -18,12 +20,16 @@ spec:
       targetPort: 7473
       name: https
   selector:
-    app: viewer-neo4j
+    imaging.service: viewer-neo4j
     component: core
 ---
 apiVersion: "apps/v1"
 kind: StatefulSet
 metadata:
+  labels:
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-neo4j  
   name: viewer-neo4j-core
   namespace: {{.Release.Namespace}}
 spec:
@@ -31,15 +37,34 @@ spec:
   replicas: {{.Values.ViewerNeo4jReplicaCount}}
   selector:
     matchLabels:
-      app: viewer-neo4j
+      imaging.service: viewer-neo4j
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-neo4j
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-neo4j
         component: core
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServicePostgresAnalysisNode | nindent 12 }}
+            {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
+    {{- end }}
       securityContext:
         fsGroup: 7474
 {{- if .Values.RestrictedSecurityMode }}
@@ -79,20 +104,27 @@ spec:
           env:
             - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
               value: "yes"
-            - name: NEO4J_HEAP_SIZE
-              value: "{{ .Values.NEO4J_HEAP_SIZE | default "12G" }}"
-            - name: NEO4J_TRANSACTION_MEMORY
-              value: "{{ .Values.NEO4J_TRANSACTION_MEMORY | default "10G" }}"
+            - name: NEO4J_server_memory_heap_initial__size
+              value: "{{ .Values.NEO4J_server_memory_heap_initial__size }}"
+            - name: NEO4J_server_memory_heap_max__size
+              value: "{{ .Values.NEO4J_server_memory_heap_max__size }}"
+            - name: NEO4J_dbms_memory_transaction_total_max
+              value: "{{ .Values.NEO4J_dbms_memory_transaction_total_max }}"
             - name: TZ
               value: "UTC"
             - name: NEO4J_USERNAME
               value: "neo4j"
             - name: NEO4J_PASSWORD
-              value: "imaging"
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: neo4j-password
             - name: LOG_LEVEL
               value: "debug"
             - name: PODMAN_ENV
               value: "false"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "bolt://viewer-neo4j:7687"
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}

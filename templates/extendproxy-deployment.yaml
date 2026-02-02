@@ -14,7 +14,9 @@ metadata:
     {{- end }}
   {{- end }}
   labels:
-    console.service: extendproxy
+    app: castimaging
+    imaging.group: console
+    imaging.service: extendproxy
   name: extendproxy
   namespace: {{ .Release.Namespace }}  
 spec:
@@ -32,7 +34,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    console.service: extendproxy
+    app: castimaging
+    imaging.group: console
+    imaging.service: extendproxy
     version: {{ .Values.ExtendProxyImage.tag| default .Values.version }}
   name: extendproxy
   namespace: {{ .Release.Namespace }}   
@@ -40,7 +44,7 @@ spec:
   replicas: {{ .Values.ExtendProxyReplicaCount }}
   selector:
     matchLabels:
-      console.service: extendproxy
+      imaging.service: extendproxy
   strategy:
     type: Recreate
   template:
@@ -49,8 +53,29 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
+        app: castimaging
+        imaging.group: console
+        imaging.service: extendproxy
         console.service: extendproxy
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceSso | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
+    {{- end }}
       securityContext:
         fsGroup: 1001
   {{- if .Values.RestrictedSecurityMode }}

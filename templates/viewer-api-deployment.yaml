@@ -3,7 +3,9 @@ apiVersion: v1
 metadata:
   name: viewer-api
   labels:
-    app: viewer-api
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-api
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -11,13 +13,15 @@ spec:
     port: 8070
     targetPort: 8070
   selector:
-    app: viewer-api
+    imaging.service: viewer-api
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: viewer-api
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-api
     version: {{.Values.ViewerApiImage.tag| default .Values.version}}
   name: viewer-api
   namespace: {{ .Release.Namespace }}
@@ -25,14 +29,34 @@ spec:
   replicas: {{ .Values.ViewerApiReplicaCount }}
   selector:
     matchLabels:
-      app: viewer-api     
+      imaging.service: viewer-api
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-api
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-api
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceNeo4j | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
+    {{- end }}
       securityContext:
         fsGroup: 1000
 {{- if .Values.RestrictedSecurityMode }}
@@ -93,15 +117,6 @@ spec:
             {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
-{{- if .Values.ContextUrl.enable }}
-            - name: APP_CONTEXT
-              value: {{ .Values.ContextUrl.appcontext }}
-{{- end }}
-          image: "{{ .Values.ViewerApiImage.name }}:{{ .Values.ViewerApiImage.tag }}"
-          imagePullPolicy: "{{ .Values.ViewerApiImage.pullPolicy }}"
-          command: ['sh', '-c', "/opt/imaging/imaging-api/config/init.sh"]
-          name: viewer-api
-          env:
             - name: TZ
               value: "UTC"
             - name: LOG_LEVEL
@@ -115,7 +130,7 @@ spec:
             - name: IMAGING_APIS_PORT
               value: "8070"
             - name: NEO4J_BOLT_ENDPOINT
-              value: "viewer-neo4j:7687"
+              value: "bolt://viewer-neo4j:7687"
             - name: API_KEY
               value: 
             - name: SOURCE_CODE_SERVICE_TOKEN
@@ -133,7 +148,18 @@ spec:
             - name: QUERY_TIMEOUT
               value: "60"
             - name: NEO4J_PASSWORD
-              value: "imaging"
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: neo4j-password
+{{- if .Values.ContextUrl.enable }}
+            - name: APP_CONTEXT
+              value: {{ .Values.ContextUrl.appcontext }}
+{{- end }}
+          image: "{{ .Values.ViewerApiImage.name }}:{{ .Values.ViewerApiImage.tag }}"
+          imagePullPolicy: "{{ .Values.ViewerApiImage.pullPolicy }}"
+          command: ['sh', '-c', "/opt/imaging/imaging-api/config/init.sh"]
+          name: viewer-api
           ports:
             - containerPort: 8070
               protocol: TCP

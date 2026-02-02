@@ -3,7 +3,9 @@ apiVersion: v1
 metadata:
   name: viewer-server
   labels:
-    app: viewer-server
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-server
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -14,13 +16,15 @@ spec:
       port: 9000
       targetPort: 9000
   selector:
-    app: viewer-server
+    imaging.service: viewer-server
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: viewer-server
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-server
     version: {{.Values.ViewerServiceImage.tag| default .Values.version}}
   name: viewer-server
   namespace: {{ .Release.Namespace }}
@@ -28,14 +32,34 @@ spec:
   replicas: {{ .Values.ViewerServerReplicaCount }}
   selector:
     matchLabels:
-      app: viewer-server
+      imaging.service: viewer-server
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-server
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-server
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceNeo4j | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
+    {{- end }}
       securityContext:
         fsGroup: 1000
 {{- if .Values.RestrictedSecurityMode }}
@@ -119,7 +143,7 @@ spec:
             - name: SERVER_PORT
               value: "9000"
             - name: NEO4J_BOLT_ENDPOINT
-              value: "viewer-neo4j:7687"
+              value: "bolt://viewer-neo4j:7687"
             - name: LOG_LEVEL
               value: "debug"
             - name: FE_PORT
@@ -127,7 +151,10 @@ spec:
             - name: QUERY_TIMEOUT
               value: "60"
             - name: NEO4J_PASSWORD
-              value: "imaging"
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: neo4j-password
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}

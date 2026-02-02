@@ -2,7 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    console.service: console-service
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-service
   name: console-service
   namespace: {{ .Release.Namespace }}  
 spec:
@@ -11,13 +13,15 @@ spec:
       port: 8091
       targetPort: 8091
   selector:
-    console.service: console-service
+    imaging.service: console-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    console.service: console-service
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-service
     version: {{ .Values.ConsoleServiceImage.tag| default .Values.version }}
   name: console-service
   namespace: {{ .Release.Namespace }}
@@ -25,7 +29,7 @@ spec:
   replicas: {{ .Values.ConsoleServiceReplicaCount }}
   selector:
     matchLabels:
-      console.service: console-service
+      imaging.service: console-service
   strategy: {}
   template:
     metadata:
@@ -33,8 +37,28 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         console.network/aip-network: "true"
-        console.service: console-service
+        app: castimaging
+        imaging.group: console
+        imaging.service: console-service
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceSso | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
+    {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true

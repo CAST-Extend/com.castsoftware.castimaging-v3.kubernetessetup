@@ -22,3 +22,4 @@ data:
   guest-db-password: {{ .Values.GuestDbPassword | default "V2VsY29tZVRvQUlQ" }}
   keycloak-db-password: {{ .Values.KeycloakDbPassword | default "a2V5Y2xvYWs=" }}
   keycloak-admin-password: {{ .Values.KeycloakAdminPassword | default "YWRtaW4=" }}
+  neo4j-password: {{ .Values.Neo4jPassword | default "aW1hZ2luZw==" }}

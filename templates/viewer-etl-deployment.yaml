@@ -3,7 +3,9 @@ apiVersion: v1
 metadata:
   name: viewer-etl
   labels:
-    app: viewer-etl
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-etl
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -11,13 +13,15 @@ spec:
     port: 9001
     targetPort: 9001
   selector:
-    app: viewer-etl
+    imaging.service: viewer-etl
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: viewer-etl
+    app: castimaging
+    imaging.group: viewer
+    imaging.service: viewer-etl
     version: {{.Values.ViewerEtlImage.tag| default .Values.version}}
   name: viewer-etl
   namespace: {{ .Release.Namespace }}
@@ -25,14 +29,34 @@ spec:
   replicas: {{ .Values.ViewerEtlReplicaCount }}
   selector:
     matchLabels:
-      app: viewer-etl
+      imaging.service: viewer-etl
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: viewer-etl
+        app: castimaging
+        imaging.group: viewer
+        imaging.service: viewer-etl
     spec:
+    {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceNeo4j | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
+    {{- end }}
       securityContext:
         fsGroup: 1000
 {{- if .Values.RestrictedSecurityMode }}
@@ -112,6 +136,29 @@ spec:
 {{- end }}
       containers:
         - env:
+            - name: TZ
+              value: "UTC"
+            - name: EUREKA_HOST
+              value: "console-control-panel"
+            - name: EUREKA_PORT
+              value: "8098"
+            - name: SERVICE_HOST
+              value: "viewer-etl"
+            - name: ETL_PORT
+              value: "9001"
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "bolt://viewer-neo4j:7687"
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: WORKER_POOL_SIZE
+              value: "4"
+            - name: NEO4J_IMPORT_BATCH_SIZE
+              value: "1000"
+            - name: NEO4J_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: neo4j-password
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
@@ -124,27 +171,6 @@ spec:
           imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
           command: ['sh', '-c', '/opt/imaging/imaging-etl/config/init.sh']
           name: viewer-etl
-          env:
-            - name: TZ
-              value: "UTC"
-            - name: EUREKA_HOST
-              value: "console-control-panel"
-            - name: EUREKA_PORT
-              value: "8098"
-            - name: SERVICE_HOST
-              value: "viewer-etl"
-            - name: ETL_PORT
-              value: "9001"
-            - name: NEO4J_BOLT_ENDPOINT
-              value: "viewer-neo4j:7687"
-            - name: LOG_LEVEL
-              value: "debug"
-            - name: WORKER_POOL_SIZE
-              value: "4"
-            - name: NEO4J_IMPORT_BATCH_SIZE
-              value: "1000"
-            - name: NEO4J_PASSWORD
-              value: "imaging"
           ports:
             - containerPort: 9001
               protocol: TCP
