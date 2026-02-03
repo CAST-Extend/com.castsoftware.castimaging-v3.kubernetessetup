@@ -81,8 +81,6 @@ kind: Gateway
 metadata:
   name: castimaging-gateway
   namespace: {{ .Release.Namespace }}
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   selector:
     istio: ingressgateway
@@ -129,8 +127,6 @@ kind: VirtualService
 metadata:
   name: castimaging-virtualservice
   namespace: {{ .Release.Namespace }}
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   hosts:
   - {{ (urlParse .Values.FrontEndHost).hostname }}
@@ -199,8 +195,6 @@ kind: VirtualService
 metadata:
   name: extendproxy-virtualservice
   namespace: {{ .Release.Namespace }}
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   hosts:
   - {{ .Values.ExtendProxy.exthostname }}
@@ -232,8 +226,6 @@ kind: VirtualService
 metadata:
   name: mcpserver-virtualservice
   namespace: {{ .Release.Namespace }}
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   hosts:
   - {{ .Values.McpServer.exthostname }}
