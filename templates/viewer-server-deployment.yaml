@@ -42,7 +42,7 @@ spec:
         imaging.group: viewer
         imaging.service: viewer-server
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+{{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -59,7 +59,7 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
-    {{- end }}
+{{- end }}
       securityContext:
         fsGroup: 1000
 {{- if .Values.RestrictedSecurityMode }}

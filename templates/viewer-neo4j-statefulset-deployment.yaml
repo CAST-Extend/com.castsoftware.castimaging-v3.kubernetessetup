@@ -48,7 +48,7 @@ spec:
         imaging.service: viewer-neo4j
         component: core
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+{{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -64,7 +64,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorServicePostgresAnalysisNode | nindent 12 }}
             {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
-    {{- end }}
+{{- end }}
       securityContext:
         fsGroup: 7474
 {{- if .Values.RestrictedSecurityMode }}

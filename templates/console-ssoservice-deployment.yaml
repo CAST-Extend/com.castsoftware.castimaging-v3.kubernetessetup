@@ -41,7 +41,7 @@ spec:
         imaging.group: console
         imaging.service: console-sso-service
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+{{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -57,7 +57,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorServicePostgresAnalysisNode | nindent 12 }}
             {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
-    {{- end }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true

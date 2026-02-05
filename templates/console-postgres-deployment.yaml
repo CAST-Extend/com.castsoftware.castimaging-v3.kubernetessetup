@@ -38,8 +38,8 @@ spec:
         console.network/aip-network: "true"
         app: castimaging
         imaging.service: console-postgres
-    spec:
-    {{- if .Values.EnforceNodeAffinity }}
+    spec:  
+  {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -51,7 +51,7 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorAppcastimaging | nindent 12 }}
-    {{- end }}
+  {{- end }}
   {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         fsGroup: 999
@@ -169,7 +169,7 @@ spec:
       annotations:
         sidecar.istio.io/inject: "false"
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+  {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -178,7 +178,7 @@ spec:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
-    {{- end }}
+  {{- end }}
       restartPolicy: Never
       containers:
         - name: postgres-init

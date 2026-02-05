@@ -60,7 +60,7 @@ spec:
         imaging.service: extendproxy
         console.service: extendproxy
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+  {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -77,7 +77,7 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
-    {{- end }}
+  {{- end }}
       securityContext:
         fsGroup: 1001
   {{- if .Values.RestrictedSecurityMode }}

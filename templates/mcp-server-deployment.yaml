@@ -40,7 +40,7 @@ spec:
         imaging.group: viewer
         imaging.service: mcp-server
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+  {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -57,16 +57,16 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
-    {{- end }}
+  {{- end }}
       securityContext:
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
         fsGroup: 33
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-{{- else }}
+  {{- else }}
         fsGroup: 1000
-{{- end }}                    
+  {{- end }}                    
       containers:
         - env:
             - name: MCP_SERVER_PORT
@@ -104,7 +104,7 @@ spec:
           ports:
             - containerPort: 8082
               protocol: TCP
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 33
@@ -112,16 +112,16 @@ spec:
             capabilities:
               drop:
                 - ALL
-{{- end }}
+  {{- end }}
           resources:
             {{- toYaml .Values.McpServerResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
             - name: tmp
               mountPath: /tmp
             - name: run
               mountPath: /var/run
-{{- end }}
+  {{- end }}
             - name: logdir
               mountPath: /app/logs
               readOnly: false
@@ -133,12 +133,12 @@ spec:
         - name: imagepull-sec
   {{- end }}        
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+  {{- if .Values.RestrictedSecurityMode }}
         - name: tmp
           emptyDir: {}
         - name: run
           emptyDir: {}
-{{- end }}
+  {{- end }}
         - name: logdir
           persistentVolumeClaim:
             claimName: pvc-mcpserver-logs          

@@ -41,7 +41,7 @@ spec:
         imaging.service: console-analysis-node
         component: core
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+{{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -53,7 +53,7 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorAppcastimaging | nindent 12 }}
-    {{- end }}
+{{- end }}
       securityContext:
         fsGroup: 10001
 {{- if .Values.RestrictedSecurityMode }}

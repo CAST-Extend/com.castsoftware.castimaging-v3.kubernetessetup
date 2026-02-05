@@ -58,7 +58,7 @@ spec:
         imaging.service: console-gateway-service
         console.service: console-gateway-service
     spec:
-    {{- if .Values.EnforceNodeAffinity }}
+{{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
@@ -75,7 +75,7 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
-    {{- end }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true
