@@ -256,10 +256,7 @@ spec:
 {{- if .Values.UseCustomTrustStore }}
         - name: authcacrt
           configMap:
-            name: authcacrt
-        - name: db-creds
-          secret:
-            secretName: imaging-pwd-sec            
+            name: authcacrt           
 {{- end }}
       restartPolicy: Always
 {{- if .Values.UseImagePullSecrets }}      
