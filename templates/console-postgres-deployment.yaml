@@ -71,7 +71,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: imaging-pwd-sec
-                  key: postgres-db-password               
+                  key: postgres-db-password
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_DB
@@ -192,26 +192,6 @@ spec:
               value: postgres
             - name: POSTGRES_DB
               value: postgres
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: imaging-pwd-sec
-                  key: postgres-db-password
-            - name: OPERATOR_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: imaging-pwd-sec
-                  key: operator-db-password
-            - name: GUEST_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: imaging-pwd-sec
-                  key: guest-db-password
-            - name: KEYCLOAK_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: imaging-pwd-sec
-                  key: keycloak-db-password
 
           command: ["/bin/bash", "-c", "/tmp/init-db-custom-pg.sh"]
           volumeMounts:

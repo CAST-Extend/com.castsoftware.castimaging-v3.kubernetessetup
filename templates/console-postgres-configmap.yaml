@@ -835,10 +835,10 @@ data:
  
     set -e
 
-    OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
-    GUEST_PASSWORD=$(cat /opt/secrets/guest-db-password)
-    KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
-    PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
+    export OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
+    export GUEST_PASSWORD=$(cat /opt/secrets/guest-db-password)
+    export KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
+    export PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
 
     psql -c "ALTER USER postgres WITH PASSWORD '$PGPASSWORD';"
 
@@ -861,7 +861,14 @@ apiVersion: v1
 data:
   init-db-custom-pg.sh: |
     #!/bin/bash
+
     set -e
+
+    export OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
+    export GUEST_PASSWORD=$(cat /opt/secrets/guest-db-password)
+    export KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
+    export PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
+
     echo "Waiting for PostgreSQL to be ready..."
     until pg_isready -h $PGHOST -p $PGPORT -U $POSTGRES_USER; do
       echo "PostgreSQL is not ready yet, waiting..."
@@ -894,16 +901,8 @@ data:
       WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'keycloak')\gexec
 
       -- Grant privileges
-{{ if eq .Values.K8SProvider "AKS" }}
-      GRANT azure_pg_admin TO operator;
-{{- else if eq .Values.K8SProvider "EKS" }}
-      GRANT rds_superuser TO operator;
-{{- else if eq .Values.K8SProvider "GKE" }}
-      GRANT cloudsqlsuperuser TO operator;
-{{- else }}
-      ALTER USER operator WITH SUPERUSER;
-{{- end }}
       GRANT ALL PRIVILEGES ON DATABASE postgres TO operator;
+      GRANT ALL PRIVILEGES ON DATABASE keycloak TO operator;
       GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
     EOSQL
     echo "Exiting database initialization script."
