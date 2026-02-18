@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.5.4
+version: 3.5.5
 
 ####################################################################################
 #
@@ -105,16 +105,17 @@ OperatorDbPassword: Q2FzdEFJUA==
 Neo4jPassword: aW1hZ2luZw==
 #
 # CAST Operator password also has to be encrypted using cast-imaging-encryption-tool.jar GUI tool
-#   available in Linux installer https://extend.castsoftware.com/timeline#/extension?id=com.castsoftware.imaging.all.docker&version=3.5.4-funcrel
+#   available in Linux installer https://extend.castsoftware.com/timeline#/extension?id=com.castsoftware.imaging.all.docker&version=3.5.5-funcrel
 OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
 #
-# Keycloak admin password
-#   Updating keycloak password after deployment requires:
-#      1) Ensuring Imaging is up and running
-#      2) manually updating the password in Keycloak admin GUI
-#      3) updating the password here in values.yaml with encoding
-#      4) running helm upgrade
-#   Encoding command on Linux: echo -n "mypassword" | base64
+# Keycloak admin password:
+#   Steps to update the keycloak admin password after deployment:
+#      1) Make sure Imaging is up and running
+#      2) Update the password in Keycloak admin GUI
+#      3) Update the password here in values.yaml, with encoding (KeycloakAdminPassword variable)
+#      4) Run Util-ScaleDownAll.bat + Util-ScaleUpAll.bat
+#   Encoding command for Linux   : echo -n "mypassword" | base64
+#     or for Windows (PowerShell): [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("mypassword"))
 KeycloakAdminPassword: YWRtaW4=
 #
 # If restricted security is enforced in your environment, set RestrictedSecurityMode to true
@@ -184,31 +185,31 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.5.4_core8.4.8"
+  tag: "3.5.5_core8.4.8"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
   
 #
@@ -216,23 +217,23 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent  
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 ViewerApiImage:
   name: castimaging/imaging-apis
-  tag: "3.5.4"
+  tag: "3.5.5"
   pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server
