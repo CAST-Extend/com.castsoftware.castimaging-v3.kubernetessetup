@@ -227,12 +227,12 @@ data:
         }
     {{- if .Values.ContextUrl.enable }}
         # Match /mycontext/auth and everything under it
-        location {{ .Values.ContextUrl.appcontext }}/auth/ {
+        location {{ .Values.ContextUrl.appcontext }}/auth {
             # Rewrite to remove the context path before proxying
             rewrite ^{{ .Values.ContextUrl.appcontext }}(/auth/.*)$ $1 break;
             proxy_pass http://console-gateway-service:8090;
     {{- else }}
-        location /auth/ {
+        location /auth {
             proxy_pass http://console-gateway-service:8090;
     {{- end }}
             # This targets ALL cookies (*) and sets the flags.
