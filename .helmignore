@@ -3,6 +3,7 @@ config/
 scripts/
 */left/
 *.bat
+*.pdf
 */docker*
 */ex_*
 ex_*
@@ -10,3 +11,4 @@ kub-*
 .git
 *-priv.*
 imaging_backup*/
+*-priv/
