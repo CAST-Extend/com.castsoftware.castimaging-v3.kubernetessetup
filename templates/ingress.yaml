@@ -66,6 +66,42 @@ spec:
             port:
               number: 8090
 ---
+  {{- if .Values.UseCookieAdapter }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: castimaging-auth-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).hostname }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ (urlParse .Values.FrontEndHost).hostname }}
+    secretName: tls-secret-cast
+  rules:
+  - host: {{ (urlParse .Values.FrontEndHost).hostname }}
+    http:
+      paths:
+    {{- if .Values.ContextUrl.enable }}
+      - path: {{ .Values.ContextUrl.appcontext }}(/auth)(/|$)(.*)
+    {{- else }}
+      - path: /(auth)(/|$)(.*)
+    {{- end }}
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: cookie-adapter-service   # <-- adapter handles the rewrite
+            port:
+              number: 80
+  {{- end }}
+---
   {{- if .Values.ExtendProxy.enable }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress

@@ -121,6 +121,9 @@ KeycloakAdminPassword: YWRtaW4=
 # If restricted security is enforced in your environment, set RestrictedSecurityMode to true
 # IMPORTANT: this setting cannot be changed after Imaging is deployed
 RestrictedSecurityMode: false
+#
+# Optional: UseCookieAdapter is only required when SAML authentication is enabled in combination with UseIstioGateway or CreateIngress
+UseCookieAdapter: false
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -245,6 +248,14 @@ McpServerImage:
 ExtendProxyImage:
   name: castimaging/extend-proxy
   tag: "2.2.6"
+  pullPolicy: IfNotPresent 
+#
+# Optional - this image is needed when UseCookieAdapter is set to true,
+# which is only required when SAML authentication is enabled in combination with UseIstioGateway or CreateIngress
+#
+CookieAdapterImage:
+  name: nginxinc/nginx-unprivileged
+  tag: "alpine-slim"
   pullPolicy: IfNotPresent 
 
 #

@@ -16,6 +16,7 @@ kubectl scale deployment  console-authentication-service --replicas=1     -n %NA
 kubectl scale deployment  console-service                --replicas=1     -n %NAMESPACE%
 kubectl scale deployment  console-dashboards             --replicas=1     -n %NAMESPACE%
 kubectl scale deployment  extendproxy                    --replicas=1     -n %NAMESPACE%
+kubectl scale deployment  cookie-adapter-nginx           --replicas=2     -n %NAMESPACE%
 
 kubectl scale statefulset viewer-neo4j-core              --replicas=1     -n %NAMESPACE%
 kubectl rollout status statefulset/viewer-neo4j-core --timeout=0          -n %NAMESPACE% 

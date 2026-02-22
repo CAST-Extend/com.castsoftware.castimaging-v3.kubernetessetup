@@ -19,3 +19,4 @@ kubectl scale deployment  viewer-server                  --replicas=0 -n %NAMESP
 kubectl scale statefulset viewer-neo4j-core              --replicas=0 -n %NAMESPACE%
 kubectl scale deployment  extendproxy                    --replicas=0 -n %NAMESPACE%
 kubectl scale deployment  mcp-server                     --replicas=0 -n %NAMESPACE%
+kubectl scale deployment  cookie-adapter-nginx           --replicas=0 -n %NAMESPACE%

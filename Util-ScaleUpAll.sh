@@ -32,3 +32,4 @@ kubectl scale deployment viewer-api --replicas=1 -n $NAMESPACE
 sleep 10
 kubectl scale deployment extendproxy --replicas=1 -n $NAMESPACE
 kubectl scale deployment mcp-server  --replicas=1 -n $NAMESPACE
+kubectl scale deployment cookie-adapter-nginx --replicas=2 -n $NAMESPACE
