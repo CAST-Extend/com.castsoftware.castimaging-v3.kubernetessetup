@@ -83,7 +83,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
-    istio: ingressgateway
+    istio: {{ .Values.CustomIstioSelector | default "ingressgateway" }}
   servers:
   # Main application hostname
   - port:
@@ -92,7 +92,7 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: tls-secret-cast
+      credentialName: {{ .Values.CustomIstioMainCredentialName | default "tls-secret-cast" }}
     hosts:
     - {{ (urlParse .Values.FrontEndHost).hostname }}
     {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
@@ -103,7 +103,7 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: tls-secret-cast-extend
+      credentialName: {{ .Values.CustomIstioExtendCredentialName | default "tls-secret-cast-extend" }}
     hosts:
     - {{ .Values.ExtendProxy.exthostname }}
     {{- end }}
@@ -115,7 +115,7 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: tls-secret-cast-mcp
+      credentialName: {{ .Values.CustomIstioMCPCredentialName | default "tls-secret-cast-mcp" }}
     hosts:
     - {{ .Values.McpServer.exthostname }}
     {{- end }}

@@ -53,6 +53,12 @@ mountOptions:
  - cache=strict
  - nobrl
 parameters:
+      {{- if .Values.AnalysisNodeFS.AKSresourceGroup }}
+  resourceGroup: {{ .Values.AnalysisNodeFS.AKSresourceGroup }}
+      {{- end }}
+      {{- if .Values.AnalysisNodeFS.AKSstorageAccount }}
+  storageAccount: {{ .Values.AnalysisNodeFS.AKSstorageAccount }}
+      {{- end }}
   skuName: Premium_LRS
   protocol: smb
     {{- else if eq .Values.K8SProvider "GKE" }}
