@@ -73,9 +73,10 @@ Base64EncodedDockerconfigjson:
 #                 Please refer to the documentation before modifying below parameters.
 AnalysisNodeFS:
   enable: false  # Do not change if castimaging is already deployed
-  EFSsystemID: fs-xxxxxxxxxxx  # Required, AWS only
-  AKSresourceGroup:            # Optional, AKS only
-  AKSstorageAccount:           # Optional, AKS only
+  EFSsystemID: fs-xxxxxxxxxxx       # Required, AWS only
+  AKSresourceGroup:                 # Optional, AKS only
+  AKSstorageAccount:                # Optional, AKS only
+  AKScreateSharedDatadirPV: false   # AKS only
 #
 # CAST Storage Class names
 CreateStorageClass: true       # Default: true

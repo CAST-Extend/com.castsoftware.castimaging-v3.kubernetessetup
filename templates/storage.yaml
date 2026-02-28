@@ -72,7 +72,7 @@ reclaimPolicy: Delete
   {{- end }}
 {{- end }}  
 ---
-{{- if and .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "EKS-disabled") }}
+{{- if and .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "EKS") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -94,6 +94,42 @@ spec:
   csi:
     driver: {{ .Values.EKS_FSdriver }}
     volumeHandle: {{ .Values.AnalysisNodeFS.EFSsystemID }}::{{ .Values.AnalysisNodeFS.EFSaccessPointID }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: pvc-shared-datadir
+{{- end }}
+---
+{{- if and .Values.AnalysisNodeFS.AKScreateSharedDatadirPV .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "AKS") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-shared-datadir
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node
+spec:
+  capacity:
+    storage: {{ .Values.size_shared_datadir }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: castimaging-fs
+  azureFile:
+    secretName: cast-fs-secret
+    shareName: cast-fileshare
+    readOnly: false
+  mountOptions:
+    - dir_mode=0770
+    - file_mode=0660
+    - uid=10001
+    - gid=10001
+    - mfsymlinks
+    - cache=strict
+    - nobrl
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir
