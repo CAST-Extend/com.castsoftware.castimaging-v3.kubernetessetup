@@ -24,9 +24,14 @@ FrontEndHost: https://myhostname.com  # hostname with no context path
 CreateIngress: false
 CreateLoadBalancer: true
 UseInternalLoadBalancer: false
+UseApplicationGateway: false  # Set to true if an Azure Application Gateway is used (to be created separately)
 UseIstioGateway: false
-ExistingIstioGatewayName: ""  # Provide a value only if you want to use an already created istio Gateway 
+ExistingIstioGatewayName: ""  # Only provide a value if you want to use an existing istio Gateway
                               # > Example: ExistingIstioGatewayName: "aks-istio-ingress/gateway-wildcard"
+# Optional istio parameters:
+CustomIstioSelector:
+CustomIstioMainCredentialName:
+CustomIstioExtendCredentialName:
 #
 # Context URL
 ContextUrl:
@@ -67,7 +72,13 @@ Base64EncodedDockerconfigjson:
 #                 Please refer to the documentation before modifying below parameters.
 AnalysisNodeFS:
   enable: false  # Do not change if castimaging is already deployed
-  EFSsystemID: fs-xxxxxxxxxxx  # Required for AWS only
+  EFSsystemID: fs-xxxxxxxxxxx         # EKS specific
+  AKSresourceGroup:                 # AKS specific, optional
+  AKSstorageAccount:                # AKS specific, optional
+  AKSsharedDatadirPV:             # AKS specific
+    create: false                 # Only set to true in cases where volume provisioning cannot be used
+    secretName: cast-fs-secret
+    shareName: cast-fileshare
 #
 # CAST Storage Class names
 CreateStorageClass: true       # Default: true
@@ -164,6 +175,7 @@ ControlPaneReplicaCount: 1
 AuthenticationServiceReplicaCount: 1
 DashboardReplicaCount: 1
 ExtendProxyReplicaCount: 1
+CookieAdapterServiceReplicaCount: 2
 
 #
 # Viewer
@@ -240,14 +252,14 @@ ViewerApiImage:
   pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server
-  tag: "3.5.3"
+  tag: "3.5.6"
   pullPolicy: IfNotPresent 
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.2.6"
+  tag: "2.2.7"
   pullPolicy: IfNotPresent 
 #
 # Optional - this image is needed when UseCookieAdapter is set to true,

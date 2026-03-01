@@ -45,19 +45,25 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: castimaging
+    imaging.group: console
+    imaging.service: cookie-adapter-service
   name: cookie-adapter-nginx
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 2
+  replicas: {{ .Values.CookieAdapterServiceReplicaCount }}
   selector:
     matchLabels:
-      app: cookie-adapter
+      imaging.service: cookie-adapter-service
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels:
-        app: cookie-adapter
+        app: castimaging
+        imaging.group: console
+        imaging.service: cookie-adapter-service
     spec:
 {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
@@ -135,6 +141,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    app: castimaging
+    imaging.group: console
+    imaging.service: cookie-adapter-service
   name: cookie-adapter-service
   namespace: {{ .Release.Namespace }}
 spec:
@@ -144,5 +154,5 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: cookie-adapter
+    imaging.service: cookie-adapter-service
 {{- end }}

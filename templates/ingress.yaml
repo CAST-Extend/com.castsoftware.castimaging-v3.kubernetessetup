@@ -32,7 +32,6 @@ metadata:
   name: castimaging-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
-    helm.sh/resource-policy: keep  
   {{- if .Values.ContextUrl.enable }}
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
@@ -73,7 +72,6 @@ metadata:
   name: castimaging-auth-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
-    helm.sh/resource-policy: keep
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
@@ -90,16 +88,36 @@ spec:
     http:
       paths:
     {{- if .Values.ContextUrl.enable }}
-      - path: {{ .Values.ContextUrl.appcontext }}(/auth)(/|$)(.*)
-    {{- else }}
-      - path: /(auth)(/|$)(.*)
-    {{- end }}
+      - path: {{ .Values.ContextUrl.appcontext }}/auth/(.+)
         pathType: ImplementationSpecific
         backend:
           service:
-            name: cookie-adapter-service   # <-- adapter handles the rewrite
+            name: cookie-adapter-service
             port:
               number: 80
+      - path: {{ .Values.ContextUrl.appcontext }}/auth
+        pathType: Exact
+        backend:
+          service:
+            name: console-gateway-service
+            port:
+              number: 8090
+    {{- else }}
+      - path: /auth/(.+)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: cookie-adapter-service
+            port:
+              number: 80
+      - path: /auth
+        pathType: Exact
+        backend:
+          service:
+            name: console-gateway-service
+            port:
+              number: 8090
+    {{- end }}
   {{- end }}
 ---
   {{- if .Values.ExtendProxy.enable }}
@@ -109,7 +127,6 @@ metadata:
   name: extendproxy-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
-    helm.sh/resource-policy: keep
     nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"

@@ -53,6 +53,12 @@ mountOptions:
  - cache=strict
  - nobrl
 parameters:
+      {{- if .Values.AnalysisNodeFS.AKSresourceGroup }}
+  resourceGroup: {{ .Values.AnalysisNodeFS.AKSresourceGroup }}
+      {{- end }}
+      {{- if .Values.AnalysisNodeFS.AKSstorageAccount }}
+  storageAccount: {{ .Values.AnalysisNodeFS.AKSstorageAccount }}
+      {{- end }}
   skuName: Premium_LRS
   protocol: smb
     {{- else if eq .Values.K8SProvider "GKE" }}
@@ -88,6 +94,42 @@ spec:
   csi:
     driver: {{ .Values.EKS_FSdriver }}
     volumeHandle: {{ .Values.AnalysisNodeFS.EFSsystemID }}::{{ .Values.AnalysisNodeFS.EFSaccessPointID }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: pvc-shared-datadir
+{{- end }}
+---
+{{- if and .Values.AnalysisNodeFS.AKSsharedDatadirPV.create .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "AKS") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-shared-datadir
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep  
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node
+spec:
+  capacity:
+    storage: {{ .Values.size_shared_datadir }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: {{ .Values.FileClassName }}
+  azureFile:
+    secretName: {{ .Values.AnalysisNodeFS.AKSsharedDatadirPV.secretName }}
+    shareName: {{ .Values.AnalysisNodeFS.AKSsharedDatadirPV.shareName }}
+    readOnly: false
+  mountOptions:
+    - dir_mode=0770
+    - file_mode=0660
+    - uid=10001
+    - gid=10001
+    - mfsymlinks
+    - cache=strict
+    - nobrl
   claimRef:
     namespace: {{ .Release.Namespace }}
     name: pvc-shared-datadir

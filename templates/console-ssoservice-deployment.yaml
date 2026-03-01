@@ -140,25 +140,23 @@ spec:
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"             
 {{- if .Values.ContextUrl.enable }}
-            - name: KC_HOSTNAME_ADMIN_URL
+            - name: KC_HOSTNAME
               value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/auth
-            - name: KC_HOSTNAME_STRICT_HTTPS
-              value: "false"
-            - name: KC_HOSTNAME_URL
+            - name: KC_HOSTNAME_ADMIN
               value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}/auth
             - name: KC_PROXY_HEADERS
               value: "xforwarded"
             - name: PUBLIC_URL
               value: {{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}
 {{- else }}
-            - name: KC_PROXY_HEADERS
-              value: "forwarded"
             - name: KC_HOSTNAME
               value: {{ .Values.FrontEndHost }}/auth
             - name: KC_HOSTNAME_ADMIN
               value: {{ .Values.FrontEndHost }}/auth
-            - name: KEYCLOAK_FRONTEND_URL
-              value: {{ .Values.FrontEndHost }}/auth
+            - name: KC_PROXY_HEADERS
+              value: "forwarded"
+            - name: PUBLIC_URL
+              value: {{ .Values.FrontEndHost }}
 {{- end }}
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"

@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-  {{- if .Values.CreateLoadBalancer }}
+  {{- if (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) }}
     helm.sh/resource-policy: keep
   {{- end }}
   {{- if and .Values.CreateLoadBalancer .Values.UseInternalLoadBalancer }}
@@ -28,7 +28,7 @@ spec:
       targetPort: 8085
   selector:
     console.service: extendproxy
-  {{- if .Values.CreateLoadBalancer }}
+  {{- if (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) }}
   type: LoadBalancer
   {{- end }}
 ---  
@@ -118,7 +118,7 @@ spec:
             - name: ext_public_url
               value: "https://extend.castsoftware.com"
             - name: public_url
-  {{- if or (.Values.CreateIngress) (.Values.UseIstioGateway) }}
+  {{- if or .Values.CreateIngress .Values.UseIstioGateway }}
     {{- if (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
               value: "https://{{ .Values.ExtendProxy.exthostname }}"
     {{- else }}
