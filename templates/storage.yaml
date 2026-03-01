@@ -99,7 +99,7 @@ spec:
     name: pvc-shared-datadir
 {{- end }}
 ---
-{{- if and .Values.AnalysisNodeFS.AKScreateSharedDatadirPV .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "AKS") }}
+{{- if and .Values.AnalysisNodeFS.AKSsharedDatadirPV.create .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "AKS") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -117,10 +117,10 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Delete
-  storageClassName: castimaging-fs
+  storageClassName: {{ .Values.FileClassName }}
   azureFile:
-    secretName: cast-fs-secret
-    shareName: cast-fileshare
+    secretName: {{ .Values.AnalysisNodeFS.AKSsharedDatadirPV.secretName }}
+    shareName: {{ .Values.AnalysisNodeFS.AKSsharedDatadirPV.shareName }}
     readOnly: false
   mountOptions:
     - dir_mode=0770
