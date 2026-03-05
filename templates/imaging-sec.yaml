@@ -16,10 +16,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
 type: Opaque
 data:
-# Encoding command (Linux): echo -n "mypassword" | base64
   postgres-db-password: {{ .Values.PostgresDbPassword | default "cG9zdGdyZXM=" }}
   operator-db-password: {{ .Values.OperatorDbPassword | default "Q2FzdEFJUA==" }}
   guest-db-password: {{ .Values.GuestDbPassword | default "V2VsY29tZVRvQUlQ" }}
   keycloak-db-password: {{ .Values.KeycloakDbPassword | default "a2V5Y2xvYWs=" }}
   keycloak-admin-password: {{ .Values.KeycloakAdminPassword | default "YWRtaW4=" }}
   neo4j-password: {{ .Values.Neo4jPassword | default "aW1hZ2luZw==" }}
+  smtp-password: {{ .Values.SMTP.SPRING_MAIL_PASSWORD }}

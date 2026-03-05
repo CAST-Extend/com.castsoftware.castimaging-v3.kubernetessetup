@@ -193,6 +193,25 @@ spec:
               value: "false"
             - name: IMAGING_DOMAIN_SYNCHRO_ENABLED
               value: "false"
+{{- if .Values.SMTP.enable }}
+            - name: SPRING_MAIL_HOST
+              value: "{{ .Values.SMTP.SPRING_MAIL_HOST }}"
+            - name: SPRING_MAIL_PORT
+              value: "{{ .Values.SMTP.SPRING_MAIL_PORT }}"
+            - name: SPRING_MAIL_USERNAME
+              value: "{{ .Values.SMTP.SPRING_MAIL_USERNAME }}"
+            - name: SPRING_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: smtp-password
+            - name: SPRING_MAIL_PROTOCOL
+              value: "{{ .Values.SMTP.SPRING_MAIL_PROTOCOL }}"
+            - name: SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH
+              value: "{{ .Values.SMTP.SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH }}"
+            - name: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
+              value: "{{ .Values.SMTP.SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE }}"
+{{- end }}
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           name: console-control-panel
