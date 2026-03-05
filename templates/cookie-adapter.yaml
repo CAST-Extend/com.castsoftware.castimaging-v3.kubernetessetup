@@ -7,9 +7,28 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   default.conf: |
+    # CRITICAL: Define upstream with connection pooling
+    upstream console_gateway {
+        server console-gateway-service:8090 max_fails=3 fail_timeout=30s;
+        
+        # CRITICAL: Enable keepalive connection pool
+        keepalive 32;
+        keepalive_timeout 300s;
+        keepalive_requests 1000;
+    }
+
     server {
         listen 8080;
         server_name _;
+
+        # CRITICAL: Connection timeout settings
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        
+        # CRITICAL: Keepalive settings
+        keepalive_timeout 300s;
+        keepalive_requests 1000;
 
         location = /healthz {
             access_log off;
@@ -20,10 +39,11 @@ data:
         location {{ .Values.ContextUrl.appcontext }}/auth {
             # Rewrite to remove the context path before proxying
             rewrite ^{{ .Values.ContextUrl.appcontext }}(/auth/.*)$ $1 break;
-            proxy_pass http://console-gateway-service:8090;
+            # CRITICAL: Use upstream with connection pooling
+            proxy_pass http://console_gateway;
     {{- else }}
-        location /auth {
-            proxy_pass http://console-gateway-service:8090;
+            # CRITICAL: Use upstream with connection pooling
+            proxy_pass http://console_gateway;
     {{- end }}
             # This targets ALL cookies (*) and sets the flags.
             proxy_cookie_flags ~ SameSite=None Secure;
@@ -36,9 +56,28 @@ data:
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto https;
+
+            # CRITICAL: HTTP/1.1 with Connection header for keepalive
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
             
-            proxy_buffering off;
+            # CHANGED: Enable buffering for better performance
+            proxy_buffering on;
+            proxy_buffer_size 4k;
+            proxy_buffers 8 4k;
+            proxy_busy_buffers_size 8k;
+            
             proxy_redirect off;
+
+            # CRITICAL: Retry on connection failures
+            proxy_next_upstream error timeout http_502 http_503 http_504;
+            proxy_next_upstream_tries 3;
+            proxy_next_upstream_timeout 30s;
+            
+            # CRITICAL: Add timeouts
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 300s;
+            proxy_read_timeout 300s;
         }
     }
 ---
@@ -88,6 +127,33 @@ spec:
       - name: nginx
         image: "{{ .Values.CookieAdapterImage.name }}:{{ .Values.CookieAdapterImage.tag}}"
         imagePullPolicy: "{{ .Values.CookieAdapterImage.pullPolicy }}"
+        # Add proper probes
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+        
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 0
+          periodSeconds: 2
+          timeoutSeconds: 1
+          failureThreshold: 30
         ports:
         - containerPort: 8080
         securityContext:

@@ -124,6 +124,20 @@ RestrictedSecurityMode: false
 #
 # Optional: UseCookieAdapter is only required when SAML authentication is enabled in combination with UseIstioGateway or CreateIngress
 UseCookieAdapter: false
+#
+# SMTP settings (optional):
+# Encode SMTP password:
+#       on Linux: echo -n "mypassword" | base64
+#       on Windows (PowerShell): [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("mypassword"))
+SMTP:
+  enable: false
+  SPRING_MAIL_HOST: smtp.myserver.com
+  SPRING_MAIL_PORT: 587
+  SPRING_MAIL_USERNAME: user@myserver.com
+  SPRING_MAIL_PASSWORD: encodedstring
+  SPRING_MAIL_PROTOCOL: smtp
+  SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
+  SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
