@@ -6,10 +6,13 @@
 # helm repo update
 # >>> EKS:
 #     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+#   For internal IP, add: --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-scheme"="internal"
 # >>> AKS:
 #     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+#   For internal IP, add: --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true"
 # >>> GKE:
 #     helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.ingressClassResource.controllerValue="k8s.io/ingress-nginx" 
+#   For internal IP, add: --set controller.service.annotations."networking\.gke\.io/load-balancer-type"="Internal"
 # ********************************************************************
 # Prerequisite #2 - Create DNS record & TLS secrets
 # ********************************************************************
