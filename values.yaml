@@ -124,7 +124,7 @@ OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
 #      1) Make sure Imaging is up and running
 #      2) Update the password in Keycloak admin GUI
 #      3) Update the password here in values.yaml, with encoding (KeycloakAdminPassword variable)
-#      4) Run helm-upgrade.bat + Util-ScaleDownAll.bat and finally, Util-ScaleUpAll.bat to start Imaging again.
+#      4) Run Util-ScaleDownAll.bat + helm-upgrade.bat to start Imaging again.
 #   Encoding command for Linux   : echo -n "mypassword" | base64
 #     or for Windows (PowerShell): [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("mypassword"))
 KeycloakAdminPassword: YWRtaW4=
