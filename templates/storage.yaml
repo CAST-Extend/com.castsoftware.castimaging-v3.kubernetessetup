@@ -26,7 +26,7 @@ parameters:
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 ---
-  {{- if .Values.AnalysisNodeFS.enable }}
+  {{- if or .Values.AnalysisNodeFS.enable .Values.prepareMigrationToAnalysisNodeFS }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -72,7 +72,7 @@ reclaimPolicy: Delete
   {{- end }}
 {{- end }}  
 ---
-{{- if and .Values.AnalysisNodeFS.enable (eq .Values.K8SProvider "EKS") }}
+{{- if and .Values.AnalysisNodeFS.enable .Values.AnalysisNodeFS.EFSaccessPointID (eq .Values.K8SProvider "EKS") }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -306,4 +306,22 @@ spec:
     requests:
       storage: {{ .Values.size_extendproxy_data }}
   storageClassName: {{ .Values.DiskClassName }}
+{{- end }}
+---
+{{- if .Values.prepareMigrationToAnalysisNodeFS }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-shared-datadir-mig
+  namespace: {{ .Release.Namespace }} 
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.FileClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_shared_datadir }}
 {{- end }}

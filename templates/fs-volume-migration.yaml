@@ -1,0 +1,69 @@
+{{- if (and .Values.prepareMigrationToAnalysisNodeFS (not .Values.AnalysisNodeFS.enable)) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: save-pvc-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      securityContext:
+        fsGroup: 10001
+  {{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+  {{- end }}
+      restartPolicy: Never
+      containers:
+        - name: save2fs
+          image: "{{.Values.ConsoleAnalysisNodeImage.name}}:{{.Values.ConsoleAnalysisNodeImage.tag}}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            set -e
+            echo 'Check if required folders exist in source...'
+            for dir in common-data delivery deploy; do
+              if [ ! -d "/source/$dir" ]; then
+                echo "ERROR: Required folder '$dir' is missing from source!"
+                exit 1
+              fi
+            done
+            echo 'Copying...'
+            cd /source && tar cf - --exclude='./lost+found' . | tar xf - -C /dest/ --no-overwrite-dir
+            echo 'Done.'
+          volumeMounts:
+            - name: source
+              mountPath: /source
+            - name: dest
+              mountPath: /dest
+  {{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            runAsUser: 10001
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+  {{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+      volumes:
+        - name: source
+          persistentVolumeClaim:
+            claimName: pvc-shared-datadir
+        - name: dest
+          persistentVolumeClaim:
+            claimName: pvc-shared-datadir-mig
+{{- end }}

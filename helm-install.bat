@@ -1,1 +1,1 @@
-helm install castimaging-v3 --create-namespace --namespace castimaging-v3 --set version=3.5.6 .
+helm install castimaging-v3 --create-namespace --namespace castimaging-v3 --set version=3.5.7 .

@@ -1,7 +1,7 @@
 @echo off
 
 set NAMESPACE=castimaging-v3
-set NUMBER_OF_ANALYSYS_NODES=3
+set NUMBER_OF_ANALYSYS_NODES=1
 
 echo Scaling up... 
 
