@@ -175,7 +175,7 @@ spec:
               mountPath: /tmp
 {{- end }}
             - name: neo4jdata
-              mountPath: /logs
+              mountPath: /var/lib/neo4j/logs
               subPathExpr: logs
             - name: neo4jdata
               mountPath: /var/lib/neo4j/config/neo4j5_data
