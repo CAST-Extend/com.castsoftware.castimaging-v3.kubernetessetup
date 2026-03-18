@@ -81,7 +81,7 @@ AnalysisNodeFS:
     secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true
     shareName: cast-fileshare         # AKS specific, required if AKSsharedDatadirPV.create is set to true
 #
-# Maximum number of parallel analysis jobs per analysis node (only available in Imaging >= 3.6.0)
+# Maximum number of parallel analysis jobs per analysis node
 #
 MaxParallelAnalysisPerNode: 2
 #
