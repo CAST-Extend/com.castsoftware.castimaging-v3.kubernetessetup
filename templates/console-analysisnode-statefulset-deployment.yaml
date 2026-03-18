@@ -220,11 +220,11 @@ spec:
               value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
+            - name: NB_OF_THREADS_FOR_NODE 
+              value: {{ .Values.MaxParallelAnalysisPerNode }}
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
-            - name: NB_OF_THREADS_FOR_NODE 
-              value: {{ .Values.MaxParallelAnalysisPerNode }}
 {{- end }}
           image: "{{ .Values.ConsoleAnalysisNodeImage.name }}:{{ .Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleAnalysisNodeImage.pullPolicy }}"
