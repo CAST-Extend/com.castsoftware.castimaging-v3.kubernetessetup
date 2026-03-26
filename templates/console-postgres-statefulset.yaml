@@ -16,7 +16,7 @@ spec:
     imaging.service: console-postgres
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: castimaging
@@ -25,11 +25,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ConsolePostgresReplicaCount }}
+  serviceName: console-postgres
   selector:
     matchLabels:
       imaging.service: console-postgres
-  strategy:
-    type: Recreate
   template:
     metadata:
       annotations:
@@ -38,7 +37,7 @@ spec:
         console.network/aip-network: "true"
         app: castimaging
         imaging.service: console-postgres
-    spec:  
+    spec:
   {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
@@ -55,6 +54,7 @@ spec:
   {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
@@ -117,10 +117,10 @@ spec:
               mountPath: "/usr/share/postgresql/postgresql.conf.sample"
               subPath: postgresql.conf.sample
             - name: pginit
-              mountPath: "/docker-entrypoint-initdb.d/init-db.sh"               
+              mountPath: "/docker-entrypoint-initdb.d/init-db.sh"
               subPath: init-db.sh
             - name: dshm
-              mountPath: /dev/shm          
+              mountPath: /dev/shm
             - name: db-creds
               mountPath: /opt/secrets
               readOnly: true
@@ -129,12 +129,11 @@ spec:
               mountPath: /tmp
             - name: run
               mountPath: /var/run
-  {{- end }}               
-      restartPolicy: Always
+  {{- end }}
       volumes:
         - name: db-data
           persistentVolumeClaim:
-            claimName: db-data 
+            claimName: db-data
         - name: pgconf
           configMap:
             name: console-v3-postgresqlconf
@@ -144,7 +143,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: {{ .Values.postgres_shmsize }}            
+            sizeLimit: {{ .Values.postgres_shmsize }}
         - name: db-creds
           secret:
             secretName: imaging-pwd-sec

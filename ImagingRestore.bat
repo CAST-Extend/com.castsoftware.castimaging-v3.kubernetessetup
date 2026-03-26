@@ -12,8 +12,10 @@ set NAMESPACE=castimaging-v3
 set BACKUP_DIR=.\mybackupfolder
 set USE_OC=false
 set CLUSTER_CMD=kubectl
+set OPENSHIFT_CHECK="n"
+
 echo =========================================================================
-echo Imaging Kubernetes Restore Procedure
+echo Imaging Kubernetes Restore Procedure - SINGLE TENANT
 echo =========================================================================
 echo Namespace: %NAMESPACE%
 echo Backup Directory: %BACKUP_DIR%
@@ -31,7 +33,6 @@ if /i not "%CONTINUE%"=="YES" (
 )
 echo.
 REM Check if running on OpenShift
-set /p OPENSHIFT_CHECK="Are you running on OpenShift? (y/n): "
 if /i "%OPENSHIFT_CHECK%"=="y" (
     set USE_OC=true
     set %CLUSTER_CMD% exec=oc exec
@@ -42,6 +43,7 @@ if /i "%OPENSHIFT_CHECK%"=="y" (
 	set PG_DATA_PATH=/var/lib/postgresql/data
 )
 echo.
+
 echo =========================================================================
 echo Step 1: Restoring Analysis Node files...
 echo =========================================================================
@@ -72,17 +74,16 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         echo Checking if shared-dir.tar.gz exists...
         if exist "%BACKUP_DIR%\shared-dir.tar.gz" (
             echo Uploading shared-dir.tar.gz to !POD_NAME!...
-            %CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\shared-dir.tar.gz" !POD_NAME!:/opt/cast/shared/
+			type "%BACKUP_DIR%\shared-dir.tar.gz" | %CLUSTER_CMD% exec -n %NAMESPACE% !POD_NAME! -i -- sh -c "cat > /opt/cast/shared/shared-dir.tar.gz"
             if errorlevel 1 (
                 echo ERROR: Failed to upload shared-dir.tar.gz to !POD_NAME!
                 exit /b 1
             )
             
             echo Extracting shared-dir.tar.gz on !POD_NAME!...
-            %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -xzpf /opt/cast/shared/shared-dir.tar.gz -C /"
+            %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -xzpf /opt/cast/shared/shared-dir.tar.gz --strip-components=3 --ignore-failed-read -C /opt/cast/shared/"
             if errorlevel 1 (
-                echo ERROR: Failed to extract shared-dir.tar.gz on !POD_NAME!
-                exit /b 1
+                echo WARNING: issue encountered while extracting shared-dir.tar.gz on !POD_NAME!
             )
             
             echo Cleaning up shared-dir archive from !POD_NAME!...
@@ -99,17 +100,16 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
     echo Checking if !POD_NAME!-cast-dir.tar.gz exists...
     if exist "!CAST_BACKUP!" (
         echo Uploading !POD_NAME!-cast-dir.tar.gz to !POD_NAME!...
-        %CLUSTER_CMD% cp -n %NAMESPACE% "!CAST_BACKUP!" !POD_NAME!:/usr/share/CAST/cast-dir.tar.gz
+        type "!CAST_BACKUP!" | %CLUSTER_CMD% exec -n %NAMESPACE% !POD_NAME! -i -- sh -c "cat > /usr/share/CAST/cast-dir.tar.gz"
         if errorlevel 1 (
             echo ERROR: Failed to upload cast-dir.tar.gz to !POD_NAME!
             exit /b 1
         )
         
         echo Extracting cast-dir.tar.gz on !POD_NAME!...
-        %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -xzpf /usr/share/CAST/cast-dir.tar.gz -C /"
+        %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -xzpf /usr/share/CAST/cast-dir.tar.gz --strip-components=3 --ignore-failed-read -C /usr/share/CAST/"
         if errorlevel 1 (
-            echo ERROR: Failed to extract cast-dir.tar.gz on !POD_NAME!
-            exit /b 1
+            echo WARNING: issue encountered while extracting cast-dir.tar.gz on !POD_NAME!
         )
         
         echo Cleaning up cast-dir archive from !POD_NAME!...
@@ -124,6 +124,7 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
 )
 echo All Analysis Node files restored successfully.
 echo.
+:pgrestore
 echo =========================================================================
 echo Step 2: Restoring CSS Postgres instance...
 echo =========================================================================
@@ -155,7 +156,7 @@ if not "%POSTGRES_POD%"=="" (
         set PG_DATA_PATH=/var/lib/postgresql/data
     )
     echo Uploading all_databases.backup to postgres pod...
-    %CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\all_databases.backup" %POSTGRES_POD%:%PG_DATA_PATH%/
+	type "%BACKUP_DIR%\all_databases.backup" | %CLUSTER_CMD% exec -n %NAMESPACE% %POSTGRES_POD% -i -- sh -c "cat > %PG_DATA_PATH%/all_databases.backup"
     if errorlevel 1 (
         echo ERROR: Failed to upload all_databases.backup
         exit /b 1
@@ -166,7 +167,8 @@ if not "%POSTGRES_POD%"=="" (
     echo Restoring postgres databases from backup...
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "psql -U postgres -f %PG_DATA_PATH%/all_databases.backup > %PG_DATA_PATH%/postgres_restore.log 2>&1"
     if errorlevel 1 (
-        echo WARNING: Postgres restore may have encountered issues. Check log file.
+        echo ERROR: Postgres restore encountered issues. Check log file.
+        exit /b 1
     )
     echo.
     echo Running ANALYZE commands...
@@ -181,10 +183,12 @@ if not "%POSTGRES_POD%"=="" (
 ) else (
     echo WARNING: Could not find postgres pod, skipping postgres restore
 )
+:neo4j
 echo =========================================================================
 echo Step 3: Restoring Neo4j databases...
 echo =========================================================================
-:neo4j
+echo Creating/cleaning backup directory...
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "mkdir -p /var/lib/neo4j/config/neo4j5_data/backup && rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
 echo Creating temporary cypher scripts...
 (
 echo drop database neo4j if exists;
@@ -196,40 +200,71 @@ echo create database packagereference;
 echo stop database neo4j;
 echo stop database imaging;
 echo stop database packagereference;
-) > %BACKUP_DIR%\backup\neo4j_drop_create.cypher
+) > "%BACKUP_DIR%\backup\neo4j_drop_create.cypher"
 echo Starting restored databases...
 (
 echo start database neo4j;
 echo start database imaging;
 echo start database packagereference;
 echo show databases;
-) > %BACKUP_DIR%\backup\neo4j_start.cypher
-echo Uploading Neo4j backup files...
-%CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\backup" viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data
+) > "%BACKUP_DIR%\backup\neo4j_start.cypher"
+echo Uploading cypher scripts...
+%CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\backup\neo4j_drop_create.cypher"	viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data/backup/neo4j_drop_create.cypher
+if errorlevel 1 (
+    echo ERROR: Failed to upload neo4j_drop_create.cypher
+    exit /b 1
+)
+%CLUSTER_CMD% cp -n %NAMESPACE% "%BACKUP_DIR%\backup\neo4j_start.cypher" 		viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data/backup/neo4j_start.cypher
+if errorlevel 1 (
+    echo ERROR: Failed to upload neo4j_start.cypher
+    exit /b 1
+)
+echo Uploading Neo4j backup file...
+%CLUSTER_CMD% exec -n %NAMESPACE% viewer-neo4j-core-0 -i -- sh -c "cat > /var/lib/neo4j/config/neo4j5_data/neo4j.tar" < "%BACKUP_DIR%\backup\neo4j.tar"
 if errorlevel 1 (
     echo ERROR: Failed to upload Neo4j backup files
     exit /b 1
 )
+echo Expanding Neo4j backup files...
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "tar -xf /var/lib/neo4j/config/neo4j5_data/neo4j.tar --strip-components=5 -C /var/lib/neo4j/config/neo4j5_data/"
+if errorlevel 1 (
+    echo ERROR: Failed to expand Neo4j backup files
+    exit /b 1
+)
 echo Dropping and recreating Neo4j databases...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_drop_create.cypher"
+if errorlevel 1 (
+    echo ERROR: Failed to execute neo4j_drop_create.cypher
+    exit /b 1
+)
 del %BACKUP_DIR%\backup\neo4j_drop_create.cypher
 echo Restoring neo4j database...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j > /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if errorlevel 1 (
-    echo WARNING: Neo4j database restore may have encountered issues. Check log file.
+	echo ERROR: neo4j database restore encountered issues. Check neo4j_restore.log file.
+    %CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "%BACKUP_DIR%\neo4j_restore.log"
+    exit /b 1
 )
 echo Restoring imaging database...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if errorlevel 1 (
-    echo WARNING: Imaging database restore may have encountered issues. Check log file.
+	echo ERROR: imaging database restore encountered issues. Check neo4j_restore.log file.
+    %CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "%BACKUP_DIR%\neo4j_restore.log"
+    exit /b 1
 )
 echo Restoring packagereference database...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if errorlevel 1 (
-    echo WARNING: Packagereference database restore may have encountered issues. Check log file.
+	echo ERROR: packagereference database restore encountered issues. Check neo4j_restore.log file.
+    %CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "%BACKUP_DIR%\neo4j_restore.log"
+    exit /b 1
 )
 echo Starting databases...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_start.cypher"
+if errorlevel 1 (
+    echo ERROR: Failed to execute neo4j_start.cypher
+    exit /b 1
+)
 del %BACKUP_DIR%\backup\neo4j_start.cypher
 echo Executing permission scripts...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"neo4j\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/neo4j/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
@@ -238,7 +273,8 @@ echo Executing permission scripts...
 echo Downloading Neo4j restore log...
 %CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "%BACKUP_DIR%\neo4j_restore.log"
 echo Cleaning up archive files...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm /var/lib/neo4j/config/neo4j5_data/backup/*"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -f /var/lib/neo4j/config/neo4j5_data/neo4j.tar"
 echo Cleaning up Neo4j restore log from pod...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -f /var/lib/neo4j/logs/neo4j_restore.log"
 echo Restarting Neo4j pod...

@@ -1,1 +1,1 @@
-helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.5.7 .
+helm upgrade castimaging-v3 --namespace castimaging-v3 --set version=3.5.8 .

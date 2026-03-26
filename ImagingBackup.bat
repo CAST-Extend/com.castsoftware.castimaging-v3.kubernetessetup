@@ -13,17 +13,17 @@ set NAMESPACE=castimaging-v3
 set BACKUP_DIR=.\imaging_backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set BACKUP_DIR=%BACKUP_DIR: =0%
 set CLUSTER_CMD=kubectl
+set OPENSHIFT_CHECK="n"
 
 echo =========================================================================
-echo Imaging Kubernetes Backup Procedure
+echo Imaging Kubernetes Backup Procedure - SINGLE TENANT
 echo =========================================================================
 echo Namespace: %NAMESPACE%
 echo Backup Directory: %BACKUP_DIR%
 echo =========================================================================
 echo.
 
-REM Ask about OpenShift
-set /p OPENSHIFT_CHECK="Are you running on OpenShift? (y/n): "
+REM Check if running on OpenShift
 if /i "%OPENSHIFT_CHECK%"=="y" (
     set CLUSTER_CMD=oc
     echo Using OpenShift oc commands
@@ -83,11 +83,12 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         echo Connecting to !POD_NAME! and creating shared directory backup...
         %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -czpf /opt/cast/shared/shared-dir.tar.gz --exclude='/opt/cast/shared/shared-dir.tar.gz' --exclude='/opt/cast/shared/lost+found' /opt/cast/shared/*"
         if errorlevel 1 (
-            echo WARNING: Some files may have been skipped due to permissions
+            echo ERROR: Failed to create archive file
+            exit /b 1
         )
         
         echo Downloading shared-dir.tar.gz from !POD_NAME!...
-        %CLUSTER_CMD% cp %NAMESPACE%/!POD_NAME!:/opt/cast/shared/shared-dir.tar.gz "%BACKUP_DIR%\shared-dir.tar.gz"
+        %CLUSTER_CMD% exec !POD_NAME! -n %NAMESPACE% -- cat /opt/cast/shared/shared-dir.tar.gz > "%BACKUP_DIR%\shared-dir.tar.gz"
         if errorlevel 1 (
             echo ERROR: Failed to download shared-dir.tar.gz from !POD_NAME!
             exit /b 1
@@ -102,11 +103,12 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
     echo Connecting to !POD_NAME! and creating CAST directory backup...
     %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
     if errorlevel 1 (
-        echo WARNING: Some files may have been skipped due to permissions
+        echo ERROR: Failed to create archive file
+        exit /b 1
     )
     
     echo Downloading cast-dir.tar.gz from !POD_NAME!...
-    %CLUSTER_CMD% cp %NAMESPACE%/!POD_NAME!:/usr/share/CAST/cast-dir.tar.gz "%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
+    %CLUSTER_CMD% exec !POD_NAME! -n %NAMESPACE% -- cat /usr/share/CAST/cast-dir.tar.gz > "%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
     if errorlevel 1 (
         echo ERROR: Failed to download cast-dir.tar.gz from !POD_NAME!
         exit /b 1
@@ -137,13 +139,15 @@ if not "%POSTGRES_POD%"=="" (
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "mkdir -p %PG_DATA_PATH%/backup"
 
     echo Running pg_dumpall...
-    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "pg_dumpall -U operator -p 5432 -f %PG_DATA_PATH%/backup/all_databases.backup > %PG_DATA_PATH%/backup/postgres_backup.log 2>&1"
+    %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "pg_dumpall -v -U operator -p 5432 -f %PG_DATA_PATH%/backup/all_databases.backup > %PG_DATA_PATH%/backup/postgres_backup.log 2>&1"
     if errorlevel 1 (
-        echo WARNING: pg_dumpall may have encountered issues. Check log file.
+        %CLUSTER_CMD% cp %NAMESPACE%/%POSTGRES_POD%:%PG_DATA_PATH%/backup/postgres_backup.log "%BACKUP_DIR%\postgres_backup.log"
+        echo ERROR: pg_dumpall has encountered issues. Check log file.
+        exit /b 1
     )
 
     echo Downloading all_databases.backup...
-    %CLUSTER_CMD% cp %NAMESPACE%/%POSTGRES_POD%:%PG_DATA_PATH%/backup/all_databases.backup "%BACKUP_DIR%\all_databases.backup"
+    %CLUSTER_CMD% exec %POSTGRES_POD% -n %NAMESPACE% -- cat %PG_DATA_PATH%/backup/all_databases.backup > "%BACKUP_DIR%\all_databases.backup
     if errorlevel 1 (
         echo ERROR: Failed to download all_databases.backup
         exit /b 1
@@ -167,12 +171,14 @@ echo =========================================================================
 
 echo Connecting to viewer-neo4j-core-0...
 echo Creating/cleaning backup directory...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "mkdir -p /var/lib/neo4j/config/neo4j5_data/backup && rm -f /var/lib/neo4j/config/neo4j5_data/backup/*"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "mkdir -p /var/lib/neo4j/config/neo4j5_data/backup && rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
 
 echo Running neo4j-admin database backup...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database backup --verbose --compress=true --include-metadata=all --pagecache=4G --to-path /var/lib/neo4j/config/neo4j5_data/backup --from=localhost:6362 '*' > /var/lib/neo4j/logs/backup_ImagingDatabases.log 2>&1"
 if errorlevel 1 (
-    echo WARNING: Neo4j backup may have encountered issues. Check log file.
+    %CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "%BACKUP_DIR%\backup_ImagingDatabases.log"
+    echo ERROR: Neo4j backup has encountered issues. Check log file.
+    exit /b 1
 )
 
 echo Inspecting backup files...
@@ -183,7 +189,7 @@ echo Downloading backup log...
 
 echo Downloading Neo4j backup files...
 if not exist "%BACKUP_DIR%\backup" mkdir "%BACKUP_DIR%\backup"
-%CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data/backup "%BACKUP_DIR%\backup"
+%CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- tar cf - /var/lib/neo4j/config/neo4j5_data/backup > "%BACKUP_DIR%\backup\neo4j.tar"
 if errorlevel 1 (
     echo ERROR: Failed to download Neo4j backup files
     exit /b 1

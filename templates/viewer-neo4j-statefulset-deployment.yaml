@@ -6,7 +6,6 @@ metadata:
     app: castimaging
     imaging.group: viewer
     imaging.service: viewer-neo4j
-    component: core
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -21,7 +20,6 @@ spec:
       name: https
   selector:
     imaging.service: viewer-neo4j
-    component: core
 ---
 apiVersion: "apps/v1"
 kind: StatefulSet
@@ -46,7 +44,6 @@ spec:
         app: castimaging
         imaging.group: viewer
         imaging.service: viewer-neo4j
-        component: core
     spec:
 {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
@@ -67,6 +64,7 @@ spec:
 {{- end }}
       securityContext:
         fsGroup: 7474
+        fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:

@@ -5,7 +5,6 @@ metadata:
   labels:
     app: castimaging
     imaging.service: console-analysis-node
-    component: core
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -14,7 +13,6 @@ spec:
       targetPort: 8089
   selector:
     imaging.service: console-analysis-node
-    component: core
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -39,7 +37,6 @@ spec:
         console.network/aip-network: "true"
         app: castimaging
         imaging.service: console-analysis-node
-        component: core
     spec:
 {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
@@ -56,6 +53,7 @@ spec:
 {{- end }}
       securityContext:
         fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
@@ -85,7 +83,7 @@ spec:
               fi
             done
             echo Copying...
-            # cp -af {{ .Values.anadir.datadirmount }}-mig/. {{ .Values.anadir.datadirmount }}/
+            # Copy {{ .Values.anadir.datadirmount }}-mig/. to {{ .Values.anadir.datadirmount }}/ excluding "lost+found"
             cd {{ .Values.anadir.datadirmount }}-mig && tar cf - --exclude='./lost+found' . | tar xf - -C {{ .Values.anadir.datadirmount }}/ --no-overwrite-dir
             echo Done.
   {{- end }}

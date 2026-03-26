@@ -10,17 +10,16 @@
 NAMESPACE="castimaging-v3"
 BACKUP_DIR="./imaging_backup_$(date +%Y%m%d_%H%M%S)"
 CLUSTER_CMD="kubectl"
+OPENSHIFT_CHECK="n"
 
 echo "========================================================================="
-echo "Imaging Kubernetes Backup Procedure"
+echo "Imaging Kubernetes Backup Procedure - SINGLE TENANT"
 echo "========================================================================="
 echo "Namespace: $NAMESPACE"
 echo "Backup Directory: $BACKUP_DIR"
 echo "========================================================================="
 echo ""
 
-# Ask about OpenShift
-read -p "Are you running on OpenShift? (y/n): " OPENSHIFT_CHECK
 if [[ "${OPENSHIFT_CHECK,,}" == "y" ]]; then
     CLUSTER_CMD="oc"
     echo "Using OpenShift oc commands"
@@ -80,39 +79,41 @@ for POD_FULL in $PODS; do
     # Only backup shared directory for console-analysis-node-core-0
     if [ "$POD_NAME" == "console-analysis-node-core-0" ]; then
         echo "Connecting to $POD_NAME and creating shared directory backup..."
-        $CLUSTER_CMD exec -it $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -czpf /opt/cast/shared/shared-dir.tar.gz --exclude='/opt/cast/shared/shared-dir.tar.gz' --exclude='/opt/cast/shared/lost+found' /opt/cast/shared/*"
+        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -czpf /opt/cast/shared/shared-dir.tar.gz --exclude='/opt/cast/shared/shared-dir.tar.gz' --exclude='/opt/cast/shared/lost+found' /opt/cast/shared/*"
         if [ $? -ne 0 ]; then
-            echo "WARNING: Some files may have been skipped due to permissions"
+            echo "ERROR: Failed to create archive file"
+            exit 1
         fi
         
         echo "Downloading shared-dir.tar.gz from $POD_NAME..."
-        $CLUSTER_CMD cp $NAMESPACE/$POD_NAME:/opt/cast/shared/shared-dir.tar.gz "$BACKUP_DIR/shared-dir.tar.gz"
+        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- cat /opt/cast/shared/shared-dir.tar.gz > "$BACKUP_DIR/shared-dir.tar.gz"
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to download shared-dir.tar.gz from $POD_NAME"
             exit 1
         fi
         
         echo "Cleaning up shared-dir backup file from $POD_NAME..."
-        $CLUSTER_CMD exec -it $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm -f /opt/cast/shared/shared-dir.tar.gz"
+        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm -f /opt/cast/shared/shared-dir.tar.gz"
         echo ""
     fi
     
     # Backup CAST directory for all pods
     echo "Connecting to $POD_NAME and creating CAST directory backup..."
-    $CLUSTER_CMD exec -it $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
+    $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
     if [ $? -ne 0 ]; then
-        echo "WARNING: Some files may have been skipped due to permissions"
+        echo "ERROR: Failed to create archive file"
+        exit 1
     fi
     
     echo "Downloading cast-dir.tar.gz from $POD_NAME..."
-    $CLUSTER_CMD cp $NAMESPACE/$POD_NAME:/usr/share/CAST/cast-dir.tar.gz "$BACKUP_DIR/$POD_NAME-cast-dir.tar.gz"
+    $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- cat /usr/share/CAST/cast-dir.tar.gz > "$BACKUP_DIR/$POD_NAME-cast-dir.tar.gz"
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to download cast-dir.tar.gz from $POD_NAME"
         exit 1
     fi
     
     echo "Cleaning up cast-dir backup file from $POD_NAME..."
-    $CLUSTER_CMD exec -it $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm -f /usr/share/CAST/cast-dir.tar.gz"
+    $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm -f /usr/share/CAST/cast-dir.tar.gz"
     
     echo "Backup for $POD_NAME completed successfully."
     echo ""
@@ -134,16 +135,17 @@ if [ -n "$POSTGRES_POD" ]; then
     echo ""
 
     echo "Creating backup directory in postgres pod..."
-    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "mkdir -p $PG_DATA_PATH/backup"
+    $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "mkdir -p $PG_DATA_PATH/backup"
 
     echo "Running pg_dumpall..."
-    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "pg_dumpall -U operator -p 5432 -f $PG_DATA_PATH/backup/all_databases.backup > $PG_DATA_PATH/backup/postgres_backup.log 2>&1"
+    $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "pg_dumpall -v -U operator -p 5432 -f $PG_DATA_PATH/backup/all_databases.backup > $PG_DATA_PATH/backup/postgres_backup.log 2>&1"
     if [ $? -ne 0 ]; then
-        echo "WARNING: pg_dumpall may have encountered issues. Check log file."
+        echo "ERROR: pg_dumpall has encountered issues. Check log file."
+        exit 1
     fi
 
     echo "Downloading all_databases.backup..."
-    $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/backup/all_databases.backup "$BACKUP_DIR/all_databases.backup"
+    $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- cat $PG_DATA_PATH/backup/all_databases.backup > "$BACKUP_DIR/all_databases.backup"
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to download all_databases.backup"
         exit 1
@@ -153,7 +155,7 @@ if [ -n "$POSTGRES_POD" ]; then
     $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/backup/postgres_backup.log "$BACKUP_DIR/postgres_backup.log"
 
     echo "Cleaning up backup files from postgres pod..."
-    $CLUSTER_CMD exec -it $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "rm -rf $PG_DATA_PATH/backup"
+    $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "rm -rf $PG_DATA_PATH/backup"
 
     echo "Postgres backup completed successfully."
     echo ""
@@ -161,37 +163,38 @@ else
     echo "WARNING: Could not find postgres pod, skipping postgres backup"
 fi
 
-
 echo "========================================================================="
 echo "Step 3: Backing up Neo4j databases..."
 echo "========================================================================="
 
 echo "Connecting to viewer-neo4j-core-0..."
 echo "Creating/cleaning backup directory..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "mkdir -p /var/lib/neo4j/config/neo4j5_data/backup && rm -f /var/lib/neo4j/config/neo4j5_data/backup/*"
+$CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "mkdir -p /var/lib/neo4j/config/neo4j5_data/backup && rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
 
 echo "Running neo4j-admin database backup..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database backup --verbose --compress=true --include-metadata=all --pagecache=4G --to-path /var/lib/neo4j/config/neo4j5_data/backup --from=localhost:6362 '*' > /var/lib/neo4j/logs/backup_ImagingDatabases.log 2>&1"
+$CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database backup --verbose --compress=true --include-metadata=all --pagecache=4G --to-path /var/lib/neo4j/config/neo4j5_data/backup --from=localhost:6362 '*' > /var/lib/neo4j/logs/backup_ImagingDatabases.log 2>&1"
 if [ $? -ne 0 ]; then
-    echo "WARNING: Neo4j backup may have encountered issues. Check log file."
+    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "$BACKUP_DIR/backup_ImagingDatabases.log"
+    echo "ERROR: Neo4j backup has encountered issues. Check log file."
+    exit 1
 fi
 
 echo "Inspecting backup files..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database backup --inspect-path=/var/lib/neo4j/config/neo4j5_data/backup"
+$CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database backup --inspect-path=/var/lib/neo4j/config/neo4j5_data/backup"
 
 echo "Downloading backup log..."
 $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "$BACKUP_DIR/backup_ImagingDatabases.log"
 
 echo "Downloading Neo4j backup files..."
 mkdir -p "$BACKUP_DIR/backup"
-$CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/config/neo4j5_data/backup "$BACKUP_DIR/backup"
+$CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- tar cf - /var/lib/neo4j/config/neo4j5_data/backup > "$BACKUP_DIR/backup/neo4j.tar"
 if [ $? -ne 0 ]; then
     echo "ERROR: Failed to download Neo4j backup files"
     exit 1
 fi
 
 echo "Cleaning up backup files from neo4j pod..."
-$CLUSTER_CMD exec -it viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
+$CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
 
 echo "Neo4j backup completed successfully."
 echo ""

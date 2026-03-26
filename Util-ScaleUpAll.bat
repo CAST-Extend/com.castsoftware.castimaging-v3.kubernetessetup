@@ -4,7 +4,7 @@ set NAMESPACE=castimaging-v3
 
 echo Scaling up... 
 
-kubectl scale deployment  console-postgres               --replicas=1 -n %NAMESPACE%
+kubectl scale statefulset  console-postgres               --replicas=1 -n %NAMESPACE%
 timeout /t 20 /nobreak >nul
 kubectl scale deployment  console-sso-service            --replicas=1 -n %NAMESPACE%
 timeout /t 10 /nobreak >nul

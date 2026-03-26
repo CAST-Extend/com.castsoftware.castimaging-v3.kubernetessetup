@@ -61,11 +61,13 @@ spec:
       securityContext:
   {{- if .Values.RestrictedSecurityMode }}
         fsGroup: 33
+        fsGroupChangePolicy: OnRootMismatch
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
   {{- else }}
         fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
   {{- end }}                    
       containers:
         - env:

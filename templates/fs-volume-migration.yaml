@@ -1,3 +1,61 @@
+# ******************************************************************************
+# Migration to FileStorage:
+# This procedure can be used to convert the pvc-shared-datadir PVC 
+#    from a DiskStorage to a FileStorage type on an existing deployment
+# Important notes: 
+#    - During this procedure, analysis-node will be down but Console, Dashboards
+#      and Imaging Viewer will remain available
+#    - Below volumes should have enough space left (50% free recommended) to temporarily store their backup archive:
+#      => pvc-shared-datadir, castdir-console-analysis-node-core-0, db-data, neo4jdata-viewer-neo4j-core-0
+#      To check the remaining space left, run these commands respectively:
+#           kubectl exec -it console-analysis-node-core-0 -n castimaging-v3 -- df -h /opt/cast/shared
+#           kubectl exec -it console-analysis-node-core-0 -n castimaging-v3 -- df -h /usr/share/CAST
+#           kubectl exec -it console-postgres-0           -n castimaging-v3 -- df -h /var/lib/postgresql/data
+#           kubectl exec -it viewer-neo4j-core-0          -n castimaging-v3 -- df -h /var/lib/neo4j/config/neo4j5_data
+#      PVC size can easily be increased if required, for instance, to update the size of pvc-shared-datadir, run this interactive command:
+#           kubectl edit pvc pvc-shared-datadir -n castimaging-v3
+# ******************************************************************************
+#
+# Before you start, run a full instance backup (you can use ImagingBackup.bat / ImagingBackup.sh)
+#
+# 1) Run helm upgrade with these values set: 
+# --set prepareMigrationToAnalysisNodeFS=true --set AnalysisNodeReplicaCount=0 --set AnalysisNodeFS.enable=false
+# => this will scale down the analysis-node, create a pvc-shared-datadir-mig (FS) volume and run a job to copy the current volume content to pvc-shared-datadir-mig
+# This step may take a long time to complete depending on the volume of the data currently stored in your volume (~200MB/min transfer rate)
+#
+# 2) Check the save-pvc-data-xxxxx pod status - should be "Completed": 
+# Run "kubectl get pods -n castimaging-v3" to find its name
+# Run "kubectl logs save-pvc-data-xxxxx -n castimaging-v3"
+# If status is "Failed", 
+#   a) Fix any reported issue (can be caused for instance by a File Storage provisionning issue linked to a permission problem in your Cloud account)
+#   b) Delete the save-pvc-data job, the pvc-shared-datadir-mig and the castimaging-fs Storage Class:
+#      kubectl delete job save-pvc-data -n castimaging-v3
+#      kubectl delete pvc pvc-shared-datadir-mig -n castimaging-v3
+#      kubectl delete sc castimaging-fs
+#   c) Try again (run "helm upgrade..." again) with same value set:
+#      --set prepareMigrationToAnalysisNodeFS=true --set AnalysisNodeReplicaCount=0 --set AnalysisNodeFS.enable=false
+#      ...until no issues are reported in the log of the Job (pod showing the "Complete" status).
+#
+# 3) Once the save-pvc-data job has succeeded, delete it as well as the current pvc-shared-datadir pvc:
+# => Warning: to avoid unrecoverable data loss, do not delete the current pvc-shared-datadir unless the save-pvc-data job has succeeded
+# kubectl delete job save-pvc-data -n castimaging-v3
+# kubectl delete pvc pvc-shared-datadir -n castimaging-v3
+#
+# 4) Restart analysis-node - Run helm upgrade with:
+# --set prepareMigrationToAnalysisNodeFS=true --set AnalysisNodeReplicaCount=1 --set AnalysisNodeFS.enable=true
+# => this will restart the analysis-node with the new FileStorage PVC and copy the saved data from pvc-shared-datadir-mig to pvc-shared-datadir (~200MB/min transfer rate) using an init-container
+# This step will be completed when the analysis-node shows a "Running" status: it may take a long time to complete depending on the volume of the data on you analysis-node (~200MB/min transfer rate)
+#
+# 5) Perform an Imaging Health Check (open existing results)
+#
+# 6) Cleanup - Run helm upgrade with:
+# --set prepareMigrationToAnalysisNodeFS=false --set AnalysisNodeReplicaCount=1 --set AnalysisNodeFS.enable=true
+# => this will delete the pvc-shared-datadir-mig PVC and perform a final restart of the analysis-node
+#
+# 7) Finally, update your values.yaml file and set AnalysisNodeFS.enable to true
+#
+# ********************************************************************
+
 {{- if (and .Values.prepareMigrationToAnalysisNodeFS (not .Values.AnalysisNodeFS.enable)) }}
 apiVersion: batch/v1
 kind: Job
@@ -15,6 +73,7 @@ spec:
     spec:
       securityContext:
         fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
   {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}

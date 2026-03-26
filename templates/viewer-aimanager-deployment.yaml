@@ -59,6 +59,7 @@ spec:
 {{- end }}
       securityContext:
         fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
