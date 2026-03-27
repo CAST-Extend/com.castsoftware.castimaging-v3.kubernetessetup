@@ -4,8 +4,6 @@
 #    from a DiskStorage to a FileStorage type on an existing deployment
 # ******************************************************************************
 #
-# Before you start, run a full instance backup (you can use ImagingBackup.bat / ImagingBackup.sh)
-#
 # 1) Run helm upgrade with these values set: 
 # --set prepareMigrationToAnalysisNodeFS=true --set AnalysisNodeReplicaCount=0 --set AnalysisNodeFS.enable=false
 # => this will scale down the analysis-node, create a pvc-shared-datadir-mig (FS) volume and run a job to copy the current volume content to pvc-shared-datadir-mig
