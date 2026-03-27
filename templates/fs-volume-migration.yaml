@@ -2,18 +2,6 @@
 # Migration to FileStorage:
 # This procedure can be used to convert the pvc-shared-datadir PVC 
 #    from a DiskStorage to a FileStorage type on an existing deployment
-# Important notes: 
-#    - During this procedure, analysis-node will be down but Console, Dashboards
-#      and Imaging Viewer will remain available
-#    - Below volumes should have enough space left (50% free recommended) to temporarily store their backup archive:
-#      => pvc-shared-datadir, castdir-console-analysis-node-core-0, db-data, neo4jdata-viewer-neo4j-core-0
-#      To check the remaining space left, run these commands respectively:
-#           kubectl exec -it console-analysis-node-core-0 -n castimaging-v3 -- df -h /opt/cast/shared
-#           kubectl exec -it console-analysis-node-core-0 -n castimaging-v3 -- df -h /usr/share/CAST
-#           kubectl exec -it console-postgres-0           -n castimaging-v3 -- df -h /var/lib/postgresql/data
-#           kubectl exec -it viewer-neo4j-core-0          -n castimaging-v3 -- df -h /var/lib/neo4j/config/neo4j5_data
-#      PVC size can easily be increased if required, for instance, to update the size of pvc-shared-datadir, run this interactive command:
-#           kubectl edit pvc pvc-shared-datadir -n castimaging-v3
 # ******************************************************************************
 #
 # Before you start, run a full instance backup (you can use ImagingBackup.bat / ImagingBackup.sh)
