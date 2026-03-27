@@ -2,6 +2,9 @@
 # Migration to FileStorage:
 # This procedure can be used to convert the pvc-shared-datadir PVC 
 #    from a DiskStorage to a FileStorage type on an existing deployment
+# Important note: 
+#    - During this procedure, analysis-node will be down but Console, Dashboards
+#      and Imaging Viewer will remain available
 # ******************************************************************************
 #
 # 1) Run helm upgrade with these values set: 
