@@ -38,6 +38,7 @@ spec:
         app: castimaging
         imaging.service: console-postgres
     spec:
+      terminationGracePeriodSeconds: 120
   {{- if .Values.EnforceNodeAffinity }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
