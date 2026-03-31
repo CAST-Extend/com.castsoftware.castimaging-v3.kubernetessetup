@@ -232,11 +232,11 @@ spec:
                   - ALL
             env:
             - name: PUBLIC_URL
-{{- if .Values.ContextUrl.enable }}
+  {{- if .Values.ContextUrl.enable }}
               value: "{{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}"
-{{- else }}
+  {{- else }}
               value: "{{ .Values.FrontEndHost }}"
-{{- end }}
+  {{- end }}
             command:
             - /bin/sh
             - -c
