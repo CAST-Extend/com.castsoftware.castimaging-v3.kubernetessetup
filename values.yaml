@@ -85,7 +85,7 @@ AnalysisNodeFS:
 MaxParallelAnalysisPerNode: 2
 #
 # Enable/Disable application pre-upgrade backup
-ConsoleEnableBackup: "true"
+ConsoleEnableBackup: true
 #
 # CAST Storage Class names
 CreateStorageClass: true       # Default: true

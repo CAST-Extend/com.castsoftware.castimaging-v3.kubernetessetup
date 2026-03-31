@@ -221,7 +221,7 @@ spec:
             - name: NB_OF_THREADS_FOR_NODE 
               value: "{{ .Values.MaxParallelAnalysisPerNode }}"
             - name: ENABLE_BACKUP
-              value: "{{ .Values.ConsoleEnableBackup | default "true" }}"
+              value: "{{ .Values.ConsoleEnableBackup }}"
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
