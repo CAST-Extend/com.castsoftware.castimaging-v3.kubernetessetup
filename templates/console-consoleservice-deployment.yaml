@@ -73,7 +73,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
+          until curl -s --fail --max-time 5 http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
             echo "Waiting for console-control-panel to be healthy..."
             sleep 2
           done

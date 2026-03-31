@@ -180,10 +180,6 @@ spec:
           requests:
             cpu: 100m
             memory: 128Mi
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8080
         volumeMounts:
         - name: config
           mountPath: /etc/nginx/conf.d/default.conf

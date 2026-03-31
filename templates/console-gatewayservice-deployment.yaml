@@ -90,7 +90,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
+          until curl -s --fail --max-time 5 http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
             echo "Waiting for console-control-panel to be healthy..."
             sleep 2
           done
@@ -178,4 +178,85 @@ spec:
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec 
-{{- end }}         
+{{- end }}
+---
+{{- if .Values.FrontendHealthCheck }}
+#
+# Troubleshooting CronJob to monitor frontend service health.
+#
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: frontend-health-check
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.group: console
+    imaging.service: frontend-health-check
+spec:
+  schedule: "*/10 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    metadata:
+      labels:
+        app: castimaging
+        imaging.group: console
+        imaging.service: frontend-health-check
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 120
+      template:
+        metadata:
+          labels:
+            app: castimaging
+            imaging.group: console
+            imaging.service: frontend-health-check
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+          - name: curl
+            image: "{{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag}}"
+            imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            env:
+            - name: PUBLIC_URL
+{{- if .Values.ContextUrl.enable }}
+              value: "{{ .Values.FrontEndHost }}{{ .Values.ContextUrl.appcontext }}"
+{{- else }}
+              value: "{{ .Values.FrontEndHost }}"
+{{- end }}
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Keepalive request at $(date) on ${PUBLIC_URL}"
+              if curl -f -s -o /dev/null -w "Status: %{http_code}, Time: %{time_total}s\n" \
+                --max-time 30 \
+                --connect-timeout 10 \
+                "${PUBLIC_URL}/"; then
+                echo "✓ Root endpoint success"
+                exit 0
+              else
+                echo "✗ Root endpoint failed"
+                exit 1
+              fi
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                cpu: 100m
+                memory: 32Mi
+{{- end }}

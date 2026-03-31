@@ -82,8 +82,10 @@ AnalysisNodeFS:
     shareName: cast-fileshare         # AKS specific, required if AKSsharedDatadirPV.create is set to true
 #
 # Maximum number of parallel analysis jobs per analysis node
-#
 MaxParallelAnalysisPerNode: 2
+#
+# Enable/Disable application pre-upgrade backup
+ConsoleEnableBackup: "true"
 #
 # CAST Storage Class names
 CreateStorageClass: true       # Default: true
@@ -154,6 +156,12 @@ SMTP:
   SPRING_MAIL_PROTOCOL: smtp
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
+#
+##### Troubleshooting flags #####
+# FrontendHealthCheck cronjob to check Console public URL availablility (curl) every 10 min
+FrontendHealthCheck: false
+#################################
+#
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers
@@ -211,7 +219,7 @@ McpServerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.2.8"
+  tag: "1.2.9"
   pullPolicy: IfNotPresent  
 ConsolePostgresImage:
   name: postgres

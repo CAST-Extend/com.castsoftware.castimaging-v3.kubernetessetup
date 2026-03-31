@@ -126,12 +126,12 @@ spec:
             ls -l /etc/ssl/certs-postgres
 {{- end }}    
             echo "Services healthcheck."
-            until curl -s http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s --fail --max-time 5 http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-control-panel to be healthy..."
               sleep 2
             done
             echo "console-control-panel is healthy!"
-            until curl -s http://console-authentication-service:8092/actuator/health | grep -q '"status":"UP"'; do
+            until curl -s --fail --max-time 5 http://console-authentication-service:8092/actuator/health | grep -q '"status":"UP"'; do
               echo "Waiting for console-authentication-service to be healthy..."
               sleep 2
             done            
@@ -220,6 +220,8 @@ spec:
               value: "8092"
             - name: NB_OF_THREADS_FOR_NODE 
               value: "{{ .Values.MaxParallelAnalysisPerNode }}"
+            - name: ENABLE_BACKUP
+              value: "{{ .Values.ConsoleEnableBackup | default "true" }}"
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
