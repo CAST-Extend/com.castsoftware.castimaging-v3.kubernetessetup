@@ -157,10 +157,9 @@ SMTP:
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
 #
-##### Troubleshooting flags #####
-# FrontendHealthCheck cronjob to check Console public URL availablility (curl) every 10 min
+# Debugging flags
+# - FrontendHealthCheck cronjob to check Console public URL availablility (curl) every 10 min
 FrontendHealthCheck: false
-#################################
 #
 ####################################################################################
 
