@@ -62,6 +62,12 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
 {{- end }}
+{{- if .Values.EnforceBalancedAffinity }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true
@@ -91,7 +97,7 @@ spec:
 {{- end }}
         resources:
           {{- toYaml .Values.InitContainerResources | nindent 12 }}
-      - name: postgres-scripts
+      - name: postgres-scripts-ssl-setup
         image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
         imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
         env:
@@ -192,7 +198,7 @@ spec:
             - name: DASHBOARD_STANDALONE_ENABLED
               value: "false"
             - name: IMAGING_DOMAIN_SYNCHRO_ENABLED
-              value: "false"
+              value: "{{ .Values.IMAGING_DOMAIN_SYNCHRO_ENABLED }}"
 {{- if .Values.SMTP.enable }}
             - name: SPRING_MAIL_HOST
               value: "{{ .Values.SMTP.SPRING_MAIL_HOST }}"

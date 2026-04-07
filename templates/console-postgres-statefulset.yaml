@@ -52,6 +52,12 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorAppcastimaging | nindent 12 }}
   {{- end }}
+  {{- if .Values.EnforceBalancedAffinity }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+{{- end }}
   {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         fsGroup: 999

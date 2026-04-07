@@ -16,6 +16,27 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: license-extend-update-script
+  namespace: {{ .Release.Namespace }}
+data:
+  license-extend-update-script.sql: |
+{{- if and .Values.ExtendProxy.enable }}
+    update control_panel.settings SET extend_url='http://extendproxy:8085', modified_date=now();
+{{- end }}
+{{- if and .Values.ExtendProxy.enable .Values.ExtendApiKey }}
+    update control_panel.settings SET extend_url='http://extendproxy:8085', extend_apikey='{{ .Values.ExtendApiKey }}', modified_date=now();
+{{- end }}
+{{- if and (not .Values.ExtendProxy.enable) .Values.ExtendApiKey }}
+    update control_panel.settings SET extend_url='https://extend.castsoftware.com', extend_apikey='{{ .Values.ExtendApiKey }}', modified_date=now();
+{{- end }}
+{{- if .Values.ImagingLicense }}
+    update control_panel.settings SET license='{{ .Values.ImagingLicense }}', license_kind='{{ .Values.ImagingLicenseType }}', modified_date=now();
+{{- end }}
+    select license_kind, license, extend_url, extend_apikey from control_panel.settings;
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: contexturl-keycloak-update-script
   namespace: {{ .Release.Namespace }}
 data:

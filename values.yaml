@@ -20,6 +20,11 @@ FrontEndHost: https://myhostname.com  # hostname with no context path
 #                                    and no trailing "/" 
 #                                    E.g. https://myhostname.com 
 #
+# Optional: if not provided, ImagingLicense & ExtendApiKey will be expected to be provided in Console UI after deployment
+ImagingLicenseType: SCOPE_CD # SCOPE_CD ("byContributing Developers") or SCOPE_APP ("by Named Application")
+ImagingLicense:              # License key
+ExtendApiKey:
+#
 # Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
 CreateIngress: false
 CreateLoadBalancer: true
@@ -160,6 +165,9 @@ SMTP:
 # Debugging flags
 # - FrontendHealthCheck cronjob to check Console public URL availablility (curl) every 10 min
 FrontendHealthCheck: false
+#
+# Multi-tenant configuration
+IMAGING_DOMAIN_SYNCHRO_ENABLED: false
 #
 ####################################################################################
 
@@ -439,7 +447,51 @@ anadir:
 
 
 ##########################################################################################
-# Node selection - DEDICATED castimaging kubernetes nodes for XL scenario
+# EnforceBalancedAffinity flag
+# Will enforce better distribution of pods accross cluster nodes.
+# - prevents viewer-neo4j and console-analysisnode from running on same cluster node
+# - prevents 2 console-analysisnode instances from running on same cluster node
+# Important:
+#     - a cluster with a minimum of 2 usable nodes is required
+#     - add another cluster node per additional console-analysisnode you want to deploy
+##########################################################################################
+
+EnforceBalancedAffinity: false
+
+labelSelectorServiceAnalysisNode:
+  - labelSelector:
+      matchExpressions:
+      - key: imaging.service
+        operator: In
+        values:
+        - console-analysis-node
+    topologyKey: kubernetes.io/hostname
+
+labelSelectorServiceAnalysisNodeNeo4j:
+  - labelSelector:
+      matchExpressions:
+      - key: imaging.service
+        operator: In
+        values:
+        - console-analysis-node
+        - viewer-neo4j
+    topologyKey: kubernetes.io/hostname
+
+podAffinityGroupConsole:
+  - weight: 100
+    podAffinityTerm:
+      labelSelector:
+        matchExpressions:
+        - key: imaging.group
+          operator: In
+          values:
+          - console
+      topologyKey: kubernetes.io/hostname
+
+
+
+##########################################################################################
+# EnforceNodeAffinity - DEDICATED castimaging kubernetes nodes for XL scenario
 # 4 nodes minimum required:
 #    node 1: postgres
 #    node 2: console services
@@ -449,6 +501,7 @@ anadir:
 # All dedicated castimaging kubernetes nodes / nodepool should have:
 #                       -> taint: workload=castimaging:NoSchedule 
 #                       -> label: app: castimaging
+# Initially deploy with all replicas=0, then run Util-ScaleUpAllWithNodeAffinities.bat|sh
 ##########################################################################################
 
 # Set to true to enforce dedicated kubernetes node scenario

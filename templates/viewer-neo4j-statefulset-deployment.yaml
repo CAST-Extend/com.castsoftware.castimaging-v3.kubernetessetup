@@ -18,6 +18,9 @@ spec:
     - port: 7473
       targetPort: 7473
       name: https
+    - port: 8888
+      targetPort: 8888
+      name: upgrade
   selector:
     imaging.service: viewer-neo4j
 ---
@@ -61,6 +64,14 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorServicePostgresAnalysisNode | nindent 12 }}
             {{- toYaml .Values.labelSelectorGroupConsole | nindent 12 }}
+{{- end }}
+{{- if .Values.EnforceBalancedAffinity }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorServiceAnalysisNode | nindent 12 }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
 {{- end }}
       securityContext:
         fsGroup: 7474
@@ -154,6 +165,8 @@ spec:
               name: bolt
             - containerPort: 7473
               name: https
+            - containerPort: 8888
+              name: upgrade
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true

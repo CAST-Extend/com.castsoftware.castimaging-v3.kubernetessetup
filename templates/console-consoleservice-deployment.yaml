@@ -59,6 +59,12 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorGroupViewer | nindent 12 }}
 {{- end }}
+{{- if .Values.EnforceBalancedAffinity }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true
@@ -88,6 +94,50 @@ spec:
 {{- end }}
         resources:
           {{- toYaml .Values.InitContainerResources | nindent 12 }}
+      - name: postgres-scripts
+        image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+        imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+        env:
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: imaging-pwd-sec
+                key: operator-db-password
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Running context URL updates..."
+{{- if .Values.CustomPostgres.enable }}
+          psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
+          psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
+          psql -h {{ .Values.CustomPostgres.host }} -p {{ .Values.CustomPostgres.port }} -U operator -d postgres -f /home/imaging/sql/license-extend-update-script.sql
+{{- else }}
+          psql -h console-postgres -p 2285 -U operator -d postgres -f /home/imaging/sql/contexturl-controlpanel-update-script.sql
+          psql -h console-postgres -p 2285 -U operator -d keycloak -f /home/imaging/sql/contexturl-keycloak-update-script.sql
+          psql -h console-postgres -p 2285 -U operator -d postgres -f /home/imaging/sql/license-extend-update-script.sql
+{{- end }}
+          echo "Done."
+{{- if .Values.RestrictedSecurityMode }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+{{- end }}
+        resources:
+          {{- toYaml .Values.InitContainerResources | nindent 12 }}
+        volumeMounts:
+          - name: contexturl-controlpanel-update-script
+            mountPath: /home/imaging/sql/contexturl-controlpanel-update-script.sql
+            subPath: contexturl-controlpanel-update-script.sql
+          - name: contexturl-keycloak-update-script
+            mountPath: /home/imaging/sql/contexturl-keycloak-update-script.sql
+            subPath: contexturl-keycloak-update-script.sql
+          - name: license-extend-update-script
+            mountPath: /home/imaging/sql/license-extend-update-script.sql
+            subPath: license-extend-update-script.sql
       containers:
         - env:
             - name: HOST_CONSOLE
@@ -98,6 +148,10 @@ spec:
               value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
+            - name: HOST_AUTH_SERVICE
+              value: console-authentication-service
+            - name: PORT_AUTH_SERVICE
+              value: "8092"
           image: "{{ .Values.ConsoleServiceImage.name }}:{{ .Values.ConsoleServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleServiceImage.pullPolicy }}"
           name: console-service
@@ -143,6 +197,15 @@ spec:
               mountPath: /var/run
 {{- end }}
       volumes:
+        - name: contexturl-controlpanel-update-script
+          configMap:
+            name: contexturl-controlpanel-update-script
+        - name: contexturl-keycloak-update-script
+          configMap:
+            name: contexturl-keycloak-update-script
+        - name: license-extend-update-script
+          configMap:
+            name: license-extend-update-script
 {{- if .Values.RestrictedSecurityMode }}
         - name: tmp
           emptyDir: {}

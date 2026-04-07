@@ -17,3 +17,8 @@
 {{- if and .Values.UseApplicationGateway (ne .Values.K8SProvider "AKS") }}
   {{- fail "ERROR: UseApplicationGateway can only be used when K8SProvider is set to AKS." }}
 {{- end }}
+
+{{/* EnforceNodeAffinity or EnforceBalancedAffinity, not both */}}
+{{- if and .Values.EnforceNodeAffinity .Values.EnforceBalancedAffinity }}
+  {{- fail "ERROR: EnforceNodeAffinity and EnforceBalancedAffinity cannot both be set to true." }}
+{{- end }}
