@@ -9,6 +9,8 @@ scripts/
 ex_*
 kub-*
 .git
-*-priv.*
 imaging_backup*/
+*-priv.*
 *-priv/
+*-custom.*
+*-custom/
