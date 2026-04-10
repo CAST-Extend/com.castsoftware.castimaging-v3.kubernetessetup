@@ -237,12 +237,20 @@ spec:
           image: "{{ .Values.ConsoleAnalysisNodeImage.name }}:{{ .Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleAnalysisNodeImage.pullPolicy }}"
           name: console-analysis-node
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8089
               scheme: HTTP
-            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -252,7 +260,6 @@ spec:
               path: /actuator/health
               port: 8089
               scheme: HTTP
-            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
