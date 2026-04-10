@@ -25,6 +25,9 @@ spec:
     - name: "8090"
       port: 8090
       targetPort: 8090
+{{- if and (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) .Values.gatewayNodePort }}
+      nodePort: {{ .Values.gatewayNodePort }}
+{{- end }}
   selector:
     console.service: console-gateway-service
 {{- if (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) }}
