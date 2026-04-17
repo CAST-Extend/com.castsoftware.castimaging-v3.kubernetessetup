@@ -138,12 +138,20 @@ spec:
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}
 {{- end }}
+          startupProbe:
+            httpGet:
+              path: /
+              port: 7474
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /
               port: 7474
               scheme: HTTP
-            initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 10
             failureThreshold: 30
@@ -153,7 +161,6 @@ spec:
               path: /
               port: 7474
               scheme: HTTP
-            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 10
             failureThreshold: 30
@@ -187,13 +194,13 @@ spec:
 {{- end }}
             - name: neo4jdata
               mountPath: /var/lib/neo4j/logs
-              subPathExpr: logs
+              subPath: logs
             - name: neo4jdata
               mountPath: /var/lib/neo4j/config/neo4j5_data
-              subPathExpr: neo4jdata
+              subPath: neo4jdata
             - name: neo4jdata
               mountPath: /var/lib/neo4j/config/csv/archive
-              subPathExpr: csvarchive                    
+              subPath: csvarchive                    
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:
         - name: imagepull-sec

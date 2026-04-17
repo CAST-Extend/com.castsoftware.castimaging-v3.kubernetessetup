@@ -128,6 +128,14 @@ spec:
               value: console-sso-service
             - name: PORT_KEYCLOAK
               value: "8096"
+            - name: HOST_AUTH_SERVICE
+              value: console-authentication-service
+            - name: PORT_AUTH_SERVICE
+              value: "8092"
+            - name: HOST_CONSOLE
+              value: console-service
+            - name: PORT_CONSOLE
+              value: "8091"
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
               value: {{ .Values.ContextUrl.appcontext }}
@@ -135,12 +143,20 @@ spec:
           image: "{{ .Values.ConsoleGatewayServiceImage.name }}:{{ .Values.ConsoleGatewayServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleGatewayServiceImage.pullPolicy }}"
           name: console-gateway-service
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8090
               scheme: HTTP
-            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -150,7 +166,6 @@ spec:
               path: /actuator/health
               port: 8090
               scheme: HTTP
-            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20

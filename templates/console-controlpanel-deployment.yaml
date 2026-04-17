@@ -159,6 +159,8 @@ spec:
               value: console-control-panel
             - name: PORT_CONTROL_PANEL
               value: "8098"
+            - name: PORT_EUREKA
+              value: "8098"
 {{- if .Values.CustomPostgres.enable }}
             - name: DB_HOST
               value: {{ .Values.CustomPostgres.host }}
@@ -196,7 +198,7 @@ spec:
               value: /etc/ssl/certs-postgres/sslconfig.ini
 {{- end }}
             - name: DASHBOARD_STANDALONE_ENABLED
-              value: "false"
+              value: "{{ .Values.DASHBOARD_STANDALONE_ENABLED }}"
             - name: IMAGING_DOMAIN_SYNCHRO_ENABLED
               value: "{{ .Values.IMAGING_DOMAIN_SYNCHRO_ENABLED }}"
 {{- if .Values.SMTP.enable }}
@@ -221,12 +223,20 @@ spec:
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           name: console-control-panel
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8098
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8098
               scheme: HTTP
-            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -236,7 +246,6 @@ spec:
               path: /actuator/health
               port: 8098
               scheme: HTTP
-            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -258,6 +267,8 @@ spec:
           resources:
             {{- toYaml .Values.ControlPanelResources | nindent 12 }}
           volumeMounts:
+            - mountPath: {{ .Values.anadir.common }}
+              name: audit-trails
 {{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
@@ -271,6 +282,9 @@ spec:
 {{- end }}
       restartPolicy: Always
       volumes:
+        - name: audit-trails
+          persistentVolumeClaim:
+            claimName: pvc-controlpanel-audit-trails
         - name: contexturl-controlpanel-update-script
           configMap:
             name: contexturl-controlpanel-update-script

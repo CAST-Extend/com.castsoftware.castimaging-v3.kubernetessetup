@@ -203,4 +203,68 @@ spec:
           emptyDir: {}
         - name: run
           emptyDir: {}
-{{- end }}      
+{{- end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-init-job
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+{{- if .Values.EnforceNodeAffinity }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+{{- end }}
+      restartPolicy: Never
+      containers:
+        - name: keycloak-init
+          image: "{{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag}}"
+          env:
+            - name: KC_INTERNAL_URL
+              value: http://console-sso-service:8096/auth
+            - name: KC_USER
+              value: "admin"
+            - name: KC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: keycloak-admin-password
+            - name: KCADMIN_USERNAME
+              value: "{{ .Values.KCADMIN_USERNAME }}"
+            - name: KCADMIN_PASSWORD
+              value: "admin"
+          command: ["sh", "-c", "/init-keycloak.sh"]
+          volumeMounts:
+            - name: keycloak-init-script
+              mountPath: "/init-keycloak.sh"               
+              subPath: init-keycloak.sh
+{{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+{{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+      volumes:
+        - name: keycloak-init-script
+          configMap:
+            name: keycloak-init-script
+            defaultMode: 0775

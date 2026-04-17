@@ -155,12 +155,20 @@ spec:
           image: "{{ .Values.ConsoleServiceImage.name }}:{{ .Values.ConsoleServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleServiceImage.pullPolicy }}"
           name: console-service
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8091
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8091
               scheme: HTTP
-            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -170,7 +178,6 @@ spec:
               path: /actuator/health
               port: 8091
               scheme: HTTP
-            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -181,7 +188,7 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 100
+            runAsUser: 10001
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -190,6 +197,8 @@ spec:
           resources:
             {{- toYaml .Values.ConsoleServiceResources | nindent 12 }} 
           volumeMounts:
+            - mountPath: {{ .Values.anadir.datadirmount }}
+              name: shared-datadir
 {{- if .Values.RestrictedSecurityMode }}
             - name: tmp
               mountPath: /tmp
@@ -197,6 +206,9 @@ spec:
               mountPath: /var/run
 {{- end }}
       volumes:
+        - name: shared-datadir
+          persistentVolumeClaim:
+            claimName: pvc-shared-datadir
         - name: contexturl-controlpanel-update-script
           configMap:
             name: contexturl-controlpanel-update-script

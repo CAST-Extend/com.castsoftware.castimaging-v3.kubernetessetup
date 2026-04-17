@@ -7,7 +7,8 @@ export CLUSTER_NAME=castimaging
 export NODE_TYPE=t2.2xlarge
 
 eksctl create cluster --name "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --nodegroup-name "$CLUSTER_NAME-ng" \
-  --nodes-min 2 --nodes-max 4 --node-type "$NODE_TYPE" --nodes 2 --node-volume-size 100 --ssh-access --with-oidc
+  --nodes-min 2 --nodes-max 4 --node-type "$NODE_TYPE" --nodes 2 --node-volume-size 100 --ssh-access --with-oidc \
+  --zones ${AWS_DEFAULT_REGION}a,${AWS_DEFAULT_REGION}b --node-zones ${AWS_DEFAULT_REGION}b
 
 eksctl utils associate-iam-oidc-provider --cluster "$CLUSTER_NAME" --approve
 eksctl update addon --name vpc-cni --cluster "$CLUSTER_NAME"

@@ -67,8 +67,8 @@ spec:
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
-      initContainers:     
-{{- if or .Values.RestrictedSecurityMode .Values.prepareMigrationToAnalysisNodeFS }}
+      initContainers:
+{{- if .Values.RestrictedSecurityMode }}    
         - name: init-folders
           image: "{{.Values.ConsoleAnalysisNodeImage.name}}:{{.Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{.Values.ConsoleAnalysisNodeImage.pullPolicy}}"
@@ -76,36 +76,11 @@ spec:
           - /bin/bash
           - -c
           - |
-  {{- if .Values.RestrictedSecurityMode }}
             rm -rf /carl-volume/*
             cp -r /home/carl/* /carl-volume/ || true
-  {{- end }}
-  {{- if .Values.prepareMigrationToAnalysisNodeFS }}
-            set -e
-            echo Starting migration to FS...
-            echo Check if required folders exist in source...
-            for dir in common-data delivery deploy; do
-              if [ ! -d "{{ .Values.anadir.datadirmount }}-mig/$dir" ]; then
-                echo  "ERROR: Required folder '$dir' is missing from source!"
-                exit 1
-              fi
-            done
-            echo Copying...
-            # Copy {{ .Values.anadir.datadirmount }}-mig/. to {{ .Values.anadir.datadirmount }}/ excluding "lost+found"
-            cd {{ .Values.anadir.datadirmount }}-mig && tar cf - --exclude='./lost+found' . | tar xf - -C {{ .Values.anadir.datadirmount }}/ --no-overwrite-dir
-            echo Done.
-  {{- end }}
           volumeMounts:
-  {{- if .Values.RestrictedSecurityMode }}
             - name: carl-dir
               mountPath: /carl-volume
-  {{- end }}
-  {{- if .Values.prepareMigrationToAnalysisNodeFS }}
-            - mountPath: {{ .Values.anadir.datadirmount }}
-              name: shared-datadir
-            - mountPath: {{ .Values.anadir.datadirmount }}-mig
-              name: shared-datadir-mig
-  {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 10001
@@ -311,11 +286,6 @@ spec:
           emptyDir: {}
         - name: run
           emptyDir: {}
-{{- end }}
-{{- if .Values.prepareMigrationToAnalysisNodeFS }}
-        - name: shared-datadir-mig
-          persistentVolumeClaim:
-            claimName: pvc-shared-datadir-mig
 {{- end }}
         - name: shared-datadir
           persistentVolumeClaim:

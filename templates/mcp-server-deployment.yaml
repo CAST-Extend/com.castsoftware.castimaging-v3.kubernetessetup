@@ -89,12 +89,20 @@ spec:
           imagePullPolicy: "{{ .Values.McpServerImage.pullPolicy }}"
           command: ['sh', '-c', "/app/init.sh"]
           name: mcp-server
+          startupProbe:
+            httpGet:
+              path: /mcp/healthcheck
+              port: 8282
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /mcp/healthcheck
               port: 8282
               scheme: HTTP
-            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
@@ -104,7 +112,6 @@ spec:
               path: /mcp/healthcheck
               port: 8282
               scheme: HTTP
-            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
