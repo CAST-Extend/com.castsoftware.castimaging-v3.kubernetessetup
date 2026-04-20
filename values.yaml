@@ -294,7 +294,7 @@ McpServerImage:
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.2.7.295"
+  tag: "2.2.7"
   pullPolicy: IfNotPresent 
 #
 # Optional - this image is needed when UseCookieAdapter is set to true,
