@@ -200,7 +200,7 @@ spec:
             - name: PGPORT
               value: "{{ .Values.CustomPostgres.port }}"             
             - name: POSTGRES_USER
-              value: postgres
+              value: "{{ .Values.CustomPostgres.adminlogin }}" 
             - name: POSTGRES_DB
               value: postgres
 

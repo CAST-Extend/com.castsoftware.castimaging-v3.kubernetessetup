@@ -97,11 +97,12 @@ DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
 #
 # Postgres
-CastStorageService: # If enabled, postgres will be deployed in this helm chart
+CastStorageService: # If enabled, embedded postgres will be deployed
   enable: true
 CustomPostgres:
-  enable: false     # If enabled, external postgres server will be used, init-db-custom-pg.sh from console-postgres-configmap.yaml will be executed
+  enable: false     # If enabled, external postgres server will be used, init-db-custom-pg.sh will be executed
   host: mypostgreshostname
+  adminlogin: postgres
   port: 2285
 #
 # Neo4j memory configuration:

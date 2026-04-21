@@ -883,10 +883,6 @@ data:
           CREATE USER operator WITH PASSWORD '$OPERATOR_PASSWORD';
         END IF;
         
-        -- IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'guest') THEN
-        --   CREATE USER guest WITH PASSWORD '$GUEST_PASSWORD';
-        -- END IF;
-        
         IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'keycloak') THEN
           CREATE USER keycloak WITH PASSWORD '$KEYCLOAK_PASSWORD';
         END IF;

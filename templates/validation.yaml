@@ -22,3 +22,8 @@
 {{- if and .Values.EnforceNodeAffinity .Values.EnforceBalancedAffinity }}
   {{- fail "ERROR: EnforceNodeAffinity and EnforceBalancedAffinity cannot both be set to true." }}
 {{- end }}
+
+{{/* CastStorageService.enable or CustomPostgres.enable, not both */}}
+{{- if and .Values.CastStorageService.enable .Values.CustomPostgres.enable }}
+  {{- fail "ERROR: CastStorageService.enable and CustomPostgres.enable cannot both be set to true." }}
+{{- end }}
