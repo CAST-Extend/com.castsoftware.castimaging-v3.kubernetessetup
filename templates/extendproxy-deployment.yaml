@@ -26,6 +26,9 @@ spec:
     - name: "8085"
       port: 8085
       targetPort: 8085
+{{- if and .Values.CreateLoadBalancer .Values.ExtendProxy.port }}
+      nodePort: {{ .Values.ExtendProxy.port }}
+{{- end }}
   selector:
     console.service: extendproxy
   {{- if (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) }}
@@ -132,7 +135,7 @@ spec:
               value: "https://{{ .Values.ExtendProxy.exthostname }}/extendproxy"
     {{- end }}  
   {{- else }}
-              value: "http://{{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}:8085"
+              value: "http://{{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}:{{ .Values.ExtendProxy.port | default 8085 }}"
   {{- end }}
             - name: platform
               value: "linux_x64"

@@ -102,7 +102,7 @@ CastStorageService: # If enabled, embedded postgres will be deployed
 CustomPostgres:
   enable: false     # If enabled, external postgres server will be used, init-db-custom-pg.sh will be executed
   host: mypostgreshostname
-  adminlogin: postgres
+  adminlogin: postgres     # Store password in PostgresDbPassword variable
   port: 2285
 #
 # Neo4j memory configuration:
@@ -118,7 +118,8 @@ NEO4J_dbms_memory_transaction_total_max: 10G
 #      4) updating the password here in values.yaml with encoding
 #      5) running helm upgrade
 #   Encoding command on Linux: echo -n "mypassword" | base64
-PostgresDbPassword: cG9zdGdyZXM=
+PostgresDbPassword: cG9zdGdyZXM=    # This is the password for the "postgres" user in the embedded postgres database (if CastStorageService.enable=true) 
+                                    #                   or for the "CustomPostgres.adminlogin" user in the external postgres (if CustomPostgres.enable=true)
 KeycloakDbPassword: a2V5Y2xvYWs=
 OperatorDbPassword: Q2FzdEFJUA==
 #
