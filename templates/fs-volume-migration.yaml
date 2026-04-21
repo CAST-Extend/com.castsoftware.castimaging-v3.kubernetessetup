@@ -86,7 +86,7 @@ spec:
               fi
             done
             echo 'Copying...'
-            cd /source && tar cf - --exclude='./lost+found' . | tar xf - -C /dest/ --no-overwrite-dir
+            cd /source && tar cf - --ignore-failed-read --exclude='./lost+found' . | tar xf - -C /dest/ --no-overwrite-dir
             echo 'Done.'
           volumeMounts:
             - name: source
