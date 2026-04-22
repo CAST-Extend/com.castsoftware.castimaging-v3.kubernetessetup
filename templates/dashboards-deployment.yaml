@@ -162,6 +162,10 @@ spec:
               value: "8091"
             - name: eureka.instance.instanceId
               value: console-dashboards:8097
+{{- if .Values.DashboardsJavaToolOptions }}
+            - name: JAVA_TOOL_OPTIONS
+              value: "{{ .Values.DashboardsJavaToolOptions }}"
+{{- end }}
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
