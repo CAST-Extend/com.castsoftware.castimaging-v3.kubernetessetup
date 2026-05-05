@@ -65,8 +65,10 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
       securityContext:
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+{{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault

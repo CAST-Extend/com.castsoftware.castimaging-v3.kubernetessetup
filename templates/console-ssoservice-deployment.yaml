@@ -86,7 +86,7 @@ spec:
               mountPath: /keycloak-volume 
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 1000
+            runAsUser: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -167,13 +167,40 @@ spec:
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service
+          startupProbe:
+            httpGet:
+              path: /auth/health/ready
+              port: 9000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /auth/health/ready
+              port: 9000
+              scheme: HTTP
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /auth/health/ready
+              port: 9000
+              scheme: HTTP
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+            successThreshold: 1
           ports:
             - containerPort: 8080
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 1000
+            runAsUser: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:

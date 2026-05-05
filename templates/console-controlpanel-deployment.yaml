@@ -68,8 +68,10 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
       securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+{{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
@@ -255,10 +257,10 @@ spec:
               protocol: TCP
             - containerPort: 8098
               protocol: TCP
-{{- if .Values.RestrictedSecurityMode }}
           securityContext:
+            runAsUser: 65532
+{{- if .Values.RestrictedSecurityMode }}
             readOnlyRootFilesystem: true
-            runAsUser: 100
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -308,4 +310,4 @@ spec:
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  
-{{- end }}        
+{{- end }}

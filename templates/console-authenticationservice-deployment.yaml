@@ -72,29 +72,6 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}
-        - name: init-folders
-          image: "{{.Values.ConsoleAuthenticationServiceImage.name}}:{{.Values.ConsoleAuthenticationServiceImage.tag}}"
-          imagePullPolicy: "{{.Values.ConsoleAuthenticationServiceImage.pullPolicy}}"
-          command:
-          - /bin/sh
-          - -c
-          - |
-            rm -rf /cast-volume/*
-            cp -r /cast/* /cast-volume/ || true
-          volumeMounts:    
-            - name: cast-dir
-              mountPath: /cast-volume 
-          securityContext:
-            readOnlyRootFilesystem: true
-            runAsUser: 100
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            {{- toYaml .Values.InitContainerResources | nindent 12 }}
-{{- end }}
         - name: console-sso-control-panel-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -217,7 +194,7 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 100
+            runAsUser: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -227,8 +204,6 @@ spec:
             {{- toYaml .Values.AuthenticationServiceResources | nindent 12 }}
           volumeMounts:
 {{- if .Values.RestrictedSecurityMode }}
-            - name: cast-dir
-              mountPath: /cast
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -241,8 +216,6 @@ spec:
 {{- end }}
       volumes:
 {{- if .Values.RestrictedSecurityMode }}
-        - name: cast-dir
-          emptyDir: {}
         - name: tmp
           emptyDir: {}
         - name: run
