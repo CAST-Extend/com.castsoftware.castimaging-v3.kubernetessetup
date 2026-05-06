@@ -133,6 +133,70 @@ spec:
 {{- end }}
           resources:
             {{- toYaml .Values.InitContainerResources | nindent 12 }}
+        - name: neo4j-migration
+          image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
+          imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
+          env:
+            - name: NEO4J_BOLT_ENDPOINT
+              value: "bolt://viewer-neo4j:7687"
+            - name: NEO4J_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: imaging-pwd-sec
+                  key: neo4j-password
+          command:
+          - /bin/bash
+          - -c
+          - |
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            LOG_FILE="/tmp/migration_${TIMESTAMP}.log"
+
+            # Check if 'imaging' database exists
+            echo "Checking if 'imaging' database exists..."
+            DB_EXISTS=$(cypher-shell -u neo4j -p "$NEO4J_PASSWORD" -a "$NEO4J_BOLT_ENDPOINT" \
+                'SHOW DATABASES YIELD name RETURN name' 2>/dev/null | grep -w "imaging" | wc -l | tr -d '[:space:]')
+
+            if [ "$DB_EXISTS" = "0" ]; then
+                echo "'imaging' database does not exist. Skipping migration."
+                exit 0
+            fi
+
+            # Wait until 'imaging' database is ONLINE
+            echo "Waiting for 'imaging' database to become ONLINE..."
+            while true; do
+                DB_STATUS=$(cypher-shell -u neo4j -p "$NEO4J_PASSWORD" -a "$NEO4J_BOLT_ENDPOINT" \
+                    'SHOW DATABASE imaging YIELD name, currentStatus RETURN currentStatus' 2>/dev/null | tail -n 1 | tr -d '[:space:]"')
+
+                if [ "$DB_STATUS" = "online" ]; then
+                    echo "'imaging' database is ONLINE."
+                    break
+                fi
+                echo "Database status: ${DB_STATUS:-unknown}. Retrying in 5s..."
+                sleep 5
+            done
+
+            # Run neo4j migration
+            /var/lib/neo4j/config/migration/Neo4jdatamigrate --log "$LOG_FILE" --database neo4j --all --migrate --silent --host viewer-neo4j
+            echo "Migration completed."
+            echo "-------------------------------------------------"
+            echo "Migration Log"
+            echo "-------------------------------------------------"
+            cat "$LOG_FILE"
+            echo "-------------------------------------------------"
+{{- if .Values.RestrictedSecurityMode }}
+          volumeMounts:
+            - name: migration-tmp
+              mountPath: /tmp
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 7474
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
@@ -229,5 +293,7 @@ spec:
         - name: nginx-cache
           emptyDir: {}
         - name: nginx-run
+          emptyDir: {}
+        - name: migration-tmp
           emptyDir: {}
 {{- end }}
