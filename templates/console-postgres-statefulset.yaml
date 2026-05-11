@@ -57,7 +57,7 @@ spec:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
-{{- end }}
+  {{- end }}
   {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         fsGroup: 999
@@ -65,6 +65,40 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+  {{- end }}
+  {{- if .Values.CastStorageService.ssl }}
+      initContainers:
+        - name: generate-ssl-cert
+          image: "{{ .Values.ConsolePostgresImage.name }}:{{ .Values.ConsolePostgresImage.tag }}"
+          imagePullPolicy: "{{ .Values.ConsolePostgresImage.pullPolicy }}"
+          command:
+            - bash
+            - -c
+            - |
+              umask 177
+              openssl genrsa -out /var/lib/postgresql/ssl/server.key 2048
+              umask 133
+              openssl req -new -x509 -days 3650 -nodes \
+                -key /var/lib/postgresql/ssl/server.key \
+                -subj "/CN=console-postgres" \
+                -out /var/lib/postgresql/ssl/server.crt
+          volumeMounts:
+            - name: postgres-ssl
+              mountPath: /var/lib/postgresql/ssl
+          securityContext:
+            runAsUser: 999          # postgres uid — files are owned correctly at creation
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+    {{- if .Values.RestrictedSecurityMode }}
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+    {{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
   {{- end }}
       containers:
         - env:
@@ -84,6 +118,19 @@ spec:
             - name: POSTGRES_DB
               value: postgres
           image: "{{ .Values.ConsolePostgresImage.name }}:{{ .Values.ConsolePostgresImage.tag}}"
+  {{- if .Values.CastStorageService.ssl }}
+          args:
+            - "-c"
+            - "ssl=on"
+            - "-c"
+            - "ssl_cert_file=/var/lib/postgresql/ssl/server.crt"
+            - "-c"
+            - "ssl_key_file=/var/lib/postgresql/ssl/server.key"
+            - "-c"
+            - "ssl_min_protocol_version=TLSv1.2"
+            - "-c"
+            - "hba_file=/etc/postgresql/pg_hba.conf"
+  {{- end }}
           imagePullPolicy: "{{ .Values.ConsolePostgresImage.pullPolicy }}"
           name: console-postgres
           startupProbe:
@@ -136,6 +183,15 @@ spec:
             - name: db-creds
               mountPath: /opt/secrets
               readOnly: true
+  {{- if .Values.CastStorageService.ssl }}
+            - name: postgres-ssl
+              mountPath: /var/lib/postgresql/ssl
+              readOnly: true
+            - name: pghbaconf
+              mountPath: /etc/postgresql/pg_hba.conf
+              subPath: pg_hba.conf
+              readOnly: true
+  {{- end }}
   {{- if .Values.RestrictedSecurityMode }}
             - name: tmp
               mountPath: /tmp
@@ -159,6 +215,13 @@ spec:
         - name: db-creds
           secret:
             secretName: imaging-pwd-sec
+  {{- if .Values.CastStorageService.ssl }}
+        - name: postgres-ssl
+          emptyDir: {}
+        - name: pghbaconf
+          configMap:
+            name: console-v3-pghbaconf
+  {{- end }}
   {{- if .Values.RestrictedSecurityMode }}
         - name: tmp
           emptyDir: {}

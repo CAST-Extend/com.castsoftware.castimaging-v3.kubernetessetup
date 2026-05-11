@@ -96,11 +96,12 @@ CreateStorageClass: true       # Default: true
 DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
 #
-# Postgres
-CastStorageService: # If enabled, embedded postgres will be deployed
-  enable: true
+# Postgres: choose between CastStorageService (embedded postgres) OR CustomPostgres (connect to existing external server)
+CastStorageService:
+  enable: true      # Embedded postgres will be deployed
+  ssl: false        # SSL enforcement
 CustomPostgres:
-  enable: false     # If enabled, external postgres server will be used, init-db-custom-pg.sh will be executed
+  enable: false     # Existing external server will be used
   host: mypostgreshostname
   adminlogin: postgres     # Store password in PostgresDbPassword variable
   port: 2285
@@ -118,7 +119,7 @@ NEO4J_dbms_memory_transaction_total_max: 10G
 #      4) updating the password here in values.yaml with encoding
 #      5) running helm upgrade
 #   Encoding command on Linux: echo -n "mypassword" | base64
-PostgresDbPassword: cG9zdGdyZXM=    # This is the password for the "postgres" user in the embedded postgres database (if CastStorageService.enable=true) 
+PostgresDbPassword: cG9zdGdyZXM=    # This is the encoded password for the "postgres" user in the embedded postgres database (if CastStorageService.enable=true) 
                                     #                   or for the "CustomPostgres.adminlogin" user in the external postgres (if CustomPostgres.enable=true)
 KeycloakDbPassword: a2V5Y2xvYWs=
 OperatorDbPassword: Q2FzdEFJUA==

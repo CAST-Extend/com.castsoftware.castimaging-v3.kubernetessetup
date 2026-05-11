@@ -1,3 +1,4 @@
+{{- if .Values.CastStorageService.enable }}
 apiVersion: v1
 data:
   postgresql.conf.sample: |
@@ -828,6 +829,29 @@ metadata:
   name: console-v3-postgresqlconf
   namespace: {{ .Release.Namespace }}
 ---
+  {{- if .Values.CastStorageService.ssl }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: console-v3-pghbaconf
+  namespace: {{ .Release.Namespace }}
+data:
+  pg_hba.conf: |
+    # TYPE  DATABASE    USER  ADDRESS          METHOD
+    # Unix socket – used by pg_isready probes and init scripts
+    local   all         all                    trust
+    # Loopback – no SSL needed (intra-pod)
+    host    all         all   127.0.0.1/32     scram-sha-256
+    host    all         all   ::1/128          scram-sha-256
+    # All remote TCP connections: SSL mandatory
+    hostssl all         all   0.0.0.0/0        scram-sha-256
+    hostssl all         all   ::0/0            scram-sha-256
+    # Replication
+    local   replication all                    trust
+    host    replication all   127.0.0.1/32     scram-sha-256
+    host    replication all   ::1/128          scram-sha-256
+---
+  {{- end }}
 apiVersion: v1
 data:
   init-db.sh: |
@@ -856,7 +880,9 @@ kind: ConfigMap
 metadata:
   name: console-v3-init-db   
   namespace: {{ .Release.Namespace }}
+{{- end }}
 ---
+{{- if .Values.CustomPostgres.enable }}
 apiVersion: v1
 data:
   init-db-custom-pg.sh: |
@@ -910,3 +936,4 @@ kind: ConfigMap
 metadata:
   name: init-db-custom-pg   
   namespace: {{ .Release.Namespace }}
+{{- end }}
