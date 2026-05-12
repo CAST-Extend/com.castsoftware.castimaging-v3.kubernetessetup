@@ -1,23 +1,30 @@
 @echo off
 
+REM ##############################################################
+REM Batch Parameters
+REM ##############################################################
 set NAMESPACE=castimaging-v3
-
-REM Update the path to your custom values file
-REM Among the provided values: enable Extend Proxy and set its exthostname
+REM Helm action: install or upgrade
+set ACTION=install
+REM Bundle file to be uploaded. Leave empty to skip:
+set BUNDLE_FILE_PATH=C:\temp\linux-bundle\CastArchive_134230312386136230_linux_x64.extarchive
+REM Provide the path to your custom values file (will override values set in values.yaml):
 set CUSTOM_VALUES=.\values-custom.yaml
+REM ##############################################################
 
 setlocal enabledelayedexpansion
 
+kubectl create ns %NAMESPACE%
 echo ----------------------------------------------
-echo Installing helm chart...
+echo Running helm chart %ACTION%...
 echo ----------------------------------------------
-helm install %NAMESPACE% --create-namespace --namespace %NAMESPACE% -f %CUSTOM_VALUES% .
-kubectl rollout status deployment/console-service  --timeout=900s -n %NAMESPACE%
+helm %ACTION% %NAMESPACE% --namespace %NAMESPACE% -f %CUSTOM_VALUES% .
+kubectl rollout status deployment/extendproxy  --timeout=900s -n %NAMESPACE%
 
-echo Retrieving logs from pod extendproxy-0...
+echo Retrieving logs from pod extendproxy...
 kubectl logs -l imaging.service=extendproxy --tail=-1 --namespace %NAMESPACE% > "%TEMP%\extendproxy_logs.txt"
 if errorlevel 1 (
-    echo ERROR: Failed to retrieve logs from pod extendproxy-0.
+    echo ERROR: Failed to retrieve logs from pod extendproxy.
     exit /b 1
 )
 echo ----------------------------------------------
@@ -25,7 +32,7 @@ echo Extracting Apikey for Extend Proxy...
 echo ----------------------------------------------
 set "APIKEY="
 for /f "tokens=*" %%L in ('findstr /c:"Apikey for Extend Proxy:" "%TEMP%\extendproxy_logs.txt"') do (
-    for /f "tokens=5" %%K in ("%%L") do (
+    for /f "tokens=6" %%K in ("%%L") do (
         set "APIKEY=%%K"
     )
 )
@@ -61,9 +68,20 @@ if errorlevel 1 (
 )
 
 echo .
-kubectl logs -l imaging.service=extendproxy --tail=-1 --namespace %NAMESPACE% | findstr /c:"Extend Proxy Admin Center"
 echo ----------------------------------------------
-echo You can add this ExtendApiKey to the values-custom.yaml file for future use:
+kubectl logs -l imaging.service=extendproxy --tail=-1 --namespace %NAMESPACE% | findstr /c:"Admin Access url:"
 echo ExtendApiKey: !APIKEY!
 echo ----------------------------------------------
+
+if defined BUNDLE_FILE_PATH (
+	echo Getting EXTEND-PROXY-URL...
+	for /f "usebackq tokens=*" %%i in (`kubectl get deployment extendproxy -n %NAMESPACE% -o jsonpath^="{.spec.template.spec.containers[*].env[?(@.name==\"public_url\")].value}"`) do set EXTEND-PROXY-URL=%%i
+    echo ----------------------------------------------
+    echo Uploading extend bundle:
+    echo - File            : %BUNDLE_FILE_PATH%
+	echo - EXTEND-PROXY-URL: !EXTEND-PROXY-URL!
+    echo ----------------------------------------------
+    curl -H "x-cxproxy-apikey:!APIKEY!" -F "data=@%BUNDLE_FILE_PATH%" !EXTEND-PROXY-URL!/api/synchronization/bundle/upload
+)
+echo Done.
 endlocal

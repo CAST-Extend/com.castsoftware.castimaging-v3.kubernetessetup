@@ -145,7 +145,7 @@ metadata:
     imaging.service: console-analysis-node
 spec:
   accessModes:
-    - ReadWriteMany
+    - {{ .Values.SharedVolumeAccessMode | default "ReadWriteMany" }}
   storageClassName: {{ .Values.FileClassName }}
   resources:
     requests:
