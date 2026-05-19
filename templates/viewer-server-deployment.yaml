@@ -176,6 +176,7 @@ spec:
             done
 
             # Run neo4j migration
+            echo "Running migration..."
             /var/lib/neo4j/config/migration/Neo4jdatamigrate --log "$LOG_FILE" --database neo4j --all --migrate --silent --host viewer-neo4j
             echo "Migration completed."
             echo "-------------------------------------------------"
