@@ -8,28 +8,34 @@ version: 3.6.2
 #
 # Define the namespace here
 namespace: castimaging-v3
+
 #
 # Kubernetes Provider: 
 # - For Azure:  AKS
 # - For AWS:    EKS
 # - For Google: GKE
 K8SProvider: AKS
+
 #
-# External network access
-FrontEndHost: https://myhostname.com  # hostname with no context path 
-#                                    and no trailing "/" 
-#                                    E.g. https://myhostname.com 
-#
-# Optional: if not provided, ImagingLicense & ExtendApiKey will be expected to be provided in Console UI after deployment
+# ImagingLicense & ExtendApiKey (optional): if not provided, they will be expected to be provided in Console UI after deployment
 ImagingLicenseType: SCOPE_CD # SCOPE_CD ("byContributing Developers") or SCOPE_APP ("by Named Application")
 ImagingLicense:              # License key
 ExtendApiKey:
+
 #
-# Ingress & LoadBalancer creation (for console-gateway, extendproxy, mcp-server):
-CreateIngress: false
+# Application Networking:
+# Only one of CreateIngress, UseIstioGateway, UseApplicationGateway, UseGatewayAPI can be enabled at a time
+#
+FrontEndHost: https://myhostname.com  # hostname with no context path and no trailing "/"
+#                                       E.g. https://myhostname.com 
+# LoadBalancers:
 CreateLoadBalancer: true
 UseInternalLoadBalancer: false
-UseApplicationGateway: false  # Set to true if an Azure Application Gateway is used (to be created separately)
+#
+# Ingress:
+CreateIngress: false
+#
+# Istio:
 UseIstioGateway: false
 ExistingIstioGatewayName: ""  # Only provide a value if you want to use an existing istio Gateway
                               # > Example: ExistingIstioGatewayName: "aks-istio-ingress/gateway-wildcard"
@@ -37,6 +43,17 @@ ExistingIstioGatewayName: ""  # Only provide a value if you want to use an exist
 CustomIstioSelector:
 CustomIstioMainCredentialName:
 CustomIstioExtendCredentialName:
+#
+# Gateway API
+UseGatewayAPI: false
+Gateway:
+  create: true                    # false if using a shared cluster Gateway
+  name: castimaging-gateway       # name of the Gateway to attach to (only used when create=false)
+  namespace: ""                   # namespace of the Gateway to attach to (only used when create=false)
+  className: nginx                # GatewayClass — "nginx" for NGF
+#
+# Azure Application Gateway
+UseApplicationGateway: false  # Set to true if an Azure Application Gateway is used (to be created separately)
 #
 # Context URL
 ContextUrl:
@@ -48,17 +65,10 @@ ContextUrl:
 #  . If you want to update ContextUrl.enable or ContextUrl.appcontext variables while Imaging is already deployed
 #     1) Update values.yaml and run helm upgrade
 #     2) Restart all imaging services once (scale down / scale up all deployments/statefulsets)
-#
-# OPTIONAL - ExtendProxy
-ExtendProxy:
-  enable: false
-  exthostname: myextendhost.com
-#
-# OPTIONAL - MCP Server
-McpServer:
-  enable: false
+
 #
 # OPTIONAL - Use custom Trust Store in console-authentication-service to store certificate
+#
 UseCustomTrustStore: false
 auth:
   caCertificate: |
@@ -67,10 +77,14 @@ auth:
     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     -----END CERTIFICATE-----
+
 #
-# OPTIONAL - Access Private Repo with Secret
-UseImagePullSecrets: false
-Base64EncodedDockerconfigjson: 
+# CAST Storage Class names
+#
+CreateStorageClass: true       # Default: true
+DiskClassName: castimaging-ds  # Default: castimaging-ds
+FileClassName: castimaging-fs  # Default: castimaging-fs
+
 #
 # OPTIONAL - Enable shared File Storage for analysis-node
 # Important note: Extra cluster configuration is required before you can enable this feature
@@ -84,19 +98,10 @@ AnalysisNodeFS:
     create: false                     # AKS specific, set to true in cases where auto-provisioning cannot be used: explicit PV will be created
     secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true
     shareName: cast-fileshare         # AKS specific, required if AKSsharedDatadirPV.create is set to true
-#
-# Maximum number of parallel analysis jobs per analysis node
-MaxParallelAnalysisPerNode: 2
-#
-# Enable/Disable application pre-upgrade backup
-ConsoleEnableBackup: true
-#
-# CAST Storage Class names
-CreateStorageClass: true       # Default: true
-DiskClassName: castimaging-ds  # Default: castimaging-ds
-FileClassName: castimaging-fs  # Default: castimaging-fs
+
 #
 # Postgres: choose between CastStorageService (embedded postgres) OR CustomPostgres (connect to existing external server)
+#
 CastStorageService:
   enable: true      # Embedded postgres will be deployed
   ssl: false        # SSL enforcement
@@ -105,11 +110,7 @@ CustomPostgres:
   host: mypostgreshostname
   adminlogin: postgres     # Store password in PostgresDbPassword variable
   port: 2285
-#
-# Neo4j memory configuration:
-NEO4J_server_memory_heap_initial__size: 12G
-NEO4J_server_memory_heap_max__size: 12G
-NEO4J_dbms_memory_transaction_total_max: 10G
+
 #
 # Database passwords: 
 #   Updating any password after deployment requires:
@@ -129,6 +130,7 @@ Neo4jPassword: aW1hZ2luZw==
 # CAST Operator password also has to be encrypted using cast-imaging-encryption-tool.jar GUI tool
 #   available in Linux installer https://extend.castsoftware.com/timeline#/extension?id=com.castsoftware.imaging.all.docker&version=3.6.2-funcrel
 OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
+
 #
 # Keycloak service account password (user "admin"):
 #   Steps to update the keycloak admin password after deployment:
@@ -141,13 +143,44 @@ OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
 KeycloakAdminPassword: YWRtaW4=
 # Keycloak login name for UI login:
 KCADMIN_USERNAME: kcadmin
+
 #
+# OPTIONAL - ExtendProxy
+#
+ExtendProxy:
+  enable: false
+  exthostname: myextendhost.com
+
+#
+# OPTIONAL - MCP Server
+#
+McpServer:
+  enable: false
+
+#
+# Neo4j memory configuration:
+#
+NEO4J_server_memory_heap_initial__size: 12G
+NEO4J_server_memory_heap_max__size: 12G
+NEO4J_dbms_memory_transaction_total_max: 10G
+
+#
+# Maximum number of parallel analysis jobs per analysis node
+#
+MaxParallelAnalysisPerNode: 2
+#
+# Enable/Disable application pre-upgrade backup
+ConsoleEnableBackup: true
+
+# RestrictedSecurityMode:
 # If restricted security is enforced in your environment, set RestrictedSecurityMode to true
 # IMPORTANT: this setting cannot be changed after Imaging is deployed
 RestrictedSecurityMode: false
+
 #
-# Optional: UseCookieAdapter is only required when SAML authentication is enabled in combination with UseIstioGateway or CreateIngress
+# Optional (SAML): UseCookieAdapter is only required when SAML authentication is enabled in combination with UseIstioGateway or CreateIngress
 UseCookieAdapter: false
+
 #
 # SMTP settings (optional):
 # Encode SMTP password:
@@ -162,16 +195,23 @@ SMTP:
   SPRING_MAIL_PROTOCOL: smtp
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
-#
-# Debugging flags
-# - FrontendHealthCheck cronjob to check Console public URL availablility (curl) every 10 min
-FrontendHealthCheck: false
+
 #
 # Multi-tenant configuration
 IMAGING_DOMAIN_SYNCHRO_ENABLED: false
 #
 # Miscellaneous
 DASHBOARD_STANDALONE_ENABLED: false
+
+#
+# OPTIONAL - Access Private Repo with Secret
+UseImagePullSecrets: false
+Base64EncodedDockerconfigjson: 
+
+#
+# Debugging flags
+# - FrontendHealthCheck cronjob to check Console public URL availablility (curl) every 10 min
+FrontendHealthCheck: false
 ####################################################################################
 
 # Disk Storage (DS) and File Storage (FS) Drivers

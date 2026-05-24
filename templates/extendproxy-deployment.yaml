@@ -128,7 +128,7 @@ spec:
             - name: ext_public_url
               value: "https://extend.castsoftware.com"
             - name: public_url
-  {{- if or .Values.CreateIngress .Values.UseIstioGateway }}
+  {{- if or .Values.CreateIngress .Values.UseIstioGateway .Values.UseGatewayAPI }}
     {{- if (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
               value: "https://{{ .Values.ExtendProxy.exthostname }}"
     {{- else }}

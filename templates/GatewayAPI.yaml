@@ -1,0 +1,354 @@
+{{- if .Values.UseGatewayAPI }}
+# ********************************************************************
+# Prerequisite #1 - Use existing gateway
+#                   or Install NGINX Gateway Fabric on the cluster
+# ********************************************************************
+# kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
+# helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway
+# Verify:
+#   kubectl get gatewayclass
+#   kubectl get pods -n nginx-gateway
+# ********************************************************************
+# Prerequisite #2 - Create DNS record & TLS secrets
+# ********************************************************************
+# - Create DNS record pointing at the NGF LoadBalancer external IP / name:
+#     kubectl get svc -n nginx-gateway
+# - Create TLS Secret(s) in THIS namespace (Gateway listeners read certs
+#   from the Gateway's own namespace, or from another namespace if a
+#   ReferenceGrant is in place):
+#     kubectl create secret tls tls-secret-cast        --cert=cert-priv/myhostname.com/fullchain.pem        --key=cert-priv/myhostname.com/privkey.pem -n {{ .Release.Namespace }}
+#     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv/myextendhostname.com/fullchain.pem --key=cert-priv/myextendhostname.com/privkey.pem -n {{ .Release.Namespace }}
+# - Optional - for certificates that cannot be verified (self-signed / internal CA),
+#   store the cert in CAST auth-service:
+#     > set: UseCustomTrustStore: true in values.yaml
+#     > Insert the encoded certificate in auth.caCertificate in values.yaml
+#       or use "helm upgrade ... --set-file auth.caCertificate=ca.crt ..."
+# ********************************************************************
+# Notes on this template
+# ********************************************************************
+# - TLS lives on the Gateway listener, not on the HTTPRoute.
+# - If you already have a shared Gateway in the cluster, set
+#     Gateway.create: false
+#     Gateway.name: <shared-gw-name>
+#     Gateway.namespace: <shared-gw-namespace>
+#   and ensure the shared Gateway's listener allows routes from this
+#   namespace (allowedRoutes.namespaces.from: All or Selector).
+# - If you set Gateway.create: false to use an existing Gateway, that
+#   Gateway must have listeners named `https` (and `https-extend` if
+#   ExtendProxy.enable is true with a different hostname).
+# ********************************************************************
+
+{{- if and (not .Values.Gateway.create) (not .Values.Gateway.name) }}
+{{- fail "Gateway.create is false but Gateway.name is not set. Either enable Gateway.create or specify Gateway.name to attach to an existing Gateway." }}
+{{- end }}
+{{- $gwName := ternary .Values.Gateway.name "castimaging-gateway" (not .Values.Gateway.create) }}
+
+{{- if .Values.Gateway.create }}
+{{- $mainHost := (urlParse .Values.FrontEndHost).hostname }}
+{{- $extHost := "" }}
+{{- if .Values.ExtendProxy.enable }}
+{{- $extHost = regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
+{{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: castimaging-gateway
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  gatewayClassName: {{ .Values.Gateway.className | default "nginx" }}
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: {{ $mainHost }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: tls-secret-cast
+      allowedRoutes:
+        namespaces:
+          from: Same
+{{- if and .Values.ExtendProxy.enable $extHost (ne $extHost $mainHost) }}
+    # Separate listener only when extendproxy uses a DIFFERENT hostname
+    # (Option B in the prereqs). When the hostnames match (Option A),
+    # extendproxy shares the `https` listener and uses /extendproxy path
+    # matching on the HTTPRoute.
+    - name: https-extend
+      protocol: HTTPS
+      port: 443
+      hostname: {{ $extHost }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: tls-secret-cast-extend
+      allowedRoutes:
+        namespaces:
+          from: Same
+{{- end }}
+{{- end }}
+
+---
+# ====================================================================
+# Main route: console-gateway-service
+# ====================================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: castimaging-httproute
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - name: {{ $gwName }}
+      {{- if not .Values.Gateway.create }}
+      namespace: {{ .Values.Gateway.namespace | default .Release.Namespace }}
+      {{- end }}
+      sectionName: https
+  hostnames:
+    - {{ (urlParse .Values.FrontEndHost).hostname }}
+  rules:
+    - matches:
+      {{- if .Values.ContextUrl.enable }}
+        - path:
+            type: PathPrefix
+            value: {{ .Values.ContextUrl.appcontext }}
+      {{- else }}
+        - path:
+            type: PathPrefix
+            value: /
+      {{- end }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            hostname: {{ (urlParse .Values.FrontEndHost).hostname }}
+            {{- if .Values.ContextUrl.enable }}
+            # Strip the ContextUrl prefix so Spring's OAuth2 filters
+            # (which match on /oauth2/authorization/{id}, not
+            # /context/oauth2/authorization/{id}) work correctly.
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+            {{- end }}
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-Host
+                value: {{ (urlParse .Values.FrontEndHost).hostname }}
+              - name: X-Forwarded-Proto
+                value: https
+              - name: X-Forwarded-For
+                value: {{ (urlParse .Values.FrontEndHost).hostname }}
+              # NOTE: X-Forwarded-Prefix is intentionally NOT set. The CAST
+              # Spring backends build redirect URLs from FRONTEND_HOST /
+              # NGINX_HOST env vars (which already include the ContextUrl
+              # prefix).
+      backendRefs:
+        - name: console-gateway-service
+          port: 8090
+
+{{- if .Values.UseCookieAdapter }}
+---
+# ====================================================================
+# Auth route: cookie-adapter-service + console-gateway-service
+# Two rules, matched by most-specific-wins (no ordering dependency):
+#   - {context}/auth/<anything> -> cookie-adapter-service
+#   - {context}/auth (exact)    -> console-gateway-service
+# ====================================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: castimaging-auth-httproute
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - name: {{ $gwName }}
+      {{- if not .Values.Gateway.create }}
+      namespace: {{ .Values.Gateway.namespace | default .Release.Namespace }}
+      {{- end }}
+      sectionName: https
+  hostnames:
+    - {{ (urlParse .Values.FrontEndHost).hostname }}
+  rules:
+    # /auth/<anything> -> cookie-adapter (prefix match on the trailing slash)
+    - matches:
+      {{- if .Values.ContextUrl.enable }}
+        - path:
+            type: PathPrefix
+            value: {{ .Values.ContextUrl.appcontext }}/auth/
+      {{- else }}
+        - path:
+            type: PathPrefix
+            value: /auth/
+      {{- end }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            hostname: {{ (urlParse .Values.FrontEndHost).hostname }}
+
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-Host
+                value: {{ (urlParse .Values.FrontEndHost).hostname }}
+              - name: X-Forwarded-Proto
+                value: https
+              - name: X-Forwarded-For
+                value: {{ (urlParse .Values.FrontEndHost).hostname }}
+      backendRefs:
+        - name: cookie-adapter-service
+          port: 80
+    # /auth (exact) -> console-gateway
+    - matches:
+      {{- if .Values.ContextUrl.enable }}
+        - path:
+            type: Exact
+            value: {{ .Values.ContextUrl.appcontext }}/auth
+      {{- else }}
+        - path:
+            type: Exact
+            value: /auth
+      {{- end }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            hostname: {{ (urlParse .Values.FrontEndHost).hostname }}
+            {{- if .Values.ContextUrl.enable }}
+            # Exact-path match requires ReplaceFullPath (not ReplacePrefixMatch).
+            # As with the /auth/ prefix route above, X-Forwarded-Prefix is
+            # intentionally not set: Keycloak builds outbound URLs from
+            # KC_HOSTNAME (which must include /context when ContextUrl is enabled).
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /auth
+            {{- end }}
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-Host
+                value: {{ (urlParse .Values.FrontEndHost).hostname }}
+              - name: X-Forwarded-Proto
+                value: https
+              - name: X-Forwarded-For
+                value: {{ (urlParse .Values.FrontEndHost).hostname }}
+      backendRefs:
+        - name: console-gateway-service
+          port: 8090
+{{- end }}
+
+{{- if .Values.ExtendProxy.enable }}
+{{- $extHost := regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
+{{- $mainHost := (urlParse .Values.FrontEndHost).hostname }}
+---
+# ====================================================================
+# Extend proxy route
+# - If exthostname differs from FrontEndHost (Option B): attaches to the
+#   dedicated `https-extend` listener.
+# - If exthostname equals FrontEndHost (Option A): attaches to the shared
+#   `https` listener and uses /extendproxy path matching.
+# Strips the /extendproxy prefix before forwarding.
+# ====================================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: extendproxy-httproute
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - name: {{ $gwName }}
+      {{- if not .Values.Gateway.create }}
+      namespace: {{ .Values.Gateway.namespace | default .Release.Namespace }}
+      {{- end }}
+      {{- if and $extHost (ne $extHost $mainHost) }}
+      sectionName: https-extend
+      {{- else }}
+      sectionName: https
+      {{- end }}
+  hostnames:
+    - {{ $extHost }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /extendproxy
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            hostname: {{ $extHost }}
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-Host
+                value: {{ .Values.ExtendProxy.exthostname }}
+              - name: X-Forwarded-Proto
+                value: https
+              - name: X-Forwarded-For
+                value: {{ .Values.ExtendProxy.exthostname }}
+      backendRefs:
+        - name: extendproxy
+          port: 8085
+{{- end }}
+
+{{- if or (eq (.Values.Gateway.className | default "nginx") "nginx") (eq (.Values.Gateway.className | default "nginx") "ngf") }}
+---
+# ====================================================================
+# NGF-specific: raise client body size limits.
+# NGINX Gateway Fabric uses ClientSettingsPolicy for what was the
+# `proxy-body-size` annotation on the Ingress.
+# (Standard Gateway API has no portable equivalent yet.)
+#
+# Only rendered when Gateway.className is nginx/ngf. Other implementations
+# (istio, envoy-gateway, etc.) handle body size via their own resources.
+#
+# IMPORTANT: These are applied as post-install/post-upgrade hooks
+# so they run AFTER the HTTPRoutes they target are reconciled by NGF.
+# Without the hook, Helm applies them alphabetically (ClientSettingsPolicy
+# before HTTPRoute), NGF marks them TargetNotFound, and a policy in a
+# permanently failed state prevents the listener's server block from
+# being rendered in the data plane (causing TLS alert 112 / SNI rejection).
+# ====================================================================
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: castimaging-body-size
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: castimaging-httproute
+  body:
+    maxSize: 100m
+
+{{- if .Values.ExtendProxy.enable }}
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: extendproxy-body-size
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: extendproxy-httproute
+  body:
+    maxSize: 3072m
+{{- end }}
+{{- end }}
+
+{{- end }}
