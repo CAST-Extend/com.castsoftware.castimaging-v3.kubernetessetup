@@ -290,7 +290,7 @@ ConsoleGatewayServiceImage:
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.6.1_core8.4.10"
+  tag: "3.6.2_core8.4.10"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
