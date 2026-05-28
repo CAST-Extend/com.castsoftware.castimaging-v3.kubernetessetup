@@ -6,7 +6,7 @@ set NUMBER_OF_ANALYSYS_NODES=1
 echo Scaling up... 
 
 kubectl scale statefulset  console-postgres               --replicas=1     -n %NAMESPACE%
-kubectl rollout status deployment/console-postgres --timeout=0            -n %NAMESPACE% 
+kubectl rollout status statefulset/console-postgres --timeout=0            -n %NAMESPACE% 
 
 kubectl scale deployment  console-sso-service            --replicas=1     -n %NAMESPACE%
 kubectl rollout status deployment/console-sso-service --timeout=0         -n %NAMESPACE%
