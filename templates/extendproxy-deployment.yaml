@@ -95,30 +95,6 @@ spec:
         seccompProfile:
           type: RuntimeDefault
   {{- end }}
-      initContainers:
-  {{- if .Values.RestrictedSecurityMode }}
-        - name: init-folders
-          image: "{{.Values.ExtendProxyImage.name}}:{{.Values.ExtendProxyImage.tag}}"
-          imagePullPolicy: "{{.Values.ExtendProxyImage.pullPolicy}}"
-          command:
-          - /bin/bash
-          - -c
-          - |
-            rm -rf /opt-volume/*
-            cp -r /opt/* /opt-volume/ 
-          volumeMounts:    
-            - name: opt-dir
-              mountPath: /opt-volume 
-          securityContext:
-            readOnlyRootFilesystem: true
-            runAsUser: 1001
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            {{- toYaml .Values.InitContainerResources | nindent 12 }}
-  {{- end }}
       containers:
         - env:
             - name: host_port
@@ -158,8 +134,6 @@ spec:
             {{- toYaml .Values.ExtendProxyResources | nindent 12 }}
           volumeMounts:
   {{- if .Values.RestrictedSecurityMode }}
-            - name: opt-dir
-              mountPath: /opt
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -174,8 +148,6 @@ spec:
   {{- end }}
       volumes:
   {{- if .Values.RestrictedSecurityMode }}
-        - name: opt-dir
-          emptyDir: {}
         - name: tmp
           emptyDir: {}
         - name: run

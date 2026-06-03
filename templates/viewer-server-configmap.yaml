@@ -20,7 +20,7 @@ data:
     'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';\n        }\n\n
     \       location ~ ^/imaging(.*) {\n            index index.html;\n            try_files
     $1 $1/ /index.html;\n        }\n\n        location ^~ /imaging/api/ {\n            proxy_pass
-    \        http://localhost:9000/;\n        }\n\n        location ^~ /imaging/etl/api/
+    \        http://localhost:9000/;\n            proxy_read_timeout 1200s;\n        }\n\n        location ^~ /imaging/etl/api/
     {\n            proxy_pass         http://viewer-etl:9001/;\n
     \       }\n\n        location ^~ /imaging/neo4j/api/ {\n            proxy_pass
     \        http://localhost:8084/neo4j/api/;\n        }\n        \n        # Proxying

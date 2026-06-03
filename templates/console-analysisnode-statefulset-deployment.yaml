@@ -205,6 +205,10 @@ spec:
               value: "{{ .Values.MaxParallelAnalysisPerNode }}"
             - name: ENABLE_BACKUP
               value: "{{ .Values.ConsoleEnableBackup }}"
+            - name: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+              value: "4"
+            - name: SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE
+              value: "1"
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini

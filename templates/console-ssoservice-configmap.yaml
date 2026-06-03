@@ -1,6 +1,6 @@
 apiVersion: v1
 data:
-  init-keycloak.sh: | 
+  init-keycloak.sh: |
     #!/bin/sh
     set -e
 
@@ -9,6 +9,34 @@ data:
     ADMIN_PASS="${KC_PASSWORD:-admin}"
     KCADMIN_USER="${KCADMIN_USERNAME:-kcadmin}"
     KCADMIN_PASS="${KCADMIN_PASSWORD:-admin}"
+
+    # -- Helper: escape a string for safe embedding in JSON values ---------------
+    # Handles  \  "  and control characters that would break JSON syntax
+    json_escape() {
+      printf '%s' "$1" | sed -e 's/\\/\\\\/g' \
+                              -e 's/"/\\"/g' \
+                              -e 's/\t/\\t/g'
+    }
+
+    # -- Helper: obtain an admin access token (reused in steps 2 & 4) ------------
+    get_admin_token() {
+      _resp=$(curl -s \
+        -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "client_id=admin-cli" \
+        --data-urlencode "username=${ADMIN_USER}" \
+        --data-urlencode "password=${ADMIN_PASS}" \
+        --data-urlencode "grant_type=password")
+
+      _token=$(printf '%s' "$_resp" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+
+      if [ -z "$_token" ]; then
+        echo "      ✗ Failed to get access token. Check KC_USER / KC_PASSWORD."
+        echo "      Response: $_resp"
+        exit 1
+      fi
+      printf '%s' "$_token"
+    }
 
     echo "========================================="
     echo " CAST Imaging — Keycloak Admin Bootstrap"
@@ -24,37 +52,29 @@ data:
       echo "      ...not ready yet, retrying in 5s"
       sleep 5
     done
-    echo "      ? Keycloak is ready"
+    echo "      ✔ Keycloak is ready"
 
     # -- 2. Obtain admin access token --------------------------------------------
+    #    Uses --data-urlencode so &, =, +, %, spaces etc. in passwords are safe.
     echo "[2/5] Obtaining admin access token..."
-    TOKEN_RESPONSE=$(curl -sf \
-      -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
-      -H "Content-Type: application/x-www-form-urlencoded" \
-      -d "client_id=admin-cli" \
-      -d "username=${ADMIN_USER}" \
-      -d "password=${ADMIN_PASS}" \
-      -d "grant_type=password")
-
-    ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
-
-    if [ -z "$ACCESS_TOKEN" ]; then
-      echo "      ? Failed to get access token. Check KC_USER / KC_PASSWORD in .env"
-      exit 1
-    fi
-    echo "      ? Token obtained"
+    ACCESS_TOKEN=$(get_admin_token)
+    echo "      ✔ Token obtained"
 
     # -- 3. Check if kcadmin already exists (idempotent — safe on upgrades) ------
+    #    Uses -G --data-urlencode to build the query string so special chars
+    #    in KCADMIN_USER are percent-encoded instead of corrupting the URL.
     echo "[3/5] Checking if '${KCADMIN_USER}' already exists..."
-    EXISTING=$(curl -sf \
-      -X GET "${KEYCLOAK_URL}/admin/realms/master/users?username=${KCADMIN_USER}&exact=true" \
+    EXISTING=$(curl -sf -G \
+      --data-urlencode "username=${KCADMIN_USER}" \
+      --data-urlencode "exact=true" \
+      "${KEYCLOAK_URL}/admin/realms/master/users" \
       -H "Authorization: Bearer ${ACCESS_TOKEN}" \
       -H "Content-Type: application/json")
 
     USER_COUNT=$(echo "$EXISTING" | grep -o '"id"' | wc -l)
 
     if [ "$USER_COUNT" -gt 0 ]; then
-      echo "      ? '${KCADMIN_USER}' already exists — skipping (upgrade safe)"
+      echo "      ✔ '${KCADMIN_USER}' already exists — skipping (upgrade safe)"
       echo ""
       echo "========================================="
       echo " Bootstrap already done — nothing to do"
@@ -63,49 +83,49 @@ data:
     fi
 
     # -- 4. Create kcadmin user ---------------------------------------------------
+    #    JSON-escapes username and password so quotes, backslashes etc.
+    #    don't break the JSON payload.
     echo "[4/5] Creating user '${KCADMIN_USER}'..."
+    SAFE_USER=$(json_escape "$KCADMIN_USER")
+    SAFE_PASS=$(json_escape "$KCADMIN_PASS")
+
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
       -X POST "${KEYCLOAK_URL}/admin/realms/master/users" \
       -H "Authorization: Bearer ${ACCESS_TOKEN}" \
       -H "Content-Type: application/json" \
       -d "{
-        \"username\": \"${KCADMIN_USER}\",
+        \"username\": \"${SAFE_USER}\",
         \"enabled\": true,
         \"emailVerified\": true,
-        \"email\": \"${KCADMIN_USER}@internal.local\",
+        \"email\": \"${SAFE_USER}@internal.local\",
         \"credentials\": [
           {
             \"type\": \"password\",
-            \"value\": \"${KCADMIN_PASS}\",
+            \"value\": \"${SAFE_PASS}\",
             \"temporary\": true
           }
         ]
       }")
 
     if [ "$HTTP_STATUS" != "201" ]; then
-      echo "      ? Failed to create user (HTTP $HTTP_STATUS)"
+      echo "      ✗ Failed to create user (HTTP $HTTP_STATUS)"
       exit 1
     fi
-    echo "      ? User created (HTTP $HTTP_STATUS)"
+    echo "      ✔ User created (HTTP $HTTP_STATUS)"
 
-    # Refresh token
-    TOKEN_RESPONSE=$(curl -sf \
-      -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
-      -H "Content-Type: application/x-www-form-urlencoded" \
-      -d "client_id=admin-cli" \
-      -d "username=${ADMIN_USER}" \
-      -d "password=${ADMIN_PASS}" \
-      -d "grant_type=password")
-    ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+    # Refresh token (reuses the same safe helper)
+    ACCESS_TOKEN=$(get_admin_token)
 
     # -- 5. Assign REALM-level admin role ----------------------------------------
     # Using realm-level role (/role-mappings/realm) NOT client-level
     # Client-level role causes "You do not have permission" error in Keycloak UI
     echo "[5/5] Assigning realm-level admin role to '${KCADMIN_USER}'..."
 
-    # Get user ID
-    USER_ID=$(curl -sf \
-      -X GET "${KEYCLOAK_URL}/admin/realms/master/users?username=${KCADMIN_USER}&exact=true" \
+    # Get user ID  (uses -G --data-urlencode for the query string)
+    USER_ID=$(curl -sf -G \
+      --data-urlencode "username=${KCADMIN_USER}" \
+      --data-urlencode "exact=true" \
+      "${KEYCLOAK_URL}/admin/realms/master/users" \
       -H "Authorization: Bearer ${ACCESS_TOKEN}" \
       -H "Content-Type: application/json" \
       | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
@@ -122,24 +142,29 @@ data:
     echo "      Role    : $ROLE_NAME ($ROLE_ID)"
 
     # Assign realm-level role (not client-level)
+    # ROLE_ID and ROLE_NAME come from Keycloak's own API (UUIDs / ASCII names)
+    # so they don't need escaping, but we JSON-escape defensively.
+    SAFE_ROLE_ID=$(json_escape "$ROLE_ID")
+    SAFE_ROLE_NAME=$(json_escape "$ROLE_NAME")
+
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
       -X POST "${KEYCLOAK_URL}/admin/realms/master/users/${USER_ID}/role-mappings/realm" \
       -H "Authorization: Bearer ${ACCESS_TOKEN}" \
       -H "Content-Type: application/json" \
-      -d "[{\"id\": \"${ROLE_ID}\", \"name\": \"${ROLE_NAME}\"}]")
+      -d "[{\"id\": \"${SAFE_ROLE_ID}\", \"name\": \"${SAFE_ROLE_NAME}\"}]")
 
     if [ "$HTTP_STATUS" != "204" ]; then
-      echo "      ? Failed to assign role (HTTP $HTTP_STATUS)"
+      echo "      ✗ Failed to assign role (HTTP $HTTP_STATUS)"
       exit 1
     fi
-    echo "      ? Realm-level admin role assigned (HTTP $HTTP_STATUS)"
+    echo "      ✔ Realm-level admin role assigned (HTTP $HTTP_STATUS)"
 
     echo ""
     echo "========================================="
     echo " Bootstrap Complete!"
     echo "========================================="
-    echo " ? Service account : ${ADMIN_USER}   ? used by Auth service / .env only"
-    echo " ? Human admin     : ${KCADMIN_USER} ? login at /auth/admin"
+    echo " ✔ Service account : ${ADMIN_USER}   → used by  console-authentication-service"
+    echo " ✔ Human admin     : ${KCADMIN_USER} → login at /auth/admin"
     echo "========================================="
 
 kind: ConfigMap
