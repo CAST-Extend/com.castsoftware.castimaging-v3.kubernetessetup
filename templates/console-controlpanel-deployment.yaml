@@ -106,7 +106,7 @@ spec:
           - name: PGPASSWORD
             valueFrom:
               secretKeyRef:
-                name: imaging-pwd-sec
+                name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                 key: operator-db-password
         command:
         - /bin/sh
@@ -213,7 +213,7 @@ spec:
             - name: SPRING_MAIL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: smtp-password
             - name: SPRING_MAIL_PROTOCOL
               value: "{{ .Values.SMTP.SPRING_MAIL_PROTOCOL }}"

@@ -112,6 +112,22 @@ CustomPostgres:
   port: 2285
 
 #
+# Secrets - 2 options:
+# 1) You can provide the name of an existing Kubernetes Secret containing the required passwords:
+existingSecret: ""
+#    If provided, most password variables will be ignored (PostgresDbPassword, OperatorDbPassword, KeycloakDbPassword, Neo4jPassword, KeycloakAdminPassword, SPRING_MAIL_PASSWORD)
+#    with the exception of the OperatorDbPasswordCrypted2 variable which value is always required and used.
+#    WARNING: If you use an external secret, it MUST contain the exact following keys:
+#    - postgres-db-password
+#    - operator-db-password
+#    - guest-db-password
+#    - keycloak-db-password
+#    - keycloak-admin-password
+#    - neo4j-password
+#    - smtp-password (OPTIONAL)
+# 2) If existingSecret is left empty, the Helm chart will create a default secret named "imaging-pwd-sec" using the encoded variable values
+#    (PostgresDbPassword, OperatorDbPassword, KeycloakDbPassword, Neo4jPassword, KeycloakAdminPassword, SPRING_MAIL_PASSWORD) provided below
+#
 # Database passwords: 
 #   Updating any password after deployment requires:
 #      1) Ensuring Imaging is up and running
@@ -119,18 +135,18 @@ CustomPostgres:
 #      3) for the "operator" user only: updating the password in Console "Global configuration" / "CSS and Measurement settings" section
 #      4) updating the password here in values.yaml with encoding
 #      5) running helm upgrade
-#   Encoding command on Linux: echo -n "mypassword" | base64
+#   Encoding command for Linux: echo -n "mypassword" | base64
+#     for Windows (PowerShell): [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("mypassword"))
 PostgresDbPassword: cG9zdGdyZXM=    # This is the encoded password for the "postgres" user in the embedded postgres database (if CastStorageService.enable=true) 
                                     #                   or for the "CustomPostgres.adminlogin" user in the external postgres (if CustomPostgres.enable=true)
-KeycloakDbPassword: a2V5Y2xvYWs=
 OperatorDbPassword: Q2FzdEFJUA==
+KeycloakDbPassword: a2V5Y2xvYWs=
 #
 Neo4jPassword: aW1hZ2luZw==
 #
 # CAST Operator password also has to be encrypted using cast-imaging-encryption-tool.jar GUI tool
 #   available in Linux installer https://extend.castsoftware.com/timeline#/extension?id=com.castsoftware.imaging.all.docker&version=3.6.3-funcrel
 OperatorDbPasswordCrypted2: CRYPTED2:90B1A6EC1618661401B724DB5AC34595
-
 #
 # Keycloak service account password (user "admin"):
 #   Steps to update the keycloak admin password after deployment:
@@ -270,7 +286,7 @@ McpServerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.2.10"
+  tag: "1.2.11"
   pullPolicy: IfNotPresent  
 ConsolePostgresImage:
   name: postgres
@@ -475,6 +491,17 @@ InitContainerResources:
     memory: 1G
 
 #
+# Shared memory
+#
+postgres_shmsize: 4G
+AnalysisNode_shmsize: 1G
+
+#
+# Postgres data volume mount path: do not modify, unless using a different postgres image requiring a specific mount path
+#
+postgresqlDataMountPath: /var/lib/postgresql/data
+
+#
 # Analysis folders (do not modify)
 #
 anadir:
@@ -486,12 +513,6 @@ anadir:
   logs:         /usr/share/CAST/CAST/Logs
   lisa:         /usr/share/CAST/CASTMS/LISA
   extensions:   /usr/share/CAST/Extensions
-
-#
-# Shared memory
-#
-postgres_shmsize: 4G
-AnalysisNode_shmsize: 1G
 
 ##########################################################################################
 # EnforceBalancedAffinity flag

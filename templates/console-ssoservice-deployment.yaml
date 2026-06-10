@@ -130,7 +130,7 @@ spec:
             - name: KC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: operator-db-password
             - name: KC_HTTP_RELATIVE_PATH
               value: /auth
@@ -139,7 +139,7 @@ spec:
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: keycloak-admin-password
             - name: KC_PROXY 
               value: "edge"
@@ -266,7 +266,7 @@ spec:
             - name: KC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: keycloak-admin-password
             - name: KCADMIN_USERNAME
               value: "{{ .Values.KCADMIN_USERNAME }}"

@@ -136,14 +136,14 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: operator-db-password
             - name: KC_USER
               value: "admin"
             - name: KC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: keycloak-admin-password
             - name: HOST_GATEWAY
               value: console-gateway-service

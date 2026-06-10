@@ -126,7 +126,7 @@ spec:
             - name: NEO4J_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: neo4j-password
             - name: LOG_LEVEL
               value: "debug"

@@ -142,7 +142,7 @@ spec:
             - name: NEO4J_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: neo4j-password
           command:
           - /bin/bash
@@ -225,7 +225,7 @@ spec:
             - name: NEO4J_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: neo4j-password
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT

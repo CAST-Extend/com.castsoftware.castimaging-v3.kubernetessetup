@@ -103,7 +103,7 @@ spec:
           - name: PGPASSWORD
             valueFrom:
               secretKeyRef:
-                name: imaging-pwd-sec
+                name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                 key: operator-db-password
         command:
         - /bin/sh

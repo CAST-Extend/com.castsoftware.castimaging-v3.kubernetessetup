@@ -148,7 +148,7 @@ spec:
             - name: NEO4J_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: imaging-pwd-sec
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
                   key: neo4j-password
 {{- if .Values.ContextUrl.enable }}
             - name: APP_CONTEXT
@@ -204,4 +204,4 @@ spec:
           emptyDir: {}            
         - name: db-creds
           secret:
-            secretName: imaging-pwd-sec            
+            secretName: {{ .Values.existingSecret | default "imaging-pwd-sec" }}            
