@@ -1,7 +1,7 @@
 # Documentation
 
 ## Install
-https://doc.castsoftware.com/install/global/cloud/
+https://doc.castsoftware.com/imaging/install/global/kubernetes/
 
 ## Update
-https://doc.castsoftware.com/administer/update/component/#kubernetes-via-helm
+https://doc.castsoftware.com/imaging/install/update/kubernetes/
