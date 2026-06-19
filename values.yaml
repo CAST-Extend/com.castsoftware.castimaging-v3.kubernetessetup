@@ -285,7 +285,7 @@ McpServerReplicaCount: 1
 #
 InitUtilImage:
   name: castimaging/init-util
-  tag: "1.2.11.1"
+  tag: "1.2.11"
   pullPolicy: IfNotPresent  
 ConsolePostgresImage:
   name: postgres
@@ -352,7 +352,7 @@ McpServerImage:
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.2.9"
+  tag: "2.2.10"
   pullPolicy: IfNotPresent 
 
 #
