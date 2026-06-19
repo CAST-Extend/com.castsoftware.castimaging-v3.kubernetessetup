@@ -90,8 +90,8 @@ spec:
           - /bin/bash
           - -c
           - |
-            rm -rf /neo4j-var-volume/*
-            cp -r /var/* /neo4j-var-volume/ || true
+            rm -rf /neo4j-var-volume/* || true
+            cd /var && find . -mindepth 1 -maxdepth 1 ! -name empty -exec cp -a {} /neo4j-var-volume/ \; 2>/dev/null || true
           volumeMounts:
             - name: neo4j-var-dir
               mountPath: /neo4j-var-volume

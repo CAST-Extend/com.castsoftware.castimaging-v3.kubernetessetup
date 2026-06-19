@@ -134,26 +134,6 @@ spec:
           number: 8085
     timeout: 3600s
   {{- end }}
-  {{- if .Values.UseCookieAdapter }}
-  # Route /auth to the Nginx adapter for cookie modification
-  - match:
-    - uri:
-    {{- if .Values.ContextUrl.enable }}
-        prefix: {{ .Values.ContextUrl.appcontext }}/auth
-    {{- else }}
-        prefix: /auth
-    {{- end }}
-    route:
-    - destination:
-        host: cookie-adapter-service
-        port:
-          number: 80
-    headers:
-      request:
-        set:
-          X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
-    timeout: 300s
-  {{- end }}
   # Main application (always on main hostname)
   - match:
     {{- if .Values.ContextUrl.enable }}

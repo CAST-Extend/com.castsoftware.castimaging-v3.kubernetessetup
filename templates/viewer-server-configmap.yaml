@@ -2,52 +2,71 @@ apiVersion: v1
 data:
   nginx.conf: "worker_processes 1;\n\nevents { worker_connections 1024; }\n\nhttp
     {\n\n    sendfile on;\n\n    limit_req_zone $binary_remote_addr zone=default:10m
-    rate=30r/m;\n\n    gzip              on;\n    gzip_http_version 1.0;\n    gzip_proxied
-    \     any;\n    gzip_min_length   500;\n    gzip_disable      \"MSIE [1-6]\\.\";\n
-    \   gzip_types        application/json text/plain text/css text/xml text/javascript
-    application/x-javascript application/xml;\n    client_max_body_size 0;\n\n    include
-    \           mime.types;\n    include            proxy.conf;\n    server_tokens
-    off;\n    # List of application servers\n    upstream app_servers {\n        least_conn;\n
-    \       server localhost:8098 weight=10 max_fails=3 fail_timeout=30s;\n    }\n\n
-    \   # Configuration for the server\n    server {\n\n        # Running port\n        listen
-    8080;\n\n        gzip on;\t\n        gzip_static on;    \t\n        gzip_types text/plain
+    rate=30r/m;\n\n    gzip              on;\n    gzip_http_version 1.0;\n
+    \   gzip_proxied      any;\n    gzip_min_length   500;\n    gzip_disable      \"MSIE
+    [1-6]\\.\";\n    gzip_types        application/json text/plain text/css text/xml
+    text/javascript application/x-javascript application/xml;\n    client_max_body_size
+    0;\n\n    include            mime.types;\n    include            proxy.conf;\n
+    \   server_tokens off;\n    # List of application servers\n    upstream app_servers
+    {\n        least_conn;\n        server localhost:8098 weight=10 max_fails=3
+    fail_timeout=30s;\n    }\n\n    # Configuration for the server\n    server
+    {\n\n        # Running port\n        listen 8080;\n\n        # Generate
+    a unique nonce per request (used for CSP)\n        set $nonce $request_id;\n\n
+    \       # Add CSP header (uses the nonce defined above)\n        add_header
+    Content-Security-Policy \"default-src 'self'; script-src 'self' 'nonce-$nonce'
+    blob:; connect-src 'self'; img-src 'self' data: https://extend.castsoftware.com;
+    style-src 'self' 'nonce-$nonce'; font-src 'self' data:; frame-src 'self'; child-src
+    'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self';\";\n\n
+    \       gzip on;\n        gzip_static on;    \n        gzip_types text/plain
     text/css application/json application/x-javascript text/xml application/xml application/xml+rss
-    text/javascript;\t\n        gzip_proxied  any;\t\n        gzip_vary on;\t\n        gzip_comp_level
-    6;\t\n        gzip_buffers 16 8k;\t\n        gzip_http_version 1.1; \n        add_header
-    Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;\n        proxy_pass_header
-    Server;\t\n\n        root /opt/imaging/web/dist;\n        index index.html;\n\n
-    \       location ~ .*html$ {\n          expires -1;\n          add_header 'Cache-Control'
-    'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';\n        }\n\n
+    text/javascript;\n        gzip_proxied  any;\n        gzip_vary on;\n        gzip_comp_level
+    6;\n        gzip_buffers 16 8k;\n        gzip_http_version 1.1; \n        add_header
+    Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;\n
+    \       proxy_pass_header Server;\n\n        root /opt/imaging/web/dist;\n
+    \       index index.html;\n\n        # Apply sub_filter only to HTML responses\n
+    \       sub_filter_types text/html;\n\n        # Replace nonce placeholder
+    in HTML\n        sub_filter 'csp-nonce-placeholder' $nonce;\n\n        #
+    Inject nonce into all script & style tags\n        sub_filter '<script>' '<script
+    nonce=\"$nonce\">';\n        sub_filter '<script ' '<script nonce=\"$nonce\"
+    ';\n        sub_filter '<style ' '<style nonce=\"$nonce\" ';\n        sub_filter
+    '<style>' '<style nonce=\"$nonce\">';\n\n        # Apply replacements to all
+    matches (not just first)\n        sub_filter_once off;\n\n        location
+    ~ .*html$ {\n          expires -1;\n          add_header 'Cache-Control' 'no-store,
+    no-cache, must-revalidate, proxy-revalidate, max-age=0';\n        }\n\n
+    \       location ~* \"^/imaging/(.+\\.[a-f0-9]{8,}\\.(?:js|css|woff2?|ttf|eot|otf|svg|png|jpg|jpeg|gif|webp|ico|map))$\"
+    {\n            add_header Cache-Control \"public, max-age=31536000, immutable\";\n
+    \           access_log off;\n            try_files /$1 =404;\n        }\n\n
     \       location ~ ^/imaging(.*) {\n            index index.html;\n            try_files
-    $1 $1/ /index.html;\n        }\n\n        location ^~ /imaging/api/ {\n            proxy_pass
-    \        http://localhost:9000/;\n            proxy_read_timeout 1200s;\n        }\n\n        location ^~ /imaging/etl/api/
-    {\n            proxy_pass         http://viewer-etl:9001/;\n
+    $1 $1/ /index.html;\n        }\n\n        location ^~ /imaging/api/ {\n
+    \           proxy_pass         http://localhost:9000/;\n        }\n\n        location
+    ^~ /imaging/etl/api/ {\n            proxy_pass         http://viewer-etl:9001/;\n
     \       }\n\n        location ^~ /imaging/neo4j/api/ {\n            proxy_pass
-    \        http://localhost:8084/neo4j/api/;\n        }\n        \n        # Proxying
+    \        http://localhost:8084/neo4j/api/;\n        }\n\n        # Proxying
     the connections\n        location ^~ /imaging/login/api/ {\n            limit_req
     zone=default burst=6 nodelay;\n            proxy_pass         http://localhost:8084/;\n
-    \       }\n\n        location ^~ /imaging/saml/ {\n            proxy_pass         http://localhost:8084/saml/;\n
-    \       }\n\n        location ^~ /saml/ {\n            proxy_pass         http://localhost:8084/saml/;\n
-    \       }\n\n        location = /imaging/sourcecode/api/health {\n           proxy_pass
-    \        http://localhost:8084/sourcecode/api/health;\n        }\n\n        location
-    = /imaging/sourcecode/api/datasources/load {\n           proxy_pass        http://localhost:8084/sourcecode/api/datasources/load;\n
+    \       }\n\n        location ^~ /imaging/saml/ {\n            proxy_pass
+    \        http://localhost:8084/saml/;\n        }\n\n        location ^~
+    /saml/ {\n            proxy_pass         http://localhost:8084/saml/;\n        }\n\n
+    \       location = /imaging/sourcecode/api/health {\n           proxy_pass         http://localhost:8084/sourcecode/api/health;\n
+    \       }\n\n        location = /imaging/sourcecode/api/datasources/load {\n
+    \          proxy_pass        http://localhost:8084/sourcecode/api/datasources/load;\n
     \       }\n\n        location = /imaging/sourcecode/api/datasource {\n           proxy_pass
-    \       http://localhost:8084/sourcecode/api/datasource;\n        }\n\n        location
-    ^~ /imaging/ed/ {\n           proxy_pass        http://localhost:8081/;\n        }\n\n
-    \       location ^~ /imaging/sourcecode/api/ {\n            if ($http_domain_name
-    = '') {\n                return 404;\n            }\n            if ($http_app_name
-    = '') {\n                return 404;\n            }    \n            auth_request
-    \      /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;\n
+    \       http://localhost:8084/sourcecode/api/datasource;\n        }\n\n
+    \       location ^~ /imaging/ed/ {\n           proxy_pass        http://localhost:8081/;\n
+    \       }\n\n        location ^~ /imaging/sourcecode/api/ {\n            if
+    ($http_domain_name = '') {\n                return 404;\n            }\n
+    \           if ($http_app_name = '') {\n                return 404;\n            }
+    \   \n            auth_request       /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;\n
     \           proxy_pass         http://localhost:8084/sourcecode/api/;\n        }\n\n
-    \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager:8082/;
-    \n        }\n\n        location
-    ^~ /imaging/apis/ {\n            proxy_pass         http://viewer-api:8070/;
-    \n        }\n        \n        # location ^~ /imaging/api/
-    {\n        #     proxy_pass         http://localhost:8084/api/;\n        # }\n\n
-    \       # location ^~ /imaging/etl/api/ {\n        #     proxy_pass         http://localhost:8084/etl/api/;\n
-    \       # }\n\n        # location ^~ /imaging/neo4j/api/ {\n        #     proxy_pass
-    \        http://localhost:8084/neo4j/api/;\n        # }\n        \n        error_log
-    /opt/imaging/imaging-service/logs/error.log warn;\n        access_log /opt/imaging/imaging-service/logs/access.log;\n
+    \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager:8082/;\n
+    \       }\n\n        location ^~ /imaging/apis/ {\n            proxy_pass
+    \        http://viewer-api:8070/;\n        }\n\n        # location ^~ /imaging/api/
+    {\n        #     proxy_pass         http://localhost:8084/api/;\n        #
+    }\n\n        # location ^~ /imaging/etl/api/ {\n        #     proxy_pass
+    \        http://localhost:8084/etl/api/;\n        # }\n\n        # location
+    ^~ /imaging/neo4j/api/ {\n        #     proxy_pass         http://localhost:8084/neo4j/api/;\n
+    \       # }\n\n        error_log /opt/imaging/imaging-service/logs/error.log
+    warn;\n        access_log /opt/imaging/imaging-service/logs/access.log;\n
     \   }\n}\n"
 kind: ConfigMap
 metadata:

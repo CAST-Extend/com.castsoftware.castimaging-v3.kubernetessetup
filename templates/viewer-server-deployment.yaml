@@ -86,16 +86,20 @@ spec:
             rm -rf /server-volume/*
             rm -rf /server-config-volume/*
             rm -rf /nginx-volume/*
+            rm -rf /web-volume/*
             cp -r /opt/imaging/imaging-service/* /server-volume/ || true
             cp -r /opt/imaging/config/* /server-config-volume/ || true
             cp -r /etc/nginx/* /nginx-volume/ || true
+            cp -r /opt/imaging/web/* /web-volume/ || true
           volumeMounts:
             - name: server-data
               mountPath: /server-volume 
             - name: server-config
               mountPath: /server-config-volume     
             - name: nginx
-              mountPath: /nginx-volume  
+              mountPath: /nginx-volume
+            - name: web
+              mountPath: /web-volume
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 1000
@@ -255,6 +259,8 @@ spec:
               mountPath: /var/tmp
             - name: server-data
               mountPath: /opt/imaging/imaging-service
+            - name: web
+              mountPath: /opt/imaging/web
             - name: server-config
               mountPath: /opt/imaging/config
             - name: nginx
@@ -282,6 +288,8 @@ spec:
             name: servernginxconf
 {{- if .Values.RestrictedSecurityMode }}
         - name: server-data
+          emptyDir: {}
+        - name: web
           emptyDir: {}
         - name: server-config
           emptyDir: {}

@@ -158,9 +158,11 @@ spec:
             - name: LOG_LEVEL
               value: "debug"
             - name: WORKER_POOL_SIZE
-              value: "4"
+              value: "{{ .Values.ETL.WORKER_POOL_SIZE | default 4 }}"
             - name: NEO4J_IMPORT_BATCH_SIZE
-              value: "1000"
+              value: "{{ .Values.ETL.NEO4J_IMPORT_BATCH_SIZE | default 1000 }}"
+            - name: NEO4J_DELETE_BATCH_SIZE
+              value: "{{ .Values.ETL.NEO4J_DELETE_BATCH_SIZE | default 2000 }}"
             - name: NEO4J_PASSWORD
               valueFrom:
                 secretKeyRef:

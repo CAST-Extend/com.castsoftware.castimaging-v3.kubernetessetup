@@ -1,6 +1,6 @@
 @echo off
 
-set NAMESPACE=castimaging-v3
+if "%~1"=="" (set NAMESPACE=castimaging-v3) else (set NAMESPACE=%~1)
 
 echo Scaling up... 
 
@@ -32,4 +32,3 @@ kubectl scale deployment  viewer-api                      --replicas=1 -n %NAMES
 timeout /t 10 /nobreak >nul
 kubectl scale deployment  extendproxy                    --replicas=1 -n %NAMESPACE%
 kubectl scale deployment  mcp-server                     --replicas=1 -n %NAMESPACE%
-kubectl scale deployment  cookie-adapter-nginx           --replicas=2 -n %NAMESPACE%
