@@ -62,6 +62,9 @@ spec:
 {{- end }}
 {{- if .Values.EnforceBalancedAffinity }}
       affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}

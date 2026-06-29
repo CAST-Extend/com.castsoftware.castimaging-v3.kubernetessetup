@@ -1,11 +1,17 @@
 apiVersion: v1
 data:
-  nginx.conf: "worker_processes 1;\n\nevents { worker_connections 1024; }\n\nhttp
+  nginx.conf: "{{- if .Values.IMAGING_SERVER_BROTLI_ENABLED }}\nload_module
+    /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;\nload_module /usr/lib/nginx/modules/ngx_http_brotli_static_module.so;\n{{-
+    end }}\nworker_processes 1;\n\nevents { worker_connections 1024; }\n\nhttp
     {\n\n    sendfile on;\n\n    limit_req_zone $binary_remote_addr zone=default:10m
     rate=30r/m;\n\n    gzip              on;\n    gzip_http_version 1.0;\n
     \   gzip_proxied      any;\n    gzip_min_length   500;\n    gzip_disable      \"MSIE
     [1-6]\\.\";\n    gzip_types        application/json text/plain text/css text/xml
-    text/javascript application/x-javascript application/xml;\n    client_max_body_size
+    text/javascript application/x-javascript application/xml;\n{{- if .Values.IMAGING_SERVER_BROTLI_ENABLED
+    }}\n    brotli            on;\n    brotli_static     on;\n    brotli_comp_level
+    6;\n    brotli_types      application/json text/plain text/css text/xml text/javascript
+    application/x-javascript application/xml application/javascript image/svg+xml
+    font/ttf font/otf application/wasm;\n{{- end }}\n    client_max_body_size
     0;\n\n    include            mime.types;\n    include            proxy.conf;\n
     \   server_tokens off;\n    # List of application servers\n    upstream app_servers
     {\n        least_conn;\n        server localhost:8098 weight=10 max_fails=3
@@ -59,17 +65,18 @@ data:
     \   \n            auth_request       /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;\n
     \           proxy_pass         http://localhost:8084/sourcecode/api/;\n        }\n\n
     \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager:8082/;\n
-    \       }\n\n        location ^~ /imaging/apis/ {\n            proxy_pass
-    \        http://viewer-api:8070/;\n        }\n\n        # location ^~ /imaging/api/
-    {\n        #     proxy_pass         http://localhost:8084/api/;\n        #
-    }\n\n        # location ^~ /imaging/etl/api/ {\n        #     proxy_pass
-    \        http://localhost:8084/etl/api/;\n        # }\n\n        # location
-    ^~ /imaging/neo4j/api/ {\n        #     proxy_pass         http://localhost:8084/neo4j/api/;\n
-    \       # }\n\n        error_log /opt/imaging/imaging-service/logs/error.log
-    warn;\n        access_log /opt/imaging/imaging-service/logs/access.log;\n
-    \   }\n}\n"
+    \       }\n\n        location ^~ /imaging/graphrag/ {\n                proxy_pass
+    \        http://viewer-aimanager:8286/;\n                proxy_buffering    off;\n
+    \               proxy_read_timeout 3600s;\n                }\n\n        location
+    ^~ /imaging/apis/ {\n            proxy_pass         http://viewer-api:8070/;\n
+    \       }\n\n        # location ^~ /imaging/api/ {\n        #     proxy_pass
+    \        http://localhost:8084/api/;\n        # }\n\n        # location
+    ^~ /imaging/etl/api/ {\n        #     proxy_pass         http://localhost:8084/etl/api/;\n
+    \       # }\n\n        # location ^~ /imaging/neo4j/api/ {\n        #     proxy_pass
+    \        http://localhost:8084/neo4j/api/;\n        # }\n\n        error_log
+    /opt/imaging/imaging-service/logs/error.log warn;\n        access_log /opt/imaging/imaging-service/logs/access.log;\n
+    \   }\n}"
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
   name: servernginxconf
   namespace: {{ .Release.Namespace }}

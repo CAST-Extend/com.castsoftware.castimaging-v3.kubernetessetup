@@ -68,10 +68,15 @@ spec:
 {{- if .Values.EnforceBalancedAffinity }}
       affinity:
         podAntiAffinity:
+    {{- if .Values.BalancedAffinity.EnforceNeo4jIsolation }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .Values.labelSelectorAppcastimaging | nindent 12 }}
+    {{- else }}
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.labelSelectorServiceAnalysisNode | nindent 12 }}
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
+    {{- end }}  
 {{- end }}
       securityContext:
         fsGroup: 7474

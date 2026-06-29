@@ -218,9 +218,6 @@ ETL:
 #
 # Multi-tenant configuration
 IMAGING_DOMAIN_SYNCHRO_ENABLED: false
-#
-# Miscellaneous
-DASHBOARD_STANDALONE_ENABLED: false
 
 #
 # OPTIONAL - Access Private Repo with Secret
@@ -268,7 +265,6 @@ ControlPaneReplicaCount: 1
 AuthenticationServiceReplicaCount: 1
 DashboardReplicaCount: 1
 ExtendProxyReplicaCount: 1
-CookieAdapterServiceReplicaCount: 2
 
 #
 # Viewer
@@ -297,7 +293,7 @@ ConsoleSSOServiceImage:
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.6.4"
+  tag: "3.6.4.1"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
@@ -305,11 +301,11 @@ ConsoleGatewayServiceImage:
   pullPolicy: IfNotPresent  
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.6.4_core8.4.10"
+  tag: "3.6.4.1_core8.4.10"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.6.4"
+  tag: "3.6.4.1"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
@@ -513,9 +509,24 @@ anadir:
 # Important:
 #     - a cluster with a minimum of 2 usable nodes is required
 #     - add another cluster node per additional console-analysisnode you want to deploy
+#     - When "BalancedAffinity.Enforce*Isolation" variables are set to true, additional cluster node will be required
+#       Example 1: EnforceBalancedAffinity: true 
+#                  + BalancedAffinity.EnforceNeo4jIsolation: true 
+#                  + BalancedAffinity.EnforceAnalysisNodeIsolation: true
+#                  = 3 cluster nodes minimum required
+#       Example 2: EnforceBalancedAffinity: true 
+#                  + BalancedAffinity.EnforceNeo4jIsolation: true 
+#                  + BalancedAffinity.EnforceAnalysisNodeIsolation: true
+#                  + BalancedAffinity.EnforcePostgresIsolation: true
+#                  + AnalysisNodeReplicaCount: 2
+#                  = 5 cluster nodes minimum required
 ##########################################################################################
-
 EnforceBalancedAffinity: true
+BalancedAffinity:
+  EnforceAnalysisNodeIsolation: false  # true: Each analysis pod will run on a dedicated cluster node
+  EnforceNeo4jIsolation: false         # true: neo4j pod will run on a dedicated cluster node
+  EnforcePostgresIsolation: false      # true: Embedded postgres  will run on a dedicated cluster node
+
 
 labelSelectorServiceAnalysisNode:
   - labelSelector:
@@ -535,17 +546,6 @@ labelSelectorServiceAnalysisNodeNeo4j:
         - console-analysis-node
         - viewer-neo4j
     topologyKey: kubernetes.io/hostname
-
-podAffinityGroupConsole:
-  - weight: 100
-    podAffinityTerm:
-      labelSelector:
-        matchExpressions:
-        - key: imaging.group
-          operator: In
-          values:
-          - console
-      topologyKey: kubernetes.io/hostname
 
 
 
