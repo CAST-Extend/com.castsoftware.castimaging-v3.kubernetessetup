@@ -526,6 +526,7 @@ BalancedAffinity:
   EnforceAnalysisNodeIsolation: false  # true: Each analysis pod will run on a dedicated cluster node
   EnforceNeo4jIsolation: false         # true: neo4j pod will run on a dedicated cluster node
   EnforcePostgresIsolation: false      # true: Embedded postgres  will run on a dedicated cluster node
+##########################################################################################
 
 
 labelSelectorServiceAnalysisNode:
@@ -547,10 +548,23 @@ labelSelectorServiceAnalysisNodeNeo4j:
         - viewer-neo4j
     topologyKey: kubernetes.io/hostname
 
+podAffinityGroupConsole:
+  - weight: 100
+    podAffinityTerm:
+      labelSelector:
+        matchExpressions:
+        - key: imaging.group
+          operator: In
+          values:
+          - console
+      topologyKey: kubernetes.io/hostname
+
+
+
 
 
 ##########################################################################################
-# EnforceNodeAffinity - DEDICATED castimaging kubernetes nodes for XL scenario
+# EnforceNodeAffinity - DEDICATED castimaging kubernetes nodepool for XL scenario
 # 4 nodes minimum required:
 #    node 1: postgres
 #    node 2: console services
@@ -562,9 +576,10 @@ labelSelectorServiceAnalysisNodeNeo4j:
 #                       -> label: app: castimaging
 # Initially deploy with all replicas=0, then run Util-ScaleUpAllWithNodeAffinities.bat|sh
 ##########################################################################################
-
 # Set to true to enforce dedicated kubernetes node scenario
 EnforceNodeAffinity: false
+##########################################################################################
+
 
 nodeSelector:
   app: castimaging
@@ -630,17 +645,6 @@ labelSelectorGroupViewer:
         values:
         - viewer
     topologyKey: kubernetes.io/hostname
-
-podAffinityGroupConsole:
-  - weight: 100
-    podAffinityTerm:
-      labelSelector:
-        matchExpressions:
-        - key: imaging.group
-          operator: In
-          values:
-          - console
-      topologyKey: kubernetes.io/hostname
 
 labelSelectorGroupConsole:
   - labelSelector:
