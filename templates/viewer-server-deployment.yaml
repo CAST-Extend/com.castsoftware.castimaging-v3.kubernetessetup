@@ -155,6 +155,9 @@ spec:
           - /bin/bash
           - -c
           - |
+{{- if .Values.SKIP_NEO4J_MIGRATION }}
+            echo "Skipping neo4j migration."
+{{- else }}
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
             LOG_FILE="/tmp/migration_${TIMESTAMP}.log"
 
@@ -191,6 +194,8 @@ spec:
             echo "-------------------------------------------------"
             cat "$LOG_FILE"
             echo "-------------------------------------------------"
+{{- end }}
+            echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
           volumeMounts:
             - name: migration-tmp
