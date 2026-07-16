@@ -309,7 +309,7 @@ ConsoleControlPaneImage:
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.6.5"
+  tag: "3.6.5.1"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
