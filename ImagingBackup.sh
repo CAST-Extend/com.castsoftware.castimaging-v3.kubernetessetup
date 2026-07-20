@@ -7,10 +7,15 @@
 # =========================================================================
 
 # Configuration
-NAMESPACE="castimaging-v3"
-BACKUP_DIR="./imaging_backup_$(date +%Y%m%d_%H%M%S)"
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <namespace> <backup_dir>"
+    exit 1
+fi
+NAMESPACE="$1"
+BACKUP_DIR="$2"
 CLUSTER_CMD="kubectl"
 OPENSHIFT_CHECK="n"
+BACKUP_CASTDIR="false"
 
 echo "========================================================================="
 echo "Imaging Kubernetes Backup Procedure - SINGLE TENANT"
@@ -97,24 +102,28 @@ for POD_FULL in $PODS; do
         echo ""
     fi
     
-    # Backup CAST directory for all pods
-    echo "Connecting to $POD_NAME and creating CAST directory backup..."
-    $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to create archive file"
-        exit 1
+    # Backup CAST directory for all pods (optional)
+    if [[ "${BACKUP_CASTDIR,,}" == "true" ]]; then
+        echo "Connecting to $POD_NAME and creating CAST directory backup..."
+        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
+        if [ $? -ne 0 ]; then
+            echo "ERROR: Failed to create archive file"
+            exit 1
+        fi
+
+        echo "Downloading cast-dir.tar.gz from $POD_NAME..."
+        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- cat /usr/share/CAST/cast-dir.tar.gz > "$BACKUP_DIR/$POD_NAME-cast-dir.tar.gz"
+        if [ $? -ne 0 ]; then
+            echo "ERROR: Failed to download cast-dir.tar.gz from $POD_NAME"
+            exit 1
+        fi
+
+        echo "Cleaning up cast-dir backup file from $POD_NAME..."
+        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm -f /usr/share/CAST/cast-dir.tar.gz"
+    else
+        echo "Skipping CAST directory backup for $POD_NAME (BACKUP_CASTDIR is not set to true)"
     fi
-    
-    echo "Downloading cast-dir.tar.gz from $POD_NAME..."
-    $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- cat /usr/share/CAST/cast-dir.tar.gz > "$BACKUP_DIR/$POD_NAME-cast-dir.tar.gz"
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to download cast-dir.tar.gz from $POD_NAME"
-        exit 1
-    fi
-    
-    echo "Cleaning up cast-dir backup file from $POD_NAME..."
-    $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm -f /usr/share/CAST/cast-dir.tar.gz"
-    
+
     echo "Backup for $POD_NAME completed successfully."
     echo ""
 done
@@ -207,7 +216,7 @@ echo "All backup files have been saved to: $BACKUP_DIR"
 echo ""
 echo "Backup contents:"
 echo "  - shared-dir.tar.gz (Analysis Node shared files)"
-echo "  - xxx-cast-dir.tar.gz (Analysis Node CAST files)"
+echo "  - xxx-cast-dir.tar.gz (Analysis Node CAST files, if BACKUP_CASTDIR=true)"
 echo "  - all_databases.backup (Postgres databases)"
 echo "  - postgres_backup.log (Postgres backup log)"
 echo "  - backup/ (Neo4j database backups)"

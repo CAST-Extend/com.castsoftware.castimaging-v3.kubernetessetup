@@ -7,11 +7,16 @@
 # A freshly installed, empty Imaging instance must be running at target
 # =========================================================================
 # Configuration
-NAMESPACE="castimaging-v3"
-BACKUP_DIR="./mybackupfolder"
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <namespace> <backup_dir>"
+    exit 1
+fi
+NAMESPACE="$1"
+BACKUP_DIR="$2"
 USE_OC=false
 CLUSTER_CMD="kubectl"
 OPENSHIFT_CHECK="n"
+BACKUP_CASTDIR="false"
 
 echo "========================================================================="
 echo "Imaging Kubernetes Restore Procedure - SINGLE TENANT"
@@ -95,31 +100,36 @@ for POD_FULL in $PODS; do
         fi
     fi
     
-    # Restore CAST directory for all pods using pod-specific backup
-    CAST_BACKUP="$BACKUP_DIR/$POD_NAME-cast-dir.tar.gz"
-    echo "Checking if $POD_NAME-cast-dir.tar.gz exists..."
-    if [ -f "$CAST_BACKUP" ]; then
-        echo "Uploading $POD_NAME-cast-dir.tar.gz to $POD_NAME..."
-        cat "$CAST_BACKUP" | $CLUSTER_CMD exec -n $NAMESPACE $POD_NAME -i -- sh -c "cat > /usr/share/CAST/cast-dir.tar.gz"
-        if [ $? -ne 0 ]; then
-            echo "ERROR: Failed to upload cast-dir.tar.gz to $POD_NAME"
+    # Restore CAST directory for all pods using pod-specific backup (optional)
+    if [[ "${BACKUP_CASTDIR,,}" == "true" ]]; then
+        CAST_BACKUP="$BACKUP_DIR/$POD_NAME-cast-dir.tar.gz"
+        echo "Checking if $POD_NAME-cast-dir.tar.gz exists..."
+        if [ -f "$CAST_BACKUP" ]; then
+            echo "Uploading $POD_NAME-cast-dir.tar.gz to $POD_NAME..."
+            cat "$CAST_BACKUP" | $CLUSTER_CMD exec -n $NAMESPACE $POD_NAME -i -- sh -c "cat > /usr/share/CAST/cast-dir.tar.gz"
+            if [ $? -ne 0 ]; then
+                echo "ERROR: Failed to upload cast-dir.tar.gz to $POD_NAME"
+                exit 1
+            fi
+
+            echo "Extracting cast-dir.tar.gz on $POD_NAME..."
+            $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -xzpf /usr/share/CAST/cast-dir.tar.gz --strip-components=3 --ignore-failed-read -C /usr/share/CAST/"
+            if [ $? -ne 0 ]; then
+                echo "WARNING: issue encountered while extracting cast-dir.tar.gz on $POD_NAME"
+            fi
+
+            echo "Cleaning up cast-dir archive from $POD_NAME..."
+            $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm /usr/share/CAST/cast-dir.tar.gz"
+
+            echo "Restore for $POD_NAME completed successfully."
+            echo ""
+        else
+            echo "ERROR: Backup file $POD_NAME-cast-dir.tar.gz not found"
             exit 1
         fi
-        
-        echo "Extracting cast-dir.tar.gz on $POD_NAME..."
-        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "tar -xzpf /usr/share/CAST/cast-dir.tar.gz --strip-components=3 --ignore-failed-read -C /usr/share/CAST/"
-        if [ $? -ne 0 ]; then
-            echo "WARNING: issue encountered while extracting cast-dir.tar.gz on $POD_NAME"
-        fi
-        
-        echo "Cleaning up cast-dir archive from $POD_NAME..."
-        $CLUSTER_CMD exec $POD_NAME -n $NAMESPACE -- /bin/bash -c "rm /usr/share/CAST/cast-dir.tar.gz"
-        
-        echo "Restore for $POD_NAME completed successfully."
-        echo ""
     else
-        echo "ERROR: Backup file $POD_NAME-cast-dir.tar.gz not found"
-        exit 1
+        echo "Skipping CAST directory restore for $POD_NAME (BACKUP_CASTDIR is not set to true)"
+        echo ""
     fi
 done
 echo "All Analysis Node files restored successfully."

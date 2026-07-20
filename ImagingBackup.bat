@@ -9,11 +9,15 @@ REM =========================================================================
 setlocal enabledelayedexpansion
 
 REM Configuration
-set NAMESPACE=castimaging-v3
-set BACKUP_DIR=.\imaging_backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-set BACKUP_DIR=%BACKUP_DIR: =0%
+if "%~2"=="" (
+    echo Usage: %~nx0 ^<namespace^> ^<backup_dir^>
+    exit /b 1
+)
+set NAMESPACE=%~1
+set BACKUP_DIR=%~2
 set CLUSTER_CMD=kubectl
 set OPENSHIFT_CHECK="n"
+set BACKUP_CASTDIR=false
 
 echo =========================================================================
 echo Imaging Kubernetes Backup Procedure - SINGLE TENANT
@@ -99,24 +103,28 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         echo.
     )
     
-    REM Backup CAST directory for all pods
-    echo Connecting to !POD_NAME! and creating CAST directory backup...
-    %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
-    if errorlevel 1 (
-        echo ERROR: Failed to create archive file
-        exit /b 1
+    REM Backup CAST directory for all pods (optional)
+    if /i "%BACKUP_CASTDIR%"=="true" (
+        echo Connecting to !POD_NAME! and creating CAST directory backup...
+        %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -czpf /usr/share/CAST/cast-dir.tar.gz --exclude='/usr/share/CAST/cast-dir.tar.gz' --exclude='/usr/share/CAST/lost+found' /usr/share/CAST/*"
+        if errorlevel 1 (
+            echo ERROR: Failed to create archive file
+            exit /b 1
+        )
+
+        echo Downloading cast-dir.tar.gz from !POD_NAME!...
+        %CLUSTER_CMD% exec !POD_NAME! -n %NAMESPACE% -- cat /usr/share/CAST/cast-dir.tar.gz > "%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
+        if errorlevel 1 (
+            echo ERROR: Failed to download cast-dir.tar.gz from !POD_NAME!
+            exit /b 1
+        )
+
+        echo Cleaning up cast-dir backup file from !POD_NAME!...
+        %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "rm -f /usr/share/CAST/cast-dir.tar.gz"
+    ) else (
+        echo Skipping CAST directory backup for !POD_NAME! ^(BACKUP_CASTDIR is not set to true^)
     )
-    
-    echo Downloading cast-dir.tar.gz from !POD_NAME!...
-    %CLUSTER_CMD% exec !POD_NAME! -n %NAMESPACE% -- cat /usr/share/CAST/cast-dir.tar.gz > "%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
-    if errorlevel 1 (
-        echo ERROR: Failed to download cast-dir.tar.gz from !POD_NAME!
-        exit /b 1
-    )
-    
-    echo Cleaning up cast-dir backup file from !POD_NAME!...
-    %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "rm -f /usr/share/CAST/cast-dir.tar.gz"
-    
+
     echo Backup for !POD_NAME! completed successfully.
     echo.
 )
@@ -209,7 +217,7 @@ echo All backup files have been saved to: %BACKUP_DIR%
 echo.
 echo Backup contents:
 echo   - shared-dir.tar.gz (Analysis Node shared files)
-echo   - xxx-cast-dir.tar.gz (Analysis Node CAST files)
+echo   - xxx-cast-dir.tar.gz (Analysis Node CAST files, if BACKUP_CASTDIR=true)
 echo   - all_databases.backup (Postgres databases)
 echo   - postgres_backup.log (Postgres backup log)
 echo   - backup\ (Neo4j database backups)

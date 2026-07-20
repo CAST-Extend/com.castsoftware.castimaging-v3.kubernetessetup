@@ -8,11 +8,16 @@ REM A freshly installed, empty Imaging instance must be running at target
 REM =========================================================================
 setlocal enabledelayedexpansion
 REM Configuration
-set NAMESPACE=castimaging-v3
-set BACKUP_DIR=.\mybackupfolder
+if "%~2"=="" (
+    echo Usage: %~nx0 ^<namespace^> ^<backup_dir^>
+    exit /b 1
+)
+set NAMESPACE=%~1
+set BACKUP_DIR=%~2
 set USE_OC=false
 set CLUSTER_CMD=kubectl
 set OPENSHIFT_CHECK="n"
+set BACKUP_CASTDIR=false
 
 echo =========================================================================
 echo Imaging Kubernetes Restore Procedure - SINGLE TENANT
@@ -95,31 +100,36 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         )
     )
     
-    REM Restore CAST directory for all pods using pod-specific backup
-    set "CAST_BACKUP=%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
-    echo Checking if !POD_NAME!-cast-dir.tar.gz exists...
-    if exist "!CAST_BACKUP!" (
-        echo Uploading !POD_NAME!-cast-dir.tar.gz to !POD_NAME!...
-        type "!CAST_BACKUP!" | %CLUSTER_CMD% exec -n %NAMESPACE% !POD_NAME! -i -- sh -c "cat > /usr/share/CAST/cast-dir.tar.gz"
-        if errorlevel 1 (
-            echo ERROR: Failed to upload cast-dir.tar.gz to !POD_NAME!
+    REM Restore CAST directory for all pods using pod-specific backup (optional)
+    if /i "%BACKUP_CASTDIR%"=="true" (
+        set "CAST_BACKUP=%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
+        echo Checking if !POD_NAME!-cast-dir.tar.gz exists...
+        if exist "!CAST_BACKUP!" (
+            echo Uploading !POD_NAME!-cast-dir.tar.gz to !POD_NAME!...
+            type "!CAST_BACKUP!" | %CLUSTER_CMD% exec -n %NAMESPACE% !POD_NAME! -i -- sh -c "cat > /usr/share/CAST/cast-dir.tar.gz"
+            if errorlevel 1 (
+                echo ERROR: Failed to upload cast-dir.tar.gz to !POD_NAME!
+                exit /b 1
+            )
+
+            echo Extracting cast-dir.tar.gz on !POD_NAME!...
+            %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -xzpf /usr/share/CAST/cast-dir.tar.gz --strip-components=3 --ignore-failed-read -C /usr/share/CAST/"
+            if errorlevel 1 (
+                echo WARNING: issue encountered while extracting cast-dir.tar.gz on !POD_NAME!
+            )
+
+            echo Cleaning up cast-dir archive from !POD_NAME!...
+            %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "rm /usr/share/CAST/cast-dir.tar.gz"
+
+            echo Restore for !POD_NAME! completed successfully.
+            echo.
+        ) else (
+            echo ERROR: Backup file !POD_NAME!-cast-dir.tar.gz not found
             exit /b 1
         )
-        
-        echo Extracting cast-dir.tar.gz on !POD_NAME!...
-        %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -xzpf /usr/share/CAST/cast-dir.tar.gz --strip-components=3 --ignore-failed-read -C /usr/share/CAST/"
-        if errorlevel 1 (
-            echo WARNING: issue encountered while extracting cast-dir.tar.gz on !POD_NAME!
-        )
-        
-        echo Cleaning up cast-dir archive from !POD_NAME!...
-        %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "rm /usr/share/CAST/cast-dir.tar.gz"
-        
-        echo Restore for !POD_NAME! completed successfully.
-        echo.
     ) else (
-        echo ERROR: Backup file !POD_NAME!-cast-dir.tar.gz not found
-        exit /b 1
+        echo Skipping CAST directory restore for !POD_NAME! ^(BACKUP_CASTDIR is not set to true^)
+        echo.
     )
 )
 echo All Analysis Node files restored successfully.
