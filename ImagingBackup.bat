@@ -149,20 +149,22 @@ if not "%POSTGRES_POD%"=="" (
     echo Running pg_dumpall...
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "pg_dumpall -v -U operator -p 5432 -f %PG_DATA_PATH%/backup/all_databases.backup > %PG_DATA_PATH%/backup/postgres_backup.log 2>&1"
     if errorlevel 1 (
-        %CLUSTER_CMD% cp %NAMESPACE%/%POSTGRES_POD%:%PG_DATA_PATH%/backup/postgres_backup.log "%BACKUP_DIR%\postgres_backup.log"
+        %CLUSTER_CMD% exec %POSTGRES_POD% -n %NAMESPACE% -- cat %PG_DATA_PATH%/backup/postgres_backup.log > "%BACKUP_DIR%\postgres_backup.log"
+        if errorlevel 1 echo WARNING: Failed to download postgres_backup.log
         echo ERROR: pg_dumpall has encountered issues. Check log file.
         exit /b 1
     )
 
     echo Downloading all_databases.backup...
-    %CLUSTER_CMD% exec %POSTGRES_POD% -n %NAMESPACE% -- cat %PG_DATA_PATH%/backup/all_databases.backup > "%BACKUP_DIR%\all_databases.backup
+    %CLUSTER_CMD% exec %POSTGRES_POD% -n %NAMESPACE% -- cat %PG_DATA_PATH%/backup/all_databases.backup > "%BACKUP_DIR%\all_databases.backup"
     if errorlevel 1 (
         echo ERROR: Failed to download all_databases.backup
         exit /b 1
     )
 
     echo Downloading postgres backup log...
-    %CLUSTER_CMD% cp %NAMESPACE%/%POSTGRES_POD%:%PG_DATA_PATH%/backup/postgres_backup.log "%BACKUP_DIR%\postgres_backup.log"
+    %CLUSTER_CMD% exec %POSTGRES_POD% -n %NAMESPACE% -- cat %PG_DATA_PATH%/backup/postgres_backup.log > "%BACKUP_DIR%\postgres_backup.log"
+    if errorlevel 1 echo WARNING: Failed to download postgres_backup.log, continuing...
 
     echo Cleaning up backup files from postgres pod...
     %CLUSTER_CMD% exec -it %POSTGRES_POD% -n %NAMESPACE% -- /bin/bash -c "rm -rf %PG_DATA_PATH%/backup"
@@ -184,7 +186,8 @@ echo Creating/cleaning backup directory...
 echo Running neo4j-admin database backup...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database backup --verbose --compress=true --include-metadata=all --pagecache=4G --to-path /var/lib/neo4j/config/neo4j5_data/backup --from=localhost:6362 '*' > /var/lib/neo4j/logs/backup_ImagingDatabases.log 2>&1"
 if errorlevel 1 (
-    %CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "%BACKUP_DIR%\backup_ImagingDatabases.log"
+    %CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/backup_ImagingDatabases.log > "%BACKUP_DIR%\backup_ImagingDatabases.log"
+    if errorlevel 1 echo WARNING: Failed to download backup_ImagingDatabases.log
     echo ERROR: Neo4j backup has encountered issues. Check log file.
     exit /b 1
 )
@@ -193,7 +196,8 @@ echo Inspecting backup files...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database backup --inspect-path=/var/lib/neo4j/config/neo4j5_data/backup"
 
 echo Downloading backup log...
-%CLUSTER_CMD% cp %NAMESPACE%/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "%BACKUP_DIR%\backup_ImagingDatabases.log"
+%CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/backup_ImagingDatabases.log > "%BACKUP_DIR%\backup_ImagingDatabases.log"
+if errorlevel 1 echo WARNING: Failed to download backup_ImagingDatabases.log, continuing...
 
 echo Downloading Neo4j backup files...
 if not exist "%BACKUP_DIR%\backup" mkdir "%BACKUP_DIR%\backup"

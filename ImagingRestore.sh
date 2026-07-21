@@ -178,7 +178,7 @@ if [ -n "$POSTGRES_POD" ]; then
     $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U operator -p 5432 -c 'ANALYZE;' -d keycloak"
     $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "psql -U operator -p 5432 -c 'ANALYZE;' -d postgres"
     echo "Downloading postgres restore log..."
-    $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/postgres_restore.log "$BACKUP_DIR/postgres_restore.log"
+    $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/postgres_restore.log "$BACKUP_DIR/postgres_restore.log" || echo "WARNING: Failed to download postgres_restore.log, continuing..."
     echo "Cleaning up backup files from postgres pod..."
     $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "rm -f $PG_DATA_PATH/all_databases.backup $PG_DATA_PATH/postgres_restore.log"
     echo "Postgres restore done."
@@ -241,21 +241,21 @@ rm "$BACKUP_DIR/backup/neo4j_drop_create.cypher"
 echo "Restoring neo4j database..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j > /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if [ $? -ne 0 ]; then
-    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log"
+    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log" || echo "WARNING: Failed to download neo4j_restore.log"
     echo "ERROR: neo4j database restore encountered issues. Check neo4j_restore.log file."
     exit 1
 fi
 echo "Restoring imaging database..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if [ $? -ne 0 ]; then
-    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log"
+    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log" || echo "WARNING: Failed to download neo4j_restore.log"
     echo "ERROR: imaging database restore encountered issues. Check neo4j_restore.log file."
     exit 1
 fi
 echo "Restoring packagereference database..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 if [ $? -ne 0 ]; then
-    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log"
+    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log" || echo "WARNING: Failed to download neo4j_restore.log"
     echo "ERROR: packagereference database restore encountered issues. Check neo4j_restore.log file."
     exit 1
 fi
@@ -271,7 +271,7 @@ $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shel
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"imaging\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/imaging/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"packagereference\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/packagereference/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
 echo "Downloading Neo4j restore log..."
-$CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log"
+$CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/neo4j_restore.log "$BACKUP_DIR/neo4j_restore.log" || echo "WARNING: Failed to download neo4j_restore.log, continuing..."
 echo "Cleaning up archive files..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -f /var/lib/neo4j/config/neo4j5_data/neo4j.tar"

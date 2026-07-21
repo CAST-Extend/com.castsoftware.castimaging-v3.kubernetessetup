@@ -161,7 +161,7 @@ if [ -n "$POSTGRES_POD" ]; then
     fi
 
     echo "Downloading postgres backup log..."
-    $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/backup/postgres_backup.log "$BACKUP_DIR/postgres_backup.log"
+    $CLUSTER_CMD cp $NAMESPACE/$POSTGRES_POD:$PG_DATA_PATH/backup/postgres_backup.log "$BACKUP_DIR/postgres_backup.log" || echo "WARNING: Failed to download postgres_backup.log, continuing..."
 
     echo "Cleaning up backup files from postgres pod..."
     $CLUSTER_CMD exec $POSTGRES_POD -n $NAMESPACE -- /bin/bash -c "rm -rf $PG_DATA_PATH/backup"
@@ -183,7 +183,7 @@ $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "mkdir -p /v
 echo "Running neo4j-admin database backup..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database backup --verbose --compress=true --include-metadata=all --pagecache=4G --to-path /var/lib/neo4j/config/neo4j5_data/backup --from=localhost:6362 '*' > /var/lib/neo4j/logs/backup_ImagingDatabases.log 2>&1"
 if [ $? -ne 0 ]; then
-    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "$BACKUP_DIR/backup_ImagingDatabases.log"
+    $CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "$BACKUP_DIR/backup_ImagingDatabases.log" || echo "WARNING: Failed to download backup_ImagingDatabases.log"
     echo "ERROR: Neo4j backup has encountered issues. Check log file."
     exit 1
 fi
@@ -192,7 +192,7 @@ echo "Inspecting backup files..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "neo4j-admin database backup --inspect-path=/var/lib/neo4j/config/neo4j5_data/backup"
 
 echo "Downloading backup log..."
-$CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "$BACKUP_DIR/backup_ImagingDatabases.log"
+$CLUSTER_CMD cp $NAMESPACE/viewer-neo4j-core-0:/var/lib/neo4j/logs/backup_ImagingDatabases.log "$BACKUP_DIR/backup_ImagingDatabases.log" || echo "WARNING: Failed to download backup_ImagingDatabases.log, continuing..."
 
 echo "Downloading Neo4j backup files..."
 mkdir -p "$BACKUP_DIR/backup"
