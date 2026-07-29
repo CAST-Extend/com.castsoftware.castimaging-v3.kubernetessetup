@@ -120,7 +120,11 @@ spec:
           resources:
             {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
-        - env:       
+        - env:
+{{- range $key, $value := .Values.SSOSERVICE }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
 {{- if .Values.CustomPostgres.enable }}
             - name: KC_DB_URL
               value: jdbc:postgresql://{{ .Values.CustomPostgres.host }}:{{ .Values.CustomPostgres.port }}/keycloak

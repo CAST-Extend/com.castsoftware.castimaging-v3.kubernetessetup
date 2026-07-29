@@ -12,8 +12,14 @@ spec:
   - name: http
     port: 9001
     targetPort: 9001
+{{- if .Values.etlNodePort }} 
+    nodePort: {{ .Values.etlNodePort }}
+{{- end }}
   selector:
     imaging.service: viewer-etl
+{{- if or .Values.etlNodePort .Values.allNodePort }} 
+  type: NodePort
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -146,6 +152,10 @@ spec:
 {{- end }}
       containers:
         - env:
+{{- range $key, $value := .Values.ETL }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: TZ
               value: "UTC"
             - name: EUREKA_HOST
@@ -160,12 +170,6 @@ spec:
               value: "bolt://viewer-neo4j:7687"
             - name: LOG_LEVEL
               value: "debug"
-            - name: WORKER_POOL_SIZE
-              value: "{{ .Values.ETL.WORKER_POOL_SIZE | default 4 }}"
-            - name: NEO4J_IMPORT_BATCH_SIZE
-              value: "{{ .Values.ETL.NEO4J_IMPORT_BATCH_SIZE | default 1000 }}"
-            - name: NEO4J_DELETE_BATCH_SIZE
-              value: "{{ .Values.ETL.NEO4J_DELETE_BATCH_SIZE | default 2000 }}"
             - name: NEO4J_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -186,6 +190,30 @@ spec:
           ports:
             - containerPort: 9001
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 10 
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9001
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 10
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9001
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 10
+            successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true

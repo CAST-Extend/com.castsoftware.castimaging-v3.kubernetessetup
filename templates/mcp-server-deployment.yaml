@@ -80,6 +80,10 @@ spec:
   {{- end }}                    
       containers:
         - env:
+{{- range $key, $value := .Values.MCPSERVER }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: MCP_SERVER_PORT
               value: "8282"
   {{- if .Values.ContextUrl.enable }}

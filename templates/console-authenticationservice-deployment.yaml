@@ -105,6 +105,10 @@ spec:
             {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
+{{- range $key, $value := .Values.AUTHENTICATIONSERVICE }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
 {{- if .Values.UseCustomTrustStore }}
             - name: USE_CUSTOM_TRUSTSTORE
               value: "true"

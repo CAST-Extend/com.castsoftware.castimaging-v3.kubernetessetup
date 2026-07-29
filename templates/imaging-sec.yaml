@@ -24,6 +24,7 @@ data:
   keycloak-db-password: {{ .Values.KeycloakDbPassword | default "a2V5Y2xvYWs=" }}
   keycloak-admin-password: {{ .Values.KeycloakAdminPassword | default "YWRtaW4=" }}
   neo4j-password: {{ .Values.Neo4jPassword | default "aW1hZ2luZw==" }}
+  operator-db-password-crypted2: {{ .Values.OperatorDbPasswordCrypted2 | b64enc }}
   {{- if .Values.SMTP.enable }}
   smtp-password: {{ .Values.SMTP.SPRING_MAIL_PASSWORD | default "bXktc210cC1wYXNzd29yZA==" }}
   {{- end }}

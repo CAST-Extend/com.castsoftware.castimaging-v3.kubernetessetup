@@ -192,6 +192,10 @@ spec:
               subPath: analysisnode-upgrade-script.sql       
       containers:
         - env:
+{{- range $key, $value := .Values.ANALYSISNODE }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: TMPDIR
               value: /tmp
             - name: CONTROL_PANEL_HOSTNAME

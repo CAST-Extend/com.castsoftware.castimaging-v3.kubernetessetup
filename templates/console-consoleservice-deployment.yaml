@@ -145,6 +145,10 @@ spec:
             subPath: license-extend-update-script.sql
       containers:
         - env:
+{{- range $key, $value := .Values.CONSOLESERVICE }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: HOST_CONSOLE
               value: console-service
             - name: PORT_CONSOLE

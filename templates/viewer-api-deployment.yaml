@@ -12,8 +12,14 @@ spec:
   - name: http
     port: 8070
     targetPort: 8070
+{{- if .Values.apiNodePort }} 
+    nodePort: {{ .Values.apiNodePort }}
+{{- end }}
   selector:
     imaging.service: viewer-api
+{{- if or .Values.apiNodePort .Values.allNodePort }} 
+  type: NodePort
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -127,6 +133,10 @@ spec:
             {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
+{{- range $key, $value := .Values.API }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: TZ
               value: "UTC"
             - name: LOG_LEVEL
@@ -173,6 +183,27 @@ spec:
           ports:
             - containerPort: 8070
               protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: 8070
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 30 
+          livenessProbe:
+            tcpSocket:
+              port: 8070
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 30
+            successThreshold: 1
+          readinessProbe:
+            tcpSocket:
+              port: 8070
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 30
+            successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true

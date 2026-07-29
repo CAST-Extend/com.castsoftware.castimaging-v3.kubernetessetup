@@ -147,6 +147,10 @@ spec:
 {{- end }}
       containers:
         - env:
+{{- range $key, $value := .Values.DASHBOARDS }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: HOST_HOSTNAME
               value: console-dashboards
             - name: PORT_DASHBOARDS

@@ -72,7 +72,7 @@ spec:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
 {{- end }}
       securityContext:
-        fsGroup: 65532
+        fsGroup: 10001
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
@@ -156,6 +156,10 @@ spec:
 {{- end }}
       containers:
         - env:
+{{- range $key, $value := .Values.CONTROLPANEL }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: HOST_AUTH_SERVICE
               value: console-authentication-service
             - name: PORT_AUTH_SERVICE
@@ -178,7 +182,10 @@ spec:
               value: "2285"              
 {{- end }}
             - name: DB_ENCRYPTED_PASSWORD
-              value: "{{ .Values.OperatorDbPasswordCrypted2 }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
+                  key: operator-db-password-crypted2
             - name: HOST_CONSOLE
               value: console-service
             - name: PORT_CONSOLE
@@ -206,8 +213,6 @@ spec:
             - name: DASHBOARD_STANDALONE_ENABLED
               value: "{{ .Values.DASHBOARD_STANDALONE_ENABLED }}"
 {{- end }}
-            - name: IMAGING_DOMAIN_SYNCHRO_ENABLED
-              value: "{{ .Values.IMAGING_DOMAIN_SYNCHRO_ENABLED }}"
 {{- if .Values.SMTP.enable }}
             - name: SPRING_MAIL_HOST
               value: "{{ .Values.SMTP.SPRING_MAIL_HOST }}"
@@ -263,7 +268,7 @@ spec:
             - containerPort: 8098
               protocol: TCP
           securityContext:
-            runAsUser: 65532
+            runAsUser: 10001
 {{- if .Values.RestrictedSecurityMode }}
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
@@ -274,24 +279,22 @@ spec:
           resources:
             {{- toYaml .Values.ControlPanelResources | nindent 12 }}
           volumeMounts:
-            - mountPath: {{ .Values.anadir.common }}
-              name: audit-trails
+            - mountPath: {{ .Values.anadir.datadirmount }}
+              name: shared-datadir
 {{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
               readOnly: true
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
             - name: tmp
               mountPath: /tmp
             - name: run
               mountPath: /var/run
-{{- end }}
       restartPolicy: Always
       volumes:
-        - name: audit-trails
+        - name: shared-datadir
           persistentVolumeClaim:
-            claimName: pvc-controlpanel-audit-trails
+            claimName: pvc-shared-datadir
         - name: contexturl-controlpanel-update-script
           configMap:
             name: contexturl-controlpanel-update-script
@@ -306,12 +309,10 @@ spec:
         - name: postgres-ssl-files
           emptyDir: {}
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
         - name: tmp
           emptyDir: {}
         - name: run
           emptyDir: {}
-{{- end }}
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  

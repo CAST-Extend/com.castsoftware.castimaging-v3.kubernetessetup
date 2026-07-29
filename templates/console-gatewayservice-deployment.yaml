@@ -25,13 +25,15 @@ spec:
     - name: "8090"
       port: 8090
       targetPort: 8090
-{{- if and (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) .Values.gatewayNodePort }}
+{{- if .Values.gatewayNodePort }}
       nodePort: {{ .Values.gatewayNodePort }}
 {{- end }}
   selector:
     console.service: console-gateway-service
 {{- if (or .Values.CreateLoadBalancer .Values.UseApplicationGateway) }}
   type: LoadBalancer
+{{- else if or .Values.gatewayNodePort .Values.allNodePort }}
+  type: NodePort
 {{- end }}
 ---
 apiVersion: apps/v1
@@ -119,6 +121,10 @@ spec:
           {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
+{{- range $key, $value := .Values.GATEWAYSERVICE }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: HOST_GATEWAY
               value: console-gateway-service
             - name: PORT_GATEWAY

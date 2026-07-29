@@ -12,15 +12,24 @@ spec:
     - port: 7474
       targetPort: 7474
       name: browser
+{{- if .Values.neo4jBrowserNodePort }} 
+      nodePort: {{ .Values.neo4jBrowserNodePort }}
+{{- end }}
     - port: 7687
       targetPort: 7687
       name: bolt
+{{- if .Values.neo4jBoltNodePort }} 
+      nodePort: {{ .Values.neo4jBoltNodePort }}
+{{- end }}
     - port: 7473
       targetPort: 7473
       name: https
     - port: 8888
       targetPort: 8888
       name: upgrade
+{{- if or .Values.neo4jBrowserNodePort .Values.neo4jBoltNodePort .Values.allNodePort }}
+  type: NodePort
+{{- end }}
   selector:
     imaging.service: viewer-neo4j
 ---
@@ -116,14 +125,20 @@ spec:
           imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
           command: ['sh', '-c', "/var/lib/neo4j/config/init.sh"]
           env:
+{{- $neo4jReserved := list "NEO4J_ACCEPT_LICENSE_AGREEMENT" "NEO4J_USERNAME" "NEO4J_PASSWORD" "NEO4J_BOLT_ENDPOINT" }}
+{{- $neo4jFlat := dict }}
+{{- range $key, $value := .Values }}
+{{- if and (hasPrefix "NEO4J_" $key) (not (has $key $neo4jReserved)) }}
+{{- $_ := set $neo4jFlat $key $value }}
+{{- end }}
+{{- end }}
+{{- $neo4jVars := merge $neo4jFlat (.Values.NEO4J | default dict) }}
+{{- range $key, $value := $neo4jVars }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
               value: "yes"
-            - name: NEO4J_server_memory_heap_initial__size
-              value: "{{ .Values.NEO4J_server_memory_heap_initial__size }}"
-            - name: NEO4J_server_memory_heap_max__size
-              value: "{{ .Values.NEO4J_server_memory_heap_max__size }}"
-            - name: NEO4J_dbms_memory_transaction_total_max
-              value: "{{ .Values.NEO4J_dbms_memory_transaction_total_max }}"
             - name: TZ
               value: "UTC"
             - name: NEO4J_USERNAME

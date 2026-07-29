@@ -17,6 +17,9 @@ spec:
     targetPort: 8286
   selector:
     imaging.service: viewer-aimanager
+{{- if .Values.allNodePort }} 
+  type: NodePort
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -135,6 +138,10 @@ spec:
 {{- end }}
       containers:
         - env:
+{{- range $key, $value := .Values.AIMANAGER }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: TZ
               value: "UTC"
             - name: NEO4J_BOLT_ENDPOINT
@@ -174,6 +181,27 @@ spec:
               protocol: TCP
             - containerPort: 8286
               protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 30 
+          livenessProbe:
+            tcpSocket:
+              port: 8082
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 30
+            successThreshold: 1
+          readinessProbe:
+            tcpSocket:
+              port: 8082
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 30
+            successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true

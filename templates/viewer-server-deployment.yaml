@@ -12,9 +12,18 @@ spec:
     - name: http
       port: 8083
       targetPort: 8080
+{{- if .Values.serverhttpNodePort }} 
+      nodePort: {{ .Values.serverhttpNodePort }}
+{{- end }}
     - name: login
       port: 9000
       targetPort: 9000
+{{- if .Values.serverloginNodePort }} 
+      nodePort: {{ .Values.serverloginNodePort }}
+{{- end }}
+{{- if or .Values.serverhttpNodePort .Values.serverloginNodePort .Values.allNodePort }} 
+  type: NodePort
+{{- end }}
   selector:
     imaging.service: viewer-server
 ---
@@ -216,6 +225,10 @@ spec:
           command: ['sh', '-c', "/opt/imaging/config/init.sh"]
           name: viewer-server
           env:
+{{- range $key, $value := .Values.SERVER }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
             - name: TZ
               value: "UTC"
             - name: EUREKA_HOST
@@ -248,6 +261,30 @@ spec:
               protocol: TCP
             - containerPort: 9000
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 10 
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9000
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 10
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9000
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 10
+            successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
