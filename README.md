@@ -12,7 +12,6 @@ https://doc.castsoftware.com/imaging/install/update/kubernetes/
 
 #### New Features
 - **Proxy exclusions auto-update job**: a new `proxy-exclusions-update-script` ConfigMap and a suspended `proxy-exclusions-cronjob` CronJob are shipped with the chart. It can be triggered manually (`kubectl create job proxy-exclusions-cronjob-<id> --from=cronjob/proxy-exclusions-cronjob -n <namespace>`) to refresh `control_panel.settings.non_proxy_hosts` from the subnets of currently registered services, when `proxy_settings_mode` is `MANUAL_PROXY`.
-- **Performance diagnostics script**: `Util-DiagnosePerf-priv.ps1`/`.sh` added to collect cluster and storage performance diagnostics (storage class info, node/PV/PVC details, optional AKS/EKS-specific checks) for troubleshooting slow shared-volume performance.
 - New `AIMANAGER.SUMMARY_LOG_LEVEL: info` default environment variable.
 
 #### Security
