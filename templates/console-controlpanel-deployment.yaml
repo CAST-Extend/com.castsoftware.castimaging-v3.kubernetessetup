@@ -15,8 +15,14 @@ spec:
     - name: "8098"
       port: 8098
       targetPort: 8098
+{{- if .Values.controlpanelNodePort }} 
+      nodePort: {{ .Values.controlpanelNodePort }}
+{{- end }}
   selector:
     imaging.service: console-control-panel
+{{- if or .Values.controlpanelNodePort .Values.allNodePort }} 
+  type: NodePort
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -237,7 +243,7 @@ spec:
           name: console-control-panel
           startupProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/readiness
               port: 8098
               scheme: HTTP
             initialDelaySeconds: 30
@@ -246,16 +252,7 @@ spec:
             failureThreshold: 30
           livenessProbe:
             httpGet:
-              path: /actuator/health
-              port: 8098
-              scheme: HTTP
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: 8098
               scheme: HTTP
             periodSeconds: 10

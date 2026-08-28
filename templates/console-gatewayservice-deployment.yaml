@@ -170,22 +170,13 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 20
             successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8090
-              scheme: HTTP
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
           ports:
             - containerPort: 8090
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 100
+            runAsUser: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:

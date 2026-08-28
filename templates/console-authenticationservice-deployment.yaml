@@ -109,14 +109,6 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
 {{- end }}
-{{- if .Values.UseCustomTrustStore }}
-            - name: USE_CUSTOM_TRUSTSTORE
-              value: "true"
-            - name: TRUSTSTORE_PATH
-              value: /cast/truststore.jks
-            - name: TRUSTSTORE_PASSWORD
-              value: castapi
-{{- end }}                      
             - name: HOST_AUTH_SERVICE
               value: console-authentication-service
             - name: PORT_AUTH_SERVICE
@@ -186,15 +178,6 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 20
             successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8092
-              scheme: HTTP
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
           ports:
             - containerPort: 8092
               protocol: TCP
@@ -216,22 +199,12 @@ spec:
             - name: run
               mountPath: /var/run
 {{- end }}
-{{- if .Values.UseCustomTrustStore }}
-            - name: authcacrt
-              mountPath: /cast/certs/ca.crt
-              subPath: ca.crt
-{{- end }}
       volumes:
 {{- if .Values.RestrictedSecurityMode }}
         - name: tmp
           emptyDir: {}
         - name: run
           emptyDir: {}
-{{- end }}
-{{- if .Values.UseCustomTrustStore }}
-        - name: authcacrt
-          configMap:
-            name: authcacrt           
 {{- end }}
       restartPolicy: Always
 {{- if .Values.UseImagePullSecrets }}      

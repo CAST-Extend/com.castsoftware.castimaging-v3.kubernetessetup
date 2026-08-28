@@ -197,13 +197,6 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 30
             successThreshold: 1
-          readinessProbe:
-            tcpSocket:
-              port: 8070
-            periodSeconds: 30
-            timeoutSeconds: 10
-            failureThreshold: 30
-            successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true

@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.6.6
+version: 3.6.7
 
 ####################################################################################
 #
@@ -88,18 +88,6 @@ ContextUrl:
 #     2) Restart all imaging services once (scale down / scale up all deployments/statefulsets)
 
 #
-# OPTIONAL - Use custom Trust Store in console-authentication-service to store certificate
-#
-UseCustomTrustStore: false
-auth:
-  caCertificate: |
-    -----BEGIN CERTIFICATE-----
-    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    -----END CERTIFICATE-----
-
-#
 # CAST Storage Class names
 #
 CreateStorageClass: true       # Default: true
@@ -183,7 +171,20 @@ KCADMIN_USERNAME: kcadmin
 
 #
 # OPTIONAL - ExtendProxy
-#
+#   Deploys the "extendproxy" service
+#   enable:      set to true to deploy the extendproxy Deployment/Service/PVC
+#                When false, none of the settings below apply.
+#   exthostname: public hostname clients will use to reach extendproxy GUI.
+#                - Same value as FrontEndHost's hostname => routed on the shared hostname under the
+#                  /extendproxy path (see CreateIngress/UseIstioGateway/UseGatewayAPI templates).
+#                - Different value => routed on its own dedicated hostname/TLS cert instead.
+#                - If neither CreateIngress, UseIstioGateway nor UseGatewayAPI is enabled, this is used
+#                  as-is with ExtendProxy.port (plain http, e.g. behind a LoadBalancer/NodePort).
+#   port:        (optional, not set by default) nodePort/port to expose extendproxy on when using
+#                CreateLoadBalancer or a NodePort Service instead of Ingress/Istio/Gateway API.
+#   After deployment, the generated Extend Proxy API key can be retrieved from the extendproxy pod logs
+#   (see helm-deployment-with-extendproxy.bat/.sh) and set in Console "Global configuration" if not
+#   already provided via ExtendApiKey.
 ExtendProxy:
   enable: false
   exthostname: myextendhost.com
@@ -207,6 +208,7 @@ ETL:
   NEO4J_DELETE_BATCH_SIZE: 2000
 SERVER:
 AIMANAGER:
+  SUMMARY_LOG_LEVEL: info
 MCPSERVER:
 CONTROLPANEL:
   IMAGING_DOMAIN_SYNCHRO_ENABLED: false
@@ -318,31 +320,31 @@ ConsolePostgresImage:
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
   name: castimaging/sso-service
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ConsoleServiceImage:
   name: castimaging/console
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
   name: castimaging/gateway
-  tag: "3.6.6"
-  pullPolicy: IfNotPresent  
+  tag: "3.6.7"
+  pullPolicy: IfNotPresent
 ConsoleAnalysisNodeImage:
   name: castimaging/analysis-node
-  tag: "3.6.6_core8.4.11"
+  tag: "3.6.7_core8.4.12"
   pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
   name: castimaging/admin-center
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
   name: castimaging/auth-service
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
   name: castimaging/dashboards-v3
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
   
 #
@@ -350,23 +352,23 @@ ConsoleIntegratedDashboardsImage:
 #
 ViewerNeo4jImage:
   name: castimaging/neo4j
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ViewerServiceImage:
   name: castimaging/viewer
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ViewerEtlImage:
   name: castimaging/etl-service
-  tag: "3.6.6"
-  pullPolicy: IfNotPresent  
+  tag: "3.6.7"
+  pullPolicy: IfNotPresent
 ViewerAiManagerImage:
   name: castimaging/ai-service
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 ViewerApiImage:
   name: castimaging/imaging-apis
-  tag: "3.6.6"
+  tag: "3.6.7"
   pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server
@@ -377,7 +379,7 @@ McpServerImage:
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.2.11"
+  tag: "2.3.0"
   pullPolicy: IfNotPresent 
 
 #

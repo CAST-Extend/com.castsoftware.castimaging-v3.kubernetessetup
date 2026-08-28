@@ -22,12 +22,6 @@
 #     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv\myextendhostname.com\fullchain.pem --key=cert-priv\myextendhostname.com\privkey.pem -n castimaging-v3
 #    (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
 #    If you want to use the same hostname for the 3 services, just create the 3 secrets using the same certificate files
-# - Optional - for certificates that cannot be verified (e.g., self-signed certificate or internal CA), 
-#   the tls-secret-cast certificate will need to be stored in CAST auth-service:
-#                > set: UseCustomTrustStore: true in values .yaml
-#                > Insert the encoded certificate in the auth.caCertificate variable in values .yaml
-#                  or 
-#                  Use "helm upgrade ... --set-file auth.caCertificate=ca.crt ..." to override the value with the ca.crt file content
 # ********************************************************************
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -35,13 +29,16 @@ metadata:
   name: castimaging-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+    # Forward the public host to the backend so the application builds redirects and absolute
+    # links using the public URL rather than the internal Ingress address. Required whenever a
+    # reverse proxy (e.g. a DMZ) sits in front of the Ingress, independent of the context path.
+    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
+    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).hostname }}
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
   {{- if .Values.ContextUrl.enable }}
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
-    nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
-    nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).hostname }}
-    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
   {{- end }}
@@ -109,7 +106,13 @@ metadata:
   name: custom-headers
   namespace: {{ .Release.Namespace }}
 data:
-  X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }} 
+  # The application builds redirects/absolute links from X-Forwarded-Host (with -Proto/-Port).
+  # Proto follows the FrontEndHost scheme; port follows proto unless an explicit port is set.
+  X-Forwarded-Host: {{ (urlParse .Values.FrontEndHost).hostname }}
+  {{- $scheme := (urlParse .Values.FrontEndHost).scheme | default "https" }}
+  {{- $port := (urlParse .Values.FrontEndHost).port }}
+  X-Forwarded-Proto: {{ $scheme }}
+  X-Forwarded-Port: {{ if $port }}{{ $port | quote }}{{ else if eq $scheme "https" }}"443"{{ else }}"80"{{ end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -117,5 +120,6 @@ metadata:
   name: custom-headers-extend
   namespace: {{ .Release.Namespace }}
 data:
-  X-Forwarded-For: {{ .Values.ExtendProxy.exthostname }}
+  X-Forwarded-Host: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
+  X-Forwarded-Proto: https
 {{- end }}

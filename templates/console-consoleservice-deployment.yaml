@@ -166,7 +166,7 @@ spec:
           name: console-service
           startupProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/readiness
               port: 8091
               scheme: HTTP
             initialDelaySeconds: 30
@@ -175,16 +175,7 @@ spec:
             failureThreshold: 20
           livenessProbe:
             httpGet:
-              path: /actuator/health
-              port: 8091
-              scheme: HTTP
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: 8091
               scheme: HTTP
             periodSeconds: 10

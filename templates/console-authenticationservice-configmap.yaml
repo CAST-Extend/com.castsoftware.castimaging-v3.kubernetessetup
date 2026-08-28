@@ -1,9 +1,0 @@
-apiVersion: v1
-data:
-  ca.crt: | 
-{{- .Values.auth.caCertificate | nindent 4 }}
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: authcacrt
-  namespace: {{.Release.Namespace}}

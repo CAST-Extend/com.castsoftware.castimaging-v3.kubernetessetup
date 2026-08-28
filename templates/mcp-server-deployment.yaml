@@ -114,15 +114,6 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 20
             successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /mcp/healthcheck
-              port: 8282
-              scheme: HTTP
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
           ports:
             - containerPort: 8082
               protocol: TCP

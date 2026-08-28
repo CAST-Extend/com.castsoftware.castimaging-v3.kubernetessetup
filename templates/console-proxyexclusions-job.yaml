@@ -1,0 +1,165 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-exclusions-update-script
+  namespace: {{ .Release.Namespace }}
+data:
+  proxy-exclusions-update-script.sh: |
+    #!/bin/sh
+    set -e
+
+    echo "Ensuring non_proxy_hosts column can hold the full exclusion list..."
+    psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U operator -d postgres -c "alter table control_panel.settings alter column non_proxy_hosts type VARCHAR(2048);"
+
+    PROXY_SETTINGS_MODE=$(psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U operator -d postgres -t -A -c "select coalesce(proxy_settings_mode, '') from control_panel.settings;" | tr -d '[:space:]')
+
+    if [ "$PROXY_SETTINGS_MODE" != "MANUAL_PROXY" ]; then
+      echo "proxy_settings_mode is '${PROXY_SETTINGS_MODE}', not 'MANUAL_PROXY' - skipping non_proxy_hosts auto-update."
+      exit 0
+    fi
+
+    echo "Discovering registered app subnets from Eureka..."
+
+    EUREKA_APPS=$(curl -s --max-time 10 -H "Accept: application/json" http://console-control-panel:8098/eureka/apps)
+
+    IPS=$(printf '%s' "$EUREKA_APPS" | grep -o '"ipAddr":"[^"]*"' | cut -d'"' -f4 | sort -u)
+
+    SUBNETS=""
+    for ip in $IPS; do
+      case "$ip" in
+        *:*)
+          # Skip IPv6 addresses - already covered by the [::1]/[::0] static exclusions
+          continue
+          ;;
+      esac
+      subnet=$(printf '%s' "$ip" | cut -d'.' -f1-2)
+      subnet="${subnet}.*"
+      case ";${SUBNETS};" in
+        *";${subnet};"*)
+          ;;
+        *)
+          SUBNETS="${SUBNETS};${subnet}"
+          ;;
+      esac
+    done
+    SUBNETS="${SUBNETS#;}"
+
+    echo "Identified subnets: ${SUBNETS:-<none>}"
+
+    BASE_EXCLUSIONS="localhost;127.*;[::1];0.0.0.0;[::0];*.svc.cluster.local;console*;viewer-*;mcp-*"
+    CANDIDATES="$BASE_EXCLUSIONS"
+    if [ -n "$SUBNETS" ]; then
+      CANDIDATES="${CANDIDATES};${SUBNETS}"
+    fi
+
+    CURRENT=$(psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U operator -d postgres -t -A -c "select coalesce(non_proxy_hosts, '') from control_panel.settings;" | tr -d '[:space:]')
+
+    NEW_VALUE="$CURRENT"
+    OLDIFS="$IFS"
+    IFS=';'
+    for item in $CANDIDATES; do
+      [ -z "$item" ] && continue
+      case ";${NEW_VALUE};" in
+        *";${item};"*)
+          ;;
+        *)
+          if [ -z "$NEW_VALUE" ]; then
+            NEW_VALUE="$item"
+          else
+            NEW_VALUE="${NEW_VALUE};${item}"
+          fi
+          ;;
+      esac
+    done
+    IFS="$OLDIFS"
+
+    if [ "$NEW_VALUE" != "$CURRENT" ]; then
+      echo "Updating non_proxy_hosts: ${NEW_VALUE}"
+      psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U operator -d postgres -c "update control_panel.settings set non_proxy_hosts = '${NEW_VALUE}', modified_date = now();"
+    else
+      echo "non_proxy_hosts already up to date, nothing to append."
+    fi
+---
+# CronJob (not a plain Job) so it can be triggered on-demand with
+#   kubectl create job proxy-exclusions-cronjob-123123 --from=cronjob/proxy-exclusions-cronjob -n castimaging-v3
+# "kubectl create job --from=" only supports CronJob sources, not Job sources.
+# The schedule below is intentionally invalid (Feb 31st never occurs) and the
+# CronJob is suspended, so it never runs on its own - only via manual trigger.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: proxy-exclusions-cronjob
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: "0 0 31 2 *"
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+{{- if .Values.EnforceNodeAffinity }}
+          nodeSelector:
+            {{- toYaml .Values.nodeSelector | nindent 12 }}
+          tolerations:
+            {{- toYaml .Values.tolerations | nindent 12 }}
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 16 }}
+{{- end }}
+{{- if .Values.EnforceBalancedAffinity }}
+          affinity:
+            podAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                {{- toYaml .Values.podAffinityGroupConsole | nindent 16 }}
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                {{- toYaml .Values.podAffinityGroupViewer | nindent 16 }}
+{{- end }}
+          restartPolicy: Never
+          containers:
+            - name: proxy-exclusions-update
+              image: "{{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag}}"
+              imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
+                      key: operator-db-password
+                - name: POSTGRES_HOST
+                  value: {{ .Values.CustomPostgres.enable | ternary .Values.CustomPostgres.host "console-postgres" | quote }}
+                - name: POSTGRES_PORT
+                  value: {{ .Values.CustomPostgres.enable | ternary .Values.CustomPostgres.port 2285 | quote }}
+              command: ["sh", "-c", "/proxy-exclusions-update-script.sh"]
+              volumeMounts:
+                - name: proxy-exclusions-update-script
+                  mountPath: "/proxy-exclusions-update-script.sh"
+                  subPath: proxy-exclusions-update-script.sh
+{{- if .Values.RestrictedSecurityMode }}
+              securityContext:
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+{{- end }}
+              resources:
+                {{- toYaml .Values.InitContainerResources | nindent 16 }}
+{{- if .Values.UseImagePullSecrets }}
+          imagePullSecrets:
+            - name: imagepull-sec
+{{- end }}
+          volumes:
+            - name: proxy-exclusions-update-script
+              configMap:
+                name: proxy-exclusions-update-script
+                defaultMode: 0775

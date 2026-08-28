@@ -18,11 +18,6 @@
 #   ReferenceGrant is in place):
 #     kubectl create secret tls tls-secret-cast        --cert=cert-priv/myhostname.com/fullchain.pem        --key=cert-priv/myhostname.com/privkey.pem -n {{ .Release.Namespace }}
 #     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv/myextendhostname.com/fullchain.pem --key=cert-priv/myextendhostname.com/privkey.pem -n {{ .Release.Namespace }}
-# - Optional - for certificates that cannot be verified (self-signed / internal CA),
-#   store the cert in CAST auth-service:
-#     > set: UseCustomTrustStore: true in values.yaml
-#     > Insert the encoded certificate in auth.caCertificate in values.yaml
-#       or use "helm upgrade ... --set-file auth.caCertificate=ca.crt ..."
 # ********************************************************************
 # Notes on this template
 # ********************************************************************

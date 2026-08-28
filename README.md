@@ -8,6 +8,22 @@ https://doc.castsoftware.com/imaging/install/update/kubernetes/
 
 ## Helm Chart Release Notes
 
+### 3.6.7 (vs 3.6.6)
+
+#### New Features
+- **Proxy exclusions auto-update job**: a new `proxy-exclusions-update-script` ConfigMap and a suspended `proxy-exclusions-cronjob` CronJob are shipped with the chart. It can be triggered manually (`kubectl create job proxy-exclusions-cronjob-<id> --from=cronjob/proxy-exclusions-cronjob -n <namespace>`) to refresh `control_panel.settings.non_proxy_hosts` from the subnets of currently registered services, when `proxy_settings_mode` is `MANUAL_PROXY`.
+- **Performance diagnostics script**: `Util-DiagnosePerf-priv.ps1`/`.sh` added to collect cluster and storage performance diagnostics (storage class info, node/PV/PVC details, optional AKS/EKS-specific checks) for troubleshooting slow shared-volume performance.
+- New `AIMANAGER.SUMMARY_LOG_LEVEL: info` default environment variable.
+
+#### Security
+- **`UseCustomTrustStore` removed**: self-signed or otherwise unverifiable certificate on an internal service is no longer a blocking issue. The `UseCustomTrustStore` option and the `auth.caCertificate` value have been removed from `values.yaml`, along with the `authcacrt` ConfigMap and the associated volume mounts in `console-authentication-service`.
+  ⚠️ **Migration note**: if your existing `values.yaml` sets `UseCustomTrustStore` / `auth.caCertificate`, you can remove them: they are no longer used by the chart.
+
+#### Fixes
+- **NGINX Ingress `X-Forwarded-*` headers fixed**: the Ingress template now always injects `X-Forwarded-Host` / `X-Forwarded-Proto` / `X-Forwarded-Port` (previously only when `ContextUrl.enable: true`, and using the non-standard `X-Forwarded-For` header to carry the hostname). This is required whenever a reverse proxy or DMZ sits in front of the Ingress, so the application builds correct redirects and absolute links.
+- **`license-extend-update-script.sql` fixed**: `extend_url` is now only auto-populated when currently empty, so a manually-configured Extend URL is no longer overwritten on every `helm upgrade`. Updating `extend_apikey` no longer depends on `ExtendProxy.enable`.
+- `mcp-server` deployment's `fsGroupChangePolicy` changed from `OnRootMismatch` to `Always`, for consistency with the security context used by the other services.
+
 ### 3.6.6 (vs 3.6.5)
 
 #### New Features

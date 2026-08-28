@@ -206,14 +206,6 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 10
             successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 9001
-            periodSeconds: 30
-            timeoutSeconds: 10
-            failureThreshold: 10
-            successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true

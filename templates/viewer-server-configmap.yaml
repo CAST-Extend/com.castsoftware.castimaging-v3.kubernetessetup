@@ -63,7 +63,7 @@ data:
     \   \n            auth_request       /imaging/api/domains/$http_domain_name/apps/$http_app_name/resources/sourcecode/auth;\n
     \           proxy_pass         http://localhost:8084/sourcecode/api/;\n        }\n\n
     \       location ^~ /imaging/ai/ {\n           proxy_pass        http://viewer-aimanager:8082/;\n
-    \       }\n\n        location ^~ /imaging/graphrag/ {\n                proxy_pass
+    \       }\n\n        location ^~ /imaging/agents/ {\n                proxy_pass         http://viewer-aimanager:8030/;\n                proxy_buffering    off;\n                proxy_read_timeout 3600s;\n                }\n\n        location ^~ /imaging/graphrag/ {\n                proxy_pass
     \        http://viewer-aimanager:8286/;\n                proxy_set_header Host
     localhost;\n                proxy_buffering    off;\n                proxy_read_timeout
     3600s;\n                }\n\n        location ^~ /imaging/apis/ {\n            proxy_pass

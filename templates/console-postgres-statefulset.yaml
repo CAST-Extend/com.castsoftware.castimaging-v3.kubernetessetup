@@ -179,13 +179,6 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 20
             successThreshold: 1
-          readinessProbe:
-            exec:
-              command: ["pg_isready", "-U", "postgres"]
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
           ports:
             - containerPort: 5432
               protocol: TCP

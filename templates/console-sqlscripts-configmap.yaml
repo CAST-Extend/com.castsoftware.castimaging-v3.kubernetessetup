@@ -20,14 +20,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   license-extend-update-script.sql: |
-{{- if and .Values.ExtendProxy.enable }}
-    update control_panel.settings SET extend_url='http://extendproxy:8085', modified_date=now();
+{{- if .Values.ExtendProxy.enable }}
+    update control_panel.settings SET extend_url='http://extendproxy:8085', modified_date=now() where extend_url is null or btrim(extend_url)='';
+{{- else if .Values.ExtendApiKey }}
+    update control_panel.settings SET extend_url='https://extend.castsoftware.com', modified_date=now();
 {{- end }}
-{{- if and .Values.ExtendProxy.enable .Values.ExtendApiKey }}
-    update control_panel.settings SET extend_url='http://extendproxy:8085', extend_apikey='{{ .Values.ExtendApiKey }}', modified_date=now();
-{{- end }}
-{{- if and (not .Values.ExtendProxy.enable) .Values.ExtendApiKey }}
-    update control_panel.settings SET extend_url='https://extend.castsoftware.com', extend_apikey='{{ .Values.ExtendApiKey }}', modified_date=now();
+{{- if .Values.ExtendApiKey }}
+    update control_panel.settings SET extend_apikey='{{ .Values.ExtendApiKey }}', modified_date=now();
 {{- end }}
 {{- if .Values.ImagingLicense }}
     update control_panel.settings SET license='{{ .Values.ImagingLicense }}', license_kind='{{ .Values.ImagingLicenseType }}', modified_date=now();

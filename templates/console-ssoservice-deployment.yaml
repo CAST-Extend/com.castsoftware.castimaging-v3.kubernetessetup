@@ -192,15 +192,6 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 20
             successThreshold: 1
-          readinessProbe:
-            httpGet:
-              path: /auth/health/ready
-              port: 9000
-              scheme: HTTP
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
-            successThreshold: 1
           ports:
             - containerPort: 8080
               protocol: TCP
