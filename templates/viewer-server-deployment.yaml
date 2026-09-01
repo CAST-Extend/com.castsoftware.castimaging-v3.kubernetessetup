@@ -222,7 +222,7 @@ spec:
       containers:
         - image: "{{ .Values.ViewerServiceImage.name }}:{{ .Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ViewerServiceImage.pullPolicy }}"
-          command: ['sh', '-c', "/opt/imaging/config/init.sh"]
+          command: ['sh', '-c', "mkdir -p /run/nginx && /opt/imaging/config/init.sh"]
           name: viewer-server
           env:
 {{- range $key, $value := .Values.SERVER }}
@@ -306,6 +306,8 @@ spec:
               mountPath: /var/run
             - name: nginx-cache
               mountPath: /var/cache/nginx
+            - name: nginx-lib-tmp
+              mountPath: /var/lib/nginx/tmp
 {{- end }}
             - name: log
               mountPath: /opt/imaging/imaging-service/logs
@@ -337,6 +339,8 @@ spec:
         - name: nginx
           emptyDir: {}
         - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-lib-tmp
           emptyDir: {}
         - name: nginx-run
           emptyDir: {}
