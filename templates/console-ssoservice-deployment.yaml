@@ -171,6 +171,8 @@ spec:
             - name: PUBLIC_URL
               value: {{ .Values.FrontEndHost }}
 {{- end }}
+            - name: ACTIVEMQ_BROKER_URL
+              value: tcp://console-control-panel:2381
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service
