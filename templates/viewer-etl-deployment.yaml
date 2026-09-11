@@ -77,6 +77,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -97,6 +99,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -135,6 +138,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -218,6 +223,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -243,6 +249,9 @@ spec:
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
               readOnly: true
+{{- end }}
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
 {{- end }}
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:

@@ -91,6 +91,8 @@ spec:
         fsGroup: 999
         fsGroupChangePolicy: OnRootMismatch
         runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
         seccompProfile:
           type: RuntimeDefault
   {{- end }}
@@ -119,6 +121,7 @@ spec:
               mountPath: /var/lib/postgresql/ssl
           securityContext:
             runAsUser: 999          # postgres uid — files are owned correctly at creation
+            runAsGroup: 999
             runAsNonRoot: true
             allowPrivilegeEscalation: false
             capabilities:
@@ -193,6 +196,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 999
+            runAsGroup: 999
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -268,6 +272,8 @@ kind: Job
 metadata:
   name: custom-postgres-init-job
   namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
 spec:
   backoffLimit: 0
   template:
@@ -284,6 +290,14 @@ spec:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.nodeSelectorAppcastimaging | nindent 12 }}
+  {{- end }}
+  {{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
   {{- end }}
       restartPolicy: Never
       containers:
@@ -315,6 +329,8 @@ spec:
               drop:
                 - ALL
             runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
             seccompProfile:
               type: RuntimeDefault
   {{- end }}

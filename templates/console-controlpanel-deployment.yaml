@@ -76,6 +76,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -95,6 +97,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
           readOnlyRootFilesystem: true
+          runAsUser: 10001
+          runAsGroup: 10001
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -133,6 +137,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
           readOnlyRootFilesystem: true
+          runAsUser: 10001
+          runAsGroup: 10001
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -269,6 +275,7 @@ spec:
               protocol: TCP
           securityContext:
             runAsUser: 10001
+            runAsGroup: 10001
 {{- if .Values.RestrictedSecurityMode }}
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
@@ -313,6 +320,9 @@ spec:
           emptyDir: {}
         - name: run
           emptyDir: {}
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  

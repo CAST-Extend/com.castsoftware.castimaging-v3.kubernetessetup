@@ -35,6 +35,11 @@ metadata:
   name: castimaging-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+  {{- if .Values.CertManager.enable }}
+    cert-manager.io/issuer: {{ .Values.CertManager.issuer }}
+    cert-manager.io/common-name: {{ (urlParse .Values.FrontEndHost).hostname }} # Nom commun qui sera défini dans le certificat
+    cert-manager.io/private-key-size: {{ .Values.CertManager.privateKeySize | quote }} 
+  {{- end }}
   {{- if .Values.ContextUrl.enable }}
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
@@ -75,7 +80,7 @@ metadata:
   name: extendproxy-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "3072m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "300m" # TEMPORARY: should be se to "3072m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
     nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers-extend"

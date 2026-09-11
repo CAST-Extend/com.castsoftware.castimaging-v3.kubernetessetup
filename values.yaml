@@ -49,6 +49,13 @@ UseInternalLoadBalancer: false  # When a LoadBalancer Service is created (Create
 CreateIngress: false  # Application Networking option: routes the app through an nginx-ingress controller
                       # (installed separately - see prerequisites in templates/ingress.yaml) instead of a
                       # plain LoadBalancer Service. Set CreateLoadBalancer=false when this is true.
+# cert-manager (only used when CreateIngress is true):
+CertManager:
+  enable: false  # Set to true to have cert-manager annotations added to the Ingress so it automatically
+                 # requests/renews the TLS certificate (cert-manager must already be installed on the
+                 # cluster, along with the referenced ClusterIssuer/Issuer).
+  issuer: vault-issuer  # Name of the cert-manager Issuer/ClusterIssuer to use
+  privateKeySize: "4096"  # Size (in bits) of the private key to generate
 #
 # Istio:
 UseIstioGateway: false  # Application Networking option: routes the app through an Istio Gateway/VirtualService
@@ -251,7 +258,11 @@ SMTP:
 #
 # OPTIONAL - Access Private Repo with Secret
 UseImagePullSecrets: false
-Base64EncodedDockerconfigjson: 
+Base64EncodedDockerconfigjson:
+
+# OPTIONAL - Use a pre-existing Kubernetes ServiceAccount to pull images
+# (the ServiceAccount must have its own imagePullSecrets configured cluster-side)
+ServiceAccountName: 
 
 ####################################################################################
 

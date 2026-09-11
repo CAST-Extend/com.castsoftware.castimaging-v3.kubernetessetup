@@ -77,6 +77,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -97,6 +99,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -120,10 +123,12 @@ spec:
               echo "Waiting for neo4j..."
               sleep 2
             done
-            echo "viewer-neo4j is up!"                           
+            echo "viewer-neo4j is up!"
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -206,6 +211,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -225,6 +231,9 @@ spec:
             - name: logdir
               mountPath: /opt/imaging/open_ai-manager/logs
               readOnly: false         
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
         - name: imagepull-sec

@@ -72,6 +72,8 @@ spec:
         fsGroup: 33
         fsGroupChangePolicy: Always
         runAsNonRoot: true
+        runAsUser: 33
+        runAsGroup: 33
         seccompProfile:
           type: RuntimeDefault
   {{- else }}
@@ -130,6 +132,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 33
+            runAsGroup: 33
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -150,6 +153,9 @@ spec:
             - name: mcpserverappconfig
               mountPath: /app/server/config/app.config
               subPath: app.config
+  {{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+  {{- end }}
   {{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
         - name: imagepull-sec

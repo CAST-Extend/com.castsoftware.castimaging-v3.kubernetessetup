@@ -92,11 +92,13 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 7474
+        runAsGroup: 7474
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
-      initContainers:      
+      initContainers:
         - name: init-folders
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
           imagePullPolicy: "{{.Values.ViewerNeo4jImage.pullPolicy}}"
@@ -112,6 +114,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 7474
+            runAsGroup: 7474
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -180,6 +183,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 7474
+            runAsGroup: 7474
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -203,6 +207,9 @@ spec:
             - name: neo4jdata
               mountPath: /var/lib/neo4j/config/csv/archive
               subPath: csvarchive                    
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:
         - name: imagepull-sec

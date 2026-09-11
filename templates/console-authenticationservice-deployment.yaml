@@ -71,6 +71,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -96,6 +98,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -202,6 +206,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -234,6 +239,9 @@ spec:
             name: authcacrt           
 {{- end }}
       restartPolicy: Always
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
         - name: imagepull-sec

@@ -93,6 +93,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 100
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -112,6 +114,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
           readOnlyRootFilesystem: true
+          runAsUser: 100
+          runAsGroup: 100
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -186,6 +190,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 100
+            runAsGroup: 100
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -207,6 +212,9 @@ spec:
           emptyDir: {}
         - name: run
           emptyDir: {}
+{{- end }}
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
 {{- end }}
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
