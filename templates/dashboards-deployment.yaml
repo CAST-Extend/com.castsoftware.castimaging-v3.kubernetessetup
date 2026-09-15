@@ -72,8 +72,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
       securityContext:
         runAsNonRoot: true
-        runAsUser: 33
-        runAsGroup: 33
+        runAsUser: 65534
+        runAsGroup: 65534
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -93,8 +93,8 @@ spec:
               mountPath: /app-volume 
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
-            runAsGroup: 33
+            runAsUser: 65534
+            runAsGroup: 65534
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -133,8 +133,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
-            runAsGroup: 33
+            runAsUser: 65534
+            runAsGroup: 65534
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -191,8 +191,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
-            runAsGroup: 33
+            runAsUser: 65534
+            runAsGroup: 65534
             allowPrivilegeEscalation: false
             capabilities:
               drop:
