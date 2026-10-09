@@ -34,15 +34,24 @@ foreach ($SVC in $SERVICES.Keys) {
     Write-Host "No pod found for $SVC, skipping."
     continue
   }
+  $LOGPATH = $SERVICES[$SVC]
+  if ($SVC -eq "console-postgres") {
+    # PGDATA differs between modes (.../data or .../data/pgdata in RestrictedSecurityMode)
+    $PGDATA = kubectl exec $POD -n $NAMESPACE -c console-postgres -- printenv PGDATA 2>$null
+    if ($PGDATA) { $LOGPATH = "$($PGDATA.Trim())/log" }
+  }
   Write-Host "=== Copying logs from $POD ($SVC) ==="
-  kubectl cp -n $NAMESPACE "${POD}:$($SERVICES[$SVC])" "$DEST/$SVC"
+  kubectl cp -n $NAMESPACE "${POD}:$LOGPATH" "$DEST/$SVC"
 }
 
 # Retrieving standard output log from all pods
+# Single pipeline into Out-File keeps the file open once (Add-Content per line causes file-lock errors)
 Write-Host  "=== Retrieving std-out logs from all pods ==="
-foreach ($pod in $(kubectl get pods -n $NAMESPACE -o jsonpath='{.items[*].metadata.name}').Split(' ')) {
-  Add-Content $DEST/all-pods-stdout.log "=== Pod: $pod ==="
-  kubectl logs $pod -n $NAMESPACE --all-containers=true --prefix=true --tail=-1 | Add-Content $DEST/all-pods-stdout.log
-}
+& {
+  foreach ($pod in $(kubectl get pods -n $NAMESPACE -o jsonpath='{.items[*].metadata.name}').Split(' ')) {
+    "=== Pod: $pod ==="
+    kubectl logs $pod -n $NAMESPACE --all-containers=true --prefix=true --tail=-1
+  }
+} | Out-File -FilePath "$DEST/all-pods-stdout.log" -Encoding utf8
 
 Write-Host "All logs collected in $DEST"

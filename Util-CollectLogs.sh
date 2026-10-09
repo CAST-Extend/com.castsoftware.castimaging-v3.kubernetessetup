@@ -26,8 +26,14 @@ for SVC in "${!LOG_PATHS[@]}"; do
     echo "No pod found for $SVC, skipping."
     continue
   fi
+  LOGPATH="${LOG_PATHS[$SVC]}"
+  if [ "$SVC" = "console-postgres" ]; then
+    # PGDATA differs between modes (.../data or .../data/pgdata in RestrictedSecurityMode)
+    PGDATA=$(kubectl exec $POD -n $NAMESPACE -c console-postgres -- printenv PGDATA 2>/dev/null | tr -d '\r')
+    [ -n "$PGDATA" ] && LOGPATH="$PGDATA/log"
+  fi
   echo "=== Copying logs from $POD ($SVC) ==="
-  kubectl cp -n $NAMESPACE $POD:${LOG_PATHS[$SVC]} $DEST/$SVC
+  kubectl cp -n $NAMESPACE $POD:$LOGPATH $DEST/$SVC
 done
 
 # Retrieving standard output log from all pods

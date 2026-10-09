@@ -39,7 +39,8 @@ spec:
   selector:
     matchLabels:
       imaging.service: console-control-panel
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
       annotations:
@@ -166,14 +167,12 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
 {{- end }}
+            - name: HOST_HOSTNAME
+              value: console-control-panel
             - name: HOST_AUTH_SERVICE
               value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
-            - name: HOST_CONTROL_PANEL
-              value: console-control-panel
-            - name: PORT_CONTROL_PANEL
-              value: "8098"
             - name: PORT_EUREKA
               value: "8098"
 {{- if .Values.CustomPostgres.enable }}
@@ -187,6 +186,10 @@ spec:
             - name: DB_PORT
               value: "2285"              
 {{- end }}
+            - name: DB_USERNAME
+              value: operator
+            - name: DB_DATABASE
+              value: postgres
             - name: DB_ENCRYPTED_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -238,6 +241,8 @@ spec:
             - name: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
               value: "{{ .Values.SMTP.SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE }}"
 {{- end }}
+            - name: LOGS_FOLDER
+              value: /opt/cast/imaging-services/logs/control-panel
           image: "{{ .Values.ConsoleControlPaneImage.name }}:{{ .Values.ConsoleControlPaneImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleControlPaneImage.pullPolicy }}"
           name: console-control-panel
@@ -278,6 +283,8 @@ spec:
           volumeMounts:
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
+            - mountPath: /opt/cast/imaging-services/logs/control-panel
+              name: controlpanel-logs
 {{- if .Values.EnablePostgresSSL }}
             - name: postgres-ssl-files
               mountPath: /etc/ssl/certs-postgres
@@ -292,6 +299,9 @@ spec:
         - name: shared-datadir
           persistentVolumeClaim:
             claimName: pvc-shared-datadir
+        - name: controlpanel-logs
+          persistentVolumeClaim:
+            claimName: pvc-controlpanel-logs
         - name: contexturl-controlpanel-update-script
           configMap:
             name: contexturl-controlpanel-update-script

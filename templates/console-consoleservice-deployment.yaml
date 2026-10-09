@@ -30,7 +30,8 @@ spec:
   selector:
     matchLabels:
       imaging.service: console-service
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
       annotations:
@@ -149,10 +150,8 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
 {{- end }}
-            - name: HOST_CONSOLE
+            - name: HOST_HOSTNAME
               value: console-service
-            - name: PORT_CONSOLE
-              value: "8091"
             - name: HOST_CONTROL_PANEL
               value: console-control-panel
             - name: PORT_CONTROL_PANEL
@@ -161,6 +160,8 @@ spec:
               value: console-authentication-service
             - name: PORT_AUTH_SERVICE
               value: "8092"
+            - name: LOGS_FOLDER
+              value: /opt/cast/imaging-services/logs/console
           image: "{{ .Values.ConsoleServiceImage.name }}:{{ .Values.ConsoleServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleServiceImage.pullPolicy }}"
           name: console-service
@@ -199,6 +200,8 @@ spec:
           volumeMounts:
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
+            - mountPath: /opt/cast/imaging-services/logs/console
+              name: consoleservice-logs
 {{- if .Values.RestrictedSecurityMode }}
             - name: tmp
               mountPath: /tmp
@@ -209,6 +212,9 @@ spec:
         - name: shared-datadir
           persistentVolumeClaim:
             claimName: pvc-shared-datadir
+        - name: consoleservice-logs
+          persistentVolumeClaim:
+            claimName: pvc-consoleservice-logs
         - name: contexturl-controlpanel-update-script
           configMap:
             name: contexturl-controlpanel-update-script

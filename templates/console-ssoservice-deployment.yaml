@@ -30,7 +30,8 @@ spec:
   selector:
     matchLabels:
       imaging.service: console-sso-service
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
       annotations:
@@ -67,8 +68,10 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
       securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+{{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
@@ -132,6 +135,8 @@ spec:
             - name: KC_DB_URL
               value: jdbc:postgresql://console-postgres:2285/keycloak
 {{- end }} 
+            - name: KC_DB_SCHEMA
+              value: public
             - name: KC_DB_USERNAME
               value: operator
             - name: KC_DB_PASSWORD
@@ -171,8 +176,20 @@ spec:
             - name: PUBLIC_URL
               value: {{ .Values.FrontEndHost }}
 {{- end }}
+            - name: KC_HOSTNAME_STRICT
+              value: "true"
             - name: ACTIVEMQ_BROKER_URL
               value: tcp://console-control-panel:2381
+            - name: KC_LOG
+              value: console,file
+            - name: KC_LOG_FILE
+              value: /opt/cast/imaging-services/logs/sso/sso.log
+            - name: KC_LOG_FILE_ROTATION_FILE_SUFFIX
+              value: .yyyy-MM-dd.gz
+            - name: KC_LOG_FILE_ROTATION_MAX_FILE_SIZE
+              value: 10M
+            - name: KC_LOG_FILE_ROTATION_ROTATE_ON_BOOT
+              value: "false"
           image: "{{ .Values.ConsoleSSOServiceImage.name }}:{{ .Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{ .Values.ConsoleSSOServiceImage.pullPolicy }}"
           name: console-sso-service
@@ -209,6 +226,8 @@ spec:
           resources:
             {{- toYaml .Values.SSOServiceResources | nindent 12 }}
           volumeMounts:
+            - mountPath: /opt/cast/imaging-services/logs/sso
+              name: ssoservice-logs
 {{- if .Values.RestrictedSecurityMode }}
             - name: keycloak-dir
               mountPath: /opt/keycloak
@@ -223,6 +242,9 @@ spec:
         - name: imagepull-sec  
 {{- end }}
       volumes:
+        - name: ssoservice-logs
+          persistentVolumeClaim:
+            claimName: pvc-ssoservice-logs
 {{- if .Values.RestrictedSecurityMode }}
         - name: keycloak-dir
           emptyDir: {}

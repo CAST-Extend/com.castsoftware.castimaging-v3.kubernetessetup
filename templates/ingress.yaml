@@ -35,6 +35,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers"
     nginx.ingress.kubernetes.io/upstream-vhost: {{ (urlParse .Values.FrontEndHost).hostname }}
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ .Values.NetworkTimeoutSeconds | quote }}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: {{ .Values.NetworkTimeoutSeconds | quote }}
   {{- if .Values.ContextUrl.enable }}
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
@@ -78,6 +80,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-set-headers: "{{ .Release.Namespace }}/custom-headers-extend"
     nginx.ingress.kubernetes.io/upstream-vhost: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ .Values.ExtendProxy.timeoutSeconds | quote }}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: {{ .Values.ExtendProxy.timeoutSeconds | quote }}
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:

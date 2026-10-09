@@ -69,8 +69,10 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
       securityContext:
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+{{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
@@ -91,7 +93,8 @@ spec:
               mountPath: /app-volume 
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
+            runAsUser: 65534
+            runAsGroup: 65534
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -169,6 +172,8 @@ spec:
               value: "8091"
             - name: eureka.instance.instanceId
               value: console-dashboards:8097
+            - name: LOGS_FOLDER
+              value: /opt/cast/imaging-dashboards/logs
 {{- if .Values.DashboardsJavaToolOptions }}
             - name: JAVA_TOOL_OPTIONS
               value: "{{ .Values.DashboardsJavaToolOptions }}"
@@ -186,7 +191,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
+            runAsUser: 65534
+            runAsGroup: 65534
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -195,6 +201,8 @@ spec:
           resources:
             {{- toYaml .Values.IntegratedDashboardsResources | nindent 12 }}
           volumeMounts:
+            - mountPath: /opt/cast/imaging-dashboards/logs
+              name: dashboards-logs
 {{- if .Values.RestrictedSecurityMode }}
             - name: app-dir
               mountPath: /app/resources
@@ -214,6 +222,9 @@ spec:
         - name: imagepull-sec  
 {{- end }}
       volumes:
+        - name: dashboards-logs
+          persistentVolumeClaim:
+            claimName: pvc-dashboards-logs
 {{- if .Values.RestrictedSecurityMode }}
         - name: app-dir
           emptyDir: {}

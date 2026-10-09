@@ -8,6 +8,28 @@ https://doc.castsoftware.com/imaging/install/update/kubernetes/
 
 ## Helm Chart Release Notes
 
+### 3.6.8 (vs 3.6.7)
+
+#### New Features
+- **Configurable network timeouts**: two new `values.yaml` settings control how long a request may take on the network path before being aborted with a Gateway Timeout (504). They apply to whichever Application Networking option is active (Ingress / Istio / Gateway API):
+  - `NetworkTimeoutSeconds: 300`: network path to `console-gateway-service` (main application). Increase this if you see timeouts on long-running calls.
+  - `ExtendProxy.timeoutSeconds: 3600`: network path to `extendproxy` (bundle uploads can be large/slow, hence the much higher default).
+
+  Istio VirtualServices previously had hardcoded `300s` / `3600s` timeouts; NGINX Ingress now gets `proxy-read-timeout` / `proxy-send-timeout` annotations; Gateway API HTTPRoutes now get `timeouts.request`.
+- **Persistent log volumes for console services**: logs of console-control-panel, console-gateway-service, console-authentication-service, console-service, console-sso-service and console-dashboards are now written to dedicated PersistentVolumeClaims (`pvc-controlpanel-logs`, `pvc-gatewayservice-logs`, `pvc-authenticationservice-logs`, `pvc-consoleservice-logs`, `pvc-ssoservice-logs`, `pvc-dashboards-logs`, created with `helm.sh/resource-policy: keep`), so they survive pod restarts. Their sizes are configurable via the new `size_controlpanel_logs`, `size_gatewayservice_logs`, `size_authenticationservice_logs`, `size_consoleservice_logs`, `size_ssoservice_logs` and `size_dashboards_logs` values (default `2Gi` each). Keycloak (sso-service) is configured to log both to the console and to a daily-rotated file (`sso.log`, max 10M per file).
+  An `fsGroup` (with `fsGroupChangePolicy: OnRootMismatch`) is now always set on the authentication-service, gateway-service, sso-service and dashboards pods so that they can write to these volumes.
+
+#### Security
+- **`guest` database user removed**: the embedded Postgres init script no longer creates the `guest` user, and the `guest-db-password` key has been removed from the `imaging-pwd-sec` Secret (`GuestDbPassword` value no longer used). Console services now connect explicitly with the `operator` user (`DB_USER` / `DB_USERNAME`, `DB_DATABASE=postgres`); console-authentication-service additionally receives `DB_ENCRYPTED_PASSWORD` from the `operator-db-password-crypted2` Secret key.
+  ⚠️ **Migration note**: `GuestDbPassword` can be removed from your custom `values.yaml`, and the `guest-db-password` key is no longer required in an `existingSecret`. On existing deployments, the `guest` user already present in Postgres is not dropped by the upgrade (it can be removed manually with `DROP USER guest;` if not used elsewhere).
+
+#### Configuration Changes
+- **Deployment strategy set to `Recreate`** on console-authentication-service, console-service, console-control-panel, console-gateway-service, console-sso-service, mcp-server, viewer-aimanager, viewer-api, viewer-etl and viewer-server (previously the default `RollingUpdate`).
+- Image updates: `init-util` 1.2.12, `imaging-mcp-server` 3.0.4.1, `extend-proxy` 2.3.2, and all CAST Imaging application images 3.6.8.
+
+#### Fixes
+- **`RestrictedSecurityMode`**: viewer-server now creates `/run/nginx` at startup and mounts an `emptyDir` on `/var/lib/nginx/tmp`, fixing nginx failures with a read-only root filesystem.
+
 ### 3.6.7 (vs 3.6.6)
 
 #### New Features

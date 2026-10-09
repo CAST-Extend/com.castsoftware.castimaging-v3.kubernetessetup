@@ -13,6 +13,7 @@
 # ********************************************************************
 # - Create DNS record pointing at the NGF LoadBalancer external IP / name:
 #     kubectl get svc -n nginx-gateway
+#     kubectl get svc castimaging-gateway-nginx -n {{ .Release.Namespace }}
 # - Create TLS Secret(s) in THIS namespace (Gateway listeners read certs
 #   from the Gateway's own namespace, or from another namespace if a
 #   ReferenceGrant is in place):
@@ -144,6 +145,8 @@ spec:
       backendRefs:
         - name: console-gateway-service
           port: 8090
+      timeouts:
+        request: {{ .Values.NetworkTimeoutSeconds }}s
 
 
 
@@ -201,6 +204,8 @@ spec:
       backendRefs:
         - name: extendproxy
           port: 8085
+      timeouts:
+        request: {{ .Values.ExtendProxy.timeoutSeconds }}s
 {{- end }}
 
 {{- if or (eq (.Values.Gateway.className | default "nginx") "nginx") (eq (.Values.Gateway.className | default "nginx") "ngf") }}

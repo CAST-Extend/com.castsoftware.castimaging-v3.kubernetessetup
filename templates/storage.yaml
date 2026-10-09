@@ -281,6 +281,114 @@ spec:
     requests:
       storage: {{ .Values.size_imagingviewer_v3_api_logs }}
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-controlpanel-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-control-panel
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_controlpanel_logs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-gatewayservice-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-gateway-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_gatewayservice_logs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-authenticationservice-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-authentication-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_authenticationservice_logs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-consoleservice-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_consoleservice_logs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-ssoservice-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-sso-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_ssoservice_logs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-dashboards-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: console-dashboards
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_dashboards_logs }}
+---
 {{- if .Values.ExtendProxy.enable }}
 apiVersion: v1
 kind: PersistentVolumeClaim

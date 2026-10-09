@@ -128,7 +128,7 @@ spec:
         host: extendproxy
         port:
           number: 8085
-    timeout: 3600s
+    timeout: {{ .Values.ExtendProxy.timeoutSeconds }}s
   {{- end }}
   # Main application (always on main hostname)
   - match:
@@ -152,7 +152,7 @@ spec:
         host: console-gateway-service
         port:
           number: 8090
-    timeout: 300s
+    timeout: {{ .Values.NetworkTimeoutSeconds }}s
 ---
   {{- if and .Values.ExtendProxy.enable (ne .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
 # VirtualService for ExtendProxy on dedicated hostname
@@ -181,6 +181,6 @@ spec:
         host: extendproxy
         port:
           number: 8085
-    timeout: 3600s
+    timeout: {{ .Values.ExtendProxy.timeoutSeconds }}s
   {{- end }}
 {{- end }}

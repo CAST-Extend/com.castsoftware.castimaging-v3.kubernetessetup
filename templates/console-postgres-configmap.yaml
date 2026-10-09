@@ -860,7 +860,6 @@ data:
     set -e
 
     export OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
-    export GUEST_PASSWORD=$(cat /opt/secrets/guest-db-password)
     export KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
     export PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
 
@@ -868,7 +867,6 @@ data:
 
     psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB <<-EOSQL
         CREATE USER operator WITH SUPERUSER PASSWORD '$OPERATOR_PASSWORD';
-        CREATE USER guest WITH PASSWORD '$GUEST_PASSWORD';
         GRANT ALL PRIVILEGES ON DATABASE postgres TO operator;
 
         CREATE USER keycloak WITH PASSWORD '$KEYCLOAK_PASSWORD';
@@ -891,7 +889,6 @@ data:
     set -e
 
     export OPERATOR_PASSWORD=$(cat /opt/secrets/operator-db-password )
-    export GUEST_PASSWORD=$(cat /opt/secrets/guest-db-password)
     export KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
     export PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
 

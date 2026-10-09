@@ -36,6 +36,8 @@ spec:
   selector:
     matchLabels:
       imaging.service: viewer-api
+  strategy:
+    type: Recreate
   template:
     metadata:
       annotations:
