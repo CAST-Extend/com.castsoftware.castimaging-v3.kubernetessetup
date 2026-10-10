@@ -1,20 +1,79 @@
 {{- if .Values.McpServer.enable }}
+# MCP Server >= 3.1: routing registry of the MCP Aggregator Gateway.
+# Bundled servers listen on the pod loopback; their ports are driven by the MCP_*_PORT
+# env vars of the deployment (they take precedence over the ports below).
+# External MCP servers can be added here: their tools join the same tool surface.
 apiVersion: v1
 data:
-  app.config: |-
-    HOST_CONTROL_PANEL="console-control-panel"
-    PORT_CONTROL_PANEL=8098
-    IMAGING_PAGE_SIZE=1000
-    IMAGING_DISPLAY_PAGE_SIZE=20
-    IMAGING_CODE=False
-    DEBUG_MODE=false
-    IMAGING_DOMAIN="default"
-    CONTROL_PANEL_SSL_ENABLED=false
-    SERVICE_HOST="mcp-server"
-    #
+  mcp_servers.json: |-
+    {
+      "imaging-structural-mcp": {
+        "url": "http://127.0.0.1:8282/mcp",
+        "timeout": 60,
+        "health_endpoint": "/mcpserver/healthcheck",
+        "description": "CAST Imaging structural MCP Server",
+        "routing": {
+          "display_name": "Structural MCP",
+          "use_for": [
+            "deterministic CAST Imaging data such as applications, objects, transactions, files, dependencies, callers and callees",
+            "quality findings, tags, views, post-its, and write actions"
+          ],
+          "syntax_tool": "get_structural_search_function_syntax",
+          "execution_tool": "run_structural_search_function"
+        },
+        "headers": {},
+        "pool": {
+          "max_connections": 100,
+          "max_keepalive": 20,
+          "keepalive_expiry": 30
+        }
+      },
+      "imaging-semantic-mcp": {
+        "url": "http://127.0.0.1:8287/mcp",
+        "timeout": 60,
+        "health_endpoint": "/health",
+        "description": "CAST Imaging semantic search MCP Server",
+        "routing": {
+          "display_name": "Semantic Search MCP",
+          "use_for": [
+            "broad, exploratory, or explanatory questions about meaning, purpose, behavior, workflows, business concepts, and business rules",
+            "semantic code context, generated documents, entities, and entity topics"
+          ],
+          "syntax_tool": "get_semantic_search_function_syntax",
+          "execution_tool": "run_semantic_search_function"
+        },
+        "headers": {},
+        "pool": {
+          "max_connections": 50,
+          "max_keepalive": 10,
+          "keepalive_expiry": 30
+        }
+      },
+      "imaging-text-to-graph-mcp": {
+        "url": "http://127.0.0.1:8289/mcp",
+        "timeout": 60,
+        "health_endpoint": "/mcp/healthcheck",
+        "description": "CAST Imaging Text2Cypher MCP Server",
+        "routing": {
+          "display_name": "Text2Graph MCP",
+          "use_for": [
+            "last-resort advanced schema-aware Neo4j exploration and multi-hop graph investigation",
+            "custom read-only Cypher only when no purpose-built Structural or Semantic function fits"
+          ],
+          "syntax_tool": "get_text2graph_function_syntax",
+          "execution_tool": "run_text2graph_function"
+        },
+        "headers": {},
+        "pool": {
+          "max_connections": 100,
+          "max_keepalive": 20,
+          "keepalive_expiry": 30
+        }
+      }
+    }
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: mcpserverappconfig
+  name: mcpserver-registry
   namespace: {{.Release.Namespace}}
 {{- end }}

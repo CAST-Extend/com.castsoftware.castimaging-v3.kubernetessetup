@@ -1,4 +1,5 @@
 {{- if .Values.McpServer.enable }}
+{{- $mcpEnv := .Values.MCPSERVER | default dict }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -11,8 +12,8 @@ metadata:
 spec:
   ports:
   - name: http
-    port: 8282
-    targetPort: 8282
+    port: 8285
+    targetPort: 8285
   selector:
     imaging.service: mcp-server
 ---
@@ -37,6 +38,7 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
+        checksum/mcp-servers: {{ include (print $.Template.BasePath "/mcp-server-configmap.yaml") . | sha256sum }}
       labels:
         app: castimaging
         imaging.group: viewer
@@ -69,39 +71,94 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
   {{- end }}
+      # Image user is "imaging" (1000:1000)
       securityContext:
-  {{- if .Values.RestrictedSecurityMode }}
-        fsGroup: 33
+        fsGroup: 1000
         fsGroupChangePolicy: Always
+  {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-  {{- else }}
-        fsGroup: 1000
-        fsGroupChangePolicy: Always
-  {{- end }}                    
+  {{- end }}
+      initContainers:
+        - name: neo4j-and-control-panel-healthcheck
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command:
+          - /bin/sh
+          - -c
+          - |
+            until curl -s --fail --max-time 5 http://console-control-panel:8098/actuator/health | grep -q '"status":"UP"'; do
+              echo "Waiting for console-control-panel to be healthy..."
+              sleep 2
+            done
+            echo "console-control-panel is healthy!"
+            until curl -s --fail --max-time 5 http://viewer-neo4j:7474 > /dev/null 2>&1; do
+              echo "Waiting for neo4j..."
+              sleep 2
+            done
+            echo "viewer-neo4j is up!"
+  {{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+  {{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
       containers:
         - env:
-{{- range $key, $value := .Values.MCPSERVER }}
+{{- range $key, $value := $mcpEnv }}
             - name: {{ $key }}
               value: {{ $value | quote }}
 {{- end }}
+            # Control Panel registration: the gateway registers as MCPSERVER on SERVICE_HOST:MCP_GATEWAY_PORT
+            - name: HOST_CONTROL_PANEL
+              value: "console-control-panel"
+            - name: PORT_CONTROL_PANEL
+              value: "8098"
+            - name: CONTROL_PANEL_SSL_ENABLED
+              value: "false"
+            - name: SERVICE_HOST
+              value: "mcp-server"
+            # Gateway port (the only one exposed) + internal ports of the bundled MCP servers (pod loopback)
+            - name: MCP_GATEWAY_PORT
+              value: "8285"
             - name: MCP_SERVER_PORT
               value: "8282"
-  {{- if .Values.ContextUrl.enable }}
-            - name: APP_CONTEXT
-              value: {{ .Values.ContextUrl.appcontext }}
+            - name: MCP_SEMANTIC_PORT
+              value: "8287"
+            - name: MCP_TEXT_TO_CYPHER_PORT
+              value: "8289"
+            - name: MCP_TEXT_TO_GRAPH_PORT        # name read by the image for Text2Cypher
+              value: "8289"
+            - name: TEXT2CYPHER_MCP_ENABLED       # name read by the image for TEXT_TO_CYPHER_MCP_ENABLED
+              value: {{ (hasKey $mcpEnv "TEXT_TO_CYPHER_MCP_ENABLED" | ternary $mcpEnv.TEXT_TO_CYPHER_MCP_ENABLED true) | quote }}
+  {{- if not (hasKey $mcpEnv "IMAGING_BASE_URL") }}
+            - name: IMAGING_BASE_URL              # viewer root used by Text2Cypher for deep links
+              value: "{{ .Values.FrontEndHost }}{{ if .Values.ContextUrl.enable }}{{ .Values.ContextUrl.appcontext }}{{ end }}/imaging"
   {{- end }}
-            - name: RELIES_ON_FRONTENDHOST # mcp-server should restart if value changes
-              value: {{ .Values.FrontEndHost }}
+            # Neo4j (required by the Semantic and Text2Cypher MCP servers)
+            - name: NEO4J_URL
+              value: "bolt://viewer-neo4j:7687"
+            - name: NEO4J_USER
+              value: "neo4j"
+            - name: NEO4J_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret | default "imaging-pwd-sec" }}
+                  key: neo4j-password
+            - name: TELEMETRY_LOCAL_FILE
+              value: "/opt/cast/mcp-suite/logs/telemetry/telemetry.jsonl"
           image: "{{ .Values.McpServerImage.name }}:{{ .Values.McpServerImage.tag}}"
           imagePullPolicy: "{{ .Values.McpServerImage.pullPolicy }}"
-          command: ['sh', '-c', "/app/init.sh"]
           name: mcp-server
           startupProbe:
             httpGet:
               path: /mcp/healthcheck
-              port: 8282
+              port: 8285
               scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -110,19 +167,20 @@ spec:
           livenessProbe:
             httpGet:
               path: /mcp/healthcheck
-              port: 8282
+              port: 8285
               scheme: HTTP
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 20
             successThreshold: 1
           ports:
-            - containerPort: 8082
+            - containerPort: 8285
               protocol: TCP
   {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -132,21 +190,26 @@ spec:
             {{- toYaml .Values.McpServerResources | nindent 12 }}
           volumeMounts:
   {{- if .Values.RestrictedSecurityMode }}
+            # supervisord config/pid + HOME fallback
             - name: tmp
               mountPath: /tmp
             - name: run
               mountPath: /var/run
   {{- end }}
             - name: logdir
-              mountPath: /app/logs
+              mountPath: /opt/cast/mcp-suite/logs
               readOnly: false
-            - name: mcpserverappconfig
-              mountPath: /app/server/config/app.config
-              subPath: app.config
-  {{- if .Values.UseImagePullSecrets }}               
+            - name: datadir
+              mountPath: /opt/cast/mcp-suite/data
+              readOnly: false
+            - name: mcpserverregistry
+              mountPath: /opt/cast/mcp-suite/config/mcp_servers.json
+              subPath: mcp_servers.json
+              readOnly: true
+  {{- if .Values.UseImagePullSecrets }}
       imagePullSecrets:
         - name: imagepull-sec
-  {{- end }}        
+  {{- end }}
       volumes:
   {{- if .Values.RestrictedSecurityMode }}
         - name: tmp
@@ -156,8 +219,11 @@ spec:
   {{- end }}
         - name: logdir
           persistentVolumeClaim:
-            claimName: pvc-mcpserver-logs          
-        - name: mcpserverappconfig
+            claimName: pvc-mcpserver-logs
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: pvc-mcpserver-data
+        - name: mcpserverregistry
           configMap:
-            name: mcpserverappconfig
+            name: mcpserver-registry
 {{- end }}
