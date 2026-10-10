@@ -201,7 +201,7 @@ ExtendProxy:
 #   Settings (which MCP servers run, tool surface profiles, log level...) are set in the MCPSERVER section below.
 #
 McpServer:
-  enable: false
+  enable: true
 
 ################################################
 # Extra environment variables in containers
