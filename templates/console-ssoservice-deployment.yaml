@@ -27,10 +27,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.SSOServiceReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: console-sso-service
-  strategy: {}
   template:
     metadata:
       annotations:
@@ -78,7 +79,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: init-folders
           image: "{{.Values.ConsoleSSOServiceImage.name}}:{{.Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{.Values.ConsoleSSOServiceImage.pullPolicy}}"
@@ -92,7 +93,7 @@ spec:
             - name: keycloak-dir
               mountPath: /keycloak-volume 
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65532
             runAsGroup: 65532
             allowPrivilegeEscalation: false
@@ -116,7 +117,7 @@ spec:
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65532
             runAsGroup: 65532
             allowPrivilegeEscalation: false
@@ -213,7 +214,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65532
             runAsGroup: 65532
             allowPrivilegeEscalation: false
@@ -224,7 +225,7 @@ spec:
           resources:
             {{- toYaml .Values.SSOServiceResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: keycloak-dir
               mountPath: /opt/keycloak
             - name: tmp
@@ -241,7 +242,7 @@ spec:
         - name: imagepull-sec  
 {{- end }}
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: keycloak-dir
           emptyDir: {}
         - name: tmp
@@ -316,7 +317,7 @@ spec:
               subPath: init-keycloak.sh
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             allowPrivilegeEscalation: false
             capabilities:
               drop:

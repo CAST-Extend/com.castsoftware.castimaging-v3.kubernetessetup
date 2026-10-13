@@ -128,7 +128,7 @@ spec:
               drop:
                 - ALL
     {{- if .Values.RestrictedSecurityMode }}
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
@@ -195,7 +195,7 @@ spec:
               protocol: TCP
   {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 999
             runAsGroup: 999
@@ -230,7 +230,7 @@ spec:
               subPath: pg_hba.conf
               readOnly: true
   {{- end }}
-  {{- if .Values.RestrictedSecurityMode }}
+  {{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -260,7 +260,7 @@ spec:
           configMap:
             name: console-v3-pghbaconf
   {{- end }}
-  {{- if .Values.RestrictedSecurityMode }}
+  {{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: tmp
           emptyDir: {}
         - name: run
@@ -325,7 +325,7 @@ spec:
               readOnly: true 
   {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             allowPrivilegeEscalation: false
             capabilities:
               drop:

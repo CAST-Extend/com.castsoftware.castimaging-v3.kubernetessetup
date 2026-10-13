@@ -33,6 +33,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ViewerEtlReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: viewer-etl
@@ -83,7 +85,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: init-folders
           image: "{{ .Values.ViewerEtlImage.name }}:{{ .Values.ViewerEtlImage.tag }}"
           imagePullPolicy: "{{ .Values.ViewerEtlImage.pullPolicy }}"
@@ -97,7 +99,7 @@ spec:
             - name: etl-dir
               mountPath: /etl-volume 
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -137,7 +139,7 @@ spec:
             echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -221,7 +223,7 @@ spec:
             successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -232,7 +234,7 @@ spec:
           resources:
             {{- toYaml .Values.ViewerEtlResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: etl-dir
               mountPath: /opt/imaging/imaging-etl
             - name: tmp
@@ -258,7 +260,7 @@ spec:
         - name: imagepull-sec
 {{- end }}        
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: etl-dir
           emptyDir: {}
         - name: tmp

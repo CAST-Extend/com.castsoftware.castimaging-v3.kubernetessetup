@@ -97,7 +97,7 @@ spec:
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
       initContainers:
         - name: init-folders
           image: "{{.Values.ViewerNeo4jImage.name}}:{{.Values.ViewerNeo4jImage.tag}}"
@@ -112,7 +112,7 @@ spec:
             - name: neo4j-var-dir
               mountPath: /neo4j-var-volume
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 7474
             runAsGroup: 7474
@@ -182,7 +182,7 @@ spec:
               name: upgrade
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 7474
             runAsGroup: 7474
@@ -194,7 +194,7 @@ spec:
           resources:
             {{- toYaml .Values.ViewerNeo4jResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: neo4j-var-dir
               mountPath: /var
             - name: tmp
@@ -217,7 +217,7 @@ spec:
         - name: imagepull-sec
 {{- end }}        
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: neo4j-var-dir
           emptyDir: {}
         - name: tmp

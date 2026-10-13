@@ -39,6 +39,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ViewerServerReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: viewer-server
@@ -89,7 +91,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: init-folders
           image: "{{.Values.ViewerServiceImage.name}}:{{.Values.ViewerServiceImage.tag}}"
           imagePullPolicy: "{{.Values.ViewerServiceImage.pullPolicy}}"
@@ -115,7 +117,7 @@ spec:
             - name: web
               mountPath: /web-volume
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -144,7 +146,7 @@ spec:
             echo "viewer-neo4j is up!"
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -210,12 +212,14 @@ spec:
             echo "-------------------------------------------------"
 {{- end }}
             echo "Done."
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
           volumeMounts:
             - name: migration-tmp
               mountPath: /tmp
+{{- end }}
+{{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 7474
             runAsGroup: 7474
             allowPrivilegeEscalation: false
@@ -293,7 +297,7 @@ spec:
             successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -304,7 +308,7 @@ spec:
           resources:
             {{- toYaml .Values.ViewerServerServiceResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: var-tmp
@@ -341,7 +345,7 @@ spec:
         - name: servernginxconf
           configMap:
             name: servernginxconf
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: server-data
           emptyDir: {}
         - name: web

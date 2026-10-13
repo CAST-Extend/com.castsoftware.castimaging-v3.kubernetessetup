@@ -27,10 +27,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ConsoleServiceReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: console-service
-  strategy: {}
   template:
     metadata:
       annotations:
@@ -93,7 +94,7 @@ spec:
           echo "console-control-panel is healthy!"
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 10001
           runAsGroup: 10001
           allowPrivilegeEscalation: false
@@ -129,7 +130,7 @@ spec:
           echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 10001
           runAsGroup: 10001
           allowPrivilegeEscalation: false
@@ -202,7 +203,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 10001
             runAsGroup: 10001
             allowPrivilegeEscalation: false
@@ -215,7 +216,7 @@ spec:
           volumeMounts:
             - mountPath: {{ .Values.anadir.datadirmount }}
               name: shared-datadir
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -234,7 +235,7 @@ spec:
         - name: license-extend-update-script
           configMap:
             name: license-extend-update-script
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: tmp
           emptyDir: {}
         - name: run

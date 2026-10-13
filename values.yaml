@@ -239,6 +239,12 @@ ConsoleEnableBackup: true
 # If restricted security is enforced in your environment, set RestrictedSecurityMode to true
 # IMPORTANT: this setting cannot be changed after Imaging is deployed
 RestrictedSecurityMode: false
+# RestrictedSecurityModeReadOnly (only used when RestrictedSecurityMode is true, defaults to true if not set):
+#   true:  containers run with a read-only root filesystem; writable folders are emptyDir volumes,
+#          populated at startup by init containers copying files from the images
+#   false: containers run with a writable root filesystem; these emptyDir volumes and init containers are not created
+#          (use it when the namespace ephemeral-storage quota is too low for the copied files)
+RestrictedSecurityModeReadOnly: true
 
 #
 # SMTP settings (optional):
@@ -398,58 +404,74 @@ ConsolePostgresResources:
   requests:
     cpu: 0.5
     memory: 8G
+    ephemeral-storage: 500Mi
   limits:
     cpu: 2
     memory: 16G
+    ephemeral-storage: 2Gi
 SSOServiceResources:
   requests:
     cpu: 0.1
     memory: 1G
+    ephemeral-storage: 500Mi
   limits:
     cpu: 1
     memory: 2G 
+    ephemeral-storage: 2Gi
 ConsoleServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 GatewayServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 AnalysisNodeResources:
   requests:
     cpu: 0.5
     memory: 8G
+    ephemeral-storage: 2Gi
   limits:
     cpu: 4
     memory: 32G
+    ephemeral-storage: 10Gi
 ControlPanelResources:
   requests:
     cpu: 0.1
     memory: 800M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 AuthenticationServiceResources:
   requests:
     cpu: 0.1
     memory: 500M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 1G
+    ephemeral-storage: 1Gi
 IntegratedDashboardsResources:
   requests:
     cpu: 0.1
     memory: 600M
+    ephemeral-storage: 500Mi
   limits:
     cpu: 1
     memory: 4G
+    ephemeral-storage: 2Gi
 
 #
 # Viewer resources
@@ -458,44 +480,56 @@ ViewerNeo4jResources:
   requests:
     cpu: 0.5
     memory: 16G
+    ephemeral-storage: 1Gi
   limits:
     cpu: 4
     memory: 32G
+    ephemeral-storage: 5Gi
 ViewerServerServiceResources:
   requests:
     cpu: 0.2
     memory: 500M
+    ephemeral-storage: 1Gi
   limits:
     cpu: 1
     memory: 8G
+    ephemeral-storage: 5Gi
 ViewerEtlResources:
   requests:
     cpu: 0.2
     memory: 500M
+    ephemeral-storage: 500Mi
   limits:
     cpu: 1
     memory: 8G
+    ephemeral-storage: 2Gi
 ViewerAiManagerResources:
   requests:
     cpu: 0.1
     memory: 400M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 ViewerApiResources:
   requests:
     cpu: 0.1
     memory: 200M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 McpServerResources:
   requests:
     cpu: 0.2
     memory: 400M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 #
 # ExtendProxy resources
 #
@@ -503,9 +537,11 @@ ExtendProxyResources:
   requests:
     cpu: 0.2
     memory: 200M
+    ephemeral-storage: 200Mi
   limits:
     cpu: 1
     memory: 2G
+    ephemeral-storage: 1Gi
 #
 # InitContainer resources
 #
@@ -513,9 +549,11 @@ InitContainerResources:
   requests:
     cpu: 0.1
     memory: 100M
+    ephemeral-storage: 50Mi
   limits:
     cpu: 1
     memory: 1G
+    ephemeral-storage: 500Mi
 
 #
 # Shared memory

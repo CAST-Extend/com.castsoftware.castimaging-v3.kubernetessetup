@@ -33,6 +33,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ViewerApiReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: viewer-api
@@ -83,7 +85,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: init-folders
           image: "{{.Values.ViewerApiImage.name}}:{{.Values.ViewerApiImage.tag}}"
           imagePullPolicy: "{{.Values.ViewerApiImage.pullPolicy}}"
@@ -97,7 +99,7 @@ spec:
             - name: config-dir
               mountPath: /config-volume 
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -126,7 +128,7 @@ spec:
             echo "viewer-neo4j is up!"
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -211,7 +213,7 @@ spec:
             successThreshold: 1
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 1000
             runAsGroup: 1000
             allowPrivilegeEscalation: false
@@ -222,7 +224,7 @@ spec:
           resources:
             {{- toYaml .Values.ViewerApiResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: config-dir
               mountPath: /opt/imaging/imaging-api/config
             - name: tmp
@@ -234,7 +236,7 @@ spec:
               mountPath: /opt/imaging/imaging-api/logs
               readOnly: false          
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: config-dir
           emptyDir: {}
         - name: tmp

@@ -48,10 +48,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.GatewayServiceReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: console-gateway-service
-  strategy: {}
   template:
     metadata:
       annotations:
@@ -115,7 +116,7 @@ spec:
           echo "console-control-panel is healthy!"    
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 65532
           runAsGroup: 65532
           allowPrivilegeEscalation: false
@@ -190,7 +191,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65532
             runAsGroup: 65532
             allowPrivilegeEscalation: false
@@ -201,7 +202,7 @@ spec:
           resources:
             {{- toYaml .Values.GatewayServiceResources | nindent 12 }}
           volumeMounts:
-  {{- if .Values.RestrictedSecurityMode }}
+  {{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -209,7 +210,7 @@ spec:
   {{- end }}
       restartPolicy: Always
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: tmp
           emptyDir: {}
         - name: run

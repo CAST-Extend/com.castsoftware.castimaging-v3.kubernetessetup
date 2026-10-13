@@ -30,10 +30,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.ControlPaneReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: console-control-panel
-  strategy: {}
   template:
     metadata:
       annotations:
@@ -96,7 +97,7 @@ spec:
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 10001
           runAsGroup: 10001
           allowPrivilegeEscalation: false
@@ -136,7 +137,7 @@ spec:
           echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 10001
           runAsGroup: 10001
           allowPrivilegeEscalation: false
@@ -277,7 +278,7 @@ spec:
             runAsUser: 10001
             runAsGroup: 10001
 {{- if .Values.RestrictedSecurityMode }}
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             allowPrivilegeEscalation: false
             capabilities:
               drop:

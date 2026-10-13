@@ -28,6 +28,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.McpServerReplicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       imaging.service: mcp-server
@@ -130,7 +132,7 @@ spec:
               protocol: TCP
   {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 33
             runAsGroup: 33
             allowPrivilegeEscalation: false
@@ -141,7 +143,7 @@ spec:
           resources:
             {{- toYaml .Values.McpServerResources | nindent 12 }}
           volumeMounts:
-  {{- if .Values.RestrictedSecurityMode }}
+  {{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -161,7 +163,7 @@ spec:
         - name: imagepull-sec
   {{- end }}        
       volumes:
-  {{- if .Values.RestrictedSecurityMode }}
+  {{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: tmp
           emptyDir: {}
         - name: run

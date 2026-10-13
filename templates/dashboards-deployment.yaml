@@ -78,7 +78,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: init-folders
           image: "{{.Values.ConsoleIntegratedDashboardsImage.name}}:{{.Values.ConsoleIntegratedDashboardsImage.tag}}"
           imagePullPolicy: "{{.Values.ConsoleIntegratedDashboardsImage.pullPolicy}}"
@@ -92,7 +92,7 @@ spec:
             - name: app-dir
               mountPath: /app-volume 
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65534
             runAsGroup: 65534
             allowPrivilegeEscalation: false
@@ -132,7 +132,7 @@ spec:
             echo "console-gateway-service is healthy!"  
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65534
             runAsGroup: 65534
             allowPrivilegeEscalation: false
@@ -190,7 +190,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65534
             runAsGroup: 65534
             allowPrivilegeEscalation: false
@@ -201,7 +201,7 @@ spec:
           resources:
             {{- toYaml .Values.IntegratedDashboardsResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: app-dir
               mountPath: /app/resources
             - name: tmp
@@ -223,7 +223,7 @@ spec:
         - name: imagepull-sec  
 {{- end }}
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: app-dir
           emptyDir: {}
         - name: tmp
