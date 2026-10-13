@@ -246,6 +246,17 @@ RestrictedSecurityMode: false
 #          (use it when the namespace ephemeral-storage quota is too low for the copied files)
 RestrictedSecurityModeReadOnly: true
 
+# PersistentWorkDirs:
+# If true, the folders written at each startup are moved from the container ephemeral storage to persistent volumes
+# (use it when the namespace ephemeral-storage quota is too low):
+#   - analysis node: node installation (/home/carl/aip_node_v3) and node data (/home/carl/data_aip_node_v3),
+#     on a new volumeClaimTemplate "aipnode-workdir", cleaned at each startup
+#   - SSO service: Keycloak folder (/opt/keycloak), on the new PVC "pvc-sso-workdir", copied from the image at each startup
+#     (ReadWriteOnce volume: keep SSOServiceReplicaCount to 1)
+# IMPORTANT: on an existing installation, enabling it changes the analysis node volumeClaimTemplates, which Kubernetes
+# does not allow on an existing StatefulSet: delete it first (kubectl delete sts console-analysis-node-core --cascade=orphan)
+PersistentWorkDirs: false
+
 #
 # SMTP settings (optional):
 # Encode SMTP password:
@@ -298,6 +309,8 @@ size_extendproxy_data: 10Gi                 # Default: 10Gi
 size_neo4jdata: 100Gi                       # Default: 100Gi
 size_mcpserver_logs: 2Gi                    # Default: 2Gi
 size_controlpanel_audit_trails: 10Gi        # Default: 10Gi
+size_analysisnode_workdir: 2Gi              # Default: 2Gi (only used when PersistentWorkDirs is true)
+size_sso_workdir: 1Gi                       # Default: 1Gi (only used when PersistentWorkDirs is true)
 
 #
 # Console  

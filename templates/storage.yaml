@@ -300,3 +300,21 @@ spec:
       storage: {{ .Values.size_extendproxy_data }}
   storageClassName: {{ .Values.DiskClassName }}
 {{- end }}
+---
+{{- if .Values.PersistentWorkDirs }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-sso-workdir
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.service: console-sso-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.size_sso_workdir }}
+  storageClassName: {{ .Values.DiskClassName }}
+{{- end }}

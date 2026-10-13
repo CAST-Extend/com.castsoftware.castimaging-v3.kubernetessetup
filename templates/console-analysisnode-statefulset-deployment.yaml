@@ -100,6 +100,33 @@ spec:
           resources:
             {{- toYaml .Values.InitContainerResources | nindent 12 }}
 {{- end }}
+{{- if .Values.PersistentWorkDirs }}
+        - name: init-workdir
+          image: "{{.Values.ConsoleAnalysisNodeImage.name}}:{{.Values.ConsoleAnalysisNodeImage.tag}}"
+          imagePullPolicy: "{{.Values.ConsoleAnalysisNodeImage.pullPolicy}}"
+          command:
+          - /bin/bash
+          - -c
+          - |
+            rm -rf /workdir/aip_node_v3 /workdir/data_aip_node_v3
+            mkdir -p /workdir/aip_node_v3 /workdir/data_aip_node_v3
+          volumeMounts:
+            - name: aipnode-workdir
+              mountPath: /workdir
+  {{- if .Values.RestrictedSecurityMode }}
+          securityContext:
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+  {{- end }}
+          resources:
+            {{- toYaml .Values.InitContainerResources | nindent 12 }}
+{{- end }}
         - name: init-folders-services-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -287,6 +314,14 @@ spec:
             - name: run
               mountPath: /var/run
 {{- end }}
+{{- if .Values.PersistentWorkDirs }}
+            - name: aipnode-workdir
+              mountPath: /home/carl/aip_node_v3
+              subPath: aip_node_v3
+            - name: aipnode-workdir
+              mountPath: /home/carl/data_aip_node_v3
+              subPath: data_aip_node_v3
+{{- end }}
             - mountPath: {{ .Values.anadir.castdirmount }}
               name: castdir
             - mountPath: {{ .Values.anadir.datadirmount }}
@@ -343,3 +378,14 @@ spec:
           requests:
             storage: "{{ .Values.size_castdir }}"
         storageClassName: "{{ .Values.DiskClassName }}"
+{{- if .Values.PersistentWorkDirs }}
+    - metadata:
+        name: aipnode-workdir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ .Values.size_analysisnode_workdir }}"
+        storageClassName: "{{ .Values.DiskClassName }}"
+{{- end }}

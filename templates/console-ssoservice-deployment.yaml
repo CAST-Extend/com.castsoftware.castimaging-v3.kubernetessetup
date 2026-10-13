@@ -79,7 +79,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
+{{- if or (eq (include "imaging.readOnlyRootFS" $) "true") .Values.PersistentWorkDirs }}
         - name: init-folders
           image: "{{.Values.ConsoleSSOServiceImage.name}}:{{.Values.ConsoleSSOServiceImage.tag}}"
           imagePullPolicy: "{{.Values.ConsoleSSOServiceImage.pullPolicy}}"
@@ -225,9 +225,11 @@ spec:
           resources:
             {{- toYaml .Values.SSOServiceResources | nindent 12 }}
           volumeMounts:
-{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
+{{- if or (eq (include "imaging.readOnlyRootFS" $) "true") .Values.PersistentWorkDirs }}
             - name: keycloak-dir
               mountPath: /opt/keycloak
+{{- end }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -242,9 +244,15 @@ spec:
         - name: imagepull-sec  
 {{- end }}
       volumes:
-{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
+{{- if .Values.PersistentWorkDirs }}
+        - name: keycloak-dir
+          persistentVolumeClaim:
+            claimName: pvc-sso-workdir
+{{- else if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: keycloak-dir
           emptyDir: {}
+{{- end }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: tmp
           emptyDir: {}
         - name: run
