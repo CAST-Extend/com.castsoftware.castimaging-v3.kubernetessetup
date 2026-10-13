@@ -90,6 +90,7 @@ spec:
               mountPath: /carl-volume
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
             allowPrivilegeEscalation: false
@@ -131,6 +132,7 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
             allowPrivilegeEscalation: false
@@ -184,6 +186,7 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
             allowPrivilegeEscalation: false
@@ -265,6 +268,7 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
             allowPrivilegeEscalation: false

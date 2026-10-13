@@ -129,6 +129,7 @@ spec:
                 - ALL
     {{- if .Values.RestrictedSecurityMode }}
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
     {{- end }}
@@ -195,6 +196,7 @@ spec:
   {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 999
             runAsGroup: 999
             allowPrivilegeEscalation: false

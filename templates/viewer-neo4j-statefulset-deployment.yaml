@@ -113,6 +113,7 @@ spec:
               mountPath: /neo4j-var-volume
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 7474
             runAsGroup: 7474
             allowPrivilegeEscalation: false
@@ -182,6 +183,7 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 7474
             runAsGroup: 7474
             allowPrivilegeEscalation: false
