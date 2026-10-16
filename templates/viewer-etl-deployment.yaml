@@ -1,3 +1,4 @@
+{{- if .Values.Viewer.enable }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -264,4 +265,5 @@ spec:
             defaultMode: 0644
         - name: postgres-ssl-files
           emptyDir: {}
+{{- end }}
 {{- end }}

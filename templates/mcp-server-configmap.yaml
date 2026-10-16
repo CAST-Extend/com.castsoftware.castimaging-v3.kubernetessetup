@@ -1,4 +1,4 @@
-{{- if .Values.McpServer.enable }}
+{{- if and .Values.Viewer.enable .Values.McpServer.enable }}
 apiVersion: v1
 data:
   app.config: |-

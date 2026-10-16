@@ -1,4 +1,4 @@
-{{- if .Values.McpServer.enable }}
+{{- if and .Values.Viewer.enable .Values.McpServer.enable }}
 kind: Service
 apiVersion: v1
 metadata:

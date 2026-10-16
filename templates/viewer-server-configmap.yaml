@@ -1,3 +1,4 @@
+{{- if .Values.Viewer.enable }}
 apiVersion: v1
 data:
   nginx.conf: "load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;\nload_module
@@ -79,3 +80,4 @@ kind: ConfigMap
 metadata:
   name: servernginxconf
   namespace: {{ .Release.Namespace }}
+{{- end }}

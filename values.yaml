@@ -195,7 +195,16 @@ ExtendProxy:
                         # (bundle uploads can be large/slow, hence the much higher default).
 
 #
+# Viewer
+#   enable: set to false to skip the deployment of the Viewer components and their related resources
+#           (viewer-neo4j, viewer-server, viewer-etl, viewer-api, viewer-aimanager and mcp-server).
+#           When false, McpServer.enable below is ignored.
+Viewer:
+  enable: true
+
+#
 # OPTIONAL - MCP Server
+#   enable: set to true to deploy the mcp-server (ignored if Viewer.enable is false)
 #
 McpServer:
   enable: false
