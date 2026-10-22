@@ -20,6 +20,8 @@ REM kubectl 1.30+ streams exec over WebSockets, which breaks large file transfer
 set KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
 set OPENSHIFT_CHECK="n"
 set BACKUP_CASTDIR=false
+REM Set to false to skip the postgres backup (e.g. when an external postgres instance is used)
+set BACKUP_POSTGRES=true
 REM Large files are downloaded in chunks of this size, each one size-checked and retried
 set CHUNK_MB=256
 set /a CHUNK_BYTES=CHUNK_MB*1048576
@@ -144,10 +146,15 @@ echo =========================================================================
 echo Step 2: Backing up CSS Postgres instance...
 echo =========================================================================
 
-echo Finding postgres pod name...
-for /f "tokens=1" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% ^| findstr console-postgres') do set POSTGRES_POD=%%i
+set POSTGRES_POD=
+if /i "%BACKUP_POSTGRES%"=="true" (
+    echo Finding postgres pod name...
+    for /f "tokens=1" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% ^| findstr console-postgres') do set POSTGRES_POD=%%i
+)
 
-if not "%POSTGRES_POD%"=="" (
+if /i not "%BACKUP_POSTGRES%"=="true" (
+    echo Skipping postgres backup ^(BACKUP_POSTGRES is not set to true^)
+) else if not "%POSTGRES_POD%"=="" (
     echo Found postgres pod: %POSTGRES_POD%
     echo.
 

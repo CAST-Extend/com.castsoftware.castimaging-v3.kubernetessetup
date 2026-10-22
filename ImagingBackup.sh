@@ -18,6 +18,8 @@ CLUSTER_CMD="kubectl"
 export KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
 OPENSHIFT_CHECK="n"
 BACKUP_CASTDIR="false"
+# Set to false to skip the postgres backup (e.g. when an external postgres instance is used)
+BACKUP_POSTGRES="true"
 # Large files are downloaded in chunks of this size, each one size-checked and retried
 CHUNK_MB=256
 CHUNK_BYTES=$((CHUNK_MB * 1048576))
@@ -182,10 +184,15 @@ echo "========================================================================="
 echo "Step 2: Backing up CSS Postgres instance..."
 echo "========================================================================="
 
-echo "Finding postgres pod name..."
-POSTGRES_POD=$($CLUSTER_CMD get pods -n $NAMESPACE | grep console-postgres | awk '{print $1}' | head -n 1)
+POSTGRES_POD=""
+if [[ "${BACKUP_POSTGRES,,}" == "true" ]]; then
+    echo "Finding postgres pod name..."
+    POSTGRES_POD=$($CLUSTER_CMD get pods -n $NAMESPACE | grep console-postgres | awk '{print $1}' | head -n 1)
+fi
 
-if [ -n "$POSTGRES_POD" ]; then
+if [[ "${BACKUP_POSTGRES,,}" != "true" ]]; then
+    echo "Skipping postgres backup (BACKUP_POSTGRES is not set to true)"
+elif [ -n "$POSTGRES_POD" ]; then
     echo "Found postgres pod: $POSTGRES_POD"
     echo ""
 
@@ -268,8 +275,8 @@ echo ""
 echo "Backup contents:"
 echo "  - shared-dir.tar.gz (Analysis Node shared files)"
 echo "  - xxx-cast-dir.tar.gz (Analysis Node CAST files, if BACKUP_CASTDIR=true)"
-echo "  - all_databases.backup (Postgres databases)"
-echo "  - postgres_backup.log (Postgres backup log)"
+echo "  - all_databases.backup (Postgres databases, if BACKUP_POSTGRES=true)"
+echo "  - postgres_backup.log (Postgres backup log, if BACKUP_POSTGRES=true)"
 echo "  - backup/ (Neo4j database backups)"
 echo "  - backup_ImagingDatabases.log (Neo4j backup log)"
 echo ""

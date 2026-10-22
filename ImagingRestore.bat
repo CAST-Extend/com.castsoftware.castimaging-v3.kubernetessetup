@@ -20,6 +20,8 @@ REM kubectl 1.30+ streams exec over WebSockets, which breaks large file transfer
 set KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
 set OPENSHIFT_CHECK="n"
 set BACKUP_CASTDIR=false
+REM Set to false to skip the postgres restore (e.g. when an external postgres instance is used)
+set BACKUP_POSTGRES=true
 
 echo =========================================================================
 echo Imaging Kubernetes Restore Procedure
@@ -181,9 +183,14 @@ if not errorlevel 1 %CLUSTER_CMD% scale deployment console-analysis-node-autosca
 echo Waiting for services to scale down...
 timeout /t 10 /nobreak >nul
 echo.
-echo Finding postgres pod name...
-for /f "tokens=1" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% ^| findstr console-postgres') do set POSTGRES_POD=%%i
-if not "%POSTGRES_POD%"=="" (
+set POSTGRES_POD=
+if /i "%BACKUP_POSTGRES%"=="true" (
+    echo Finding postgres pod name...
+    for /f "tokens=1" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% ^| findstr console-postgres') do set POSTGRES_POD=%%i
+)
+if /i not "%BACKUP_POSTGRES%"=="true" (
+    echo Skipping postgres restore ^(BACKUP_POSTGRES is not set to true^)
+) else if not "%POSTGRES_POD%"=="" (
     echo Found postgres pod: %POSTGRES_POD%
     echo.
     if "%OPENSHIFT%"=="true" (
@@ -328,7 +335,7 @@ echo RESTORE COMPLETED
 echo =========================================================================
 echo.
 echo Log files have been saved to: %BACKUP_DIR%
-echo   - postgres_restore.log (Postgres restore log)
+echo   - postgres_restore.log (Postgres restore log, if BACKUP_POSTGRES=true)
 echo   - neo4j_restore.log (Neo4j restore and permissions log)
 echo.
 echo Please review these log files for any errors or warnings.

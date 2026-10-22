@@ -19,6 +19,8 @@ CLUSTER_CMD="kubectl"
 export KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
 OPENSHIFT_CHECK="n"
 BACKUP_CASTDIR="false"
+# Set to false to skip the postgres restore (e.g. when an external postgres instance is used)
+BACKUP_POSTGRES="true"
 
 # Upload a file to a pod, checking the uploaded size and retrying on mismatch
 # (a single large kubectl exec stream can be cut short without kubectl reporting an error)
@@ -196,9 +198,14 @@ $CLUSTER_CMD scale deployment  mcp-server                     --replicas=0 -n $N
 echo "Waiting for services to scale down..."
 sleep 10
 echo ""
-echo "Finding postgres pod name..."
-POSTGRES_POD=$($CLUSTER_CMD get pods -n $NAMESPACE | grep console-postgres | awk '{print $1}')
-if [ -n "$POSTGRES_POD" ]; then
+POSTGRES_POD=""
+if [[ "${BACKUP_POSTGRES,,}" == "true" ]]; then
+    echo "Finding postgres pod name..."
+    POSTGRES_POD=$($CLUSTER_CMD get pods -n $NAMESPACE | grep console-postgres | awk '{print $1}')
+fi
+if [[ "${BACKUP_POSTGRES,,}" != "true" ]]; then
+    echo "Skipping postgres restore (BACKUP_POSTGRES is not set to true)"
+elif [ -n "$POSTGRES_POD" ]; then
     echo "Found postgres pod: $POSTGRES_POD"
     echo ""
     echo "Uploading all_databases.backup to postgres pod..."
@@ -330,7 +337,7 @@ echo "RESTORE COMPLETED"
 echo "========================================================================="
 echo ""
 echo "Log files have been saved to: $BACKUP_DIR"
-echo "  - postgres_restore.log (Postgres restore log)"
+echo "  - postgres_restore.log (Postgres restore log, if BACKUP_POSTGRES=true)"
 echo "  - neo4j_restore.log (Neo4j restore and permissions log)"
 echo ""
 echo "Please review these log files for any errors or warnings."
