@@ -16,11 +16,16 @@ if "%~2"=="" (
 set NAMESPACE=%~1
 set BACKUP_DIR=%~2
 set CLUSTER_CMD=kubectl
+REM kubectl 1.30+ streams exec over WebSockets, which breaks large file transfers; force SPDY
+set KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
 set OPENSHIFT_CHECK="n"
 set BACKUP_CASTDIR=false
+REM Large files are downloaded in chunks of this size, each one size-checked and retried
+set CHUNK_MB=256
+set /a CHUNK_BYTES=CHUNK_MB*1048576
 
 echo =========================================================================
-echo Imaging Kubernetes Backup Procedure - SINGLE TENANT
+echo Imaging Kubernetes Backup Procedure
 echo =========================================================================
 echo Namespace: %NAMESPACE%
 echo Backup Directory: %BACKUP_DIR%
@@ -58,6 +63,7 @@ echo =========================================================================
 
 echo Discovering console-analysis-node-core pods...
 set POD_COUNT=0
+set SHARED_DONE=false
 
 REM First, count how many pods exist
 for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| findstr /b "pod/console-analysis-node-core-"') do (
@@ -82,8 +88,10 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
     echo Processing pod: !POD_NAME!
     echo ============================================
     
-    REM Only backup shared directory for console-analysis-node-core-0
-    if "!POD_NAME!"=="console-analysis-node-core-0" (
+    REM The shared directory is one volume mounted by every analysis node: back it up from the first pod
+    REM (not necessarily -0: with AnalysisNodeAutoscaling any ordinal can be the one running)
+    if "!SHARED_DONE!"=="false" (
+        set SHARED_DONE=true
         echo Connecting to !POD_NAME! and creating shared directory backup...
         %CLUSTER_CMD% exec -it !POD_NAME! -n %NAMESPACE% -- /bin/bash -c "tar -czpf /opt/cast/shared/shared-dir.tar.gz --exclude='/opt/cast/shared/shared-dir.tar.gz' --exclude='/opt/cast/shared/lost+found' /opt/cast/shared/*"
         if errorlevel 1 (
@@ -92,7 +100,7 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         )
         
         echo Downloading shared-dir.tar.gz from !POD_NAME!...
-        %CLUSTER_CMD% exec !POD_NAME! -n %NAMESPACE% -- cat /opt/cast/shared/shared-dir.tar.gz > "%BACKUP_DIR%\shared-dir.tar.gz"
+        call :download_file !POD_NAME! /opt/cast/shared/shared-dir.tar.gz "%BACKUP_DIR%\shared-dir.tar.gz"
         if errorlevel 1 (
             echo ERROR: Failed to download shared-dir.tar.gz from !POD_NAME!
             exit /b 1
@@ -113,7 +121,7 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         )
 
         echo Downloading cast-dir.tar.gz from !POD_NAME!...
-        %CLUSTER_CMD% exec !POD_NAME! -n %NAMESPACE% -- cat /usr/share/CAST/cast-dir.tar.gz > "%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
+        call :download_file !POD_NAME! /usr/share/CAST/cast-dir.tar.gz "%BACKUP_DIR%\!POD_NAME!-cast-dir.tar.gz"
         if errorlevel 1 (
             echo ERROR: Failed to download cast-dir.tar.gz from !POD_NAME!
             exit /b 1
@@ -156,7 +164,7 @@ if not "%POSTGRES_POD%"=="" (
     )
 
     echo Downloading all_databases.backup...
-    %CLUSTER_CMD% exec %POSTGRES_POD% -n %NAMESPACE% -- cat %PG_DATA_PATH%/backup/all_databases.backup > "%BACKUP_DIR%\all_databases.backup"
+    call :download_file %POSTGRES_POD% %PG_DATA_PATH%/backup/all_databases.backup "%BACKUP_DIR%\all_databases.backup"
     if errorlevel 1 (
         echo ERROR: Failed to download all_databases.backup
         exit /b 1
@@ -201,14 +209,19 @@ if errorlevel 1 echo WARNING: Failed to download backup_ImagingDatabases.log, co
 
 echo Downloading Neo4j backup files...
 if not exist "%BACKUP_DIR%\backup" mkdir "%BACKUP_DIR%\backup"
-%CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- tar cf - /var/lib/neo4j/config/neo4j5_data/backup > "%BACKUP_DIR%\backup\neo4j.tar"
+%CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "tar cf /var/lib/neo4j/config/neo4j5_data/neo4j.tar /var/lib/neo4j/config/neo4j5_data/backup"
+if errorlevel 1 (
+    echo ERROR: Failed to create Neo4j backup archive
+    exit /b 1
+)
+call :download_file viewer-neo4j-core-0 /var/lib/neo4j/config/neo4j5_data/neo4j.tar "%BACKUP_DIR%\backup\neo4j.tar"
 if errorlevel 1 (
     echo ERROR: Failed to download Neo4j backup files
     exit /b 1
 )
 
 echo Cleaning up backup files from neo4j pod...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -rf /var/lib/neo4j/config/neo4j5_data/backup/* /var/lib/neo4j/config/neo4j5_data/neo4j.tar"
 
 echo Neo4j backup completed successfully.
 echo.
@@ -233,3 +246,66 @@ echo =========================================================================
 
 endlocal
 pause
+exit /b 0
+
+REM =========================================================================
+REM  Subroutines
+REM =========================================================================
+
+:download_file
+REM  %1 = pod  %2 = remote file  %3 = local file
+REM  Transfers in CHUNK_MB chunks, checking each chunk's size and retrying it on mismatch
+REM  (a single large kubectl exec stream can be cut short without kubectl reporting an error)
+set "DL_POD=%~1"
+set "DL_REMOTE=%~2"
+set "DL_LOCAL=%~3"
+set DL_SIZE=
+for /f "tokens=1-3" %%a in ('%CLUSTER_CMD% exec %DL_POD% -n %NAMESPACE% -- sh -c "s=$(stat -c %%s %DL_REMOTE%) && n=$(( (s + %CHUNK_BYTES% - 1) / %CHUNK_BYTES% )) && echo $s $n $(( s - (n - 1) * %CHUNK_BYTES% ))" 2^>nul') do (
+    set DL_SIZE=%%a
+    set DL_CHUNKS=%%b
+    set DL_LAST=%%c
+)
+if "%DL_SIZE%"=="" (
+    echo ERROR: Cannot read size of %DL_REMOTE% in %DL_POD%
+    exit /b 1
+)
+echo   %DL_SIZE% bytes in %DL_CHUNKS% chunk^(s^)
+type nul > "%DL_LOCAL%"
+set /a DL_LASTIDX=DL_CHUNKS-1
+for /L %%i in (0,1,%DL_LASTIDX%) do (
+    call :download_chunk %%i
+    if errorlevel 1 exit /b 1
+)
+for %%f in ("%DL_LOCAL%") do set DL_GOT=%%~zf
+if not "%DL_GOT%"=="%DL_SIZE%" (
+    echo ERROR: %DL_LOCAL% is %DL_GOT% bytes, expected %DL_SIZE%
+    exit /b 1
+)
+exit /b 0
+
+:download_chunk
+REM  %1 = chunk index
+set /a DL_SKIP=%1*CHUNK_MB
+set /a DL_NUM=%1+1
+set DL_EXPECTED=%CHUNK_BYTES%
+if %1==%DL_LASTIDX% set DL_EXPECTED=%DL_LAST%
+set DL_TRY=0
+:download_chunk_retry
+set /a DL_TRY+=1
+echo   chunk %DL_NUM%/%DL_CHUNKS%...
+REM The trailing sleep keeps the stream open so data still in flight is not dropped when dd exits
+%CLUSTER_CMD% exec %DL_POD% -n %NAMESPACE% -- sh -c "dd if=%DL_REMOTE% bs=1M skip=%DL_SKIP% count=%CHUNK_MB% 2>/dev/null; sleep 5" > "%DL_LOCAL%.part"
+set DL_GOT=0
+for %%f in ("%DL_LOCAL%.part") do set DL_GOT=%%~zf
+if "%DL_GOT%"=="%DL_EXPECTED%" goto download_chunk_ok
+if %DL_TRY% GEQ 5 (
+    echo ERROR: chunk %DL_NUM%/%DL_CHUNKS% of %DL_REMOTE% still incomplete after %DL_TRY% attempts
+    del "%DL_LOCAL%.part"
+    exit /b 1
+)
+echo   chunk %DL_NUM%/%DL_CHUNKS% incomplete ^(%DL_GOT% of %DL_EXPECTED% bytes^), retrying...
+goto download_chunk_retry
+:download_chunk_ok
+copy /b "%DL_LOCAL%"+"%DL_LOCAL%.part" "%DL_LOCAL%" >nul
+del "%DL_LOCAL%.part"
+exit /b 0

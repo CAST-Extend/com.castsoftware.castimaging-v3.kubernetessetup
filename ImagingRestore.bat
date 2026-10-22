@@ -16,11 +16,13 @@ set NAMESPACE=%~1
 set BACKUP_DIR=%~2
 set USE_OC=false
 set CLUSTER_CMD=kubectl
+REM kubectl 1.30+ streams exec over WebSockets, which breaks large file transfers; force SPDY
+set KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
 set OPENSHIFT_CHECK="n"
 set BACKUP_CASTDIR=false
 
 echo =========================================================================
-echo Imaging Kubernetes Restore Procedure - SINGLE TENANT
+echo Imaging Kubernetes Restore Procedure
 echo =========================================================================
 echo Namespace: %NAMESPACE%
 echo Backup Directory: %BACKUP_DIR%
@@ -52,8 +54,26 @@ echo.
 echo =========================================================================
 echo Step 1: Restoring Analysis Node files...
 echo =========================================================================
+REM With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet
+set AN_STS=statefulsets.apps
+%CLUSTER_CMD% get statefulsets.apps.kruise.io console-analysis-node-core -n %NAMESPACE% >nul 2>&1
+if not errorlevel 1 set AN_STS=statefulsets.apps.kruise.io
+REM The analysis node may have been left at 0 replicas (e.g. by an earlier interrupted restore)
+set AN_REPLICAS=
+for /f %%r in ('%CLUSTER_CMD% get %AN_STS% console-analysis-node-core -n %NAMESPACE% -o jsonpath^="{.spec.replicas}"') do set AN_REPLICAS=%%r
+if "%AN_REPLICAS%"=="0" (
+    echo Analysis node is scaled to 0, scaling it to 1...
+    %CLUSTER_CMD% scale %AN_STS% console-analysis-node-core --replicas=1 -n %NAMESPACE%
+    %CLUSTER_CMD% wait %AN_STS%/console-analysis-node-core --for=jsonpath={.status.readyReplicas}=1 --timeout=600s -n %NAMESPACE%
+    if errorlevel 1 (
+        echo ERROR: Analysis node did not become ready
+        exit /b 1
+    )
+)
+
 echo Discovering console-analysis-node-core pods...
 set POD_COUNT=0
+set SHARED_DONE=false
 REM First, count how many pods exist
 for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| findstr /b "pod/console-analysis-node-core-"') do (
     set /a POD_COUNT+=1
@@ -74,12 +94,14 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
     echo Processing pod: !POD_NAME!
     echo ============================================
     
-    REM Only restore shared directory for console-analysis-node-core-0
-    if "!POD_NAME!"=="console-analysis-node-core-0" (
+    REM The shared directory is one volume mounted by every analysis node: restore it through the first pod
+    REM (not necessarily -0: with AnalysisNodeAutoscaling any ordinal can be the one running)
+    if "!SHARED_DONE!"=="false" (
+        set SHARED_DONE=true
         echo Checking if shared-dir.tar.gz exists...
         if exist "%BACKUP_DIR%\shared-dir.tar.gz" (
             echo Uploading shared-dir.tar.gz to !POD_NAME!...
-			type "%BACKUP_DIR%\shared-dir.tar.gz" | %CLUSTER_CMD% exec -n %NAMESPACE% !POD_NAME! -i -- sh -c "cat > /opt/cast/shared/shared-dir.tar.gz"
+            call :upload_file "%BACKUP_DIR%\shared-dir.tar.gz" !POD_NAME! /opt/cast/shared/shared-dir.tar.gz
             if errorlevel 1 (
                 echo ERROR: Failed to upload shared-dir.tar.gz to !POD_NAME!
                 exit /b 1
@@ -106,7 +128,7 @@ for /f "tokens=*" %%i in ('%CLUSTER_CMD% get pods -n %NAMESPACE% -o name ^| find
         echo Checking if !POD_NAME!-cast-dir.tar.gz exists...
         if exist "!CAST_BACKUP!" (
             echo Uploading !POD_NAME!-cast-dir.tar.gz to !POD_NAME!...
-            type "!CAST_BACKUP!" | %CLUSTER_CMD% exec -n %NAMESPACE% !POD_NAME! -i -- sh -c "cat > /usr/share/CAST/cast-dir.tar.gz"
+            call :upload_file "!CAST_BACKUP!" !POD_NAME! /usr/share/CAST/cast-dir.tar.gz
             if errorlevel 1 (
                 echo ERROR: Failed to upload cast-dir.tar.gz to !POD_NAME!
                 exit /b 1
@@ -139,8 +161,12 @@ echo =========================================================================
 echo Step 2: Restoring CSS Postgres instance...
 echo =========================================================================
 echo Stopping all services except postgres and neo4j...
+REM With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet,
+REM and its autoscaler must be stopped first or it scales the analysis node back up
+%CLUSTER_CMD% get deployment console-analysis-node-autoscaler -n %NAMESPACE% >nul 2>&1
+if not errorlevel 1 %CLUSTER_CMD% scale deployment console-analysis-node-autoscaler --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  console-dashboards             --replicas=0 -n %NAMESPACE%
-%CLUSTER_CMD% scale statefulset console-analysis-node-core     --replicas=0 -n %NAMESPACE%
+%CLUSTER_CMD% scale %AN_STS% console-analysis-node-core --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  console-service                --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  console-authentication-service --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  console-gateway-service        --replicas=0 -n %NAMESPACE%
@@ -166,7 +192,7 @@ if not "%POSTGRES_POD%"=="" (
         set PG_DATA_PATH=/var/lib/postgresql/data
     )
     echo Uploading all_databases.backup to postgres pod...
-	type "%BACKUP_DIR%\all_databases.backup" | %CLUSTER_CMD% exec -n %NAMESPACE% %POSTGRES_POD% -i -- sh -c "cat > %PG_DATA_PATH%/all_databases.backup"
+    call :upload_file "%BACKUP_DIR%\all_databases.backup" %POSTGRES_POD% %PG_DATA_PATH%/all_databases.backup
     if errorlevel 1 (
         echo ERROR: Failed to upload all_databases.backup
         exit /b 1
@@ -200,23 +226,35 @@ echo Step 3: Restoring Neo4j databases...
 echo =========================================================================
 echo Creating/cleaning backup directory...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "mkdir -p /var/lib/neo4j/config/neo4j5_data/backup && rm -rf /var/lib/neo4j/config/neo4j5_data/backup/*"
+echo Uploading Neo4j backup file...
+call :upload_file "%BACKUP_DIR%\backup\neo4j.tar" viewer-neo4j-core-0 /var/lib/neo4j/config/neo4j5_data/neo4j.tar
+if errorlevel 1 (
+    echo ERROR: Failed to upload Neo4j backup files
+    exit /b 1
+)
+echo Expanding Neo4j backup files...
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "tar -xf /var/lib/neo4j/config/neo4j5_data/neo4j.tar --strip-components=5 -C /var/lib/neo4j/config/neo4j5_data/"
+if errorlevel 1 (
+    echo ERROR: Failed to expand Neo4j backup files
+    exit /b 1
+)
+echo Discovering databases in backup...
+REM One ^<db^>-YYYY-MM-DDTHH-MM-SS.backup file per database; system is not restored
+set DB_LIST=
+for /f "usebackq delims=" %%d in (`%CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cd /var/lib/neo4j/config/neo4j5_data/backup && ls -1 *.backup | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}\.backup$//' | sort -u | grep -vx system"`) do set "DB_LIST=!DB_LIST! %%d"
+if "%DB_LIST%"=="" (
+    echo ERROR: No Neo4j database backups found in neo4j.tar
+    exit /b 1
+)
+echo Databases to restore:%DB_LIST%
 echo Creating temporary cypher scripts...
 (
-echo drop database neo4j if exists;
-echo drop database imaging if exists;
-echo drop database packagereference if exists;
-echo create database neo4j;
-echo create database imaging;
-echo create database packagereference;
-echo stop database neo4j;
-echo stop database imaging;
-echo stop database packagereference;
+for %%d in (%DB_LIST%) do echo drop database `%%d` if exists;
+for %%d in (%DB_LIST%) do echo create database `%%d`;
+for %%d in (%DB_LIST%) do echo stop database `%%d`;
 ) > "%BACKUP_DIR%\backup\neo4j_drop_create.cypher"
-echo Starting restored databases...
 (
-echo start database neo4j;
-echo start database imaging;
-echo start database packagereference;
+for %%d in (%DB_LIST%) do echo start database `%%d`;
 echo show databases;
 ) > "%BACKUP_DIR%\backup\neo4j_start.cypher"
 echo Uploading cypher scripts...
@@ -230,48 +268,23 @@ if errorlevel 1 (
     echo ERROR: Failed to upload neo4j_start.cypher
     exit /b 1
 )
-echo Uploading Neo4j backup file...
-%CLUSTER_CMD% exec -n %NAMESPACE% viewer-neo4j-core-0 -i -- sh -c "cat > /var/lib/neo4j/config/neo4j5_data/neo4j.tar" < "%BACKUP_DIR%\backup\neo4j.tar"
-if errorlevel 1 (
-    echo ERROR: Failed to upload Neo4j backup files
-    exit /b 1
-)
-echo Expanding Neo4j backup files...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "tar -xf /var/lib/neo4j/config/neo4j5_data/neo4j.tar --strip-components=5 -C /var/lib/neo4j/config/neo4j5_data/"
-if errorlevel 1 (
-    echo ERROR: Failed to expand Neo4j backup files
-    exit /b 1
-)
 echo Dropping and recreating Neo4j databases...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_drop_create.cypher"
 if errorlevel 1 (
     echo ERROR: Failed to execute neo4j_drop_create.cypher
     exit /b 1
 )
-del %BACKUP_DIR%\backup\neo4j_drop_create.cypher
-echo Restoring neo4j database...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=neo4j neo4j > /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
-if errorlevel 1 (
-	echo ERROR: neo4j database restore encountered issues. Check neo4j_restore.log file.
-    %CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/neo4j_restore.log > "%BACKUP_DIR%\neo4j_restore.log"
-    if errorlevel 1 echo WARNING: Failed to download neo4j_restore.log
-    exit /b 1
-)
-echo Restoring imaging database...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=imaging imaging >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
-if errorlevel 1 (
-	echo ERROR: imaging database restore encountered issues. Check neo4j_restore.log file.
-    %CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/neo4j_restore.log > "%BACKUP_DIR%\neo4j_restore.log"
-    if errorlevel 1 echo WARNING: Failed to download neo4j_restore.log
-    exit /b 1
-)
-echo Restoring packagereference database...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=packagereference packagereference >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
-if errorlevel 1 (
-	echo ERROR: packagereference database restore encountered issues. Check neo4j_restore.log file.
-    %CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/neo4j_restore.log > "%BACKUP_DIR%\neo4j_restore.log"
-    if errorlevel 1 echo WARNING: Failed to download neo4j_restore.log
-    exit /b 1
+del "%BACKUP_DIR%\backup\neo4j_drop_create.cypher"
+%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -f /var/lib/neo4j/logs/neo4j_restore.log"
+for %%d in (%DB_LIST%) do (
+    echo Restoring %%d database...
+    %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "neo4j-admin database restore --verbose --overwrite-destination=true --from-path=/var/lib/neo4j/config/neo4j5_data/backup --source-database=%%d %%d >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+    if errorlevel 1 (
+        echo ERROR: %%d database restore encountered issues. Check neo4j_restore.log file.
+        %CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/neo4j_restore.log > "%BACKUP_DIR%\neo4j_restore.log"
+        if errorlevel 1 echo WARNING: Failed to download neo4j_restore.log
+        exit /b 1
+    )
 )
 echo Starting databases...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system -f /var/lib/neo4j/config/neo4j5_data/backup/neo4j_start.cypher"
@@ -279,11 +292,11 @@ if errorlevel 1 (
     echo ERROR: Failed to execute neo4j_start.cypher
     exit /b 1
 )
-del %BACKUP_DIR%\backup\neo4j_start.cypher
+del "%BACKUP_DIR%\backup\neo4j_start.cypher"
 echo Executing permission scripts...
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"neo4j\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/neo4j/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"imaging\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/imaging/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
-%CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"packagereference\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/packagereference/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+for %%d in (%DB_LIST%) do (
+    %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "cypher-shell -a localhost:7687 -u neo4j -p imaging -d system --param 'database => \"%%d\"' -f /var/lib/neo4j/config/neo4j5_data/scripts/%%d/restore_metadata.cypher >> /var/lib/neo4j/logs/neo4j_restore.log 2>&1"
+)
 echo Downloading Neo4j restore log...
 %CLUSTER_CMD% exec viewer-neo4j-core-0 -n %NAMESPACE% -- cat /var/lib/neo4j/logs/neo4j_restore.log > "%BACKUP_DIR%\neo4j_restore.log"
 if errorlevel 1 echo WARNING: Failed to download neo4j_restore.log, continuing...
@@ -328,3 +341,30 @@ echo.
 echo =========================================================================
 endlocal
 pause
+exit /b 0
+
+REM =========================================================================
+REM  Subroutines
+REM =========================================================================
+
+:upload_file
+REM  %1 = local file  %2 = pod  %3 = remote file
+REM  Checks the uploaded size and retries on mismatch
+REM  (a single large kubectl exec stream can be cut short without kubectl reporting an error)
+set "UL_LOCAL=%~1"
+set "UL_POD=%~2"
+set "UL_REMOTE=%~3"
+for %%f in ("%UL_LOCAL%") do set UL_SIZE=%%~zf
+set UL_TRY=0
+:upload_file_retry
+set /a UL_TRY+=1
+%CLUSTER_CMD% exec -i %UL_POD% -n %NAMESPACE% -- sh -c "cat > %UL_REMOTE%" < "%UL_LOCAL%"
+set UL_GOT=
+for /f %%z in ('%CLUSTER_CMD% exec %UL_POD% -n %NAMESPACE% -- stat -c %%s %UL_REMOTE% 2^>nul') do set UL_GOT=%%z
+if "%UL_GOT%"=="%UL_SIZE%" exit /b 0
+if %UL_TRY% GEQ 3 (
+    echo ERROR: upload of %UL_LOCAL% to %UL_POD% still incomplete after %UL_TRY% attempts
+    exit /b 1
+)
+echo   upload incomplete ^(%UL_GOT% of %UL_SIZE% bytes^), retrying...
+goto upload_file_retry
