@@ -272,10 +272,8 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: custom-postgres-init-job
+  name: custom-postgres-init-job-{{ include "imaging.jobSuffix" . }}
   namespace: {{ .Release.Namespace }}
-  annotations:
-    argocd.argoproj.io/sync-options: Replace=true
 spec:
   backoffLimit: 0
   template:

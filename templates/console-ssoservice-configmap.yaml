@@ -74,13 +74,10 @@ data:
     USER_COUNT=$(echo "$EXISTING" | grep -o '"id"' | wc -l)
 
     if [ "$USER_COUNT" -gt 0 ]; then
-      echo "      ✔ '${KCADMIN_USER}' already exists — skipping (upgrade safe)"
-      echo ""
-      echo "========================================="
-      echo " Bootstrap already done — nothing to do"
-      echo "========================================="
-      exit 0
-    fi
+      # Do not exit here: a previous run may have created the user but failed
+      # before assigning the role, so step 5 is always (re)applied.
+      echo "      ✔ '${KCADMIN_USER}' already exists — skipping creation (upgrade safe)"
+    else
 
     # -- 4. Create kcadmin user ---------------------------------------------------
     #    JSON-escapes username and password so quotes, backslashes etc.
@@ -116,9 +113,12 @@ data:
     # Refresh token (reuses the same safe helper)
     ACCESS_TOKEN=$(get_admin_token)
 
+    fi
+
     # -- 5. Assign REALM-level admin role ----------------------------------------
     # Using realm-level role (/role-mappings/realm) NOT client-level
     # Client-level role causes "You do not have permission" error in Keycloak UI
+    # Idempotent: Keycloak returns 204 even if the role is already assigned.
     echo "[5/5] Assigning realm-level admin role to '${KCADMIN_USER}'..."
 
     # Get user ID  (uses -G --data-urlencode for the query string)

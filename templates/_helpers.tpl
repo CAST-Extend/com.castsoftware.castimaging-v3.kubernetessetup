@@ -10,3 +10,12 @@ true
 false
 {{- end -}}
 {{- end -}}
+
+{{/*
+Short hash suffix for one-shot Job names. A Job's spec.template is immutable, so changing it in place
+(helm upgrade, or Argo CD even with Replace=true) is rejected. Changing the name whenever the chart version
+or values change makes Helm/Argo CD create a new Job and prune the old one instead of patching it.
+*/}}
+{{- define "imaging.jobSuffix" -}}
+{{- printf "%s-%s" .Chart.Version (toYaml .Values) | sha256sum | trunc 8 -}}
+{{- end -}}
