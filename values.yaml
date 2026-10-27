@@ -108,6 +108,7 @@ AnalysisNodeFS:
   AKSresourceGroup:                   # AKS specific, optional
   AKSstorageAccount:                  # AKS specific, optional
   AKSprotocol: smb                    # AKS specific: smb (default) or nfs (required on FIPS-enabled nodes; needs a Premium FileStorage account)
+  AKSnfsEncryptInTransit: true        # AKS specific, only used when AKSprotocol=nfs: TLS-encrypted NFS (works with "Secure transfer required" enabled on the storage account)
   AKSsharedDatadirPV:
     create: false                     # AKS specific, set to true in cases where auto-provisioning cannot be used: explicit PV will be created
     secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true

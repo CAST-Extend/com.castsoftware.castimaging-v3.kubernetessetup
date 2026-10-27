@@ -56,6 +56,9 @@ parameters:
     {{- end }}
   skuName: Premium_LRS
   protocol: nfs
+    {{- if ne (toString .Values.AnalysisNodeFS.AKSnfsEncryptInTransit) "false" }}
+  encryptInTransit: "true"
+    {{- end }}
   {{- else if eq .Values.K8SProvider "AKS" }}
 provisioner: {{ .Values.AKS_FSdriver }}
 allowVolumeExpansion: true
