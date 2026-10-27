@@ -40,6 +40,22 @@ parameters:
   directoryPerms: "770"
   uid: "10001"
   gid: "10001"
+  {{- else if and (eq .Values.K8SProvider "AKS") (eq (.Values.AnalysisNodeFS.AKSprotocol | default "smb") "nfs") }}
+provisioner: {{ .Values.AKS_FSdriver }}
+allowVolumeExpansion: true
+mountOptions:
+ - nconnect=4
+ - noresvport
+ - actimeo=30
+parameters:
+    {{- if .Values.AnalysisNodeFS.AKSresourceGroup }}
+  resourceGroup: {{ .Values.AnalysisNodeFS.AKSresourceGroup }}
+    {{- end }}
+    {{- if .Values.AnalysisNodeFS.AKSstorageAccount }}
+  storageAccount: {{ .Values.AnalysisNodeFS.AKSstorageAccount }}
+    {{- end }}
+  skuName: Premium_LRS
+  protocol: nfs
   {{- else if eq .Values.K8SProvider "AKS" }}
 provisioner: {{ .Values.AKS_FSdriver }}
 allowVolumeExpansion: true

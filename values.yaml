@@ -107,6 +107,7 @@ AnalysisNodeFS:
   EFSaccessPointID:                   # EKS specific, optional. If a value is provided, an explicit PV will be created
   AKSresourceGroup:                   # AKS specific, optional
   AKSstorageAccount:                  # AKS specific, optional
+  AKSprotocol: smb                    # AKS specific: smb (default) or nfs (required on FIPS-enabled nodes; needs a Premium FileStorage account)
   AKSsharedDatadirPV:
     create: false                     # AKS specific, set to true in cases where auto-provisioning cannot be used: explicit PV will be created
     secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true
