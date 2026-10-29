@@ -70,16 +70,15 @@ spec:
             {{- toYaml .Values.podAffinityGroupConsole | nindent 12 }}
   {{- end }}
       securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
   {{- if .Values.RestrictedSecurityMode }}
-        fsGroup: 33
-        fsGroupChangePolicy: Always
         runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
-  {{- else }}
-        fsGroup: 1000
-        fsGroupChangePolicy: Always
-  {{- end }}                    
+  {{- end }}
       containers:
         - env:
 {{- range $key, $value := .Values.MCPSERVER }}
@@ -122,7 +121,8 @@ spec:
   {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
-            runAsUser: 33
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -143,6 +143,9 @@ spec:
             - name: mcpserverappconfig
               mountPath: /app/server/config/app.config
               subPath: app.config
+  {{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+  {{- end }}
   {{- if .Values.UseImagePullSecrets }}               
       imagePullSecrets:
         - name: imagepull-sec

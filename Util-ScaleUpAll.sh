@@ -16,7 +16,16 @@ kubectl scale deployment console-authentication-service --replicas=1 -n $NAMESPA
 sleep 10
 kubectl scale deployment console-service --replicas=1 -n $NAMESPACE
 sleep 10
-kubectl scale statefulset console-analysis-node-core --replicas=1 -n $NAMESPACE
+# With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet,
+# and its autoscaler (stopped by Util-ScaleDownAll) must be restarted
+AN_STS="statefulsets.apps"
+if kubectl get statefulsets.apps.kruise.io console-analysis-node-core -n $NAMESPACE >/dev/null 2>&1; then
+    AN_STS="statefulsets.apps.kruise.io"
+fi
+kubectl scale $AN_STS console-analysis-node-core --replicas=1 -n $NAMESPACE
+if kubectl get deployment console-analysis-node-autoscaler -n $NAMESPACE >/dev/null 2>&1; then
+    kubectl scale deployment console-analysis-node-autoscaler --replicas=1 -n $NAMESPACE
+fi
 sleep 1
 kubectl scale deployment console-dashboards --replicas=1 -n $NAMESPACE
 

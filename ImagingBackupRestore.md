@@ -37,7 +37,7 @@ Both arguments are mandatory. The scripts must be run from a machine where `kube
 |---|---|---|
 | `BACKUP_CASTDIR` | `false` | `true` also backs up / restores `/usr/share/CAST` of **each** analysis node pod. |
 | `BACKUP_POSTGRES` | `true` | `false` skips the PostgreSQL step entirely (e.g. when an external PostgreSQL instance is used). The same variable name is used in the restore scripts. |
-| `OPENSHIFT_CHECK` | `n` | `y` switches to `oc` and the OpenShift PostgreSQL data path `/var/lib/pgsql/data` (instead of `/var/lib/postgresql/data`). See known limitations for the `.bat` versions. |
+| `OPENSHIFT_CHECK` | `n` | `y` switches to `oc` and the OpenShift PostgreSQL data path `/var/lib/pgsql/data` (instead of `/var/lib/postgresql/data`). Set it to `y` on OpenShift. |
 | `CHUNK_MB` (backup only) | `256` | Size of the chunks used to download large files. |
 | `KUBECTL_REMOTE_COMMAND_WEBSOCKETS` | `false` | Forces kubectl to use SPDY instead of WebSockets for `exec` (kubectl 1.30+ WebSocket streams break large transfers). |
 
@@ -197,6 +197,5 @@ Size checks detect truncation, not corruption; there is no checksum.
 - **Analysis node must be running for the backup.** With analysis node autoscaling, scale it up before running the backup script.
 - **PostgreSQL restore errors are not detected** (see section 4).
 - **`.sh` and `.bat` restore differ:** only the `.bat` drops the `keycloak` database before replaying the dump. With the `.sh` version, the Keycloak objects created by the fresh install remain and the corresponding statements of the dump fail (visible in `postgres_restore.log`).
-- **OpenShift in the `.bat` scripts:** `OPENSHIFT_CHECK` is set with quotes (`set OPENSHIFT_CHECK="n"`), so it must be changed to `set OPENSHIFT_CHECK=y` (without quotes) to take effect. In `ImagingRestore.bat`, the OpenShift branch does not actually switch `CLUSTER_CMD` to `oc`, and the PostgreSQL step always resets the data path to `/var/lib/postgresql/data`. Use the `.sh` scripts on OpenShift.
 - **Neo4j credentials are hard-coded** in the restore scripts (`neo4j` / `imaging`).
 - **Same namespace required.** The restore must target a namespace with the same name as the source instance.

@@ -18,7 +18,7 @@ set BACKUP_DIR=%~2
 set CLUSTER_CMD=kubectl
 REM kubectl 1.30+ streams exec over WebSockets, which breaks large file transfers; force SPDY
 set KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
-set OPENSHIFT_CHECK="n"
+set OPENSHIFT_CHECK=n
 set BACKUP_CASTDIR=false
 REM Set to false to skip the postgres backup (e.g. when an external postgres instance is used)
 set BACKUP_POSTGRES=true

@@ -19,23 +19,35 @@ data:
     }
 
     # -- Helper: obtain an admin access token (reused in steps 2 & 4) ------------
+    #    Retried: Keycloak can answer HTTP while its database is still restarting
+    #    (e.g. console-postgres rolled by the same sync), which fails the token
+    #    request transiently. Messages go to stderr: stdout is captured by $(...).
     get_admin_token() {
-      _resp=$(curl -s \
-        -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
-        -H "Content-Type: application/x-www-form-urlencoded" \
-        --data-urlencode "client_id=admin-cli" \
-        --data-urlencode "username=${ADMIN_USER}" \
-        --data-urlencode "password=${ADMIN_PASS}" \
-        --data-urlencode "grant_type=password")
+      _try=1
+      while :; do
+        _resp=$(curl -s \
+          -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          --data-urlencode "client_id=admin-cli" \
+          --data-urlencode "username=${ADMIN_USER}" \
+          --data-urlencode "password=${ADMIN_PASS}" \
+          --data-urlencode "grant_type=password" || true)
 
-      _token=$(printf '%s' "$_resp" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+        _token=$(printf '%s' "$_resp" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4 || true)
+        if [ -n "$_token" ]; then
+          printf '%s' "$_token"
+          return 0
+        fi
 
-      if [ -z "$_token" ]; then
-        echo "      ✗ Failed to get access token. Check KC_USER / KC_PASSWORD."
-        echo "      Response: $_resp"
-        exit 1
-      fi
-      printf '%s' "$_token"
+        if [ "$_try" -ge 60 ]; then
+          echo "      ✗ Failed to get access token after $_try attempts. Check KC_USER / KC_PASSWORD." >&2
+          echo "      Response: $_resp" >&2
+          exit 1
+        fi
+        echo "      ...token request failed (attempt $_try/60), retrying in 5s. Response: $(printf '%s' "$_resp" | cut -c1-200)" >&2
+        _try=$((_try + 1))
+        sleep 5
+      done
     }
 
     echo "========================================="
@@ -74,13 +86,10 @@ data:
     USER_COUNT=$(echo "$EXISTING" | grep -o '"id"' | wc -l)
 
     if [ "$USER_COUNT" -gt 0 ]; then
-      echo "      ✔ '${KCADMIN_USER}' already exists — skipping (upgrade safe)"
-      echo ""
-      echo "========================================="
-      echo " Bootstrap already done — nothing to do"
-      echo "========================================="
-      exit 0
-    fi
+      # Do not exit here: a previous run may have created the user but failed
+      # before assigning the role, so step 5 is always (re)applied.
+      echo "      ✔ '${KCADMIN_USER}' already exists — skipping creation (upgrade safe)"
+    else
 
     # -- 4. Create kcadmin user ---------------------------------------------------
     #    JSON-escapes username and password so quotes, backslashes etc.
@@ -116,9 +125,12 @@ data:
     # Refresh token (reuses the same safe helper)
     ACCESS_TOKEN=$(get_admin_token)
 
+    fi
+
     # -- 5. Assign REALM-level admin role ----------------------------------------
     # Using realm-level role (/role-mappings/realm) NOT client-level
     # Client-level role causes "You do not have permission" error in Keycloak UI
+    # Idempotent: Keycloak returns 204 even if the role is already assigned.
     echo "[5/5] Assigning realm-level admin role to '${KCADMIN_USER}'..."
 
     # Get user ID  (uses -G --data-urlencode for the query string)

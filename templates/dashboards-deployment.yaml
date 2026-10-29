@@ -74,6 +74,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -133,6 +135,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 65534
+            runAsGroup: 65534
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -217,6 +221,9 @@ spec:
               readOnly: true
 {{- end }}
       restartPolicy: Always
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  

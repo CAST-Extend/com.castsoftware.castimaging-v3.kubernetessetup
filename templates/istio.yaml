@@ -122,6 +122,8 @@ spec:
     headers:
       request:
         set:
+          X-Forwarded-Host: {{ (urlParse .Values.FrontEndHost).hostname }}
+          X-Forwarded-Proto: {{ (urlParse .Values.FrontEndHost).scheme }}
           X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
     route:
     - destination:
@@ -146,6 +148,8 @@ spec:
     headers:
       request:
         set:
+          X-Forwarded-Host: {{ (urlParse .Values.FrontEndHost).hostname }}
+          X-Forwarded-Proto: {{ (urlParse .Values.FrontEndHost).scheme }}
           X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
     route:
     - destination:
@@ -175,6 +179,8 @@ spec:
     headers:
       request:
         set:
+          X-Forwarded-Host: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
+          X-Forwarded-Proto: {{ (urlParse .Values.FrontEndHost).scheme }}
           X-Forwarded-For: {{ (urlParse .Values.FrontEndHost).hostname }}
     route:
     - destination:

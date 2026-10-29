@@ -44,6 +44,11 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
   {{- end }}
+  {{- if .Values.CertManager.enable }}
+    cert-manager.io/{{ ternary "cluster-issuer" "issuer" (eq .Values.CertManager.issuerKind "ClusterIssuer") }}: {{ .Values.CertManager.issuer }}
+    cert-manager.io/common-name: {{ (urlParse .Values.FrontEndHost).hostname }} # As defined in certificate
+    cert-manager.io/private-key-size: {{ .Values.CertManager.privateKeySize | quote }}
+  {{- end }}
 spec:
   ingressClassName: nginx
   tls:
@@ -84,6 +89,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: {{ .Values.ExtendProxy.timeoutSeconds | quote }}
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
+  {{- if .Values.CertManager.enable }}
+    cert-manager.io/{{ ternary "cluster-issuer" "issuer" (eq .Values.CertManager.issuerKind "ClusterIssuer") }}: {{ .Values.CertManager.issuer }}
+    cert-manager.io/common-name: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }} # As defined in certificate
+    cert-manager.io/private-key-size: {{ .Values.CertManager.privateKeySize | quote }}
+  {{- end }}
 spec:
   ingressClassName: nginx
   tls:

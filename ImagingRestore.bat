@@ -18,7 +18,7 @@ set USE_OC=false
 set CLUSTER_CMD=kubectl
 REM kubectl 1.30+ streams exec over WebSockets, which breaks large file transfers; force SPDY
 set KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false
-set OPENSHIFT_CHECK="n"
+set OPENSHIFT_CHECK=n
 set BACKUP_CASTDIR=false
 REM Set to false to skip the postgres restore (e.g. when an external postgres instance is used)
 set BACKUP_POSTGRES=true
@@ -44,7 +44,7 @@ echo.
 REM Check if running on OpenShift
 if /i "%OPENSHIFT_CHECK%"=="y" (
     set USE_OC=true
-    set %CLUSTER_CMD% exec=oc exec
+    set CLUSTER_CMD=oc
     echo Using OpenShift commands (oc)
     set PG_DATA_PATH=/var/lib/pgsql/data
 ) else (
@@ -193,11 +193,6 @@ if /i not "%BACKUP_POSTGRES%"=="true" (
 ) else if not "%POSTGRES_POD%"=="" (
     echo Found postgres pod: %POSTGRES_POD%
     echo.
-    if "%OPENSHIFT%"=="true" (
-        set PG_DATA_PATH=/var/lib/pgsql/data
-    ) else (
-        set PG_DATA_PATH=/var/lib/postgresql/data
-    )
     echo Uploading all_databases.backup to postgres pod...
     call :upload_file "%BACKUP_DIR%\all_databases.backup" %POSTGRES_POD% %PG_DATA_PATH%/all_databases.backup
     if errorlevel 1 (

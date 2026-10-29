@@ -1,0 +1,217 @@
+{{- /*
+  Analysis-node autoscaler (IMAGKSL-5864).
+
+  Adds and removes analysis nodes from the depth of the job queue, and - the
+  part plain Kubernetes cannot do - chooses WHICH node to remove, so an idle
+  one goes while a node running an analysis is left alone.
+
+  Off by default. Enabling it also switches the analysis-node StatefulSet to
+  the OpenKruise kind (see console-analysisnode-statefulset-deployment.yaml),
+  so read the prerequisites in values.yaml first.
+
+  No dedicated image: the controller is a Python script carried in a ConfigMap
+  and run on InitUtilImage, which already ships Python 3.13 and is already in
+  every registry that holds this chart.
+*/ -}}
+{{- if .Values.AnalysisNodeAutoscaling.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: console-analysis-node-autoscaler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+{{- /*
+  This pod keeps its own ServiceAccount (it carries the RBAC below), so it
+  cannot run under ServiceAccountName. Copy that account's imagePullSecrets
+  instead, so the autoscaler pulls from the same registry as the other pods.
+*/ -}}
+{{- if .Values.ServiceAccountName }}
+{{- with (lookup "v1" "ServiceAccount" .Release.Namespace .Values.ServiceAccountName) }}
+{{- with .imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: console-analysis-node-autoscaler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+rules:
+  # Read the fleet and resize it. `patch` only - never create or delete, so the
+  # controller can never remove the StatefulSet itself, only change its size
+  # and its reserved ordinals.
+  - apiGroups: ["apps.kruise.io"]
+    resources: ["statefulsets"]
+    resourceNames: ["console-analysis-node-core"]
+    verbs: ["get", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    resourceNames: ["console-analysis-node-core"]
+    verbs: ["get", "patch"]
+  # Which pods actually exist. A node registered in the service registry whose
+  # pod is gone must never be counted as capacity, nor chosen for removal.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: console-analysis-node-autoscaler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: console-analysis-node-autoscaler
+subjects:
+  - kind: ServiceAccount
+    name: console-analysis-node-autoscaler
+    namespace: {{ .Release.Namespace }}
+{{- if .Values.AnalysisNodeAutoscaling.allowNodeRead }}
+{{- /*
+  Counting schedulable nodes is the only cluster-scoped read, and it is used for
+  one thing: the anti-affinity ceiling. Each analysis node needs its own worker,
+  so asking for more replicas than there are untainted workers leaves pods
+  Pending with no obvious cause.
+
+  Read-only, and optional. Set allowNodeRead=false in clusters where no chart
+  may hold cluster-scoped rights: the controller then logs a warning once and
+  carries on with maxNodes as the only ceiling.
+*/}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}-analysis-node-autoscaler-nodes
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}-analysis-node-autoscaler-nodes
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}-analysis-node-autoscaler-nodes
+subjects:
+  - kind: ServiceAccount
+    name: console-analysis-node-autoscaler
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: console-analysis-node-autoscaler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+data:
+  autoscaler.py: |
+{{ .Files.Get "files/analysis-node-autoscaler.py" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: console-analysis-node-autoscaler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.service: console-analysis-node-autoscaler
+spec:
+  # Exactly one. Two controllers would patch the same StatefulSet with
+  # different ideas of the right size and fight each other; there is no leader
+  # election, by design, because one replica is enough for a 30s control loop.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      imaging.service: console-analysis-node-autoscaler
+  template:
+    metadata:
+      labels:
+        app: castimaging
+        imaging.service: console-analysis-node-autoscaler
+        console.network/aip-network: "true"
+      annotations:
+        # Restart the controller when the script changes, so a chart upgrade
+        # that edits the policy actually takes effect.
+        checksum/script: {{ .Files.Get "files/analysis-node-autoscaler.py" | sha256sum }}
+    spec:
+      serviceAccountName: console-analysis-node-autoscaler
+{{- if .Values.UseImagePullSecrets }}
+      imagePullSecrets:
+        - name: imagepull-sec
+{{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+{{- if .Values.RestrictedSecurityMode }}
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
+      containers:
+        - name: autoscaler
+          image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
+          imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
+          command: ["python3", "/opt/autoscaler/autoscaler.py"]
+          env:
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: STS_NAME
+              value: console-analysis-node-core
+            - name: QUEUE_STATUS_URL
+              value: "http://console-service:8091/api/jobs/queue-status"
+            - name: MIN_NODES
+              value: "{{ .Values.AnalysisNodeAutoscaling.minNodes }}"
+            - name: MAX_NODES
+              value: "{{ .Values.AnalysisNodeAutoscaling.maxNodes }}"
+            - name: POLL_INTERVAL_SECONDS
+              value: "{{ .Values.AnalysisNodeAutoscaling.pollIntervalSeconds }}"
+            - name: SCALE_UP_STABILIZATION_SECONDS
+              value: "{{ .Values.AnalysisNodeAutoscaling.scaleUpStabilizationSeconds }}"
+            - name: SCALE_DOWN_STABILIZATION_SECONDS
+              value: "{{ .Values.AnalysisNodeAutoscaling.scaleDownStabilizationSeconds }}"
+            - name: STUCK_POD_TIMEOUT_SECONDS
+              value: "{{ .Values.AnalysisNodeAutoscaling.stuckPodTimeoutSeconds }}"
+            - name: DRY_RUN
+              value: "{{ .Values.AnalysisNodeAutoscaling.dryRun }}"
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.AnalysisNodeAutoscaling.resources | nindent 12 }}
+          volumeMounts:
+            - name: script
+              mountPath: /opt/autoscaler
+              readOnly: true
+      volumes:
+        - name: script
+          configMap:
+            name: console-analysis-node-autoscaler
+{{- end }}

@@ -53,6 +53,9 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
+        # Never let a cluster autoscaler evict the database to free a worker.
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        karpenter.sh/do-not-disrupt: "true"
       labels:
         app: castimaging
         imaging.group: viewer
@@ -93,6 +96,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 7474
+        runAsGroup: 7474
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -112,7 +117,9 @@ spec:
               mountPath: /neo4j-var-volume
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 7474
+            runAsGroup: 7474
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -180,7 +187,9 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 7474
+            runAsGroup: 7474
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -204,6 +213,9 @@ spec:
             - name: neo4jdata
               mountPath: /var/lib/neo4j/config/csv/archive
               subPath: csvarchive                    
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}              
       imagePullSecrets:
         - name: imagepull-sec

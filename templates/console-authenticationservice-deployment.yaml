@@ -12,8 +12,14 @@ spec:
     - name: "8092"
       port: 8092
       targetPort: 8092
+{{- if .Values.authserviceNodePort }}
+      nodePort: {{ .Values.authserviceNodePort }}
+{{- end }}
   selector:
     imaging.service: console-authentication-service
+{{- if or .Values.authserviceNodePort .Values.allNodePort }}
+  type: NodePort
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -74,6 +80,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -99,6 +107,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -197,6 +207,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -224,6 +235,9 @@ spec:
           emptyDir: {}
 {{- end }}
       restartPolicy: Always
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
         - name: imagepull-sec

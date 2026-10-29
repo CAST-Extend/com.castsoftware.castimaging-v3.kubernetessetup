@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-version: 3.6.8
+version: 3.6.9
 
 ####################################################################################
 #
@@ -53,6 +53,15 @@ UseInternalLoadBalancer: false  # When a LoadBalancer Service is created (Create
 CreateIngress: false  # Application Networking option: routes the app through an nginx-ingress controller
                       # (installed separately - see prerequisites in templates/ingress.yaml) instead of a
                       # plain LoadBalancer Service. Set CreateLoadBalancer=false when this is true.
+# cert-manager (only used when CreateIngress is true):
+CertManager:
+  enable: false  # Set to true to have cert-manager annotations added to the Ingress(es) so it automatically
+                 # requests/renews the TLS certificate(s) - tls-secret-cast, and tls-secret-cast-extend
+                 # when ExtendProxy is enabled (cert-manager must already be installed on the
+                 # cluster, along with the referenced Issuer/ClusterIssuer).
+  issuer: vault-issuer  # Name of the cert-manager Issuer/ClusterIssuer to use
+  issuerKind: Issuer    # "Issuer" (namespaced, in the release namespace) or "ClusterIssuer"
+  privateKeySize: "4096"  # Size (in bits) of the private key to generate
 #
 # Istio:
 UseIstioGateway: false  # Application Networking option: routes the app through an Istio Gateway/VirtualService
@@ -107,6 +116,8 @@ AnalysisNodeFS:
   EFSaccessPointID:                   # EKS specific, optional. If a value is provided, an explicit PV will be created
   AKSresourceGroup:                   # AKS specific, optional
   AKSstorageAccount:                  # AKS specific, optional
+  AKSprotocol: smb                    # AKS specific: smb (default) or nfs (required on FIPS-enabled nodes; needs a Premium FileStorage account)
+  AKSnfsEncryptInTransit: true        # AKS specific, only used when AKSprotocol=nfs: TLS-encrypted NFS (works with "Secure transfer required" enabled on the storage account)
   AKSsharedDatadirPV:
     create: false                     # AKS specific, set to true in cases where auto-provisioning cannot be used: explicit PV will be created
     secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true
@@ -232,6 +243,11 @@ AUTHENTICATIONSERVICE:
 CONSOLESERVICE:
 DASHBOARDS:
 GATEWAYSERVICE:
+  # Required so that console-gateway-service (Spring Cloud Gateway) forwards X-Forwarded-Proto/Host
+  # to console-authentication-service; otherwise the OAuth2 login callback URL is built with
+  # http:// instead of the FrontEndHost scheme.
+  # Regex of trusted proxy IPs: may be restricted to the ingress/Istio gateway pod network (e.g. "10\..*").
+  SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_TRUSTEDPROXIES: ".*"
 SSOSERVICE:
 EXTENDPROXY:
 ################################################
@@ -267,7 +283,11 @@ SMTP:
 #
 # OPTIONAL - Access Private Repo with Secret
 UseImagePullSecrets: false
-Base64EncodedDockerconfigjson: 
+Base64EncodedDockerconfigjson:
+
+# OPTIONAL - Use a pre-existing Kubernetes ServiceAccount to pull images
+# (the ServiceAccount must have its own imagePullSecrets configured cluster-side)
+ServiceAccountName:
 
 ####################################################################################
 
@@ -305,20 +325,7 @@ size_ssoservice_logs: 2Gi                   # Default: 2Gi
 size_dashboards_logs: 2Gi                   # Default: 2Gi
 
 #
-# Console  
-#
-ConsolePostgresReplicaCount: 1
-SSOServiceReplicaCount: 1
-ConsoleServiceReplicaCount: 1
-GatewayServiceReplicaCount: 1
-AnalysisNodeReplicaCount: 1
-ControlPaneReplicaCount: 1
-AuthenticationServiceReplicaCount: 1
-DashboardReplicaCount: 1
-ExtendProxyReplicaCount: 1
-
-#
-# Viewer
+# Viewer ReplicaCount
 #
 ViewerNeo4jReplicaCount: 1
 ViewerServerReplicaCount: 1
@@ -326,6 +333,86 @@ ViewerEtlReplicaCount: 1
 ViewerAiManagerReplicaCount: 1
 ViewerApiReplicaCount: 1
 McpServerReplicaCount: 1
+
+#
+# Other ReplicaCount
+#
+ConsolePostgresReplicaCount: 1
+SSOServiceReplicaCount: 1
+ConsoleServiceReplicaCount: 1
+GatewayServiceReplicaCount: 1
+ControlPaneReplicaCount: 1
+AuthenticationServiceReplicaCount: 1
+DashboardReplicaCount: 1
+ExtendProxyReplicaCount: 1
+AnalysisNodeReplicaCount: 1
+##########################################################################################
+# Analysis-node autoscaling (IMAGKSL-5864)
+#
+# Adds analysis nodes when the job queue holds work no running node can take,
+# and removes them again once they go idle - choosing WHICH node to remove, so
+# a node running an analysis is never the one that goes.
+#
+# PREREQUISITE: the OpenKruise operator must be installed in the cluster
+#   (https://openkruise.io). It is an infrastructure dependency in the same
+#   sense as Keycloak or Neo4j - it is not installed by this chart.
+#
+#   Why it is needed: a native StatefulSet always deletes the HIGHEST ordinal,
+#   which may be the node running an analysis. OpenKruise reserveOrdinals is
+#   the only API that can say "remove THAT one".
+#
+# TURNING THIS ON REPLACES the analysis-node StatefulSet (its kind changes),
+# which restarts the analysis nodes once. Use a maintenance window. The 100Gi
+# castdir volumes are kept - only the pods restart.
+#
+# While enabled, AnalysisNodeReplicaCount is ignored: the controller owns the
+# replica count and the chart stops templating it, so an upgrade cannot undo
+# whatever the autoscaler converged on.
+##########################################################################################
+AnalysisNodeAutoscaling:
+  enabled: false                        # Default: false
+
+  # Floor and ceiling for the fleet. minNodes is never breached, not even when
+  # the whole fleet is idle. maxNodes is additionally capped by the number of
+  # schedulable workers minus one (anti-affinity gives each node its own host,
+  # and one host is left for Neo4j) when allowNodeRead is true.
+  minNodes: 1                           # Default: 1
+  maxNodes: 3                           # Default: 3
+
+  # How often the queue is read.
+  pollIntervalSeconds: 30               # Default: 30
+
+  # How long a decision must hold before it is acted on. Asymmetric on purpose:
+  # being slow to ADD capacity leaves work queued, while being slow to REMOVE a
+  # node only wastes a little idle compute - so removal is the cautious one.
+  # A node coming back costs about 40s when its host already has the image.
+  scaleUpStabilizationSeconds: 60       # Default: 60
+  scaleDownStabilizationSeconds: 120    # Default: 120
+
+  # An analysis-node pod not Ready for this long (Unschedulable for lack of
+  # CPU/memory, crash-looping...) is removed, and the fleet is held at the size
+  # that did start for the same duration. Leave room for a cluster autoscaler
+  # to add a worker and for the image pull. 0 disables it.
+  stuckPodTimeoutSeconds: 600           # Default: 600
+
+  # Decide and log, but never patch. Useful for watching what it would do
+  # before letting it act.
+  dryRun: false                         # Default: false
+
+  # Grants a cluster-scoped read of nodes, used only to cap maxNodes at
+  # (schedulable workers - 1) so replicas can never sit Pending forever.
+  # Set false where no chart may hold cluster-scoped rights: the controller
+  # logs one warning and falls back to maxNodes alone.
+  allowNodeRead: true                   # Default: true
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+##########################################################################################
 
 #
 # Console images
@@ -339,68 +426,68 @@ ConsolePostgresImage:
   tag: "15"
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: castimaging/sso-service
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/sso-service
+  tag: "3.6.9"
+  pullPolicy: Always
 ConsoleServiceImage:
-  name: castimaging/console
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/console
+  tag: "3.6.9"
+  pullPolicy: Always
 ConsoleGatewayServiceImage:
-  name: castimaging/gateway
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/gateway
+  tag: "3.6.9"
+  pullPolicy: Always
 ConsoleAnalysisNodeImage:
-  name: castimaging/analysis-node
-  tag: "3.6.8_core8.4.13"
-  pullPolicy: IfNotPresent
+  name: castsoftware/analysis-node
+  tag: "3.6.9.3306_dev_core8.4.13.2278"
+  pullPolicy: Always
 ConsoleControlPaneImage:
-  name: castimaging/admin-center
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/admin-center
+  tag: "3.6.9"
+  pullPolicy: Always
 ConsoleAuthenticationServiceImage:
-  name: castimaging/auth-service
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/auth-service
+  tag: "3.6.9"
+  pullPolicy: Always
 ConsoleIntegratedDashboardsImage:
-  name: castimaging/dashboards-v3
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/dashboards-v3
+  tag: "3.6.9-SNAPSHOT"
+  pullPolicy: Always
   
 #
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: castimaging/neo4j
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/neo4j
+  tag: "3.6.9"
+  pullPolicy: Always
 ViewerServiceImage:
-  name: castimaging/viewer
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/viewer
+  tag: "3.6.9"
+  pullPolicy: Always
 ViewerEtlImage:
-  name: castimaging/etl-service
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/etl-service
+  tag: "3.6.9"
+  pullPolicy: Always
 ViewerAiManagerImage:
-  name: castimaging/ai-service
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/ai-service
+  tag: "3.6.9"
+  pullPolicy: Always
 ViewerApiImage:
-  name: castimaging/imaging-apis
-  tag: "3.6.8"
-  pullPolicy: IfNotPresent
+  name: castsoftware/imaging-apis
+  tag: "3.6.9"
+  pullPolicy: Always
 McpServerImage:
   name: castimaging/imaging-mcp-server
-  tag: "3.0.4.1"
+  tag: "3.0.4.2"
   pullPolicy: IfNotPresent 
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.3.2"
-  pullPolicy: IfNotPresent 
+  tag: "2.3.4"
+  pullPolicy: IfNotPresent
 
 #
 # Console resources

@@ -73,6 +73,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -93,6 +95,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -115,6 +118,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -218,6 +223,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsUser: 65532
+            runAsGroup: 65532
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -237,6 +243,9 @@ spec:
               mountPath: /var/run
 {{- end }}
       restartPolicy: Always
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}       
       imagePullSecrets:
         - name: imagepull-sec  
@@ -257,10 +266,10 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-init-job
+  name: keycloak-init-job-{{ include "imaging.jobSuffix" (list . "console-ssoservice-configmap.yaml" "init-keycloak.sh") }}
   namespace: {{ .Release.Namespace }}
 spec:
-  backoffLimit: 0
+  backoffLimit: 3  # init-keycloak.sh is idempotent: retry transient failures (e.g. DB restarting)
   template:
     metadata:
       annotations:
@@ -285,7 +294,22 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- toYaml .Values.podAffinityGroupViewer | nindent 12 }}
 {{- end }}
+{{- if .Values.RestrictedSecurityMode }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
       restartPolicy: Never
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
+{{- if .Values.UseImagePullSecrets }}
+      imagePullSecrets:
+        - name: imagepull-sec
+{{- end }}
       containers:
         - name: keycloak-init
           image: "{{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag}}"
@@ -311,6 +335,8 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop:

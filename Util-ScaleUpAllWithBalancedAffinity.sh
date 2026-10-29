@@ -25,12 +25,33 @@ wait_ready() {
     echo
 }
 
+wait_replicas() {
+    # $1 = kind  $2 = name  $3 = replicas  (for kinds rollout status does not support)
+    echo "Waiting for $1/$2 to have $3 ready replica(s)..."
+    if ! kubectl wait "$1/$2" --for=jsonpath='{.status.readyReplicas}'="$3" --timeout="$TIMEOUT" -n "$NAMESPACE"; then
+        echo "ERROR: $1/$2 did not become ready within $TIMEOUT"
+        exit 1
+    fi
+    echo "$1/$2 is ready."
+    echo
+}
+
 echo "Scaling up namespace $NAMESPACE..."
 echo
 
 # ----- Analysis nodes (scale now, wait later so other things start in parallel) -----
 
-scale statefulset console-analysis-node-core "$NUMBER_OF_ANALYSIS_NODES"
+# With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet,
+# and its autoscaler (stopped by Util-ScaleDownAll) must be restarted
+AN_STS="statefulset"
+if kubectl get statefulsets.apps.kruise.io console-analysis-node-core -n "$NAMESPACE" >/dev/null 2>&1; then
+    AN_STS="statefulsets.apps.kruise.io"
+fi
+
+scale "$AN_STS" console-analysis-node-core "$NUMBER_OF_ANALYSIS_NODES"
+if kubectl get deployment console-analysis-node-autoscaler -n "$NAMESPACE" >/dev/null 2>&1; then
+    scale deployment console-analysis-node-autoscaler 1
+fi
 
 # ----- Core data stores -----
 
@@ -54,7 +75,11 @@ scale deployment extendproxy 1
 
 # ----- Now block until the analysis nodes are actually Ready -----
 
-wait_ready statefulset console-analysis-node-core
+if [ "$AN_STS" = "statefulset" ]; then
+    wait_ready statefulset console-analysis-node-core
+else
+    wait_replicas "$AN_STS" console-analysis-node-core "$NUMBER_OF_ANALYSIS_NODES"
+fi
 
 # ----- Viewer services -----
 

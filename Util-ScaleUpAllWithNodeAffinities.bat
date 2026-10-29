@@ -25,5 +25,15 @@ kubectl scale deployment  viewer-aimanager               --replicas=1     -n %NA
 kubectl scale deployment  viewer-api                     --replicas=1     -n %NAMESPACE%
 kubectl scale deployment  mcp-server                     --replicas=1     -n %NAMESPACE%
 
-kubectl scale statefulset console-analysis-node-core     --replicas=%NUMBER_OF_ANALYSYS_NODES%     -n %NAMESPACE%
-kubectl rollout status statefulset/console-analysis-node-core --timeout=0 -n %NAMESPACE%
+REM With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet
+REM (rollout status does not support it) and its autoscaler must be restarted
+kubectl get statefulsets.apps.kruise.io console-analysis-node-core -n %NAMESPACE% >nul 2>&1
+if errorlevel 1 (
+    kubectl scale statefulset console-analysis-node-core     --replicas=%NUMBER_OF_ANALYSYS_NODES%     -n %NAMESPACE%
+    kubectl rollout status statefulset/console-analysis-node-core --timeout=0 -n %NAMESPACE%
+) else (
+    kubectl scale statefulsets.apps.kruise.io console-analysis-node-core --replicas=%NUMBER_OF_ANALYSYS_NODES% -n %NAMESPACE%
+    kubectl get deployment console-analysis-node-autoscaler -n %NAMESPACE% >nul 2>&1
+    if not errorlevel 1 kubectl scale deployment console-analysis-node-autoscaler --replicas=1 -n %NAMESPACE%
+    kubectl wait statefulsets.apps.kruise.io/console-analysis-node-core --for=jsonpath={.status.readyReplicas}=%NUMBER_OF_ANALYSYS_NODES% --timeout=-1s -n %NAMESPACE%
+)

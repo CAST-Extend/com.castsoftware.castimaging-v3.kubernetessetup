@@ -10,7 +10,15 @@ echo.
 
 REM ----- Analysis nodes (scale now, wait later so other things start in parallel) -----
 
-call :scale statefulset console-analysis-node-core %NUMBER_OF_ANALYSIS_NODES%
+REM With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet,
+REM and its autoscaler (stopped by Util-ScaleDownAll) must be restarted
+set AN_STS=statefulset
+kubectl get statefulsets.apps.kruise.io console-analysis-node-core -n %NAMESPACE% >nul 2>&1
+if not errorlevel 1 set AN_STS=statefulsets.apps.kruise.io
+
+call :scale %AN_STS% console-analysis-node-core %NUMBER_OF_ANALYSIS_NODES%
+kubectl get deployment console-analysis-node-autoscaler -n %NAMESPACE% >nul 2>&1
+if not errorlevel 1 call :scale deployment console-analysis-node-autoscaler 1
 
 REM ----- Core data stores -----
 
@@ -34,7 +42,11 @@ call :scale deployment extendproxy 1
 
 REM ----- Now block until the analysis nodes are actually Ready -----
 
-call :wait_ready statefulset console-analysis-node-core
+if "%AN_STS%"=="statefulset" (
+    call :wait_ready statefulset console-analysis-node-core
+) else (
+    call :wait_replicas %AN_STS% console-analysis-node-core %NUMBER_OF_ANALYSIS_NODES%
+)
 
 REM ----- Viewer services -----
 
@@ -66,6 +78,18 @@ exit /b 0
 REM  %1 = kind  %2 = name
 echo Waiting for %1/%2 to roll out...
 kubectl rollout status %1/%2 --timeout=%TIMEOUT% -n %NAMESPACE%
+if errorlevel 1 (
+    echo ERROR: %1/%2 did not become ready within %TIMEOUT%
+    exit /b 1
+)
+echo %1/%2 is ready.
+echo.
+exit /b 0
+
+:wait_replicas
+REM  %1 = kind  %2 = name  %3 = replicas  (for kinds rollout status does not support)
+echo Waiting for %1/%2 to have %3 ready replica(s)...
+kubectl wait %1/%2 --for=jsonpath={.status.readyReplicas}=%3 --timeout=%TIMEOUT% -n %NAMESPACE%
 if errorlevel 1 (
     echo ERROR: %1/%2 did not become ready within %TIMEOUT%
     exit /b 1

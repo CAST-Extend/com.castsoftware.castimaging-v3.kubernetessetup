@@ -14,7 +14,11 @@ spec:
   selector:
     imaging.service: console-analysis-node
 ---
+{{- if .Values.AnalysisNodeAutoscaling.enabled }}
+apiVersion: apps.kruise.io/v1beta1
+{{- else }}
 apiVersion: apps/v1
+{{- end }}
 kind: StatefulSet
 metadata:
   labels:
@@ -25,7 +29,11 @@ metadata:
   namespace: {{ .Release.Namespace }}   
 spec:
   serviceName: console-analysis-node
+{{- if .Values.AnalysisNodeAutoscaling.enabled }}
+  # replicas is deliberately NOT templated while autoscaling is on.
+{{- else }}
   replicas: {{ .Values.AnalysisNodeReplicaCount }}
+{{- end }}
   selector:
     matchLabels:
       imaging.service: console-analysis-node
@@ -33,6 +41,11 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
+        # Never let a cluster autoscaler evict an analysis node to free a worker:
+        # it would stop a running analysis. With AnalysisNodeAutoscaling, removal
+        # is left to the CAST autoscaler, which only removes idle nodes.
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        karpenter.sh/do-not-disrupt: "true"
       labels:
         console.network/aip-network: "true"
         app: castimaging
@@ -69,6 +82,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
@@ -88,7 +103,9 @@ spec:
               mountPath: /carl-volume
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 10001
+            runAsGroup: 10001
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -128,6 +145,9 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -179,6 +199,9 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -249,7 +272,9 @@ spec:
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             runAsUser: 10001
+            runAsGroup: 10001
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -278,6 +303,9 @@ spec:
               readOnly: true
 {{- end }}
       restartPolicy: Always 
+{{- if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName }}
+{{- end }}
 {{- if .Values.UseImagePullSecrets }}      
       imagePullSecrets:
         - name: imagepull-sec 

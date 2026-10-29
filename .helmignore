@@ -14,3 +14,5 @@ imaging_backup*/
 *-priv/
 *-custom.*
 *-custom/
+# Unit tests for the autoscaler script - not part of the chart
+files/test_*.py
