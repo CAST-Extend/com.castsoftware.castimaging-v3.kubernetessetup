@@ -316,7 +316,6 @@ size_imagingviewer_v3_api_logs: 2Gi         # Default: 2Gi
 size_extendproxy_data: 10Gi                 # Default: 10Gi
 size_neo4jdata: 100Gi                       # Default: 100Gi
 size_mcpserver_logs: 2Gi                    # Default: 2Gi
-size_controlpanel_audit_trails: 10Gi        # Default: 10Gi
 size_consoleservice_logs: 2Gi               # Default: 2Gi
 size_controlpanel_logs: 2Gi                 # Default: 2Gi
 size_gatewayservice_logs: 2Gi               # Default: 2Gi
