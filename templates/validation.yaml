@@ -28,3 +28,10 @@
 {{- if and .Values.CastStorageService.enable .Values.CustomPostgres.enable }}
   {{- fail "ERROR: CastStorageService.enable and CustomPostgres.enable cannot both be set to true." }}
 {{- end }}
+
+{{/* AKS static NFS PV (AKSprotocol=nfs + AKSsharedDatadirPV.create) requires an existing storage account and share */}}
+{{- if and (eq .Values.K8SProvider "AKS") (eq (.Values.AnalysisNodeFS.AKSprotocol | default "smb") "nfs") .Values.AnalysisNodeFS.AKSsharedDatadirPV.create }}
+  {{- if not (and .Values.AnalysisNodeFS.AKSstorageAccount .Values.AnalysisNodeFS.AKSsharedDatadirPV.shareName) }}
+    {{- fail "ERROR: AnalysisNodeFS.AKSstorageAccount and AnalysisNodeFS.AKSsharedDatadirPV.shareName are required when AKSprotocol is nfs and AKSsharedDatadirPV.create is true." }}
+  {{- end }}
+{{- end }}

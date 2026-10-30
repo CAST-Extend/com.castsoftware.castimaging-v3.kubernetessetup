@@ -105,14 +105,17 @@ FileClassName: castimaging-fs  # Default: castimaging-fs
 AnalysisNodeFS:
   EFSsystemID: fs-xxxxxxxxxxx         # EKS specific, required
   EFSaccessPointID:                   # EKS specific, optional. If a value is provided, an explicit PV will be created
-  AKSresourceGroup:                   # AKS specific, optional
-  AKSstorageAccount:                  # AKS specific, optional
+  AKSresourceGroup:                   # AKS specific, optional (resource group of the existing storage account when AKSprotocol=nfs and AKSsharedDatadirPV.create=true)
+  AKSstorageAccount:                  # AKS specific, optional (required when AKSprotocol=nfs and AKSsharedDatadirPV.create=true)
   AKSprotocol: smb                    # AKS specific: smb (default) or nfs (required on FIPS-enabled nodes; needs a Premium FileStorage account)
   AKSnfsEncryptInTransit: true        # AKS specific, only used when AKSprotocol=nfs: TLS-encrypted NFS (works with "Secure transfer required" enabled on the storage account)
   AKSsharedDatadirPV:
     create: false                     # AKS specific, set to true in cases where auto-provisioning cannot be used: explicit PV will be created
-    secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true
+                                      #   AKSprotocol=smb: in-tree azureFile PV using secretName
+                                      #   AKSprotocol=nfs: static file.csi.azure.com PV on an existing NFS share (no StorageClass, no service endpoint / private endpoint management)
+    secretName: cast-fs-secret        # AKS specific, required if AKSsharedDatadirPV.create is set to true and AKSprotocol=smb
     shareName: cast-fileshare         # AKS specific, required if AKSsharedDatadirPV.create is set to true
+    server:                           # AKS specific, optional, AKSprotocol=nfs only: Azure Files server FQDN (e.g. <account>.file.core.usgovcloudapi.net). Default: derived by the CSI driver from the cluster cloud
 
 #
 # Postgres: choose between CastStorageService (embedded postgres) OR CustomPostgres (connect to existing external server)
