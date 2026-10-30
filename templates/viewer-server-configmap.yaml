@@ -45,7 +45,7 @@ data:
     $1 $1/ /index.html;\n        }\n\n        location ^~ /imaging/api/ {\n
     \           proxy_pass         http://localhost:9000/;\n        }\n\n        location
     ^~ /imaging/etl/api/ {\n            proxy_pass         http://viewer-etl:9001/;\n
-    \       }\n\n        location ^~ /imaging/neo4j/api/ {\n            proxy_pass
+    \           proxy_read_timeout 3600s;\n            proxy_send_timeout 3600s;\n        }\n\n        location ^~ /imaging/neo4j/api/ {\n            proxy_pass
     \        http://localhost:8084/neo4j/api/;\n        }\n\n        # Proxying
     the connections\n        location ^~ /imaging/login/api/ {\n            limit_req
     zone=default burst=6 nodelay;\n            proxy_pass         http://localhost:8084/;\n
