@@ -82,6 +82,28 @@ def _ordinal_of(hostname: str) -> int:
     return int(tail) if tail.isdigit() else -1
 
 
+def _fmt_nodes(doc: object) -> str:
+    """queue-status nodes as 'ordinal:jobsInProgress/capacity', for the log.
+
+    capacity here is the live per-node value (the one set in the UI), not the
+    NB_OF_THREADS_FOR_NODE of the pod template. Never raises: it is also called
+    on documents decide() rejected.
+    """
+    nodes = doc.get("nodes") if isinstance(doc, dict) else None
+    if not isinstance(nodes, list):
+        return "?"
+    out = []
+    for n in nodes:
+        if not isinstance(n, dict):
+            out.append("?")
+            continue
+        host = str(n.get("hostname", "?"))
+        ordinal = _ordinal_of(host)
+        name = str(ordinal) if ordinal >= 0 else host
+        out.append(f"{name}:{n.get('jobsInProgress', '?')}/{n.get('capacity', '?')}")
+    return " ".join(out)
+
+
 def decide(
     doc: object,
     *,
@@ -94,12 +116,18 @@ def decide(
     untainted_nodes: int = 0,
     stuck_pods: dict[str, str] | None = None,
     ceiling: int = 0,
+    known_capacity: dict[int, int] | None = None,
 ) -> Decision:
     """Pure policy: queue-status document in, decision out.
 
     stuck_pods maps pod name -> why, for pods that have not been Ready for
     longer than the controller's timeout. ceiling, when > 0, is a temporary
     cap set after such pods were removed, so they are not asked for again.
+
+    known_capacity maps ordinal -> the capacity last seen on it when it differs
+    from new_node_capacity. A node whose capacity was changed in the UI keeps
+    that value when its ordinal is brought back; only a never-seen ordinal
+    starts with MaxParallelAnalysisPerNode.
     """
 
     def decline(reason: str) -> Decision:
@@ -208,14 +236,35 @@ def decide(
     # back up even with an empty queue. The ceiling still wins over the floor -
     # replicas the cluster cannot place would only sit Pending.
     floor = min(min_nodes, effective_max)
-    add = -(-unservable // new_node_capacity) if unservable > 0 else 0  # ceil
-    desired = max(min(current_replicas + add, effective_max), floor)
-    grow = desired - current_replicas
+    room = effective_max - current_replicas
+
+    # Reuse reserved ordinals before allocating new ones, so their 100Gi
+    # castdir is reused and the PVC count stays bounded by maxNodes. Each comes
+    # back with the capacity last set on it in the UI, so count them one by one
+    # rather than dividing the queue by a single capacity, and take the largest
+    # first. The UI cannot edit a stopped node, so the value recorded when it
+    # was reserved is still the one it will start with.
+    known = known_capacity or {}
+
+    def cap_of(ordinal: int) -> int:
+        return known.get(ordinal, new_node_capacity)
+
+    pool = sorted(reserved, key=lambda o: (-cap_of(o), o))
+    reused: list[int] = []
+    grow = covered = 0
+    # floor <= effective_max, so reaching it never needs more than room.
+    while grow < room and (covered < unservable
+                           or current_replicas + grow < floor):
+        if pool:
+            reused.append(pool.pop(0))
+            covered += cap_of(reused[-1])
+        else:
+            covered += new_node_capacity
+        grow += 1
+    desired = current_replicas + grow
 
     if grow > 0:
-        # Reuse reserved ordinals before allocating new ones, so their 100Gi
-        # castdir is reused and the PVC count stays bounded by maxNodes.
-        reused, kept = reserved[:grow], reserved[grow:]
+        kept = sorted(pool)
 
         if unservable > 0:
             reason = (f"{unservable} job(s) beyond {spare} spare thread(s) "
@@ -227,7 +276,7 @@ def decide(
         return Decision(
             "scale-up", desired, kept, reason,
             spare=spare, unservable=unservable, effective_max=effective_max,
-            ghosts=ghosts, reused=reused,
+            ghosts=ghosts, reused=sorted(reused),
         )
 
     # Above maxNodes (lowered by an upgrade, or a manual scale) the excess must
@@ -370,6 +419,51 @@ def namespace() -> str:
 KRUISE = "apis/apps.kruise.io/v1beta1"
 NATIVE = "apis/apps/v1"
 
+# On the StatefulSet: {"ordinal": capacity} for every ordinal whose capacity, as
+# last seen in queue-status, differs from MaxParallelAnalysisPerNode. A node
+# changed in the UI keeps that value across a restart of its ordinal, but once
+# reserved it is no longer listed anywhere: this is the only record of it, and
+# it must outlive a restart of the autoscaler.
+CAPACITY_ANNOTATION = "imaging.castsoftware.com/ordinal-capacity"
+
+
+def _parse_capacity_annotation(value: object) -> dict[int, int]:
+    """The annotation as {ordinal: capacity}. Unreadable -> empty, never raises.
+
+    A capacity below 1 cannot be set in the UI, so it is dropped as corrupt.
+    """
+    try:
+        raw = json.loads(value) if isinstance(value, str) else {}
+        parsed = {int(o): int(c) for o, c in raw.items()}
+        return {o: c for o, c in parsed.items() if c >= 1}
+    except (ValueError, TypeError, AttributeError):
+        return {}
+
+
+def observe_capacity(known: dict[int, int], doc: object, live_pods: list[str],
+                     helm_capacity: int) -> dict[int, int]:
+    """known, updated with the capacity of every live node in queue-status.
+
+    Only values that differ from Helm's are kept: an ordinal never changed in
+    the UI comes back with MaxParallelAnalysisPerNode, whatever it was before.
+    Ordinals not listed (reserved, stuck, ghosts) keep what was last seen.
+    """
+    out = dict(known)
+    nodes = doc.get("nodes") if isinstance(doc, dict) else None
+    for n in nodes if isinstance(nodes, list) else []:
+        try:
+            host, cap = str(n["hostname"]), int(n["capacity"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        ordinal = _ordinal_of(host)
+        if ordinal < 0 or (live_pods and host not in live_pods) or cap < 1:
+            continue
+        if cap == helm_capacity:
+            out.pop(ordinal, None)
+        else:
+            out[ordinal] = cap
+    return out
+
 
 @dataclass
 class Config:
@@ -426,6 +520,8 @@ class State:
     untainted: int
     # pod name -> (uid, why) for every pod not Ready, whatever its age.
     not_ready: dict[str, tuple[str, str]] = field(default_factory=dict)
+    # CAPACITY_ANNOTATION as stored on the StatefulSet.
+    stored_capacity: dict[int, int] = field(default_factory=dict)
 
 
 def _not_ready_reason(pod: dict) -> str | None:
@@ -458,6 +554,9 @@ class Controller:
         # Temporary cap after stuck pods were removed (0 = none).
         self.ceiling = 0
         self.ceiling_until = 0.0
+        # ordinal -> capacity when it differs from Helm's (see observe_capacity).
+        # None until loaded from CAPACITY_ANNOTATION on the first tick.
+        self.known_capacity: dict[int, int] | None = None
 
     # -- reading -----------------------------------------------------------
     def _sts_path(self, kind: str) -> str:
@@ -515,6 +614,9 @@ class Controller:
             live_pods=sorted(live),
             untainted=self._untainted_nodes(),
             not_ready=not_ready,
+            stored_capacity=_parse_capacity_annotation(
+                (sts.get("metadata", {}).get("annotations") or {})
+                .get(CAPACITY_ANNOTATION)),
         )
 
     def stuck_pods(self, state: State) -> dict[str, str]:
@@ -596,6 +698,10 @@ class Controller:
         patch: dict = {"spec": {"replicas": decision.desired_replicas}}
         if state.kind == KRUISE:
             patch["spec"]["reserveOrdinals"] = reserved
+        known = self.known_capacity or {}
+        if known != state.stored_capacity:
+            patch["metadata"] = {"annotations": {CAPACITY_ANNOTATION: json.dumps(
+                {str(o): c for o, c in sorted(known.items())})}}
 
         if self.cfg.dry_run:
             log(f"  DRY RUN - would patch {state.kind}: {json.dumps(patch)}")
@@ -618,6 +724,11 @@ class Controller:
         if doc is None:
             return
 
+        if self.known_capacity is None:
+            self.known_capacity = dict(state.stored_capacity)
+        self.known_capacity = observe_capacity(
+            self.known_capacity, doc, state.live_pods, state.capacity_per_node)
+
         stuck = self.stuck_pods(state)
         ceiling = self.current_ceiling()
         decision = decide(
@@ -631,15 +742,23 @@ class Controller:
             untainted_nodes=state.untainted,
             stuck_pods=stuck,
             ceiling=ceiling,
+            known_capacity=self.known_capacity,
         )
 
         log(f"state: kind={state.kind.split('/')[1]} replicas={state.replicas} "
             f"ready={state.ready} reserved=[{_join(state.reserved)}] "
-            f"capacityPerNode={state.capacity_per_node} "
+            f"newNodeCapacity={state.capacity_per_node} (helm) "
             f"untainted={state.untainted}"
             + (f" stuck=[{' '.join(sorted(stuck))}]" if stuck else "")
             + (f" ceiling={ceiling} ({int(self.ceiling_until - time.monotonic())}s"
                f" left)" if ceiling else ""))
+        queued = doc.get("jobsQueued", "?") if isinstance(doc, dict) else "?"
+        reserved_caps = {o: c for o, c in self.known_capacity.items()
+                if o in state.reserved}
+        log(f"queue: queued={queued} nodes=[{_fmt_nodes(doc)}]"
+            + (" reservedCapacity=[" + " ".join(
+                f"{o}:{c}" for o, c in sorted(reserved_caps.items())) + "]"
+               if reserved_caps else ""))
         # Not Ready but not yet stuck: show the countdown, so a pod sitting
         # Pending is visibly being watched rather than ignored.
         if self.cfg.stuck_timeout > 0:
@@ -716,6 +835,9 @@ class Controller:
                 untainted_nodes=fresh_state.untainted,
                 stuck_pods=self.stuck_pods(fresh_state),
                 ceiling=ceiling,
+                known_capacity=observe_capacity(
+                    self.known_capacity, fresh_doc, fresh_state.live_pods,
+                    fresh_state.capacity_per_node),
             )
             if recheck.reserve_ordinals != decision.reserve_ordinals:
                 warn("  aborting scale-down: the fleet changed between "

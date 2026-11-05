@@ -43,7 +43,8 @@ def queue(queued: int, nodes: list[dict]) -> dict:
 def decide(doc: dict, *, replicas: int, reserved: list[int] | None = None,
            min_nodes: int = 1, max_nodes: int = 10,
            untainted: int = 0, stuck: dict[int, str] | None = None,
-           ceiling: int = 0) -> "autoscaler.Decision":
+           ceiling: int = 0,
+           known: dict[int, int] | None = None) -> "autoscaler.Decision":
     return autoscaler.decide(
         doc,
         current_replicas=replicas,
@@ -55,6 +56,7 @@ def decide(doc: dict, *, replicas: int, reserved: list[int] | None = None,
         untainted_nodes=untainted,
         stuck_pods={host(o): why for o, why in (stuck or {}).items()},
         ceiling=ceiling,
+        known_capacity=known,
     )
 
 
@@ -158,6 +160,7 @@ class FakeKube:
         self.reserved = reserved
         self.pending = dict(pending or {})
         self.patches: list[dict] = []
+        self.annotations: dict[str, str] = {}
 
     def _running(self) -> list[int]:
         out, ordinal = [], 0
@@ -172,6 +175,7 @@ class FakeKube:
             if not path.startswith("/" + autoscaler.KRUISE):
                 raise autoscaler.ApiError(404, "not found")
             return {
+                "metadata": {"annotations": dict(self.annotations)},
                 "spec": {
                     "replicas": self.replicas,
                     "reserveOrdinals": list(self.reserved),
@@ -206,6 +210,8 @@ class FakeKube:
         self.patches.append(patch)
         self.replicas = patch["spec"]["replicas"]
         self.reserved = patch["spec"].get("reserveOrdinals", self.reserved)
+        self.annotations.update(
+            patch.get("metadata", {}).get("annotations", {}))
         self.pending = {o: r for o, r in self.pending.items()
                         if o in self._running()}
         return {}
@@ -528,6 +534,139 @@ class OrdinalReuse(unittest.TestCase):
         d = decide(queue(0, [node(0, 0), node(1, 0), node(2, 0)]), replicas=3,
                    reserved=[7])
         self.assertEqual(d.reserve_ordinals, [1, 2, 7])
+
+
+# ------------------------------------------- capacity changed in the UI --
+
+class ReusedOrdinalKeepsItsUiCapacity(unittest.TestCase):
+    """A reserved ordinal comes back with the capacity set on it in the UI;
+    only a never-seen ordinal starts with MaxParallelAnalysisPerNode (CAP)."""
+
+    BUSY = [node(0, 2), node(1, 2)]
+
+    def test_higher_ui_capacity_needs_fewer_nodes(self):
+        # 6 unservable: core-2 brings 6 back, not the 3 nodes 6/CAP would give.
+        d = decide(queue(6, self.BUSY), replicas=2, reserved=[2],
+                   known={2: 6})
+        self.assertEqual((d.action, d.desired_replicas), ("scale-up", 3))
+        self.assertEqual((d.reserve_ordinals, d.reused), ([], [2]))
+
+    def test_lower_ui_capacity_needs_more_nodes(self):
+        # 4 unservable: core-2 brings 1, then two new nodes at CAP.
+        d = decide(queue(4, self.BUSY), replicas=2, reserved=[2],
+                   known={2: 1})
+        self.assertEqual((d.action, d.desired_replicas), ("scale-up", 5))
+
+    def test_largest_reserved_capacity_is_reused_first(self):
+        d = decide(queue(4, self.BUSY), replicas=2, reserved=[2, 3],
+                   known={3: 4})
+        self.assertEqual(d.desired_replicas, 3)
+        self.assertEqual((d.reserve_ordinals, d.reused), ([2], [3]))
+
+    def test_min_nodes_reuses_the_largest_reserved_first(self):
+        d = decide(queue(0, [node(0, 0)]), replicas=1, reserved=[1, 2],
+                   min_nodes=2, known={2: 4})
+        self.assertEqual((d.desired_replicas, d.reserve_ordinals), (2, [1]))
+
+    def test_capacity_below_one_is_never_recorded(self):
+        # The UI does not allow it: such a value is noise, not a setting.
+        doc = queue(0, [node(0, 0, capacity=0)])
+        self.assertEqual(
+            autoscaler.observe_capacity({0: 3}, doc, [host(0)], CAP), {0: 3})
+        self.assertEqual(
+            autoscaler._parse_capacity_annotation('{"1": 0, "2": 5}'), {2: 5})
+
+    def test_observe_keeps_only_values_that_differ_from_helm(self):
+        doc = queue(0, [node(0, 0, capacity=CAP), node(1, 0, capacity=5)])
+        live = [host(0), host(1)]
+        # core-0 was 4 in the UI and has been set back to the Helm value.
+        self.assertEqual(
+            autoscaler.observe_capacity({0: 4, 3: 1}, doc, live, CAP),
+            {1: 5, 3: 1})  # core-3, reserved, keeps what was last seen
+
+    def test_observe_ignores_ghosts(self):
+        doc = queue(0, [node(0, 0, capacity=5)])
+        self.assertEqual(
+            autoscaler.observe_capacity({}, doc, [host(1)], CAP), {})
+
+    def test_bad_annotation_is_ignored(self):
+        self.assertEqual(autoscaler._parse_capacity_annotation("not json"), {})
+        self.assertEqual(autoscaler._parse_capacity_annotation(None), {})
+        self.assertEqual(
+            autoscaler._parse_capacity_annotation('{"2": 6}'), {2: 6})
+
+
+class UiCapacitySurvivesAutoscalerRestart(unittest.TestCase):
+    """Once reserved, a node is listed nowhere: its UI capacity is recorded on
+    the StatefulSet when it is removed, and read back by a new controller."""
+
+    def make_controller(self):
+        cfg = autoscaler.Config(
+            namespace="ns", sts_name="console-analysis-node-core",
+            pod_selector="x", queue_status_url="http://unused",
+            min_nodes=1, max_nodes=5, poll_interval=30,
+            up_window=60, down_window=120,
+            dry_run=False, once=False, run_for=0,
+        )
+        ctl = autoscaler.Controller(cfg, self.kube)
+        ctl.fetch_queue_status = lambda: self.docs.pop(0)
+        return ctl
+
+    def setUp(self) -> None:
+        self.kube = FakeKube(replicas=2, reserved=[])
+        self.docs: list[dict] = []
+        self.clock = Clock()
+        for p in (mock.patch.object(autoscaler.time, "monotonic", self.clock),
+                  mock.patch("builtins.print")):
+            p.start()
+            self.addCleanup(p.stop)
+
+    def tick_at(self, ctl, seconds: float, *docs: dict) -> None:
+        self.docs.extend(docs)
+        self.clock.now = 1000.0 + seconds
+        ctl.tick()
+
+    def test_removed_node_comes_back_with_its_ui_capacity(self):
+        ctl = self.make_controller()
+        # Both set in the UI. The smaller one (core-1 at 3) is removed, and
+        # its 3 is recorded alongside core-0's 6.
+        idle = queue(0, [node(0, 0, capacity=6), node(1, 0, capacity=3)])
+        self.tick_at(ctl, 0, idle)
+        self.tick_at(ctl, 120, idle, idle)
+        self.assertEqual(self.kube.reserved, [1])
+        self.assertEqual(
+            self.kube.annotations[autoscaler.CAPACITY_ANNOTATION],
+            '{"0": 6, "1": 3}')
+
+    def test_new_controller_reads_the_annotation(self):
+        self.kube = FakeKube(replicas=1, reserved=[1])
+        self.kube.annotations[autoscaler.CAPACITY_ANNOTATION] = '{"1": 6}'
+        ctl = self.make_controller()
+        busy = queue(6, [node(0, 2)])
+        self.tick_at(ctl, 0, busy)
+        self.tick_at(ctl, 60, busy)
+        # core-1 brings 6 back: one node, not the three 6/CAP would give.
+        self.assertEqual((self.kube.replicas, self.kube.reserved), (2, []))
+
+
+# ----------------------------------------------------------------------- log --
+
+class NodesLogLine(unittest.TestCase):
+
+    def test_shows_live_capacity_per_node(self):
+        # Capacity changed in the UI: 4 on core-0, 1 on core-1.
+        doc = queue(0, [node(0, 3, capacity=4), node(1, 0, capacity=1)])
+        self.assertEqual(autoscaler._fmt_nodes(doc), "0:3/4 1:0/1")
+
+    def test_non_numeric_hostname_is_shown_whole(self):
+        doc = queue(0, [{"hostname": "other", "jobsInProgress": 0,
+                         "capacity": 2}])
+        self.assertEqual(autoscaler._fmt_nodes(doc), "other:0/2")
+
+    def test_never_raises_on_bad_data(self):
+        self.assertEqual(autoscaler._fmt_nodes("not json"), "?")
+        self.assertEqual(autoscaler._fmt_nodes({"nodes": None}), "?")
+        self.assertEqual(autoscaler._fmt_nodes({"nodes": [42, {}]}), "? ?:?/?")
 
 
 if __name__ == "__main__":

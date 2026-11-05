@@ -344,7 +344,8 @@ kubectl logs -n <namespace> -l imaging.service=console-analysis-node-autoscaler 
 Every poll logs what it saw, what it decided, and **why**:
 
 ```
-state: kind=apps.kruise.io replicas=1 ready=1 reserved=[] capacityPerNode=2 untainted=4
+state: kind=apps.kruise.io replicas=1 ready=1 reserved=[] newNodeCapacity=2 (helm) untainted=4
+queue: queued=2 nodes=[0:2/2]
 decision: scale-up -> replicas=2 reserve=[]
   reason: 2 job(s) beyond 0 spare thread(s) -> +1 node(s)
   holding: decision is new, need 60s of agreement
@@ -355,6 +356,23 @@ then, once the decision has held long enough:
 ```
   applying: {"spec": {"replicas": 2, "reserveOrdinals": []}}
 ```
+
+`newNodeCapacity` is `MaxParallelAnalysisPerNode` as set in Helm: it is only
+used to size a scale-up (how many nodes to add). The `queue:` line shows, per
+node, `ordinal:jobsInProgress/capacity` as reported by the console - that
+capacity is the one set in the Imaging UI, and it is what spare threads and
+scale-down are computed from. The two differ when the UI value was changed.
+
+A node whose capacity was changed in the UI keeps that value when its ordinal
+is brought back; only a never-used ordinal starts with
+`MaxParallelAnalysisPerNode`. The autoscaler therefore records, in the
+`imaging.castsoftware.com/ordinal-capacity` annotation of the analysis-node
+StatefulSet, the capacity of every ordinal that differs from Helm's, and uses
+it to size a scale-up: reserved ordinals are reused largest capacity first. The
+UI cannot edit a node that is not running, so the value recorded when a node
+was reserved is the one it restarts with. The capacities held for reserved
+ordinals appear at the end of the `queue:` line as
+`reservedCapacity=[ordinal:capacity ...]`.
 
 `reserveOrdinals` is the list of node numbers that are **not** running. On
 scale-down it is how a specific node is removed, and it accumulates — an entry
