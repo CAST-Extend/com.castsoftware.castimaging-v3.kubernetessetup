@@ -864,7 +864,7 @@ data:
     export KEYCLOAK_PASSWORD=$(cat /opt/secrets/keycloak-db-password)     
     export PGPASSWORD=$(cat /opt/secrets/postgres-db-password )
 
-    psql -c "ALTER USER postgres WITH PASSWORD '$PGPASSWORD';"
+    psql --username $POSTGRES_USER -c "ALTER USER postgres WITH PASSWORD '$PGPASSWORD';"
 
     psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB <<-EOSQL
         CREATE USER operator WITH SUPERUSER PASSWORD '$OPERATOR_PASSWORD';
