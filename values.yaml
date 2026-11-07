@@ -216,6 +216,9 @@ Viewer:
 #
 # OPTIONAL - MCP Server
 #   enable: set to true to deploy the mcp-server (ignored if Viewer.enable is false)
+#   >= 3.1: one pod running the MCP Aggregator Gateway (port 8285, registered in the Control Panel as MCPSERVER)
+#   and the Structural, Semantic search and Text2Cypher MCP servers behind it.
+#   Settings (which MCP servers run, tool surface profiles, log level...) are set in the MCPSERVER section below.
 #
 McpServer:
   enable: false
@@ -234,7 +237,21 @@ ETL:
 SERVER:
 AIMANAGER:
   SUMMARY_LOG_LEVEL: info
-MCPSERVER:
+MCPSERVER:                                    # MCP Server >= 3.1 settings (same names as in the docker .env file)
+  STRUCTURAL_MCP_ENABLED: true
+  SEMANTIC_MCP_ENABLED: true                  # Requires Neo4j embeddings configured in CAST Imaging (AI settings) and a specific license (GraphRAG)
+  TEXT_TO_CYPHER_MCP_ENABLED: true
+  STRUCTURAL_MCP_TOOL_SURFACE_PROFILE: intents  # intents (meta-tools) or full (every tool)
+  SEMANTIC_MCP_TOOL_SURFACE_PROFILE: intents    # intents (meta-tools) or full (every tool)
+  SEMANTIC_MCP_CONVERSATIONAL_MEMORY_ENABLED: false
+  IMAGING_DOMAIN: default
+  IMAGING_PAGE_SIZE: 1000
+  IMAGING_DISPLAY_PAGE_SIZE: 20
+  IMAGING_CODE: "False"                       # Security sensitive: lets MCP clients read source code
+  TELEMETRY_ENABLED: true
+  TELEMETRY_PUSH_ENABLED: true
+  TELEMETRY_PUSH_INTERVAL_MINUTES: 120
+  LOG_LEVEL: INFO                             # INFO or DEBUG only (any other value stops the container)
 CONTROLPANEL:
   IMAGING_DOMAIN_SYNCHRO_ENABLED: false
 ANALYSISNODE:
@@ -316,6 +333,7 @@ size_imagingviewer_v3_api_logs: 2Gi         # Default: 2Gi
 size_extendproxy_data: 10Gi                 # Default: 10Gi
 size_neo4jdata: 100Gi                       # Default: 100Gi
 size_mcpserver_logs: 2Gi                    # Default: 2Gi
+size_mcpserver_data: 1Gi                    # Default: 1Gi
 size_consoleservice_logs: 2Gi               # Default: 2Gi
 size_controlpanel_logs: 2Gi                 # Default: 2Gi
 size_gatewayservice_logs: 2Gi               # Default: 2Gi
@@ -425,67 +443,67 @@ ConsolePostgresImage:
   tag: "15"
   pullPolicy: IfNotPresent
 ConsoleSSOServiceImage:
-  name: castsoftware/sso-service
+  name: castimaging/sso-service
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ConsoleServiceImage:
-  name: castsoftware/console
+  name: castimaging/console
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ConsoleGatewayServiceImage:
-  name: castsoftware/gateway
+  name: castimaging/gateway
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ConsoleAnalysisNodeImage:
-  name: castsoftware/analysis-node
-  tag: "3.6.9.3306_dev_core8.4.13.2278"
-  pullPolicy: Always
+  name: castimaging/analysis-node
+  tag: "3.6.9_core8.4.13"
+  pullPolicy: IfNotPresent
 ConsoleControlPaneImage:
-  name: castsoftware/admin-center
+  name: castimaging/admin-center
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ConsoleAuthenticationServiceImage:
-  name: castsoftware/auth-service
+  name: castimaging/auth-service
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ConsoleIntegratedDashboardsImage:
-  name: castsoftware/dashboards-v3
-  tag: "3.6.9-SNAPSHOT"
-  pullPolicy: Always
+  name: castimaging/dashboards-v3
+  tag: "3.6.9"
+  pullPolicy: IfNotPresent
   
 #
 # Viewer images
 #
 ViewerNeo4jImage:
-  name: castsoftware/neo4j
+  name: castimaging/neo4j
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ViewerServiceImage:
-  name: castsoftware/viewer
+  name: castimaging/viewer
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ViewerEtlImage:
-  name: castsoftware/etl-service
+  name: castimaging/etl-service
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ViewerAiManagerImage:
-  name: castsoftware/ai-service
+  name: castimaging/ai-service
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 ViewerApiImage:
-  name: castsoftware/imaging-apis
+  name: castimaging/imaging-apis
   tag: "3.6.9"
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 McpServerImage:
   name: castimaging/imaging-mcp-server
-  tag: "3.0.4.2"
-  pullPolicy: IfNotPresent 
+  tag: "3.1.0"
+  pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
 ExtendProxyImage:
   name: castimaging/extend-proxy
-  tag: "2.3.4"
+  tag: "2.3.5"
   pullPolicy: IfNotPresent
 
 #
@@ -574,11 +592,11 @@ ViewerEtlResources:
     memory: 8G
 ViewerAiManagerResources:
   requests:
-    cpu: 0.1
-    memory: 400M
+    cpu: 0.3
+    memory: 600M
   limits:
     cpu: 1
-    memory: 2G
+    memory: 3G
 ViewerApiResources:
   requests:
     cpu: 0.1
@@ -588,11 +606,11 @@ ViewerApiResources:
     memory: 2G
 McpServerResources:
   requests:
-    cpu: 0.2
-    memory: 400M
+    cpu: 0.5
+    memory: 1G
   limits:
-    cpu: 1
-    memory: 2G
+    cpu: 2
+    memory: 4G
 #
 # ExtendProxy resources
 #

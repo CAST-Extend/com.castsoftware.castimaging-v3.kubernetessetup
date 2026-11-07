@@ -79,31 +79,7 @@ spec:
         seccompProfile:
           type: RuntimeDefault
 {{- end }}
-      initContainers: 
-{{- if .Values.RestrictedSecurityMode }}
-        - name: init-folders
-          image: "{{.Values.ConsoleIntegratedDashboardsImage.name}}:{{.Values.ConsoleIntegratedDashboardsImage.tag}}"
-          imagePullPolicy: "{{.Values.ConsoleIntegratedDashboardsImage.pullPolicy}}"
-          command:
-          - /bin/sh
-          - -c
-          - |
-            rm -rf /app-volume/*
-            cp -r /app/resources/* /app-volume/ || true
-          volumeMounts:    
-            - name: app-dir
-              mountPath: /app-volume 
-          securityContext:
-            readOnlyRootFilesystem: true
-            runAsUser: 65534
-            runAsGroup: 65534
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            {{- toYaml .Values.InitContainerResources | nindent 12 }}
-{{- end }}              
+      initContainers:
         - name: console-control-panel-and-authentication-service-healthcheck
           image: {{ .Values.InitUtilImage.name }}:{{ .Values.InitUtilImage.tag }}
           imagePullPolicy: "{{ .Values.InitUtilImage.pullPolicy }}"
@@ -208,8 +184,6 @@ spec:
             - mountPath: /opt/cast/imaging-dashboards/logs
               name: dashboards-logs
 {{- if .Values.RestrictedSecurityMode }}
-            - name: app-dir
-              mountPath: /app/resources
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -233,8 +207,6 @@ spec:
           persistentVolumeClaim:
             claimName: pvc-dashboards-logs
 {{- if .Values.RestrictedSecurityMode }}
-        - name: app-dir
-          emptyDir: {}
         - name: tmp
           emptyDir: {}
         - name: run
