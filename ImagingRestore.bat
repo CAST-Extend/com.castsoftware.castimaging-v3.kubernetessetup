@@ -23,6 +23,20 @@ set BACKUP_CASTDIR=false
 REM Set to false to skip the postgres restore (e.g. when an external postgres instance is used)
 set BACKUP_POSTGRES=true
 
+REM Validate the backup folder before anything is scaled down or dropped
+if not exist "%BACKUP_DIR%\" (
+    echo ERROR: Backup directory %BACKUP_DIR% not found
+    exit /b 1
+)
+if /i "%BACKUP_POSTGRES%"=="true" if not exist "%BACKUP_DIR%\all_databases.backup" (
+    echo ERROR: %BACKUP_DIR%\all_databases.backup not found ^(set BACKUP_POSTGRES=false to skip the postgres restore^)
+    exit /b 1
+)
+if not exist "%BACKUP_DIR%\backup\neo4j.tar" (
+    echo ERROR: %BACKUP_DIR%\backup\neo4j.tar not found
+    exit /b 1
+)
+
 echo =========================================================================
 echo Imaging Kubernetes Restore Procedure
 echo =========================================================================
@@ -45,10 +59,10 @@ REM Check if running on OpenShift
 if /i "%OPENSHIFT_CHECK%"=="y" (
     set USE_OC=true
     set CLUSTER_CMD=oc
-    echo Using OpenShift commands (oc)
+    echo Using OpenShift commands ^(oc^)
     set PG_DATA_PATH=/var/lib/pgsql/data
 ) else (
-    echo Using standard Kubernetes commands (kubectl)
+    echo Using standard Kubernetes commands ^(kubectl^)
 	set PG_DATA_PATH=/var/lib/postgresql/data
 )
 echo.
@@ -308,9 +322,10 @@ echo Cleaning up archive files...
 echo Cleaning up Neo4j restore log from pod...
 %CLUSTER_CMD% exec -it viewer-neo4j-core-0 -n %NAMESPACE% -- /bin/bash -c "rm -f /var/lib/neo4j/logs/neo4j_restore.log"
 echo Restarting Neo4j pod...
-%CLUSTER_CMD% scale statefulset viewer-neo4j-core --replicas=0 -n %NAMESPACE%
 echo Waiting for Neo4j to stop...
 :wait_neo4j_stop
+REM Re-issued on each pass so a scale call refused by the API server is retried
+%CLUSTER_CMD% scale statefulset viewer-neo4j-core --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% get statefulset viewer-neo4j-core -n %NAMESPACE% | findstr "0/0" >nul
 if errorlevel 1 (
     timeout /t 5 /nobreak >nul
@@ -356,6 +371,11 @@ REM  (a single large kubectl exec stream can be cut short without kubectl report
 set "UL_LOCAL=%~1"
 set "UL_POD=%~2"
 set "UL_REMOTE=%~3"
+REM A missing file would otherwise compare as "" == "" below and pass as a successful upload
+if not exist "%UL_LOCAL%" (
+    echo ERROR: %UL_LOCAL% not found
+    exit /b 1
+)
 for %%f in ("%UL_LOCAL%") do set UL_SIZE=%%~zf
 set UL_TRY=0
 :upload_file_retry
@@ -368,5 +388,6 @@ if %UL_TRY% GEQ 3 (
     echo ERROR: upload of %UL_LOCAL% to %UL_POD% still incomplete after %UL_TRY% attempts
     exit /b 1
 )
-echo   upload incomplete ^(%UL_GOT% of %UL_SIZE% bytes^), retrying...
+echo   upload incomplete ^(%UL_GOT% of %UL_SIZE% bytes^), retrying in 15s...
+timeout /t 15 /nobreak >nul
 goto upload_file_retry

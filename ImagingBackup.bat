@@ -310,7 +310,8 @@ if %DL_TRY% GEQ 5 (
     del "%DL_LOCAL%.part"
     exit /b 1
 )
-echo   chunk %DL_NUM%/%DL_CHUNKS% incomplete ^(%DL_GOT% of %DL_EXPECTED% bytes^), retrying...
+echo   chunk %DL_NUM%/%DL_CHUNKS% incomplete ^(%DL_GOT% of %DL_EXPECTED% bytes^), retrying in 15s...
+timeout /t 15 /nobreak >nul
 goto download_chunk_retry
 :download_chunk_ok
 copy /b "%DL_LOCAL%"+"%DL_LOCAL%.part" "%DL_LOCAL%" >nul

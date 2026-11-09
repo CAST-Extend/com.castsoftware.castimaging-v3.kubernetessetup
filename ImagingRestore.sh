@@ -27,16 +27,36 @@ BACKUP_POSTGRES="true"
 upload_file() {
     local local_file="$1" pod="$2" remote="$3"
     local size got attempt
+    # A missing file would otherwise compare as "" = "" below and pass as a successful upload
+    if [ ! -f "$local_file" ]; then
+        echo "ERROR: $local_file not found"
+        return 1
+    fi
     size=$(wc -c < "$local_file")
     for attempt in 1 2 3; do
         $CLUSTER_CMD exec -i $pod -n $NAMESPACE -- sh -c "cat > '$remote'" < "$local_file"
         got=$($CLUSTER_CMD exec $pod -n $NAMESPACE -- stat -c %s "$remote" 2>/dev/null)
         [ "$got" = "$size" ] && return 0
-        echo "  upload incomplete (${got:-0} of $size bytes), retrying..."
+        echo "  upload incomplete (${got:-0} of $size bytes), retrying in 15s..."
+        sleep 15
     done
     echo "ERROR: upload of $local_file to $pod still incomplete after $attempt attempts"
     return 1
 }
+
+# Validate the backup folder before anything is scaled down or dropped
+if [ ! -d "$BACKUP_DIR" ]; then
+    echo "ERROR: Backup directory $BACKUP_DIR not found"
+    exit 1
+fi
+if [[ "$BACKUP_POSTGRES" == "true" && ! -f "$BACKUP_DIR/all_databases.backup" ]]; then
+    echo "ERROR: $BACKUP_DIR/all_databases.backup not found (set BACKUP_POSTGRES=false to skip the postgres restore)"
+    exit 1
+fi
+if [ ! -f "$BACKUP_DIR/backup/neo4j.tar" ]; then
+    echo "ERROR: $BACKUP_DIR/backup/neo4j.tar not found"
+    exit 1
+fi
 
 echo "========================================================================="
 echo "Imaging Kubernetes Restore Procedure"
@@ -315,9 +335,10 @@ $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -f /var/
 echo "Cleaning up Neo4j restore log from pod..."
 $CLUSTER_CMD exec viewer-neo4j-core-0 -n $NAMESPACE -- /bin/bash -c "rm -f /var/lib/neo4j/logs/neo4j_restore.log"
 echo "Restarting Neo4j pod..."
-$CLUSTER_CMD scale statefulset viewer-neo4j-core --replicas=0 -n $NAMESPACE
 echo "Waiting for Neo4j to stop..."
 while true; do
+    # Re-issued on each pass so a scale call refused by the API server is retried
+    $CLUSTER_CMD scale statefulset viewer-neo4j-core --replicas=0 -n $NAMESPACE
     if $CLUSTER_CMD get statefulset viewer-neo4j-core -n $NAMESPACE | grep -q "0/0"; then
         break
     fi
