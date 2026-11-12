@@ -143,7 +143,7 @@ existingSecret: ""
 #    WARNING: If you use an external secret, it MUST contain the exact following keys:
 #    - postgres-db-password
 #    - operator-db-password
-#    - operator-db-password-crypted2 (base64-encoded value of the "CRYPTED2:..." string, see OperatorDbPasswordCrypted2 below)
+#    - operator-db-password-crypted2
 #    - keycloak-db-password
 #    - keycloak-admin-password
 #    - neo4j-password
