@@ -26,3 +26,21 @@ same ConfigMap does not re-run the Job.
 {{- end -}}
 {{- printf "%s-%s-%s" $root.Chart.Version (toYaml $root.Values) $script | sha256sum | trunc 8 -}}
 {{- end -}}
+
+{{/*
+Flattened property names of a nested map, one per line (e.g. "jobs.threadPoolSize").
+Keys that already contain dots are kept as is, as Spring reads them the same way as nested keys.
+Usage: include "imaging.flattenKeys" (list "" <map>)
+*/}}
+{{- define "imaging.flattenKeys" -}}
+{{- $prefix := index . 0 -}}
+{{- range $k, $v := index . 1 -}}
+{{- $key := printf "%v" $k -}}
+{{- if $prefix -}}{{- $key = printf "%s.%s" $prefix $key -}}{{- end -}}
+{{- if kindIs "map" $v -}}
+{{- include "imaging.flattenKeys" (list $key $v) -}}
+{{- else -}}
+{{ $key }}{{ "\n" }}
+{{- end -}}
+{{- end -}}
+{{- end -}}

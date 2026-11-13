@@ -20,6 +20,22 @@ https://doc.castsoftware.com/imaging/install/update/kubernetes/
   ⚠️ **Migration note**: choose the protocol at initial installation. **Never switch an existing deployment from `smb` to `nfs` once the Imaging instance has been used to run analyses**: StorageClass parameters are immutable, so the change requires deleting the `FileClassName` StorageClass (default `castimaging-fs`) and the `pvc-shared-datadir` volume, which results in **permanent data loss** (delivered source code, deployment folders and shared data used by the analysis nodes, `console-service` and `console-control-panel`).
 - **`ServiceAccountName` option** (empty by default): name of an existing ServiceAccount to run all Imaging pods and Jobs with. For example, it can carry its own `imagePullSecrets`.
 - **cert-manager for the NGINX Ingress (`CertManager`)** (only used when `CreateIngress: true`, `CertManager.enable: false` by default): when enabled, cert-manager annotations (`cert-manager.io/issuer` or `cert-manager.io/cluster-issuer`, `common-name`, `private-key-size`) are added to the Ingress(es), so that cert-manager requests and renews the TLS certificate(s) (`tls-secret-cast`, and `tls-secret-cast-extend` when ExtendProxy is enabled). Settings: `CertManager.issuer` (default `vault-issuer`), `CertManager.issuerKind` (`Issuer` or `ClusterIssuer`) and `CertManager.privateKeySize` (default `"4096"`). cert-manager and the referenced Issuer/ClusterIssuer must already be installed on the cluster.
+- **`IstioExtraHttpRoutes` setting** (default `[]`, only used when `UseIstioGateway: true`): additional Istio HTTP routes, added at the top of `castimaging-virtualservice` (`spec.http`) so that they are evaluated before the chart's own routes. Paths are matched as received by the gateway: when `ContextUrl` is enabled, include the context path.
+- **`AnalysisNodeApplicationConfig` setting** (default `{}`): overrides of the analysis-node configuration (`/home/carl/data_aip_node_v3/application.yml`). `application.yml` and `application-default.yml` are regenerated at each container start, so changes made in the pod were lost. Properties set here use the same tree as `application.yml` (e.g. `chunked.upload.stale-activity-timeout-seconds`). They are passed to the node through `SPRING_APPLICATION_JSON` and take precedence over both files and over the configuration served by console-control-panel. Changing a value restarts the analysis nodes on the next `helm upgrade`.
+  ⚠️ **Restriction**: properties already set by the chart through the analysis-node environment cannot be overridden here, as `SPRING_APPLICATION_JSON` would silently take precedence over them. `helm install` / `helm upgrade` fails if one of them is set, whatever the key spelling (nested, dotted, camelCase, kebab-case or snake_case):
+  - `jobs.threadPoolSize`: use `MaxParallelAnalysisPerNode` instead (also used by the analysis-node autoscaler to compute the capacity of a node).
+  - `backup.aipcore.upgrade.enabled`: use `ConsoleEnableBackup` instead.
+  - `spring.datasource.hikari.maximum-pool-size`, `spring.datasource.hikari.minimum-idle`: set by the chart, cannot be changed.
+  - `database.server.maximumPoolSize`, `database.server.minimumIdle`: derived from the Hikari settings above, cannot be changed.
+
+  Other properties of the same sections are allowed.
+  Example, to set `application.maintenance.cron` (Spring cron expression: second, minute, hour, day of month, month, day of week; here every Wednesday at 23:00):
+  ```yaml
+  AnalysisNodeApplicationConfig:
+    application:
+      maintenance:
+        cron: "0 0 23 * * WED"
+  ```
 
 #### Configuration Changes
 - **New default `GATEWAYSERVICE.SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_TRUSTEDPROXIES: ".*"`**: console-gateway-service 3.6.9 is built on Spring Cloud Gateway 5, which no longer forwards `X-Forwarded-*` headers to the backend services unless `trusted-proxies` is set. Without it, console-authentication-service never learns that the original request was `https://` and builds an `http://` OAuth2 login callback URL, so the browser is sent back to `http://` after login. The value is a regex matched against the IP of the client calling console-gateway-service, and can be restricted to your ingress / Istio gateway pod network (e.g. `"10\..*"`).

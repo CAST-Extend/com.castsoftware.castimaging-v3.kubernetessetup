@@ -73,6 +73,27 @@ ExistingIstioGatewayName: ""  # Only provide a value if you want to use an exist
 CustomIstioSelector:
 CustomIstioMainCredentialName:
 CustomIstioExtendCredentialName:
+IstioExtraHttpRoutes: []  # Additional Istio HTTP routes added at the top of castimaging-virtualservice
+                          # (spec.http), before the chart's own routes, so they are evaluated first.
+                          # Use this instead of "kubectl patch": patched rules are removed by helm upgrade.
+                          # Paths are matched as received by the gateway: if ContextUrl is enabled,
+                          # include the context path (e.g. /imaging/api/events).
+                          # > Syntax example:
+                          # IstioExtraHttpRoutes:
+                          #   - name: my-extra-route
+                          #     match:
+                          #       - uri:
+                          #           exact: /api/events
+                          #         method:
+                          #           exact: GET
+                          #     directResponse:
+                          #       status: 200
+                          #       body:
+                          #         string: "[]"
+                          #     headers:
+                          #       response:
+                          #         set:
+                          #           content-type: application/json
 #
 # Gateway API
 UseGatewayAPI: false  # Application Networking option: routes the app through a Kubernetes Gateway API
@@ -276,6 +297,28 @@ MaxParallelAnalysisPerNode: 2
 #
 # Enable/Disable application pre-upgrade backup
 ConsoleEnableBackup: true
+
+#
+# Overrides of the analysis-node configuration (/home/carl/data_aip_node_v3/application.yml).
+# application.yml and application-default.yml are regenerated at each container start, so
+# they cannot be edited in the pod. Properties set here use the same tree as application.yml,
+# are passed to the node through SPRING_APPLICATION_JSON, and take precedence over both files
+# and over the configuration served by console-control-panel.
+# Changing a value restarts the analysis nodes on the next helm upgrade.
+# Properties already set by the chart are rejected (helm fails): jobs.threadPoolSize (use
+# MaxParallelAnalysisPerNode), backup.aipcore.upgrade.enabled (use ConsoleEnableBackup),
+# spring.datasource.hikari.maximum-pool-size / minimum-idle, database.server.maximumPoolSize / minimumIdle.
+AnalysisNodeApplicationConfig: {}
+#  chunked:
+#    upload:
+#      stale-activity-timeout-seconds: 120
+#  snapshot:
+#    report:
+#      enabled: true
+#  logging:
+#    level:
+#      com:
+#        castsoftware: DEBUG
 
 # RestrictedSecurityMode:
 # If restricted security is enforced in your environment, set RestrictedSecurityMode to true

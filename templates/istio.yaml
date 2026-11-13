@@ -112,6 +112,10 @@ spec:
   gateways:
   - {{ .Values.ExistingIstioGatewayName | default "castimaging-gateway" }}
   http:
+  {{- with .Values.IstioExtraHttpRoutes }}
+  # Custom routes from values.yaml (IstioExtraHttpRoutes), evaluated before the chart routes
+{{ toYaml . | indent 2 }}
+  {{- end }}
   {{- if and .Values.ExtendProxy.enable (eq .Values.ExtendProxy.exthostname (urlParse .Values.FrontEndHost).hostname) }}
   # ExtendProxy on shared hostname (path-based routing)
   - match:

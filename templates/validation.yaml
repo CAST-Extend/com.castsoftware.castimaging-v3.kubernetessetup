@@ -28,3 +28,23 @@
 {{- if and .Values.CastStorageService.enable .Values.CustomPostgres.enable }}
   {{- fail "ERROR: CastStorageService.enable and CustomPostgres.enable cannot both be set to true." }}
 {{- end }}
+
+{{/* AnalysisNodeApplicationConfig must not override properties already set by the chart through
+     the analysis-node environment: SPRING_APPLICATION_JSON would silently win over them.
+     Keys are compared the way Spring binds them: case-insensitive, ignoring "-" and "_",
+     nested or dotted (e.g. jobs.threadPoolSize, jobs.thread-pool-size, "jobs.threadPoolSize"). */}}
+{{- with .Values.AnalysisNodeApplicationConfig }}
+{{- $reserved := dict
+    "jobs.threadpoolsize" "use MaxParallelAnalysisPerNode instead (also used by the analysis-node autoscaler)"
+    "backup.aipcore.upgrade.enabled" "use ConsoleEnableBackup instead"
+    "spring.datasource.hikari.maximumpoolsize" "set by the chart (SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE), it cannot be changed"
+    "spring.datasource.hikari.minimumidle" "set by the chart (SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE), it cannot be changed"
+    "database.server.maximumpoolsize" "derived from SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE set by the chart, it cannot be changed"
+    "database.server.minimumidle" "derived from SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE set by the chart, it cannot be changed" }}
+{{- range splitList "\n" (include "imaging.flattenKeys" (list "" .)) }}
+{{- $canonical := . | lower | replace "-" "" | replace "_" "" }}
+{{- if hasKey $reserved $canonical }}
+  {{- fail (printf "ERROR: AnalysisNodeApplicationConfig cannot set %q: %s." . (get $reserved $canonical)) }}
+{{- end }}
+{{- end }}
+{{- end }}

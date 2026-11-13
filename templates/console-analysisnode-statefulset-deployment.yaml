@@ -241,6 +241,11 @@ spec:
               value: "4"
             - name: SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE
               value: "1"
+{{- with .Values.AnalysisNodeApplicationConfig }}
+            # Overrides application.yml / application-default.yml (regenerated at each start)
+            - name: SPRING_APPLICATION_JSON
+              value: {{ toJson . | quote }}
+{{- end }}
 {{- if .Values.EnablePostgresSSL }}
             - name: CASTCONNECTIONEXTRAPARAMETERS
               value: /etc/ssl/certs-postgres/sslconfig.ini
