@@ -1,0 +1,363 @@
+{
+    "title": "Management Dashboard",
+    "defaultLanguage": "English",
+    "description": "To configure new language for application, define customLanguages as [{'label': 'languageName', 'value': 'localeFolderName'}]",
+    "customLanguages": [],
+    "horizontalScroll": false,
+    "requestAccess": false,
+    "appMarq": true,
+    "defaultView": "AIP",
+    "failedRatio": false,
+    "confirmLogout": true,
+    "snapshotThreshold": 1500,
+    "persistNavigationFilters":true,
+    "timeoutPeriod": 60000,
+    "filtering":{
+        "filterTags":true
+    },
+    "period": {
+        "shift": true,
+        "periods": [
+            { "diff": 30, "units": "days", "unitsValue": "days" },
+            { "diff": 3, "units": "months", "unitsValue": "months"},
+            { "diff": 6, "units": "months", "unitsValue": "months" },
+            { "diff": 12, "units": "months", "unitsValue": "months", "selected": true },
+            { "diff": 2, "units": "years", "unitsValue": "years" },
+            { "diff": 0, "units": "alltime" }
+        ]
+    },
+    "Evolutions":{
+        "selectedApplicationCount":10
+    },
+    "QualityIndicatorResults": {
+        "groupBy": "technology",
+        "ranges": [2.5, 2.9, 3.2],
+        "gradeLabels":{},
+        "colors": {
+            "useGradient": false,
+            "from": "#ff0242",
+            "to": "#fbbb6e"
+        }
+    },
+    "areas": [
+        {
+            "id": 1,
+            "title": "Overview",
+            "panels": [
+                {
+                    "id":20150818,
+                    "plugin": "PortfolioListing",
+                    "color": "grey-dark",
+                    "parameters":{
+                        "title":"Number of applications"
+                    }
+                },
+                {
+                    "id": 1,
+                    "plugin": "SizingMeasureResults",
+                    "color": "blue",
+                    "size": "large",
+                    "parameters": {
+                        "title": "Technical Size",
+                        "mode": "verbose",
+                        "sizingMeasure": {
+                            "id": "10151",
+                            "format": "0,000.0a",
+                            "description": "Measured size"
+                        }
+                    }
+                },
+                {
+                    "id": 5,
+                    "plugin": "QualityIndicatorResults",
+                    "color": "yellow",
+                    "parameters": {
+                        "title": "Robustness",
+                        "qualityIndicator": {
+                            "id": "ROBUSTNESS",
+                            "format": "0.00",
+                            "description": ""
+                        },
+                        "widget": "gauge"
+                    }
+                },
+                {
+                    "id": 15,
+                    "plugin": "QualityIndicatorResults",
+                    "color": "orange",
+                    "parameters": {
+                        "title": "Efficiency",
+                        "qualityIndicator": {
+                            "id": "EFFICIENCY",
+                            "format": "0.00",
+                            "description": ""
+                        },
+                        "widget": "gauge"
+                    }
+                },
+                {
+                    "id": 208,
+                    "plugin": "QualityIndicatorResults",
+                    "color": "green",
+                    "parameters": {
+                        "title": "Security",
+                        "widget": "gauge",
+                        "qualityIndicator": {
+                            "id": "SECURITY",
+                            "format": "0.00",
+                            "description": ""
+                        }
+                    }
+                },
+                {
+                    "id": 209,
+                    "plugin": "QualityIndicatorResults",
+                    "color": "purple",
+                    "parameters": {
+                        "title": "Changeability",
+                        "widget": "gauge",
+                        "qualityIndicator": {
+                            "id": "CHANGEABILITY",
+                            "format": "0.00",
+                            "description": ""
+                        }
+                    }
+                },
+                {
+                    "id": 210,
+                    "plugin": "QualityIndicatorResults",
+                    "color": "grey-dark",
+                    "parameters": {
+                        "title": "Transferability",
+                        "widget": "gauge",
+                        "qualityIndicator": {
+                            "id": "TRANSFERABILITY",
+                            "format": "0.00",
+                            "description": ""
+                        }
+                    }
+                },
+                {
+                    "id": 211,
+                    "plugin": "QualityIndicatorResults",
+                    "color": "black",
+                    "parameters": {
+                        "widget": "gauge",
+                        "title": "TQI",
+                        "qualityIndicator": {
+                            "id": "TQI",
+                            "format": "0.00"
+                        }
+                    }
+                },
+                {
+                    "id": 10201,
+                    "plugin": "SizingMeasureResults",
+                    "color": "blue",
+                    "parameters": {
+                        "title": "Functional & Enhancement Size",
+
+                        "sizingMeasure": {
+                            "id": "AUTOMATED_IFPUG_FUNCTION_POINTS_ESTIMATION",
+                            "format": "0,000",
+                            "description": "OMG-Compliant Automated FPs"
+                        }
+                    }
+                },
+                {
+                    "id": 12,
+                    "plugin": "SizingMeasureResults",
+                    "color": "orange",
+                    "parameters": {
+                        "title": "Critical violations",
+                        "mode": "terse",
+                        "sizingMeasure": {
+                            "id": "CRITICAL_VIOLATIONS",
+                            "format": "0,000"
+                        }
+                    }
+                },
+                {
+                    "id": 3,
+                    "plugin": "QualityIndicatorBySizingMeasureResults",
+                    "size": "large",
+                    "color": "purple",
+                    "parameters": {
+                        "type": "treemap",
+                        "title": "Applications Map",
+                        "order": "descending",
+                        "qualityIndicator": {
+                            "id": "TQI",
+                            "format": "0.00",
+                            "tooltipFormat": "0.00",
+                            "description": "Total Quality Index"
+                        },
+                        "sizingMeasure": {
+                            "id": "LINES_OF_CODE",
+                            "format": "0,000.0a",
+                            "tooltipFormat": "0,000",
+                            "description": "Lines of Code"
+                        },
+                        "treemapColors": {
+                            "ranges": [1, 2, 3, 4],
+                            "colors": ["#ff3600", "#ff0242", "#fbbb6e", "#3dc680"]
+                        }
+                    }
+                },
+                {
+                    "id": 10,
+                    "plugin": "CriticalViolationsPerHealthFactor",
+                    "color": "green",
+                    "size": "large",
+                    "parameters": {
+                        "type": "topRiskiest",
+                        "title": "Top 5 riskiest Applications",
+                        "count": 5,
+                        "order": "descending",
+                        "qualityIndicator": {
+                            "id": "EFFICIENCY",
+                            "format": "0.00",
+                            "description": "Efficiency"
+                        },
+                        "sizingMeasure": {
+                            "id": "CRITICAL_VIOLATIONS",
+                            "format": "0,000a",
+                            "description": "Critical Violations"
+                        }
+                    }
+                },
+                {
+                    "id": 14,
+                    "plugin": "CriticalQualityRulesRatios",
+                    "size":"large",
+                    "color": "grey-dark",
+                    "parameters": {
+                        "limit": 100,
+                        "title": "Top 5 critical rules",
+                        "count": 5,
+                        "order": "descending",
+                        "format": "0,000"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Trends",
+            "panels": [
+                {
+                    "id": 102,
+                    "plugin": "QualityIndicatorEvolution",
+                    "color": "black",
+                    "parameters": {
+                        "widget": "spline",
+                        "title": "TQI",
+                        "qualityIndicator": {
+                            "id": "TQI",
+                            "format": "0.00"
+                        }
+                    }
+                },
+                {
+                    "id": 105,
+                    "plugin": "QualityIndicatorEvolution",
+                    "color": "yellow",
+                    "parameters": {
+                        "widget": "spline",
+                        "title": "Robustness",
+                        "qualityIndicator": {
+                            "id": "ROBUSTNESS",
+                            "format": "0.00"
+                        }
+                    }
+                },
+                {
+                    "id": 104,
+                    "plugin": "QualityIndicatorEvolution",
+                    "color": "grey-dark",
+                    "parameters": {
+                        "widget": "line",
+                        "title": "Efficiency",
+                        "qualityIndicator": {
+                            "id": "EFFICIENCY",
+                            "format": "0.00"
+                        }
+                    }
+                },
+                {
+                    "id": 103,
+                    "plugin": "QualityIndicatorEvolution",
+                    "color": "green",
+                    "parameters": {
+                        "widget": "spline",
+                        "title": "Security",
+                        "qualityIndicator": {
+                            "id": "SECURITY",
+                            "format": "0.00"
+                        }
+                    }
+                },
+                {
+                    "id": 101,
+                    "plugin": "SizingMeasureEvolution",
+                    "color": "orange",
+                    "parameters": {
+                        "widget": "spline",
+                        "title": "Critical violations",
+                        "sizingMeasure": {
+                            "id": "CRITICAL_VIOLATIONS",
+                            "format": "0,000"
+                        }
+                    }
+                },
+                {
+                    "id": 1000,
+                    "plugin": "Notification",
+                    "color": "blue",
+                    "size": "large",
+                    "parameters": {
+                        "title": "Applications Fast Facts",
+                        "notifications": [
+                            {
+                                "type": "analysisSince"
+                            },
+                            {
+                                "type": "addedCount"
+                            },
+                            {
+                                "type": "sizingMeasureEvolution",
+                                "threshold": 0.01,
+                                "trend": "increase",
+                                "sizingMeasure": {
+                                    "id": "CRITICAL_VIOLATIONS",
+                                    "format": "0,000",
+                                    "description": "critical violations"
+                                }
+                            },
+                            {
+                                "type": "sizingMeasureEvolution",
+                                "threshold": 0.05,
+                                "trend": "increase",
+                                "sizingMeasure": {
+                                    "id": "LINES_OF_CODE",
+                                    "format": "0,000",
+                                    "description": "lines of code"
+                                }
+                            },
+                            {
+                                "type": "qualityIndicatorEvolution",
+                                "threshold": 0.02,
+                                "trend": "degradation",
+                                "qualityIndicator": {
+                                    "id": "EFFICIENCY",
+                                    "format": "0.00",
+                                    "description": "efficiency"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

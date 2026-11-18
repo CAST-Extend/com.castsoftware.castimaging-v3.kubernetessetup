@@ -36,6 +36,9 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
+{{- if .Values.DashboardsCustomConfig.enable }}
+        checksum/dashboards-config: {{ include (print $.Template.BasePath "/dashboards-configmap.yaml") . | sha256sum }}
+{{- end }}
       labels:
         console.network/aip-network: "true"
         app: castimaging
@@ -183,6 +186,14 @@ spec:
           volumeMounts:
             - mountPath: /opt/cast/imaging-dashboards/logs
               name: dashboards-logs
+{{- if .Values.DashboardsCustomConfig.enable }}
+{{- range $key, $f := (include "imaging.dashboardsConfigFiles" . | fromYaml) }}
+            - name: dashboards-config
+              mountPath: {{ $f.mount }}
+              subPath: {{ $key }}
+              readOnly: true
+{{- end }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
             - name: tmp
               mountPath: /tmp
@@ -206,6 +217,11 @@ spec:
         - name: dashboards-logs
           persistentVolumeClaim:
             claimName: pvc-dashboards-logs
+{{- if .Values.DashboardsCustomConfig.enable }}
+        - name: dashboards-config
+          configMap:
+            name: console-dashboards-config
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         - name: tmp
           emptyDir: {}

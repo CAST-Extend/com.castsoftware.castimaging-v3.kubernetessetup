@@ -26,3 +26,25 @@ same ConfigMap does not re-run the Job.
 {{- end -}}
 {{- printf "%s-%s-%s" $root.Chart.Version (toYaml $root.Values) $script | sha256sum | trunc 8 -}}
 {{- end -}}
+
+{{/*
+Custom Dashboards configuration files (see files/dashboards-config/README.md).
+files/dashboards-config/ mirrors /app/resources/config/ in the dashboards-v3 image: every file found there
+(except README.md) is mounted at the same relative path.
+Output (YAML): <ConfigMap key>: {src: <chart file path>, mount: <path in the container>}
+*/}}
+{{- define "imaging.dashboardsConfigFiles" -}}
+{{- $root := "files/dashboards-config/" -}}
+{{- $files := dict -}}
+{{- range $path, $_ := .Files.Glob (printf "%s**" $root) -}}
+{{- if ne $path (printf "%sREADME.md" $root) -}}
+{{- $rel := trimPrefix $root $path -}}
+{{- $key := replace "/" "__" $rel -}}
+{{- if not (regexMatch "^[-._a-zA-Z0-9]+$" $key) -}}
+{{- fail (printf "%s: file and folder names may only contain letters, digits, '-', '_' and '.'" $path) -}}
+{{- end -}}
+{{- $_ := set $files $key (dict "src" $path "mount" (printf "/app/resources/config/%s" $rel)) -}}
+{{- end -}}
+{{- end -}}
+{{- toYaml $files -}}
+{{- end -}}

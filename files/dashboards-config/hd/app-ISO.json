@@ -1,0 +1,216 @@
+{
+  "title": "Application Level Management Dashboard",
+  "exportformat": "xlsx",
+  "QualityIndicatorResults" :
+  {
+    "ranges":[1.6,2.8,3.0,3.4],
+    "gradeLabels":{},
+    "colors":{
+      "useGradient": false,
+      "from":"#ff0242",
+      "to":"#fbbb6e"
+    }
+  },
+  "DetailView" :
+  {
+    "treemapColors": {
+      "ranges":[1, 2, 3, 4],
+      "colors":["#ff0242","#FF5B2B","#fbbb6e","#3dc680"]
+    }
+  },
+  "IndustryStandardsKeys": {
+    "AIP": ["60017", "60012", "60014", "60013", "60016","60011"],
+    "Best-Practices": ["66032", "66031", "66033"],
+    "CISQ": ["1062100", "1062101", "1062102", "1062103", "1062104"],
+    "ISO-5055": ["1061000", "1061001", "1061002", "1061003", "1061004"]
+  },
+  "SizeIndicators": {
+    "linesOfCode": ["10107", "10109"],
+    "functionalSize": ["10201","10203","10204","10506","67011"]
+  },
+  "areas": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "panels": [
+        {
+          "id": 102,
+          "plugin": "SizingMeasureResult",
+          "color": "blue",
+          "size": "large",
+          "parameters": {
+            "title": "Technical Size",
+            "mode": "verbose",
+            "sizingMeasure": {
+              "id": "10151",
+              "format": "0,000.0a",
+              "description": "Measured size"
+            }
+          }
+        },
+        {
+          "id": 20003,
+          "plugin": "IndustryStandard",
+          "color": "orange",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Reliability \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061003",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 20002,
+          "plugin": "IndustryStandard",
+          "color": "green",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Security \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061004",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 20004,
+          "plugin": "IndustryStandard",
+          "color": "red",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Performance-Efficiency \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061002",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 20005,
+          "plugin": "IndustryStandard",
+          "color": "purple",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Maintainability \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061001",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 208,
+          "plugin": "SizingMeasureResult",
+          "color": "yellow",
+          "parameters": {
+            "title": "Technical Debt (OMG) by ISO-5055",
+            "sizingMeasure": {"id": "OMG_TECHNICAL_DEBT_ISO", "format": "0,0", "description": "Days"}
+          }
+        },
+        {
+          "id": 116,
+          "plugin": "CriticalViolationsPerHealthFactor",
+          "color": "orange",
+          "size":"large",
+          "parameters": {
+            "type":"topRiskiest",
+            "title": "Technologies Overview",
+            "count": 5,
+            "order": "descending",
+            "scattering": "technologies",
+            "qualityIndicator": {"id": "ISO-5055", "format": "0.0%", "description": "ISO-5055", "mode": "compliance"},
+            "sizingMeasure": {"id": "TOTAL_VIOLATIONS", "format": "0,000a", "description": "Total Violations"}
+          }
+        },
+        {
+          "id": 106,
+          "plugin": "CriticalViolationsPerHealthFactor",
+          "color": "green",
+          "size":"large",
+          "parameters": {
+            "type":"topRiskiest",
+            "title": "Top riskiest Modules",
+            "count": 5,
+            "order": "descending",
+            "qualityIndicator": {"id": "ISO-5055", "format": "0.0%", "description": "ISO-5055", "mode": "compliance"},
+            "sizingMeasure": {"id": "TOTAL_VIOLATIONS", "format": "0,000a", "description": "Total Violations"}
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Trends",
+      "panels": [
+        {
+          "id": 206,
+          "plugin": "SizingMeasureEvolution",
+          "color": "blue",
+          "parameters": {
+            "widget":"line",
+            "title": "Technical size",
+            "sizingMeasure": {"id": "LINES_OF_CODE", "format": "0,0"}
+          }
+        },
+        {
+          "id": 200,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "orange",
+          "parameters": {
+            "widget":"line",
+            "title": "RELIABILITY (ISO-5055)",
+            "qualityIndicator": {"id": "ISO-5055-RELIABILITY", "format": "0.0%", "mode": "compliance"}
+          }
+        },
+        {
+          "id": 201,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "green",
+          "parameters": {
+            "widget":"line",
+            "title": "SECURITY (ISO-5055)",
+            "qualityIndicator": {"id": "ISO-5055-SECURITY", "format": "0.0%", "mode": "compliance"}
+          }
+        },
+        {
+          "id": 204,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "red",
+          "parameters": {
+            "widget":"line",
+            "title": "PERFORMANCE-EFFICIENCY (ISO-5055)",
+            "qualityIndicator": {"id": "ISO-5055-PERFORMANCE-EFFICIENCY", "format": "0.0%", "mode": "compliance"}
+          }
+        },
+        {
+          "id": 205,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "purple",
+          "parameters": {
+            "widget":"line",
+            "title": "MAINTAINABILITY (ISO-5055)",
+            "qualityIndicator": {"id": "ISO-5055-MAINTAINABILITY", "format": "0.0%", "mode": "compliance"}
+          }
+        }
+      ]
+    }
+  ]
+}

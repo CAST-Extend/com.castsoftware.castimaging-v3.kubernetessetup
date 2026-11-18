@@ -298,6 +298,14 @@ SMTP:
   SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
 
 #
+# OPTIONAL - Custom Dashboards configuration files (tiles: hd/app.json, hd/cmp.json, hd/app-ISO.json,
+# hd/cmp-ISO.json, ed/ed.json, sd/ed.json, ...)
+# Edit the file(s) in files/dashboards-config/, then set enable: true.
+# See files/dashboards-config/README.md
+DashboardsCustomConfig:
+  enable: false
+
+#
 # OPTIONAL - Access Private Repo with Secret
 UseImagePullSecrets: false
 Base64EncodedDockerconfigjson:

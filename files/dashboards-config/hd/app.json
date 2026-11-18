@@ -1,0 +1,290 @@
+{
+  "title": "Application Level Management Dashboard",
+  "exportformat": "xlsx",
+  "QualityIndicatorResults" :
+  {
+    "ranges":[1.6,2.8,3.0,3.4],
+    "gradeLabels":{},
+    "colors":{
+      "useGradient": false,
+      "from":"#ff0242",
+      "to":"#fbbb6e"
+    }
+  },
+  "DetailView" :
+  {
+    "treemapColors": {
+      "ranges":[1, 2, 3, 4],
+      "colors":["#ff0242","#FF5B2B","#fbbb6e","#3dc680"]
+    }
+  },
+  "IndustryStandardsKeys": {
+    "AIP": ["60017", "60012", "60014", "60013", "60016","60011"],
+    "Best-Practices": ["66032", "66031", "66033"],
+    "CISQ": ["1062100", "1062101", "1062102", "1062103", "1062104"],
+    "ISO-5055": ["1061000", "1061001", "1061002", "1061003", "1061004"]
+  },
+  "SizeIndicators": {
+    "linesOfCode": ["10107", "10109"],
+    "functionalSize": ["10201","10203","10204","10506","67011"]
+  },
+  "areas": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "panels": [
+        {
+          "id": 102,
+          "plugin": "SizingMeasureResult",
+          "color": "blue",
+          "size": "large",
+          "parameters": {
+            "title": "Technical Size",
+            "mode": "verbose",
+            "sizingMeasure": {
+              "id": "10151",
+              "format": "0,000.0a",
+              "description": "Measured size"
+            }
+          }
+        },
+        {
+          "id": 105,
+          "plugin": "QualityIndicatorResult",
+          "color": "black",
+          "parameters": {
+            "widget":"gauge",
+            "title": "TQI",
+            "qualityIndicator": {"id": "TQI", "format": "0.00"}
+          }
+        },
+        {
+          "id": 104,
+          "plugin": "QualityIndicatorResult",
+          "color": "yellow",
+          "parameters": {
+            "title": "Robustness",
+            "widget": "gauge",
+            "qualityIndicator": {
+              "id": "ROBUSTNESS",
+              "format": "0.00"
+            }
+          }
+        },
+        {
+          "id": 103,
+          "plugin": "QualityIndicatorResult",
+          "color":"orange",
+          "parameters": {
+            "title": "Efficiency",
+            "widget": "gauge",
+            "qualityIndicator": {
+              "id": "EFFICIENCY",
+              "format": "0.00"
+            }
+          }
+        },
+        {
+          "id": 1030000,
+          "plugin": "QualityIndicatorResult",
+          "color":"green",
+          "parameters": {
+            "title": "Security",
+            "widget": "gauge",
+            "qualityIndicator": {
+              "id": "SECURITY",
+              "format": "0.00"
+            }
+          }
+        },
+        {
+          "id": 1,
+          "plugin": "QualityIndicatorResult",
+          "color":"purple",
+          "parameters": {
+            "title": "Changeability",
+            "widget": "gauge",
+            "qualityIndicator": {
+              "id": "CHANGEABILITY",
+              "format": "0.00"
+            }
+          }
+        },
+        {
+          "id": 2,
+          "plugin": "QualityIndicatorResult",
+          "color":"grey-dark",
+          "parameters": {
+            "title": "Transferability",
+            "widget": "gauge",
+            "qualityIndicator": {
+              "id": "TRANSFERABILITY",
+              "format": "0.00"
+            }
+          }
+        },
+        {
+          "id": 1999,
+          "plugin": "FunctionalWeightMeasureResult",
+          "color": "blue",
+          "parameters": {
+            "title": "Functional & Enhancement Size",
+            "functionalWeightMeasure": {
+              "id": "AUTOMATED_IFPUG_FUNCTION_POINTS_ESTIMATION",
+              "format": "0,000",
+              "description": "OMG-Compliant Automated FPs"
+            }
+          }
+        },
+        {
+          "id": 4,
+          "plugin": "SizingMeasureResult",
+          "color": "orange",
+          "parameters": {
+            "title": "Critical Violations",
+            "mode":"terse",
+            "sizingMeasure": {
+              "id": "CRITICAL_VIOLATIONS",
+              "format": "0,000"
+            },
+            "qualityIndicator": {"id": "TQI", "format": "0.00", "description": "TQI"}
+          }
+        },
+        {
+          "id": 107,
+          "plugin": "DetailView",
+          "color": "grey-dark",
+          "size":"large",
+          "parameters": {
+            "type":"topRules",
+            "title": "Top Critical Rules",
+            "count": 5,
+            "format":"0,000",
+            "order": "descending",
+            "mode": "ratio"
+          }
+        },
+        {
+          "id": 116,
+          "plugin": "CriticalViolationsPerHealthFactor",
+          "color": "blue",
+          "size":"large",
+          "parameters": {
+            "type":"topRiskiest",
+            "title": "Technologies Overview",
+            "count": 5,
+            "order": "descending",
+            "scattering": "technologies",
+            "qualityIndicator": {"id": "TQI", "format": "0.00", "description": "TQI"},
+            "sizingMeasure": {"id": "CRITICAL_VIOLATIONS", "format": "0,000a", "description": "Critical Violations"}
+          }
+        },
+        {
+          "id": 101,
+          "plugin": "QualityIndicatorBySizingMeasureResult",
+          "size":"large",
+          "color": "purple",
+          "parameters": {
+            "type":"treemap",
+            "title": "Modules Mapping",
+            "order": "descending",
+            "qualityIndicator": {"id": "TQI", "format": "0.00", "tooltipFormat":"0.00", "description": "Total Quality Index"},
+            "sizingMeasure": {"id": "LINES_OF_CODE", "format": "0,000.0a", "tooltipFormat":"'0,000", "description": "Lines of Code"}
+          }
+        },
+        {
+          "id": 106,
+          "plugin": "CriticalViolationsPerHealthFactor",
+          "color": "green",
+          "size":"large",
+          "parameters": {
+            "type":"topRiskiest",
+            "title": "Top riskiest Modules",
+            "count": 5,
+            "order": "descending",
+            "qualityIndicator": {"id": "EFFICIENCY", "format": "0.00", "description": "Efficiency"},
+            "sizingMeasure": {"id": "CRITICAL_VIOLATIONS", "format": "0,000a", "description": "Critical Violations"}
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Trends",
+      "panels": [
+        {
+          "id": 201,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "black",
+          "parameters": {
+            "widget":"line",
+            "title": "TQI",
+            "qualityIndicator": {"id": "TQI", "format": "0.00"}
+          }
+        },
+        {
+          "id": 200,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "yellow",
+          "parameters": {
+            "widget":"line",
+            "title": "Robustness",
+            "qualityIndicator": {"id": "ROBUSTNESS", "format": "0.00"}
+          }
+        },
+        {
+          "id": 204,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "orange",
+          "parameters": {
+            "widget":"line",
+            "title": "Efficiency",
+            "qualityIndicator": {"id": "EFFICIENCY", "format": "0.00"}
+          }
+        },
+        {
+          "id": 205,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "green",
+          "parameters": {
+            "widget":"line",
+            "title": "Security",
+            "qualityIndicator": {"id": "SECURITY", "format": "0.00"}
+          }
+        },
+        {
+          "id": 203,
+          "plugin": "SizingMeasureEvolution",
+          "color": "purple",
+          "parameters": {
+            "widget":"line",
+            "title": "Critical violations",
+            "sizingMeasure": {
+              "id": "CRITICAL_VIOLATIONS",
+              "format": "0,000"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Automated Enhancement Point",
+      "panels": [
+        {
+          "id": 2003,
+          "plugin": "FunctionalWeightMeasureResult",
+          "color": "blue",
+          "parameters": {
+            "title": "AEP",
+            "functionalWeightMeasure": {
+              "id": "AEP",
+              "format": "0,000",
+              "description": "Automated Enhancement Point"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

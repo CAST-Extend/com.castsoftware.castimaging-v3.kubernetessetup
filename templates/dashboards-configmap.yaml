@@ -1,0 +1,47 @@
+{{- /*
+Custom Dashboards configuration files: every file of files/dashboards-config/ (mirror of /app/resources/config/
+in the dashboards-v3 image) is stored here and mounted over the image file. See files/dashboards-config/README.md
+*/}}
+{{- if .Values.DashboardsCustomConfig.enable }}
+{{- $files := include "imaging.dashboardsConfigFiles" . | fromYaml }}
+{{- if not $files }}
+{{- fail "DashboardsCustomConfig.enable is true but files/dashboards-config/ contains no file" }}
+{{- end }}
+{{- $data := dict }}
+{{- $total := 0 }}
+{{- range $key, $f := $files }}
+{{- $content := $.Files.Get $f.src }}
+{{- if hasSuffix ".json" $f.src }}
+{{- /* fromJson / fromJsonArray do not fail: on a parse error they return the error message as content */}}
+{{- $err := "" }}
+{{- if hasPrefix "[" (trim $content) }}
+{{- $arr := fromJsonArray $content }}
+{{- if and (eq (len $arr) 1) (kindIs "string" (first $arr)) (regexMatch "^(invalid character|unexpected end|json: )" (first $arr)) }}
+{{- $err = first $arr }}
+{{- end }}
+{{- else }}
+{{- $err = get (fromJson $content) "Error" }}
+{{- end }}
+{{- if $err }}
+{{- fail (printf "%s is not valid JSON: %s" $f.src $err) }}
+{{- end }}
+{{- end }}
+{{- $total = add $total (len $content) }}
+{{- $_ := set $data $key $content }}
+{{- end }}
+{{- if gt $total 1000000 }}
+{{- fail (printf "files/dashboards-config/ holds %d bytes: a ConfigMap is limited to 1 MB, keep only the files you customize" $total) }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: console-dashboards-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: castimaging
+    imaging.group: console
+    imaging.service: console-dashboards
+data:
+{{- /* toYaml keeps each file content byte for byte (including the final newline) */}}
+{{ toYaml $data | indent 2 }}
+{{- end }}

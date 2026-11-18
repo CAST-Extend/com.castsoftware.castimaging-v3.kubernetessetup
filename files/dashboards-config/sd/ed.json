@@ -1,0 +1,747 @@
+{
+  "description": "used as a placeholder for as much as possible relevant default application parameters, please do not edit manually",
+  "configuration": {
+    "defaultLanguage": "English",
+    "description": "To configure new language for application, define customLanguages as [{'label': 'languageName', 'value': 'localeFolderName'}]",
+    "customLanguages": [],
+    "timeoutPeriod": 60000,
+    "actionPlanExclusion": false,
+    "technicalCriteriaForArchitectureModel": [
+      66070
+    ],
+    "IndustryStandardsKeys": {
+      "AIP": ["60016"],
+      "CISQ": ["1062104"],
+      "ISO-5055": ["1061004"]
+    },
+    "SDAssessmentIds": ["1062300", "1062320", "1062340","1066004","1066003","1066002","1066001","1066000","1063001","1063000", "1066006", "1066007"],
+    "requestAccess": false,
+    "confirmLogout": true,
+    "violationsCount": 5000,
+    "reportCategory": [
+      {
+        "id": "securityReports",
+        "label": "Security Reports",
+        "reportTemplates": [
+          {
+            "templateLabel":"ISO-5055 Compliance Report",
+            "templateId":"ISO-5055-Compliance-Report"
+          },
+          {
+            "templateLabel":"ISO-5055 Detailed Report",
+            "templateId":"ISO-5055-Detailed-Report"
+          },
+          {
+            "templateLabel":"ISO-5055 Compliance Report - OMG Technical Debt",
+            "templateId":"ISO-5055-Compliance-Report-OMG-Technical-Debt"
+          },
+          {
+            "templateLabel":"ISO-5055 Detailed Report - OMG Technical Debt",
+            "templateId":"ISO-5055-Detailed-Report-OMG-Technical-Debt"
+          },
+          {
+            "templateLabel":"C-CPP Standards Compliance Report",
+            "templateId":"C-CPP-Standards-Compliance-Report"
+          },
+          {
+            "templateLabel":"C-CPP Standards Detailed Report",
+            "templateId":"C-CPP-Standards-Detailed-Report"
+          },
+          {
+            "templateLabel":"OWASP 2017 Compliance Report",
+            "templateId":"OWASP-2017-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP 2013 Compliance Report",
+            "templateId":"OWASP-2013-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP 2017 Detailed Report",
+            "templateId":"OWASP-2017-Detailed-Report"
+          },
+          {
+            "templateLabel":"OWASP-2021 Compliance Report",
+            "templateId":"OWASP-2021-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP-2021 Detailed Report",
+            "templateId":"OWASP-2021-Detailed-Report"
+          },
+          {
+            "templateLabel":"OWASP-2025 Compliance Report",
+            "templateId":"OWASP-2025-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP-2025 Detailed Report",
+            "templateId":"OWASP-2025-Detailed-Report"
+          },
+	      {
+          	"templateLabel":"CWE (2022) Top 25 Detailed Report",
+          	"templateId":"CWE-2022-Top-25-Detailed-Report"
+       	  },
+		      {
+	        "templateLabel":"CWE (2022) Top 25 Compliance Report",
+	        "templateId":"CWE-2022-Top-25-Compliance-Report"
+          },
+          {
+            "templateLabel":"CWE (2023) Top 25 Detailed Report",
+            "templateId":"CWE-2023-Top-25-Detailed-Report"
+          },
+          {
+            "templateLabel":"CWE (2023) Top 25 Compliance Report",
+            "templateId":"CWE-2023-Top-25-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP-API-2019 Compliance Report",
+            "templateId":"OWASP-API-2019-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP-API-2019 Detailed Report",
+            "templateId":"OWASP-API-2019-Detailed-Report"
+          },
+          {
+            "templateLabel":"OWASP 2013 Detailed Report",
+            "templateId":"OWASP-2013-Detailed-Report"
+          },
+          {
+            "templateLabel":"OWASP-API-2023 Compliance Report",
+            "templateId":"OWASP-API-2023-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP-API-2023 Detailed Report",
+            "templateId":"OWASP-API-2023-Detailed-Report"
+          },
+          {
+            "templateLabel":"OWASP-Mobile-2016 Compliance Report",
+            "templateId":"OWASP-Mobile-2016-Compliance-Report"
+          },
+          {
+            "templateLabel":"OWASP-Mobile-2016 Detailed Report",
+            "templateId":"OWASP-Mobile-2016-Detailed-Report"
+          },
+          {
+            "templateLabel":"CWE Compliance Report",
+            "templateId":"CWE-Compliance-Report"
+          },
+          {
+            "templateLabel":"CWE Detailed Report",
+            "templateId":"CWE-Detailed-Report"
+          },
+          {
+            "templateLabel":"CWE (2011) Top 25 Detailed Report",
+            "templateId":"CWE-2011-Top-25-Detailed-Report"
+          },
+          {
+            "templateLabel":"CWE (2011) Top 25 Compliance Report",
+            "templateId":"CWE-2011-Top-25-Compliance-Report"
+          },
+          {
+            "templateLabel":"CWE (2019) Top 25 Detailed Report",
+            "templateId":"CWE-2019-Top-25-Detailed-Report"
+          },
+          {
+            "templateLabel":"CWE (2019) Top 25 Compliance Report",
+            "templateId":"CWE-2019-Top-25-Compliance-Report"
+          },
+          { 
+            "templateLabel":"CWE (2021) Top 25 Compliance Report",
+            "templateId":"CWE-2021-Top-25-Compliance-Report"
+          },
+          { 
+            "templateLabel":"CWE (2021) Top 25 Detailed Report",
+            "templateId":"CWE-2021-Top-25-Detailed-Report"
+          },
+          {
+            "templateLabel":"NIST-SP800-53R4 Compliance Report",
+            "templateId":"NIST-SP800-53R4-Compliance-Report"
+          },
+          {
+            "templateLabel":"NIST-SP800-53R4 Detailed Report",
+            "templateId":"NIST-SP800-53R4-Detailed-Report"
+          },
+          {
+            "templateLabel":"PCI-DSS-V3.1 Compliance Report",
+            "templateId":"PCI-DSS-V31-Compliance-Report"
+          },
+          {
+            "templateLabel":"PCI-DSS-V3.1 Detailed Report",
+            "templateId":"PCI-DSS-V31-Detailed-Report"
+          },
+          {
+            "templateLabel":"PCI-DSS-V3.2.1 Compliance Report",
+            "templateId":"PCI-DSS-V321-Compliance-Report"
+          },
+          {
+            "templateLabel":"PCI-DSS-V3.2.1 Detailed Report",
+            "templateId":"PCI-DSS-V321-Detailed-Report"
+          },
+          {
+            "templateLabel":"PCI-DSS-V4 Compliance Report",
+            "templateId":"PCI-DSS-V4-Compliance-Report"
+          },
+          {
+            "templateLabel":"PCI-DSS-V4 Detailed Report",
+            "templateId":"PCI-DSS-V4-Detailed-Report"
+          },
+          { 
+            "templateLabel":"STIG V5 Standards Compliance Report",
+            "templateId":"STIG-V5-Compliance-Report"
+           },
+           { 
+          	"templateLabel":"STIG V5 Standards Detailed Report",
+          	"templateId":"STIG-V5-Detailed-Report"
+           },
+		   {
+			  "templateLabel":"STIG V6 Standards Compliance Report",
+			  "templateId":"STIG-V6-Compliance-Report"
+		   },
+		   {
+			  "templateLabel":"STIG V6 Standards Detailed Report",
+			  "templateId":"STIG-V6-Detailed-Report"
+		   },
+          {
+            "templateLabel":"CWE (2025) Top 25 Detailed Report",
+            "templateId":"CWE-2025-Top-25-Detailed-Report"
+          },
+          {
+            "templateLabel":"CWE (2025) Top 25 Compliance Report",
+            "templateId":"CWE-2025-Top-25-Compliance-Report"
+          }
+        ]
+      },
+      {
+        "id": "miscellaneous",
+        "label": "Miscellaneous Reports",
+        "reportTemplates": [
+          {
+            "templateLabel": "List of removed violations",
+            "templateId": "correctedViolations"
+          },
+          {
+            "templateLabel": "List of new violations",
+            "templateId": "newViolations"
+          },
+          {
+            "templateLabel": "Top cyclomatic complexity * High fanout",
+            "templateId": "cyclomaticComplexityHighFanout"
+          },
+          {
+            "templateLabel": "Top cyclomatic complexity * Low documentation",
+            "templateId": "cyclomaticComplexityLowDocumentation"
+          },
+          {
+            "templateLabel": "Top objects with highest cyclomatic complexity change",
+            "templateId": "cyclomaticComplexityIncrease"
+          },
+          {
+            "templateLabel": "Top rules with the highest improvement opportunities",
+            "templateId": "rulesWithHighestImprovementOpportunities"
+          },
+          {
+            "templateLabel": "50 rules with the largest decrease in the number of violations",
+            "templateId": "rulesWithLargestDecreaseNumberViolations"
+          },
+          {
+            "templateLabel": "50 rules with the largest increase in the number of violations",
+            "templateId": "rulesWithLargestIncreaseNumberViolations"
+          },
+          {
+            "templateLabel": "50 rules with the largest decrease in the percentage of violations",
+            "templateId": "rulesWithLargestDecreasePercentageViolations"
+          },
+          {
+            "templateLabel": "50 rules with the largest increase in the percentage of violations",
+            "templateId": "rulesWithLargestIncreasePercentageViolations"
+          }
+        ]
+      }
+    ],
+    "navigation": {
+      "pages": []
+    },
+    "tag": {
+      "shift": true,
+      "description": "used to configure tag-list, ActionsOverview column(tagType) and placeholder",
+      "placeholder": "Select a Priority",
+      "placeHolderEducation": "Select a Tag for future violations",
+      "tagType": "Priority",
+      "tag": [
+        {
+          "label": "Low"
+        },
+        {
+          "label": "Moderate"
+        },
+        {
+          "label": "High"
+        },
+        {
+          "label": "Extreme"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Mark for action"
+        },
+        {
+          "label": "Mark for continuous improvement"
+        }
+      ]
+    },
+    "parameters": {
+      "description": "used to define global settings",
+      "nbRows": 20
+    },
+    "profiles": [
+      {
+        "reference": "default",
+        "areas": [
+          {
+            "id": 0,
+            "title": "not used",
+            "panels": [
+              {
+                "type": "MockTile",
+                "color": "",
+                "parameters": {},
+                "col": 1,
+                "row": 5,
+                "sizex": 6,
+                "sizey": 1,
+                "max-sizex": 8,
+                "max-sizey": 6,
+                "title": "Additional Information",
+                "id": "c928"
+              },
+              {
+                "type": "ComponentInvestigationOverview",
+                "parameters": {
+                  "metric": 10151
+                },
+                "color": "pale-blue",
+                "col": 1,
+                "row": 2,
+                "sizex": 3,
+                "sizey": 2,
+                "min-sizex": 3,
+                "min-sizey": 2,
+                "max-sizey": 2,
+                "max-sizex": 6,
+                "id": "c930"
+              },
+              {
+                "type": "Technologies",
+                "parameters": {
+                  "business": 60016,
+                  "indicator": "Technology",
+                  "threshold": [
+                    2,
+                    3,
+                    4
+                  ]
+                },
+                "color": "moderate-blue",
+                "col": 3,
+                "row": 4,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 2
+              },
+              {
+                "type": "IndustryStandards",
+                "parameters": {
+                  "title": "CWE-2024",
+                  "id": "1066006"
+                },
+                "color": "dark-blue",
+                "col": 3,
+                "row": 1,
+                "sizex": 1,
+                "sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 1
+              },
+              {
+                "type": "IndustryStandards",
+                "parameters": {
+                  "title": "PCI-DSS-V3.2.1",
+                  "id": "1063001"
+                },
+                "color": "dark-blue",
+                "col": 4,
+                "row": 1,
+                "sizex": 1,
+                "sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 1
+              },
+              {
+                "type": "IndustryStandards",
+                "parameters": {
+                  "title": "ISO-5055-Security",
+                  "id": "1061004"
+                },
+                "color": "dark-blue",
+                "col": 5,
+                "row": 1,
+                "sizex": 1,
+                "sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 1
+              },
+              {
+                "type": "IndustryStandards",
+                "parameters": {
+                  "title": "OWASP-2021",
+                  "id": "1062340"
+                },
+                "color": "dark-blue",
+                "col": 6,
+                "row": 1,
+                "sizex": 1,
+                "sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 1
+              },
+              {
+                "type": "QualityModelOverview",
+                "color": "dark-blue",
+                "parameters": {},
+                "col": 1,
+                "row": 1,
+                "sizex": 2,
+                "sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 2,
+                "id": "c929"
+              },
+              {
+                "type": "RiskiestComponents",
+                "parameters": {
+                  "business": "60016",
+                  "indicator": "Security",
+                  "nbRows": 10
+                },
+                "color": "pale-blue",
+                "col": 1,
+                "row": 9,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizey": 5,
+                "max-sizex": 5,
+                "id": "c931"
+              },
+              {
+                "type": "BusinessCriteria",
+                "parameters": {
+                  "business": 60013,
+                  "orderBy": "strength",
+                  "threshold": [
+                    2,
+                    3,
+                    4
+                  ]
+                },
+                "color": "pale-blue",
+                "col": 3,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizex": 3,
+                "max-sizey": 5,
+                "id": "c932"
+              },
+              {
+                "type": "BusinessCriteria",
+                "parameters": {
+                  "business": 60013,
+                  "orderBy": "weakness",
+                  "threshold": [
+                    2,
+                    3,
+                    4
+                  ]
+                },
+                "color": "pale-blue",
+                "col": 1,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizex": 3,
+                "max-sizey": 5,
+                "id": "c933"
+              },
+              {
+                "type": "ActionPlanSummary",
+                "parameters": {},
+                "color": "pale-blue",
+                "col": 5,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 1,
+                "min-sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 2,
+                "id": "c934"
+              },
+              {
+                "type": "ExclusionSummary",
+                "parameters": {},
+                "color": "pale-blue",
+                "col": 5,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 1,
+                "min-sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 1,
+                "id": "c9344"
+              },
+              {
+                "type": "ContinuousImprovement",
+                "parameters": {},
+                "color": "pale-blue",
+                "col": 1,
+                "row": 10,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 1,
+                "min-sizey": 1,
+                "max-sizex": 2,
+                "max-sizey": 1,
+                "id": "c9346"
+              },
+              {
+                "type":"OMGTechnicalDebt",
+                "parameters":{
+                  "business":"1061004" },
+                "color":"pale-blue",
+                "col":3,
+                "row":10,
+                "sizex":2,
+                "sizey":1,
+                "min-sizex":1,
+                "min-sizey":1,
+                "max-sizey":1,
+                "max-sizex":2
+              },
+              {
+                "type": "TopCriticalModules",
+                "parameters": {
+                  "business": 60017
+                },
+                "color": "pale-blue",
+                "col": 3,
+                "row": 9,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizex": 4,
+                "max-sizey": 5,
+                "id": "c935"
+              },
+              {
+                "type": "NewViolationsForQualityRules",
+                "parameters": {
+                  "business": "60017",
+                  "criticalsRulesOnly": false,
+                  "variation": "added"
+                },
+                "color": "pale-blue",
+                "col": 4,
+                "row": 2,
+                "sizex": 2,
+                "sizey": 2,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizex": 4,
+                "max-sizey": 5,
+                "id": "c937"
+              },
+              {
+                "type": "TopRiskiestTransactions",
+                "parameters": {
+                  "business": "60013",
+                  "nbRows": 50
+                },
+                "color": "pale-blue",
+                "col": 6,
+                "row": 2,
+                "sizex": 2,
+                "sizey": 2,
+                "min-sizex": 2,
+                "min-sizey": 1,
+                "max-sizey": 5,
+                "max-sizex": 5
+              },
+              {
+                "type": "AddedViolations",
+                "parameters": {
+                  "business": "60017"
+                },
+                "color": "pale-blue",
+                "col": 1,
+                "row": 4,
+                "sizex": 2,
+                "sizey": 1,
+                "min-sizex": 1,
+                "min-sizey": 1,
+                "max-sizey": 1,
+                "max-sizex": 2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "webApplication": {
+      "modules": [
+        {
+          "key": "help",
+          "parameters": {
+            "el": "#help-points-container"
+          }
+        },
+        {
+          "key": "menu",
+          "parameters": {
+            "el": "#container-menu"
+          }
+        },
+        {
+          "key": "license",
+          "parameters": {
+            "el": "#container-license"
+          }
+        },
+        {
+          "key": "pastSnapshots",
+          "parameters": {
+            "el": "#container-message"
+          }
+        },
+        {
+          "key": "header",
+          "parameters": {
+            "el": "#container-header"
+          }
+        },
+        {
+          "key": "technologies"
+        },
+        {
+          "key": "breadcrumb",
+          "parameters": {
+            "el": "#container-breadcrumb"
+          }
+        },
+        {
+          "key": "ruleDocumentation"
+        },
+        {
+          "key":"parameterSection"
+        },
+        {
+          "key": "sourceCodeViewer"
+        },
+        {
+          "key": "home",
+          "parameters": {
+            "el": "#home-page"
+          }
+        },
+        {
+          "key": "qualityModelInvestigation",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "componentsInvestigation",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "transactionInvestigation",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "search"
+        },
+        {
+          "key": "advanceSearch",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "education",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "actionPlan",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "reportGenerator",
+          "parameters": {
+            "el": "#drill-page"
+          }
+        },
+        {
+          "key": "router"
+        },
+        {
+          "key": "filtering",
+          "parameters": {
+            "el": "#container-filtering"
+          }
+        },
+        {
+          "key": "notifications"
+        }
+      ],
+      "tmp": [
+        {
+          "key": "customs/homePageEditor",
+          "parameters": {
+            "el": "#content-container"
+          },
+          "includeCSS": true
+        },
+        {
+          "key": "customs/testInvestigation",
+          "parameters": {
+            "el": "#content-container"
+          }
+        },
+        {
+          "key": "prototypes/treell",
+          "parameters": {
+            "el": "#drill-page"
+          },
+          "includeCSS": true
+        }
+      ]
+    }
+  }
+}

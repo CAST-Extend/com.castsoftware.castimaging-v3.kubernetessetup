@@ -1,0 +1,245 @@
+{
+  "title": "Management Dashboard",
+  "defaultLanguage": "English",
+  "description": "To configure new language for application, define customLanguages as [{'label': 'languageName', 'value': 'localeFolderName'}]",
+  "customLanguages": [],
+  "horizontalScroll": false,
+  "requestAccess": false,
+  "appMarq": true,
+  "failedRatio": false,
+  "confirmLogout": true,
+  "snapshotThreshold": 1500,
+  "persistNavigationFilters":true,
+  "timeoutPeriod": 60000,
+  "filtering":{
+    "filterTags":true
+  },
+  "period": {
+    "shift": true,
+    "periods": [
+      { "diff": 30, "units": "days", "unitsValue": "days" },
+      { "diff": 3, "units": "months", "unitsValue": "months"},
+      { "diff": 6, "units": "months", "unitsValue": "months" },
+      { "diff": 12, "units": "months", "unitsValue": "months", "selected": true },
+      { "diff": 2, "units": "years", "unitsValue": "years" },
+      { "diff": 0, "units": "alltime" }
+    ]
+  },
+  "Evolutions":{
+    "selectedApplicationCount":10
+  },
+  "QualityIndicatorResults": {
+    "groupBy": "technology",
+    "ranges": [2.5, 2.9, 3.2],
+    "gradeLabels":{},
+    "colors": {
+      "useGradient": false,
+      "from": "#ff0242",
+      "to": "#fbbb6e"
+    }
+  },
+  "areas": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "panels": [
+        {
+          "id":20150818,
+          "plugin": "PortfolioListing",
+          "color": "grey-dark",
+          "parameters":{
+            "title":"Number of applications"
+          }
+        },
+        {
+          "id": 1,
+          "plugin": "SizingMeasureResults",
+          "color": "blue",
+          "size": "large",
+          "parameters": {
+            "title": "Technical Size",
+            "mode": "verbose",
+            "sizingMeasure": {
+              "id": "10151",
+              "format": "0,000.0a",
+              "description": "Measured size"
+            }
+          }
+        },
+        {
+          "id": 10003,
+          "plugin": "IndustryStandards",
+          "color": "orange",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Reliability \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061003",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 10002,
+          "plugin": "IndustryStandards",
+          "color": "green",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Security \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061004",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 10004,
+          "plugin": "IndustryStandards",
+          "color": "red",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Performance-Efficiency \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061002",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 10005,
+          "plugin": "IndustryStandards",
+          "color": "purple",
+          "parameters": {
+            "type": "ISO-5055",
+            "title": "Maintainability \r(ISO-5055)",
+            "widget": "gauge",
+            "industryStandard": {
+              "id": "1061001",
+              "indexID": "1061000",
+              "mode": "compliance",
+              "format": "0.0%",
+              "description": "compliance"
+            }
+          }
+        },
+        {
+          "id": 10,
+          "plugin": "CriticalViolationsPerHealthFactor",
+          "color": "green",
+          "size": "large",
+          "parameters": {
+            "type": "topRiskiest",
+            "title": "Top 5 riskiest Applications",
+            "count": 5,
+            "order": "descending",
+            "qualityIndicator": {
+              "id": "ISO-5055-SECURITY",
+              "indexID": "1061000",
+              "format": "0.0%",
+              "description": "ISO-5055-SECURITY",
+              "mode": "compliance"
+            },
+            "sizingMeasure": {
+              "id": "TOTAL_VIOLATIONS",
+              "format": "0,000a",
+              "description": "Total Violations"
+            }
+          }
+        },
+        {
+          "id": 206,
+          "plugin": "SizingMeasureResults",
+          "color": "yellow",
+          "parameters": {
+            "title": "Technical Debt (OMG) by ISO-5055",
+            "sizingMeasure": {"id": "OMG_TECHNICAL_DEBT_ISO", "format": "0,0", "description": "Days"}
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Trends",
+      "panels": [
+        {
+          "id": 120,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "orange",
+          "parameters": {
+            "widget": "line",
+            "title": "RELIABILITY (ISO-5055)",
+            "qualityIndicator": {
+              "id": "ISO-5055-RELIABILITY",
+              "format": "0.0%",
+              "mode": "compliance"
+            }
+          }
+        },
+        {
+          "id": 119,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "green",
+          "parameters": {
+            "widget": "line",
+            "title": "SECURITY (ISO-5055)",
+            "qualityIndicator": {
+              "id": "ISO-5055-SECURITY",
+              "format": "0.0%",
+              "mode": "compliance"
+            }
+          }
+        },
+        {
+          "id": 121,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "red",
+          "parameters": {
+            "widget": "line",
+            "title": "PERFORMANCE-EFFICIENCY (ISO-5055)",
+            "qualityIndicator": {
+              "id": "ISO-5055-PERFORMANCE-EFFICIENCY",
+              "format": "0.0%",
+              "mode": "compliance"
+            }
+          }
+        },
+        {
+          "id": 122,
+          "plugin": "QualityIndicatorEvolution",
+          "color": "purple",
+          "parameters": {
+            "widget": "line",
+            "title": "MAINTAINABILITY (ISO-5055)",
+            "qualityIndicator": {
+              "id": "ISO-5055-MAINTAINABILITY",
+              "format": "0.0%",
+              "mode": "compliance"
+            }
+          }
+        },
+        {
+          "id": 2103,
+          "plugin": "SizingMeasureEvolution",
+          "color": "yellow",
+          "parameters": {
+            "widget":"line",
+            "title": "Technical Debt (OMG) by ISO-5055",
+            "sizingMeasure": {"id": "OMG_TECHNICAL_DEBT_ISO", "format": "0,0"}
+          }
+        }
+      ]
+    }
+  ]
+}
