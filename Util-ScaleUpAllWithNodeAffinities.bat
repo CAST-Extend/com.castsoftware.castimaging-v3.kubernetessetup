@@ -24,6 +24,7 @@ kubectl scale deployment  viewer-etl                     --replicas=1     -n %NA
 kubectl scale deployment  viewer-aimanager               --replicas=1     -n %NAMESPACE%
 kubectl scale deployment  viewer-api                     --replicas=1     -n %NAMESPACE%
 kubectl scale deployment  mcp-server                     --replicas=1     -n %NAMESPACE%
+kubectl scale deployment  mcp-server-gatekeeper          --replicas=1     -n %NAMESPACE%
 
 REM With AnalysisNodeAutoscaling enabled the analysis node is an OpenKruise StatefulSet
 REM (rollout status does not support it) and its autoscaler must be restarted

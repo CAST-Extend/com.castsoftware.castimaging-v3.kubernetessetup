@@ -215,6 +215,7 @@ $CLUSTER_CMD scale deployment  viewer-etl                     --replicas=0 -n $N
 $CLUSTER_CMD scale deployment  viewer-server                  --replicas=0 -n $NAMESPACE
 $CLUSTER_CMD scale deployment  extendproxy                    --replicas=0 -n $NAMESPACE
 $CLUSTER_CMD scale deployment  mcp-server                     --replicas=0 -n $NAMESPACE
+$CLUSTER_CMD scale deployment  mcp-server-gatekeeper          --replicas=0 -n $NAMESPACE
 echo "Waiting for services to scale down..."
 sleep 10
 echo ""

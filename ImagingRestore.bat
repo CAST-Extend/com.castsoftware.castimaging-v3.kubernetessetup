@@ -194,6 +194,7 @@ if not errorlevel 1 %CLUSTER_CMD% scale deployment console-analysis-node-autosca
 %CLUSTER_CMD% scale deployment  viewer-server                  --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  extendproxy                    --replicas=0 -n %NAMESPACE%
 %CLUSTER_CMD% scale deployment  mcp-server                     --replicas=0 -n %NAMESPACE%
+%CLUSTER_CMD% scale deployment  mcp-server-gatekeeper          --replicas=0 -n %NAMESPACE%
 echo Waiting for services to scale down...
 timeout /t 10 /nobreak >nul
 echo.

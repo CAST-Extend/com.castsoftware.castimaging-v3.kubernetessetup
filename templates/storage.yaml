@@ -302,6 +302,26 @@ spec:
       storage: {{ .Values.size_mcpserver_data }}
 {{- end }}
 ---
+{{- if .Values.McpServerGatekeeper.enable }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-mcpservergatekeeper-logs
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: castimaging
+    imaging.service: mcp-server-gatekeeper
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.DiskClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.size_mcpservergatekeeper_logs }}
+{{- end }}
+---
 {{- if .Values.Viewer.enable }}
 apiVersion: v1
 kind: PersistentVolumeClaim

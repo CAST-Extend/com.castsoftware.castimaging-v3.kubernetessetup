@@ -54,6 +54,8 @@ call :scale deployment viewer-server 1
 call :scale deployment viewer-etl 1
 call :scale deployment viewer-aimanager 1
 call :scale deployment viewer-api 1
+REM mcp-server-gatekeeper is optional (McpServerGatekeeper.enable): scaled only when deployed
+kubectl get deployment mcp-server-gatekeeper -n %NAMESPACE% >nul 2>&1 && call :scale deployment mcp-server-gatekeeper 1
 call :scale deployment mcp-server 1
 
 echo.

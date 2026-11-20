@@ -87,6 +87,10 @@ scale deployment viewer-server 1
 scale deployment viewer-etl 1
 scale deployment viewer-aimanager 1
 scale deployment viewer-api 1
+# mcp-server-gatekeeper is optional (McpServerGatekeeper.enable): scaled only when deployed
+if kubectl get deployment mcp-server-gatekeeper -n "$NAMESPACE" >/dev/null 2>&1; then
+    scale deployment mcp-server-gatekeeper 1
+fi
 scale deployment mcp-server 1
 
 echo

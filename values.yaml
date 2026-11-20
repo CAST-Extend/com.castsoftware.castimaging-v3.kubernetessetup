@@ -223,6 +223,16 @@ Viewer:
 McpServer:
   enable: false
 
+#
+# OPTIONAL - MCP Gatekeeper
+#   enable: set to true to deploy the mcp-server-gatekeeper (CAST Gatekeeper MCP Server, port 8283,
+#   registered in the Control Panel as GatekeeperMCPServer). It exposes the CAST Dashboard compliance data
+#   (ISO-5055 compliance, violations, technical debt...) through MCP. Independent of Viewer.enable.
+#   Settings (debug mode, telemetry...) are set in the MCPSERVERGATEKEEPER section below.
+#
+McpServerGatekeeper:
+  enable: false
+
 ################################################
 # Extra environment variables in containers
 ################################################
@@ -252,6 +262,11 @@ MCPSERVER:                                    # MCP Server >= 3.1 settings (same
   TELEMETRY_PUSH_ENABLED: true
   TELEMETRY_PUSH_INTERVAL_MINUTES: 120
   LOG_LEVEL: INFO                             # INFO or DEBUG only (any other value stops the container)
+MCPSERVERGATEKEEPER:                          # MCP Gatekeeper settings (same names as in the docker config/app.config file)
+  DEBUG_MODE: false                           # Detailed logs (tool calls, API calls and responses)
+  TELEMETRY_ENABLED: true
+  TELEMETRY_PUSH_ENABLED: true
+  TELEMETRY_PUSH_INTERVAL_MINUTES: 120
 CONTROLPANEL:
   IMAGING_DOMAIN_SYNCHRO_ENABLED: false
 ANALYSISNODE:
@@ -334,6 +349,7 @@ size_extendproxy_data: 10Gi                 # Default: 10Gi
 size_neo4jdata: 100Gi                       # Default: 100Gi
 size_mcpserver_logs: 2Gi                    # Default: 2Gi
 size_mcpserver_data: 1Gi                    # Default: 1Gi
+size_mcpservergatekeeper_logs: 2Gi          # Default: 2Gi
 size_consoleservice_logs: 2Gi               # Default: 2Gi
 size_controlpanel_logs: 2Gi                 # Default: 2Gi
 size_gatewayservice_logs: 2Gi               # Default: 2Gi
@@ -362,6 +378,7 @@ ControlPaneReplicaCount: 1
 AuthenticationServiceReplicaCount: 1
 DashboardReplicaCount: 1
 ExtendProxyReplicaCount: 1
+McpServerGatekeeperReplicaCount: 1
 AnalysisNodeReplicaCount: 1
 ##########################################################################################
 # Analysis-node autoscaling (IMAGKSL-5864)
@@ -498,6 +515,10 @@ McpServerImage:
   name: castimaging/imaging-mcp-server
   tag: "3.1.0"
   pullPolicy: IfNotPresent
+McpServerGatekeeperImage:
+  name: castimaging/gatekeeper-mcp-server
+  tag: "3.0.3"
+  pullPolicy: IfNotPresent
 #
 # ExtendProxy Image
 #
@@ -611,6 +632,13 @@ McpServerResources:
   limits:
     cpu: 2
     memory: 4G
+McpServerGatekeeperResources:
+  requests:
+    cpu: 0.1
+    memory: 256M
+  limits:
+    cpu: 1
+    memory: 1G
 #
 # ExtendProxy resources
 #

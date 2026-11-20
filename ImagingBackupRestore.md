@@ -104,7 +104,7 @@ The application services are still running during this step.
 
 ### Step 2 — Stop services, then PostgreSQL
 
-1. Scales to 0 replicas: the analysis node autoscaler (if present), `console-dashboards`, the analysis node, `console-service`, `console-authentication-service`, `console-gateway-service`, `console-control-panel`, `console-sso-service`, `viewer-aimanager`, `viewer-api`, `viewer-etl`, `viewer-server`, `extendproxy`, `mcp-server`. Only `console-postgres` and `viewer-neo4j-core` keep running. Waits 10 seconds.
+1. Scales to 0 replicas: the analysis node autoscaler (if present), `console-dashboards`, the analysis node, `console-service`, `console-authentication-service`, `console-gateway-service`, `console-control-panel`, `console-sso-service`, `viewer-aimanager`, `viewer-api`, `viewer-etl`, `viewer-server`, `extendproxy`, `mcp-server`, `mcp-server-gatekeeper`. Only `console-postgres` and `viewer-neo4j-core` keep running. Waits 10 seconds.
 2. If `BACKUP_POSTGRES=true` and the `console-postgres` pod is found:
    1. Uploads `all_databases.backup` to the pod.
    2. Drops the objects created by the fresh install: `DROP SCHEMA control_panel CASCADE` (and, in the `.bat` version only, `DROP DATABASE keycloak`).
