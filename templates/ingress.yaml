@@ -22,6 +22,9 @@
 #     kubectl create secret tls tls-secret-cast-extend --cert=cert-priv\myextendhostname.com\fullchain.pem --key=cert-priv\myextendhostname.com\privkey.pem -n castimaging-v3
 #    (fullchain.pem <=> tls.crt ; privkey.pem <=> tls.key)
 #    If you want to use the same hostname for the 3 services, just create the 3 secrets using the same certificate files
+#    Note: if ExtendProxy.exthostname is the same host as FrontEndHost, the ExtendProxy ingress reuses tls-secret-cast
+#          (tls-secret-cast-extend is not needed)
+#    With CertManager.enable: true, these secrets are created/renewed by cert-manager instead (no kubectl step needed)
 # - Optional - for certificates that cannot be verified (e.g., self-signed certificate or internal CA), 
 #   the tls-secret-cast certificate will need to be stored in CAST auth-service:
 #                > set: UseCustomTrustStore: true in values .yaml
@@ -74,12 +77,20 @@ spec:
               number: 8090
 ---
   {{- if .Values.ExtendProxy.enable }}
+  {{- $extHost := regexReplaceAll ":[0-9]+$" .Values.ExtendProxy.exthostname "" }}
+  {{- /* Same hostname as FrontEndHost: reuse tls-secret-cast (no 2nd cert-manager Certificate, which would conflict on the same secret) */}}
+  {{- $extSameHost := eq $extHost (urlParse .Values.FrontEndHost).hostname }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: extendproxy-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
+  {{- if and .Values.CertManager.enable (not $extSameHost) }}
+    cert-manager.io/issuer: {{ .Values.CertManager.issuer }}
+    cert-manager.io/common-name: {{ $extHost }}
+    cert-manager.io/private-key-size: {{ .Values.CertManager.privateKeySize | quote }}
+  {{- end }}
     nginx.ingress.kubernetes.io/proxy-body-size: "300m" # TEMPORARY: should be se to "3072m"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
@@ -93,7 +104,7 @@ spec:
   tls:
   - hosts:
     - {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
-    secretName: tls-secret-cast-extend
+    secretName: {{ ternary "tls-secret-cast" "tls-secret-cast-extend" $extSameHost }}
   rules:
   - host: {{ regexReplaceAll ":[0-9]+$" (.Values.ExtendProxy.exthostname) "" }}
     http:

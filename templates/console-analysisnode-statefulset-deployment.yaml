@@ -67,6 +67,10 @@ spec:
       securityContext:
         fsGroup: 10001
         fsGroupChangePolicy: OnRootMismatch
+{{- with .Values.SharedVolumeSELinuxLevel }}
+        seLinuxOptions:
+          level: {{ . | quote }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         runAsUser: 10001

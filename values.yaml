@@ -114,6 +114,13 @@ DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
 
 #
+# OPTIONAL - SELinux level for pods sharing pvc-shared-datadir (analysis-node, console-service, control-panel)
+# Only needed on SELinux-enforcing nodes where these pods would otherwise get different MCS labels and
+# be denied access to the shared volume. All pods must use the same level, e.g. "s0:c123,c456".
+# Leave empty (default) to let the container runtime / platform assign the level.
+SharedVolumeSELinuxLevel: ""
+
+#
 # OPTIONAL - Enable shared File Storage for analysis-node
 # Important note: Extra cluster configuration is required before you can enable this feature
 #                 Please refer to the documentation before modifying below parameters.
