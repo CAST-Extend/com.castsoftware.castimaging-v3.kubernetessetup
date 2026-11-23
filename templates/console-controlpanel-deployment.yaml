@@ -81,6 +81,10 @@ spec:
       securityContext:
         fsGroup: 10001
         fsGroupChangePolicy: OnRootMismatch
+{{- with .Values.SharedVolumeSELinuxLevel }}
+        seLinuxOptions:
+          level: {{ . | quote }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         runAsUser: 10001
@@ -103,7 +107,7 @@ spec:
 {{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 10001
           runAsGroup: 10001
           allowPrivilegeEscalation: false
@@ -143,7 +147,7 @@ spec:
           echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
         securityContext:
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
           runAsUser: 10001
           runAsGroup: 10001
           allowPrivilegeEscalation: false
@@ -279,7 +283,7 @@ spec:
             runAsUser: 10001
             runAsGroup: 10001
 {{- if .Values.RestrictedSecurityMode }}
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             allowPrivilegeEscalation: false
             capabilities:
               drop:

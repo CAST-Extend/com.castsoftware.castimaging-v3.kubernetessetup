@@ -57,7 +57,8 @@ CreateIngress: false  # Application Networking option: routes the app through an
 CertManager:
   enable: false  # Set to true to have cert-manager annotations added to the Ingress(es) so it automatically
                  # requests/renews the TLS certificate(s) - tls-secret-cast, and tls-secret-cast-extend
-                 # when ExtendProxy is enabled (cert-manager must already be installed on the
+                 # when ExtendProxy is enabled with a hostname different from FrontEndHost (with the same
+                 # hostname, tls-secret-cast is reused) (cert-manager must already be installed on the
                  # cluster, along with the referenced Issuer/ClusterIssuer).
   issuer: vault-issuer  # Name of the cert-manager Issuer/ClusterIssuer to use
   issuerKind: Issuer    # "Issuer" (namespaced, in the release namespace) or "ClusterIssuer"
@@ -106,6 +107,13 @@ ContextUrl:
 CreateStorageClass: true       # Default: true
 DiskClassName: castimaging-ds  # Default: castimaging-ds
 FileClassName: castimaging-fs  # Default: castimaging-fs
+
+#
+# OPTIONAL - SELinux level for pods sharing pvc-shared-datadir (analysis-node, console-service, control-panel)
+# Only needed on SELinux-enforcing nodes where these pods would otherwise get different MCS labels and
+# be denied access to the shared volume. All pods must use the same level, e.g. "s0:c123,c456".
+# Leave empty (default) to let the container runtime / platform assign the level.
+SharedVolumeSELinuxLevel: ""
 
 #
 # OPTIONAL - Enable shared File Storage for analysis-node
@@ -281,6 +289,12 @@ ConsoleEnableBackup: true
 # If restricted security is enforced in your environment, set RestrictedSecurityMode to true
 # IMPORTANT: this setting cannot be changed after Imaging is deployed
 RestrictedSecurityMode: false
+# RestrictedSecurityModeReadOnly (only used when RestrictedSecurityMode is true, defaults to true if not set):
+#   true:  containers run with a read-only root filesystem; writable folders are emptyDir volumes,
+#          populated at startup by init containers copying files from the images
+#   false: containers run with a writable root filesystem; these emptyDir volumes and init containers are not created
+#          (use it when the namespace ephemeral-storage quota is too low for the copied files)
+RestrictedSecurityModeReadOnly: true
 
 #
 # SMTP settings (optional):
@@ -340,7 +354,6 @@ size_gatewayservice_logs: 2Gi               # Default: 2Gi
 size_authenticationservice_logs: 2Gi        # Default: 2Gi
 size_ssoservice_logs: 2Gi                   # Default: 2Gi
 size_dashboards_logs: 2Gi                   # Default: 2Gi
-
 #
 # Viewer ReplicaCount
 #
@@ -508,6 +521,13 @@ ExtendProxyImage:
 
 #
 # Console resources
+# If the namespace enforces ephemeral-storage requests/limits (ResourceQuota / LimitRange / admission policy),
+# add them to the blocks below and to InitContainerResources, e.g.:
+#   requests:
+#     ephemeral-storage: 200Mi
+#   limits:
+#     ephemeral-storage: 1Gi
+# With RestrictedSecurityMode and RestrictedSecurityModeReadOnly true, the emptyDir volumes count against these limits.
 #
 ConsolePostgresResources:
   requests:

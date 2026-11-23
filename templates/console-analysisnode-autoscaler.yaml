@@ -200,7 +200,7 @@ spec:
             - name: DRY_RUN
               value: "{{ .Values.AnalysisNodeAutoscaling.dryRun }}"
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]

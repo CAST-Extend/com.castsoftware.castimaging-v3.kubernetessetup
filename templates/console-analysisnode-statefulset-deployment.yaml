@@ -80,6 +80,10 @@ spec:
       securityContext:
         fsGroup: 10001
         fsGroupChangePolicy: OnRootMismatch
+{{- with .Values.SharedVolumeSELinuxLevel }}
+        seLinuxOptions:
+          level: {{ . | quote }}
+{{- end }}
 {{- if .Values.RestrictedSecurityMode }}
         runAsNonRoot: true
         runAsUser: 10001
@@ -88,7 +92,7 @@ spec:
           type: RuntimeDefault
 {{- end }}
       initContainers:
-{{- if .Values.RestrictedSecurityMode }}    
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: init-folders
           image: "{{.Values.ConsoleAnalysisNodeImage.name}}:{{.Values.ConsoleAnalysisNodeImage.tag}}"
           imagePullPolicy: "{{.Values.ConsoleAnalysisNodeImage.pullPolicy}}"
@@ -102,7 +106,7 @@ spec:
             - name: carl-dir
               mountPath: /carl-volume
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
@@ -144,7 +148,7 @@ spec:
             echo "Done."
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
@@ -198,7 +202,7 @@ spec:
             psql -h "$PG_HOST" -p "$PG_PORT" -U operator -d postgres -f /home/imaging/sql/analysisnode-upgrade-script.sql
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
@@ -271,7 +275,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsNonRoot: true
             runAsUser: 10001
             runAsGroup: 10001
@@ -283,7 +287,7 @@ spec:
           resources:
             {{- toYaml .Values.AnalysisNodeResources | nindent 12 }}
           volumeMounts:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: carl-dir
               mountPath: /home/carl
             - name: tmp
@@ -311,7 +315,7 @@ spec:
         - name: imagepull-sec 
 {{- end }}         
       volumes:
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: carl-dir
           emptyDir: {}
         - name: tmp

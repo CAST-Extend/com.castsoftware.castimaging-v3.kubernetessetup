@@ -106,7 +106,7 @@ spec:
             echo "console-control-panel is healthy!"
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65532
             runAsGroup: 65532
             allowPrivilegeEscalation: false
@@ -205,7 +205,7 @@ spec:
               protocol: TCP
 {{- if .Values.RestrictedSecurityMode }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: {{ include "imaging.readOnlyRootFS" $ }}
             runAsUser: 65532
             runAsGroup: 65532
             allowPrivilegeEscalation: false
@@ -218,7 +218,7 @@ spec:
           volumeMounts:
             - mountPath: /opt/cast/imaging-services/logs/auth-service
               name: authenticationservice-logs
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -228,7 +228,7 @@ spec:
         - name: authenticationservice-logs
           persistentVolumeClaim:
             claimName: pvc-authenticationservice-logs
-{{- if .Values.RestrictedSecurityMode }}
+{{- if eq (include "imaging.readOnlyRootFS" $) "true" }}
         - name: tmp
           emptyDir: {}
         - name: run
